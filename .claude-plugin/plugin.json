@@ -1,0 +1,25 @@
+{
+  "name": "awesome-slash-commands",
+  "version": "1.0.0",
+  "description": "Professional-grade slash commands for Claude Code that work across any project",
+  "author": {
+    "name": "Avi Fenesh",
+    "email": "",
+    "url": "https://github.com/avifenesh"
+  },
+  "homepage": "https://github.com/avifenesh/awsome-slash",
+  "repository": "https://github.com/avifenesh/awsome-slash",
+  "license": "MIT",
+  "keywords": [
+    "ci-cd",
+    "deployment",
+    "code-review",
+    "automation",
+    "developer-productivity",
+    "pr-workflow",
+    "task-management",
+    "code-quality",
+    "platform-detection",
+    "zero-configuration"
+  ]
+}
