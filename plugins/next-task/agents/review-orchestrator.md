@@ -2,7 +2,7 @@
 name: review-orchestrator
 description: Orchestrate multi-agent code review with iteration loop. Coordinates code-reviewer, silent-failure-hunter, and test-analyzer agents until all critical/high issues are resolved.
 tools: Task, Bash(git:*), Read, Edit
-model: sonnet
+model: opus
 ---
 
 # Review Orchestrator Agent

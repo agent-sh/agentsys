@@ -2,7 +2,7 @@
 name: policy-selector
 description: Configure workflow policy via checkbox selection. Use this agent at the start of /next-task to gather user preferences for task source, priority, and stopping point.
 tools: Read, Bash(git:*)
-model: haiku
+model: sonnet
 ---
 
 # Policy Selector Agent
