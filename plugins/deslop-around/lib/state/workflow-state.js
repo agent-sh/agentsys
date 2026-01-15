@@ -229,30 +229,45 @@ function startPhase(phaseName, baseDir = process.cwd()) {
     return null;
   }
 
-  const now = new Date().toISOString();
+  const state = readState(baseDir);
+  const history = state?.phases?.history || [];
+
+  history.push({
+    phase: phaseName,
+    status: 'in_progress',
+    startedAt: new Date().toISOString(),
+    completedAt: null,
+    duration: null,
+    result: null
+  });
 
   return updateState({
     workflow: { status: 'in_progress' },
-    phases: {
-      current: phaseName,
-      history: [
-        ...(readState(baseDir)?.phases?.history || []),
-        {
-          phase: phaseName,
-          status: 'in_progress',
-          startedAt: now,
-          completedAt: null,
-          duration: null,
-          result: null
-        }
-      ]
-    },
-    checkpoints: {
-      canResume: true,
-      resumeFrom: phaseName,
-      resumeContext: null
-    }
+    phases: { current: phaseName, history },
+    checkpoints: { canResume: true, resumeFrom: phaseName, resumeContext: null }
   }, baseDir);
+}
+
+/**
+ * Update the current phase entry with completion data
+ * @param {Object} state - Current state
+ * @param {string} status - New status (completed/failed)
+ * @param {Object} result - Result data
+ * @returns {Object} Updated history
+ */
+function finalizePhaseEntry(state, status, result) {
+  const history = state.phases.history || [];
+  const entry = history[history.length - 1];
+
+  if (entry) {
+    const now = new Date().toISOString();
+    entry.status = status;
+    entry.completedAt = now;
+    entry.duration = new Date(now).getTime() - new Date(entry.startedAt).getTime();
+    entry.result = result;
+  }
+
+  return history;
 }
 
 /**
@@ -265,33 +280,13 @@ function completePhase(result = {}, baseDir = process.cwd()) {
   const state = readState(baseDir);
   if (!state) return null;
 
-  const now = new Date().toISOString();
-  const history = state.phases.history || [];
-  const currentPhaseEntry = history[history.length - 1];
-
-  if (currentPhaseEntry) {
-    const startTime = new Date(currentPhaseEntry.startedAt).getTime();
-    const endTime = new Date(now).getTime();
-
-    currentPhaseEntry.status = 'completed';
-    currentPhaseEntry.completedAt = now;
-    currentPhaseEntry.duration = endTime - startTime;
-    currentPhaseEntry.result = result;
-  }
-
-  // Determine next phase
+  const history = finalizePhaseEntry(state, 'completed', result);
   const currentIndex = PHASES.indexOf(state.phases.current);
   const nextPhase = currentIndex < PHASES.length - 1 ? PHASES[currentIndex + 1] : 'complete';
 
   return updateState({
-    phases: {
-      current: nextPhase,
-      history
-    },
-    checkpoints: {
-      resumeFrom: nextPhase,
-      resumeContext: null
-    }
+    phases: { current: nextPhase, history },
+    checkpoints: { resumeFrom: nextPhase, resumeContext: null }
   }, baseDir);
 }
 
@@ -306,19 +301,7 @@ function failPhase(reason, context = {}, baseDir = process.cwd()) {
   const state = readState(baseDir);
   if (!state) return null;
 
-  const now = new Date().toISOString();
-  const history = state.phases.history || [];
-  const currentPhaseEntry = history[history.length - 1];
-
-  if (currentPhaseEntry) {
-    const startTime = new Date(currentPhaseEntry.startedAt).getTime();
-    const endTime = new Date(now).getTime();
-
-    currentPhaseEntry.status = 'failed';
-    currentPhaseEntry.completedAt = now;
-    currentPhaseEntry.duration = endTime - startTime;
-    currentPhaseEntry.result = { error: reason };
-  }
+  const history = finalizePhaseEntry(state, 'failed', { error: reason });
 
   return updateState({
     workflow: { status: 'failed' },

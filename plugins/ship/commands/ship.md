@@ -24,33 +24,20 @@ When called with `--state-file`, integrates with workflow state for resume capab
 
 ```javascript
 const args = '$ARGUMENTS'.split(' ');
-const stateFileIdx = args.indexOf('--state-file');
-const stateFilePath = stateFileIdx >= 0 ? args[stateFileIdx + 1] : null;
+const stateIdx = args.indexOf('--state-file');
+const workflowState = stateIdx >= 0 ? require('${CLAUDE_PLUGIN_ROOT}/lib/state/workflow-state.js') : null;
 
-let workflowState = null;
-if (stateFilePath) {
-  workflowState = require('${CLAUDE_PLUGIN_ROOT}/lib/state/workflow-state.js');
+if (workflowState) {
   const state = workflowState.readState();
-
   if (state) {
-    console.log(`Workflow: ${state.workflow.id}`);
-    console.log(`Task: #${state.task?.id} - ${state.task?.title}`);
-    console.log(`Current phase: ${state.phases?.current}`);
-
-    // Skip phases already completed
-    const completedPhases = state.phases?.history?.map(h => h.phase) || [];
-    console.log(`Completed phases: ${completedPhases.join(', ')}`);
+    console.log(`Workflow: ${state.workflow.id} | Task: #${state.task?.id} | Phase: ${state.phases?.current}`);
   }
 }
 
-// Helper to update state at each phase
 function updatePhase(phase, result) {
-  if (workflowState) {
-    workflowState.startPhase(phase);
-    if (result) {
-      workflowState.completePhase(result);
-    }
-  }
+  if (!workflowState) return;
+  workflowState.startPhase(phase);
+  if (result) workflowState.completePhase(result);
 }
 ```
 

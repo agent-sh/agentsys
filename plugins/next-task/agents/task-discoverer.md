@@ -75,26 +75,19 @@ fi
 Filter tasks based on policy.priorityFilter:
 
 ```javascript
+const LABEL_MAPS = {
+  bugs: ['bug', 'fix', 'error', 'issue', 'defect'],
+  security: ['security', 'vulnerability', 'cve', 'auth'],
+  features: ['enhancement', 'feature', 'new', 'improvement']
+};
+
 function filterByPriority(tasks, filter) {
-  if (filter === 'continue' || filter === 'all') {
-    return tasks;
-  }
+  if (filter === 'continue' || filter === 'all') return tasks;
 
-  const labelMappings = {
-    'bugs': ['bug', 'fix', 'error', 'issue', 'defect'],
-    'security': ['security', 'vulnerability', 'cve', 'auth'],
-    'features': ['enhancement', 'feature', 'new', 'improvement']
-  };
-
-  const targetLabels = labelMappings[filter] || [];
-
+  const targetLabels = LABEL_MAPS[filter] || [];
   return tasks.filter(task => {
-    const taskLabels = (task.labels || []).map(l =>
-      (typeof l === 'string' ? l : l.name || '').toLowerCase()
-    );
-    return targetLabels.some(target =>
-      taskLabels.some(label => label.includes(target))
-    );
+    const labels = (task.labels || []).map(l => (l.name || l || '').toLowerCase());
+    return targetLabels.some(t => labels.some(l => l.includes(t)));
   });
 }
 ```

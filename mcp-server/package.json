@@ -1,0 +1,23 @@
+{
+  "name": "awesome-slash-mcp-server",
+  "version": "2.0.0",
+  "description": "MCP server for awesome-slash-commands - enables cross-platform AI assistant integration",
+  "main": "index.js",
+  "bin": {
+    "awesome-slash-mcp": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "claude",
+    "opencode",
+    "codex",
+    "ai-coding"
+  ],
+  "license": "MIT"
+}

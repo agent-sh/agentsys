@@ -439,29 +439,20 @@ workflowState.completePhase({ deliveryApproved: true });
 Launch ship workflow phases:
 
 ```javascript
+// Ship prep: rebase and push
 workflowState.startPhase('ship-prep');
-
-// Rebase on main
 await Bash({ command: 'git fetch origin && git rebase origin/main' });
 
-// Handle conflicts if any
 const conflicts = await Bash({ command: 'git diff --name-only --diff-filter=U' });
 if (conflicts) {
-  await Task({
-    subagent_type: "next-task:conflict-resolver",
-    model: "sonnet",
-    prompt: `Resolve merge conflicts: ${conflicts}`
-  });
+  await Task({ subagent_type: "next-task:conflict-resolver", model: "sonnet", prompt: `Resolve merge conflicts: ${conflicts}` });
 }
 
-// Push
 await Bash({ command: 'git push -u origin HEAD' });
-
 workflowState.completePhase({ pushed: true });
 
 // Create PR
 workflowState.startPhase('create-pr');
-
 const prResult = await Bash({
   command: `gh pr create --title "${state.task.title}" --body "$(cat <<'EOF'
 ## Summary
@@ -479,31 +470,16 @@ EOF
 });
 
 const prNumber = extractPRNumber(prResult);
-workflowState.updateState({
-  pr: { number: prNumber, url: prResult, state: 'open', ciStatus: 'pending' }
-});
-
+workflowState.updateState({ pr: { number: prNumber, url: prResult, state: 'open', ciStatus: 'pending' } });
 workflowState.completePhase({ prCreated: true, prNumber });
 
 // CI Monitoring
 workflowState.startPhase('ci-wait');
-
 await Task({
   subagent_type: "next-task:ci-monitor",
   model: "sonnet",
-  prompt: `Monitor CI and PR comments for PR #${prNumber}.
-
-Flow:
-1. Wait 180s for CI to start
-2. Check CI status and PR comments
-3. Fix any issues automatically
-4. Commit and push fixes
-5. Repeat until all green
-6. Max wait: 30 minutes
-
-Update workflow state throughout.`
+  prompt: `Monitor CI/PR comments for PR #${prNumber}. Wait 180s, check status, auto-fix issues, repeat until green (max 30min).`
 });
-
 workflowState.completePhase({ ciPassed: true });
 ```
 
@@ -636,33 +612,17 @@ Use \`/next-task --abort\` to cancel and cleanup.
 ## Helper Functions
 
 ```javascript
+const POLICY_MAPS = {
+  source: { 'Continue with defaults (Recommended)': 'gh-issues', 'GitHub Issues': 'gh-issues', 'Linear': 'linear', 'PLAN.md': 'tasks-md' },
+  priority: { 'Continue (Recommended)': 'continue', 'Bugs': 'bugs', 'Security': 'security', 'Features': 'features' },
+  stop: { 'Merged (Recommended)': 'merged', 'PR Created': 'pr-created', 'All Green': 'all-green', 'Deployed': 'deployed', 'Production': 'production' }
+};
+
 function mapPolicyResponses(answers) {
-  const sourceMap = {
-    'Continue with defaults (Recommended)': 'gh-issues',
-    'GitHub Issues': 'gh-issues',
-    'Linear': 'linear',
-    'PLAN.md': 'tasks-md'
-  };
-
-  const priorityMap = {
-    'Continue (Recommended)': 'continue',
-    'Bugs': 'bugs',
-    'Security': 'security',
-    'Features': 'features'
-  };
-
-  const stopMap = {
-    'Merged (Recommended)': 'merged',
-    'PR Created': 'pr-created',
-    'All Green': 'all-green',
-    'Deployed': 'deployed',
-    'Production': 'production'
-  };
-
   return {
-    taskSource: sourceMap[answers['Task Source']] || 'gh-issues',
-    priorityFilter: priorityMap[answers['Priority']] || 'continue',
-    stoppingPoint: stopMap[answers['Stop Point']] || 'merged',
+    taskSource: POLICY_MAPS.source[answers['Task Source']] || 'gh-issues',
+    priorityFilter: POLICY_MAPS.priority[answers['Priority']] || 'continue',
+    stoppingPoint: POLICY_MAPS.stop[answers['Stop Point']] || 'merged',
     mergeStrategy: 'squash',
     autoFix: true,
     maxReviewIterations: 3
@@ -670,9 +630,7 @@ function mapPolicyResponses(answers) {
 }
 
 function formatDuration(ms) {
-  const minutes = Math.floor(ms / 60000);
-  const seconds = Math.floor((ms % 60000) / 1000);
-  return `${minutes}m ${seconds}s`;
+  return `${Math.floor(ms / 60000)}m ${Math.floor((ms % 60000) / 1000)}s`;
 }
 ```
 

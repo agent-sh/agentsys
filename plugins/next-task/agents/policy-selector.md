@@ -181,55 +181,21 @@ if (ACTIVE_WORKFLOW) {
 Map user selections to policy values:
 
 ```javascript
+const MAPS = {
+  source: { 'Continue with defaults (Recommended)': 'gh-issues', 'GitHub Issues': 'gh-issues', 'Linear': 'linear', 'PLAN.md / tasks.md': 'tasks-md' },
+  priority: { 'Continue (Recommended)': 'continue', 'Bugs': 'bugs', 'Security': 'security', 'Features': 'features' },
+  stop: { 'Merged (Recommended)': 'merged', 'Implemented': 'implemented', 'PR Created': 'pr-created', 'All Green': 'all-green', 'Deployed': 'deployed', 'Production': 'production' }
+};
+
 function mapToPolicy(responses) {
-  const policy = {
-    taskSource: 'gh-issues',      // default
-    priorityFilter: 'continue',   // default
-    stoppingPoint: 'merged',      // default
+  return {
+    taskSource: MAPS.source[responses.taskSource] || 'gh-issues',
+    priorityFilter: MAPS.priority[responses.priority] || 'continue',
+    stoppingPoint: MAPS.stop[responses.stopPoint] || 'merged',
     mergeStrategy: 'squash',
     autoFix: true,
     maxReviewIterations: 3
   };
-
-  // Task source mapping
-  const sourceMap = {
-    'Continue with defaults (Recommended)': 'gh-issues',
-    'GitHub Issues': 'gh-issues',
-    'Linear': 'linear',
-    'PLAN.md / tasks.md': 'tasks-md'
-  };
-
-  // Priority mapping
-  const priorityMap = {
-    'Continue (Recommended)': 'continue',
-    'Bugs': 'bugs',
-    'Security': 'security',
-    'Features': 'features'
-  };
-
-  // Stop point mapping
-  const stopMap = {
-    'Merged (Recommended)': 'merged',
-    'Implemented': 'implemented',
-    'PR Created': 'pr-created',
-    'All Green': 'all-green',
-    'Deployed': 'deployed',
-    'Production': 'production'
-  };
-
-  if (responses.taskSource) {
-    policy.taskSource = sourceMap[responses.taskSource] || 'gh-issues';
-  }
-
-  if (responses.priority) {
-    policy.priorityFilter = priorityMap[responses.priority] || 'continue';
-  }
-
-  if (responses.stopPoint) {
-    policy.stoppingPoint = stopMap[responses.stopPoint] || 'merged';
-  }
-
-  return policy;
 }
 ```
 

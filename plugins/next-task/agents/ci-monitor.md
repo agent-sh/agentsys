@@ -14,14 +14,13 @@ based on typical CI run times.
 ## Configuration
 
 ```javascript
-const INITIAL_WAIT = 180000;      // 3 minutes initial wait
-const SUBSEQUENT_WAIT = 120000;   // 2 minutes between checks
-const MAX_WAIT_TIME = 1800000;    // 30 minutes max total wait
-const MAX_FIX_ITERATIONS = 5;     // Max fix attempts
+const INITIAL_WAIT = 180000;     // 3 min initial
+const SUBSEQUENT_WAIT = 120000;  // 2 min between checks
+const MAX_WAIT_TIME = 1800000;   // 30 min max
+const MAX_FIX_ITERATIONS = 5;
 
 const workflowState = require('${CLAUDE_PLUGIN_ROOT}/lib/state/workflow-state.js');
-const state = workflowState.readState();
-const PR_NUMBER = state.pr.number;
+const PR_NUMBER = workflowState.readState().pr.number;
 ```
 
 ## Phase 1: Initial CI Wait
