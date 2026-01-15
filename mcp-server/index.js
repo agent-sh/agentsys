@@ -158,7 +158,8 @@ const toolHandlers = {
       stoppingPoint: stoppingPoint || 'merged'
     };
 
-    const state = workflowState.createState(policy);
+    const state = workflowState.createState('next-task', policy);
+    workflowState.writeState(state);
 
     return {
       content: [{

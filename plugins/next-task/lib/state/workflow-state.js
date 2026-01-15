@@ -230,7 +230,12 @@ function startPhase(phaseName, baseDir = process.cwd()) {
   }
 
   const state = readState(baseDir);
-  const history = state?.phases?.history || [];
+  if (!state) {
+    console.error('No workflow state exists. Create a workflow first.');
+    return null;
+  }
+
+  const history = state.phases?.history || [];
 
   history.push({
     phase: phaseName,
