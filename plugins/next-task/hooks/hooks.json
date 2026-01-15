@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "A subagent has completed. Check the workflow state and determine the next action:\n\n1. If implementation-agent completed: Run pre-review gates (deslop-work + test-coverage-checker in parallel)\n2. If review-orchestrator completed with approval: Run delivery-validator\n3. If review-orchestrator completed without approval: Run deslop-work on fixes, then retry review\n4. If delivery-validator approved: Run docs-updater, then proceed to ship\n5. If delivery-validator rejected: Return to implementation with fix instructions\n\nThe workflow is fully autonomous - no human intervention after plan approval.\n\nReturn: {\"ok\": true} to continue the workflow."
+          }
+        ]
+      }
+    ]
+  }
+}
