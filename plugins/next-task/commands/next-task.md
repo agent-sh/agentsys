@@ -7,6 +7,20 @@ argument-hint: "[filter] [--include-blocked] [--implement]"
 
 Discover what to work on next with AI-powered task analysis and code validation.
 
+## ⚠️ WORKFLOW ENFORCEMENT (READ FIRST)
+
+When a user selects a task (via `--implement` or interactively), this skill triggers an **auto-performing workflow** that runs to completion. This is NOT a research task or regular conversation - it is a **complete implementation pipeline** identical to directly invoking `/ship`.
+
+**Required workflow when task is selected:**
+1. Create isolated worktree
+2. Implement the fix/feature automatically
+3. Run multi-agent review (3 agents, max 3 iterations)
+4. Invoke `/ship` for full PR workflow (all 12 phases)
+5. Monitor PR for comments, auto-iterate
+6. Clean up after merge
+
+**The agent must continue autonomously until PR is merged or explicitly cancelled.**
+
 ## Arguments
 
 Parse from $ARGUMENTS:
@@ -249,81 +263,307 @@ For each task:
 - Dependencies that must be done first
 - Estimated complexity
 
-## Phase 6: Optional Implementation Workflow
+## Phase 6: Auto-Performing Implementation Workflow
 
-If `--implement` flag provided:
+**CRITICAL**: When a task is selected (via `--implement` or user selection), this phase executes automatically like a direct `/ship` invocation. The agent MUST NOT drop into "regular session mode" - it must execute the full workflow end-to-end.
 
-### Prompt User for Selection
+If `--implement` flag provided OR user selects a task from recommendations:
+
+### Step 6.1: Prompt User for Selection
 
 ```markdown
 Select a task to implement (1-5), or 'cancel':
 ```
 
-Wait for user input.
+Wait for user input. Once selected, the **full workflow runs automatically** without further prompts.
 
-### Create Branch
+### Step 6.2: Setup Isolated Worktree
+
+**MANDATORY**: Create an isolated worktree for the implementation to avoid polluting the main working directory.
 
 ```bash
 TASK_NUMBER=142
 TASK_SLUG="fix-auth-timeout"
 BRANCH_NAME="feature/${TASK_SLUG}"
+WORKTREE_PATH="../worktrees/${TASK_SLUG}"
 
-git checkout -b $BRANCH_NAME
+# Create worktree with new branch
+git worktree add -b $BRANCH_NAME $WORKTREE_PATH
+
+# Change to worktree
+cd $WORKTREE_PATH
+
+echo "✓ Created isolated worktree: $WORKTREE_PATH"
+echo "✓ Working on branch: $BRANCH_NAME"
 ```
 
-### Generate Implementation Plan
+### Step 6.3: Generate Implementation Plan
 
-Based on selected task:
+Based on selected task, create a detailed implementation plan:
 
 ```markdown
 ## Implementation Plan: Fix Authentication Timeout Bug (#142)
 
-### Step 1: Investigate Current Implementation
+### Phase A: Investigation
 - Read src/auth/session.ts
 - Understand timeout logic
 - Identify bug location
 
-### Step 2: Implement Fix
+### Phase B: Implementation
 - Update timeout handling
 - Add proper error handling
 - Update types if needed
 
-### Step 3: Write Tests
+### Phase C: Testing
 - Add unit test for timeout scenario
 - Add integration test
 - Verify edge cases
 
-### Step 4: Verify & Ship
+### Phase D: Quality Gates → Ship
 - Run tests: npm test
 - Run type check: npm run check-types
-- Use /ship to create PR
+- Multi-agent review
+- Ship to production
 ```
 
-### Multi-Agent Implementation
+### Step 6.4: Multi-Agent Implementation (Auto-Executing)
 
-Use Task tool to launch specialized agents:
+Launch specialized agents **in sequence** - do NOT wait for user input between steps:
 
-1. **Code Exploration Agent**:
-   ```bash
-   Task(subagent_type="Explore", prompt="Analyze authentication timeout bug in src/auth/session.ts...")
-   ```
+#### 6.4.1: Code Exploration Agent
 
-2. **Implementation Agent**:
-   - Read current code
-   - Implement fix
-   - Write tests
+```javascript
+Task({
+  subagent_type: "Explore",
+  prompt: `Thoroughly analyze the codebase for task: ${TASK_TITLE}
 
-3. **Review Agent** (approval gate):
-   ```bash
-   Task(subagent_type="pr-review-toolkit:code-reviewer", prompt="Review authentication timeout fix...")
-   ```
+  GitHub Issue: #${TASK_NUMBER}
+  Description: ${TASK_DESCRIPTION}
 
-4. **If approved**: Call `/ship`
-   ```bash
-   Skill(skill="ship")
-   ```
+  Find:
+  - All related files
+  - Current implementation patterns
+  - Dependencies and imports
+  - Test file locations
+  - Similar implementations in codebase
 
-5. **If blocked**: Report issues, iterate
+  Report findings with file:line references.`
+})
+```
+
+Wait for completion, then proceed immediately to implementation.
+
+#### 6.4.2: Implementation Agent
+
+Implement the fix/feature directly (no user prompts):
+- Read current code
+- Implement changes following codebase patterns
+- Write/update tests
+- Run local tests to verify
+
+```bash
+# After implementation, run local tests
+if [ "$PROJECT_TYPE" = "nodejs" ]; then
+  $PACKAGE_MGR test
+elif [ "$PROJECT_TYPE" = "python" ]; then
+  pytest
+elif [ "$PROJECT_TYPE" = "rust" ]; then
+  cargo test
+fi
+
+if [ $? -ne 0 ]; then
+  echo "Local tests failed - fixing before proceeding..."
+  # Auto-fix test failures, then re-run
+fi
+```
+
+#### 6.4.3: Pre-Ship Quality Gate (Multi-Agent Review)
+
+**MANDATORY GATE**: All agents must approve before shipping.
+
+```javascript
+// Launch all 3 review agents in PARALLEL
+const reviewResults = await Promise.all([
+  Task({
+    subagent_type: "pr-review-toolkit:code-reviewer",
+    prompt: `Review implementation for task #${TASK_NUMBER}: ${TASK_TITLE}
+
+    Branch: ${BRANCH_NAME}
+    Changed files: ${CHANGED_FILES}
+
+    Check for:
+    - Code quality and best practices
+    - Potential bugs
+    - Adherence to project patterns
+
+    Report findings with file:line references.`
+  }),
+
+  Task({
+    subagent_type: "pr-review-toolkit:silent-failure-hunter",
+    prompt: `Review error handling for task #${TASK_NUMBER}
+
+    Check for:
+    - Empty catch blocks
+    - Swallowed promises
+    - Missing error propagation
+    - Generic error messages`
+  }),
+
+  Task({
+    subagent_type: "pr-review-toolkit:pr-test-analyzer",
+    prompt: `Review test coverage for task #${TASK_NUMBER}
+
+    Verify:
+    - New code has tests
+    - Edge cases covered
+    - Test quality (not just presence)`
+  })
+]);
+```
+
+### Step 6.5: Review Iteration Loop
+
+**AUTOMATIC ITERATION**: Fix issues and re-review until approved (max 3 iterations).
+
+```javascript
+let iteration = 1;
+const MAX_ITERATIONS = 3;
+
+while (iteration <= MAX_ITERATIONS) {
+  const issues = aggregateAgentFindings(reviewResults);
+
+  if (issues.critical.length === 0 && issues.high.length === 0) {
+    console.log("✓ All review agents approved");
+    break;
+  }
+
+  console.log(`\n## Review Iteration ${iteration}`);
+  console.log(`Auto-fixing ${issues.critical.length} critical and ${issues.high.length} high issues...`);
+
+  // Auto-fix issues (no user prompt)
+  for (const issue of [...issues.critical, ...issues.high]) {
+    await autoFixIssue(issue);
+  }
+
+  // Commit fixes
+  await exec(`git add . && git commit -m "fix: address review feedback (iteration ${iteration})"`);
+
+  // Re-run review agents
+  reviewResults = await reRunAgents();
+  iteration++;
+}
+
+if (hasRemainingIssues()) {
+  console.log("✗ Could not resolve all issues after 3 iterations");
+  console.log("Proceeding with remaining medium/low issues noted in PR");
+}
+```
+
+### Step 6.6: Ship (Invoke Full /ship Workflow)
+
+**MANDATORY**: Once review passes, invoke `/ship` with full 12-phase execution.
+
+```javascript
+// This is NOT optional - ship runs automatically
+Skill({
+  skill: "ship",
+  args: "" // Uses default squash strategy
+})
+```
+
+The `/ship` command will execute ALL 12 phases automatically:
+- Phase 1-3: Pre-flight, commit, create PR
+- Phase 4: Wait for CI
+- Phase 5: Additional review loop (ship has its own)
+- Phase 6: Merge PR
+- Phase 7-10: Deploy and validate (if multi-branch)
+- Phase 11-12: Cleanup and report
+
+### Step 6.7: Wait for PR Comments and Iterate
+
+**AFTER PR IS CREATED**: Monitor for reviewer comments and iterate.
+
+```javascript
+const PR_NUMBER = getPRNumber();
+let hasOpenComments = true;
+
+while (hasOpenComments) {
+  // Check for new comments every 2 minutes
+  console.log(`Monitoring PR #${PR_NUMBER} for reviewer comments...`);
+
+  await sleep(120000); // 2 minutes
+
+  const comments = await exec(`gh pr view ${PR_NUMBER} --json comments,reviews`);
+  const unresolvedComments = parseUnresolvedComments(comments);
+
+  if (unresolvedComments.length > 0) {
+    console.log(`\n## Addressing ${unresolvedComments.length} reviewer comments`);
+
+    for (const comment of unresolvedComments) {
+      console.log(`- ${comment.author}: ${comment.body.substring(0, 100)}...`);
+
+      // Auto-address comment
+      await addressComment(comment);
+    }
+
+    // Commit and push fixes
+    await exec(`git add . && git commit -m "fix: address reviewer feedback" && git push`);
+
+    // Reply to comments indicating they're addressed
+    for (const comment of unresolvedComments) {
+      await exec(`gh pr comment ${PR_NUMBER} --body "Addressed in latest commit"`);
+    }
+  } else {
+    // Check if PR is approved and merged
+    const prStatus = await exec(`gh pr view ${PR_NUMBER} --json state,mergedAt`);
+    if (prStatus.state === 'MERGED') {
+      hasOpenComments = false;
+      console.log("✓ PR merged successfully");
+    } else if (prStatus.state === 'CLOSED') {
+      hasOpenComments = false;
+      console.log("✗ PR was closed without merging");
+    }
+    // If still open with no comments, continue monitoring
+  }
+}
+```
+
+### Step 6.8: Worktree Cleanup
+
+After PR is merged:
+
+```bash
+# Return to main working directory
+cd $ORIGINAL_DIR
+
+# Remove worktree
+git worktree remove $WORKTREE_PATH --force
+
+# Delete local feature branch
+git branch -D $BRANCH_NAME 2>/dev/null || true
+
+echo "✓ Cleaned up worktree and branch"
+```
+
+### Workflow Enforcement Summary
+
+**When user selects a task, ALL of these happen automatically:**
+
+1. ✅ **Worktree created** - Isolated environment
+2. ✅ **Implementation** - Code changes made
+3. ✅ **Local tests** - Verified before PR
+4. ✅ **Multi-agent review** - 3 agents must approve
+5. ✅ **Review iteration** - Auto-fix until approved (max 3x)
+6. ✅ **Ship invoked** - Full 12-phase workflow
+7. ✅ **PR comment monitoring** - Wait and iterate on feedback
+8. ✅ **Worktree cleanup** - After merge
+
+**The agent MUST NOT:**
+- ❌ Drop to regular chat mode after selection
+- ❌ Ask user what to do next
+- ❌ Skip any of the above steps
+- ❌ Stop before PR is merged or explicitly cancelled
 
 ## Stale/Invalid Task Handling
 
@@ -451,7 +691,27 @@ git branch --show-current
 - ✅ Code validation prevents recommending completed work
 - ✅ Evidence-based prioritization
 - ✅ Graceful degradation without Linear/PLAN.md
-- ✅ Optional implementation workflow
+- ✅ **Auto-performing implementation workflow** (not optional once started)
+- ✅ **Worktree isolation** for all implementations
+- ✅ **Multi-agent review gates** with auto-iteration
+- ✅ **Full /ship integration** (all 12 phases)
+- ✅ **PR comment monitoring** and iteration loop
+- ✅ **Automatic cleanup** (worktree, branches)
 - ✅ Context-efficient commands
+
+## IMPORTANT: Workflow Enforcement
+
+When a user selects a task from recommendations, the implementation workflow is **NOT** a regular chat session. It is an **auto-performing pipeline** that:
+
+1. Runs to completion without user prompts (except for blocking errors)
+2. Uses the same enforcement as direct `/ship` invocation
+3. Maintains full context (worktree, branch, PR state) throughout
+4. Only stops when PR is merged or explicitly cancelled
+
+**The agent must NOT:**
+- Ask "what would you like to do next?" after task selection
+- Treat the selected task as a regular conversation topic
+- Skip worktree setup, review rounds, or ship invocation
+- Wait for user input between workflow phases
 
 Begin Phase 1 now.
