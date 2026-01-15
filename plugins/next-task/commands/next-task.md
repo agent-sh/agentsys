@@ -1,5 +1,5 @@
 ---
-description: Intelligent task prioritization with code validation
+description: Master workflow orchestrator with autonomous task-to-production automation
 argument-hint: "[filter] [--status] [--resume] [--abort] [--implement]"
 allowed-tools: Bash(git:*), Bash(gh:*), Bash(npm:*), Bash(node:*), Read, Write, Edit, Glob, Grep, Task, AskUserQuestion
 ---
@@ -8,22 +8,36 @@ allowed-tools: Bash(git:*), Bash(gh:*), Bash(npm:*), Bash(node:*), Read, Write, 
 
 Discover what to work on next and execute the complete implementation workflow.
 
-## ⚠️ WORKFLOW ENFORCEMENT
+## ⚠️ FULLY AUTONOMOUS WORKFLOW
 
-When a task is selected, this triggers an **auto-performing workflow** that runs to completion:
+When a task is selected, this triggers an **autonomous workflow** that runs to the policy-based stopping point.
+**NO human intervention from task selection until the workflow completes.**
+
+### Workflow Phases
 
 1. **Policy Selection** → Ask user preferences via checkboxes
-2. **Task Discovery** → Find and prioritize tasks
-3. **Worktree Setup** → Create isolated development environment
-4. **Exploration** → Deep codebase analysis (opus)
-5. **Planning** → Design implementation plan (opus)
-6. **User Approval** → Get plan approval
-7. **Implementation** → Execute the plan (opus)
-8. **Review Loop** → Multi-agent review until approved (opus)
-9. **Ship** → PR creation, CI monitoring, merge
-10. **Cleanup** → Remove worktree, update state
+2. **Task Discovery** → Find and prioritize tasks (user selects one)
+3. **Worktree Setup** → Create isolated development environment [sonnet]
+4. **Exploration** → Deep codebase analysis [opus]
+5. **Planning** → Design implementation plan [opus]
+6. **User Approval** → Get plan approval (LAST human interaction)
+7. **Implementation** → Execute the plan [opus]
+8. **Pre-Review Gates** → deslop-work + test-coverage-checker [sonnet]
+9. **Review Loop** → Multi-agent review until approved [opus]
+   - (After each iteration: deslop-work runs on fixes)
+10. **Delivery Validation** → Autonomous validation [sonnet]
+11. **Docs Update** → Update related documentation [sonnet]
+12. **Ship** → PR creation, CI monitoring, merge
+13. **Cleanup** → Remove worktree, update state
 
-**The agent continues autonomously until PR is merged or explicitly cancelled.**
+**After plan approval (Phase 6), everything runs autonomously until the policy-based stopping point.**
+
+### Human Interaction Points (ONLY THESE)
+1. `/next-task` call → Policy selection via checkboxes
+2. Task selection from ranked list
+3. Plan approval (EnterPlanMode/ExitPlanMode)
+
+**That's it - everything else is autonomous.**
 
 ## Arguments
 
@@ -358,6 +372,50 @@ workflowState.completePhase({
   implementationComplete: true,
   commits: commitCount
 });
+
+// NOTE: SubagentStop hook automatically triggers pre-review gates
+```
+
+## Phase 7.5: Pre-Review Gates (Triggered by SubagentStop Hook)
+
+After implementation-agent completes, the SubagentStop hook automatically runs:
+
+```javascript
+workflowState.startPhase('pre-review-gates');
+
+// Get changed files for analysis
+const changedFiles = await Bash({ command: 'git diff --name-only origin/main..HEAD' });
+
+// Run both quality gates in parallel
+const preReviewResults = await Promise.all([
+  // 1. Deslop Work - Clean AI slop from new code
+  Task({
+    subagent_type: "next-task:deslop-work",
+    model: "sonnet",
+    prompt: `Clean AI slop from new work (committed but unpushed changes).
+
+Files to analyze: ${changedFiles}
+
+Report issues found. Do NOT auto-fix - implementation-agent handles fixes if needed.`
+  }),
+
+  // 2. Test Coverage Checker - Validate test coverage
+  Task({
+    subagent_type: "next-task:test-coverage-checker",
+    model: "sonnet",
+    prompt: `Validate test coverage for new work.
+
+Files to analyze: ${changedFiles}
+
+Report coverage gaps. This is advisory - does not block workflow.`
+  })
+]);
+
+workflowState.completePhase({
+  slopIssues: preReviewResults[0].summary,
+  coverageGaps: preReviewResults[1].gaps,
+  preReviewContext: preReviewResults
+});
 ```
 
 ## Phase 8: Review Loop
@@ -373,6 +431,7 @@ await Task({
   prompt: `Orchestrate multi-agent code review.
 
 Changed files: ${changedFiles}
+Pre-review context: ${JSON.stringify(preReviewResults)}
 Max iterations: ${policy.maxReviewIterations || 3}
 
 Coordinate review:
@@ -389,6 +448,9 @@ Coordinate review:
 Output: Review approved or failed with remaining issues.`
 });
 
+// NOTE: SubagentStop hook triggers deslop-work after each iteration
+// If not approved, deslop-work runs on fixes before next iteration
+
 // Check if review passed
 if (reviewResult.approved) {
   workflowState.completePhase({ reviewApproved: true });
@@ -396,42 +458,85 @@ if (reviewResult.approved) {
   workflowState.failPhase('Review failed', reviewResult);
   return;
 }
+
+// NOTE: SubagentStop hook automatically triggers delivery-validator
 ```
 
-## Phase 9: Delivery Approval
+## Phase 9: Delivery Validation (Autonomous - Triggered by SubagentStop Hook)
 
-Quick check before shipping:
+After review-orchestrator approves, the SubagentStop hook automatically runs delivery validation:
 
 ```javascript
-workflowState.startPhase('delivery-approval');
+workflowState.startPhase('delivery-validation');
 
-const deliveryCheck = await AskUserQuestion({
-  questions: [{
-    header: "Ready to Ship",
-    question: "Implementation and review complete. Ready to create PR?",
-    options: [
-      { label: "Yes, ship it (Recommended)", description: "Create PR and continue workflow" },
-      { label: "Let me review first", description: "Pause for manual review" },
-      { label: "Abort", description: "Cancel workflow" }
-    ],
-    multiSelect: false
-  }]
+// NOTE: This runs AUTOMATICALLY via SubagentStop hook - NO human intervention
+const deliveryResult = await Task({
+  subagent_type: "next-task:delivery-validator",
+  model: "sonnet",
+  prompt: `Autonomously validate task completion and approve for shipping.
+
+Task: #${state.task.id} - ${state.task.title}
+Requirements: ${state.task.description}
+Changed files: ${changedFiles}
+Review result: Approved (all critical/high issues resolved)
+
+Validation checks:
+1. Review status - all critical/high resolved
+2. Tests pass - npm test succeeds
+3. Build passes - npm run build succeeds
+4. Task requirements met - compare implementation vs task description
+5. No regressions - test count >= before implementation
+
+Output: { approved: true/false, checks: {...}, reason: "..." }
+
+CRITICAL: If validation fails, return to implementation with fix instructions.
+NO human intervention - workflow retries automatically.`
 });
 
-if (deliveryCheck === 'Abort') {
-  workflowState.abortWorkflow('User cancelled before shipping');
-  return;
-}
-
-if (deliveryCheck === 'Let me review first') {
-  workflowState.updateState({
-    checkpoints: { canResume: true, resumeFrom: 'delivery-approval' }
+if (!deliveryResult.approved) {
+  // Return to implementation phase with specific fix instructions
+  workflowState.failPhase(deliveryResult.reason, {
+    needsWork: true,
+    fixInstructions: deliveryResult.fixInstructions,
+    recommendation: 'Return to implementation phase to address issues'
   });
-  console.log("Paused. Use /next-task --resume to continue.");
+
+  // Workflow automatically retries from implementation
+  // NO human intervention - fully autonomous
   return;
 }
 
-workflowState.completePhase({ deliveryApproved: true });
+workflowState.completePhase({ deliveryApproved: true, checks: deliveryResult.checks });
+
+// NOTE: SubagentStop hook automatically triggers docs-updater
+```
+
+## Phase 9.5: Docs Update (Triggered by SubagentStop Hook)
+
+After delivery-validator approves, the SubagentStop hook automatically runs docs update:
+
+```javascript
+workflowState.startPhase('docs-update');
+
+// NOTE: This runs AUTOMATICALLY via SubagentStop hook - NO human intervention
+await Task({
+  subagent_type: "next-task:docs-updater",
+  model: "sonnet",
+  prompt: `Update documentation related to recent changes.
+
+Task: #${state.task.id} - ${state.task.title}
+Changed files: ${changedFiles}
+
+Scope:
+1. Find docs that reference changed files/modules
+2. Update CHANGELOG.md with task entry
+3. Fix outdated code examples
+4. Update API documentation if needed
+
+Auto-fix safe updates. Flag complex changes for PR description.`
+});
+
+workflowState.completePhase({ docsUpdated: true });
 ```
 
 ## Phase 10-13: Ship (PR Creation, CI, Comments)
@@ -644,8 +749,13 @@ function formatDuration(ms) {
 - ✅ Worktree isolation
 - ✅ Multi-agent orchestration
 - ✅ Opus for complex tasks (explore, plan, implement, review)
-- ✅ Sonnet for operational tasks (worktree, monitoring)
-- ✅ Auto-performing to completion
+- ✅ Sonnet for operational/validation tasks (worktree, monitoring, quality gates)
+- ✅ **Fully autonomous after plan approval** - no human in the loop
 - ✅ Policy-based stopping points
+- ✅ Pre-review quality gates (deslop-work + test-coverage-checker)
+- ✅ Post-iteration deslop (cleans fixes before next review round)
+- ✅ Autonomous delivery validation (not manual approval)
+- ✅ Automatic docs update for changed code
+- ✅ SubagentStop hooks for workflow automation
 
 Begin workflow now.

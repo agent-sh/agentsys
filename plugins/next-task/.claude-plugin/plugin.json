@@ -1,7 +1,7 @@
 {
   "name": "next-task",
-  "version": "1.1.0",
-  "description": "Intelligent task prioritization with code validation",
+  "version": "2.1.0",
+  "description": "Master workflow orchestrator with autonomous task-to-production automation, quality gates, and multi-agent review",
   "author": {
     "name": "Avi Fenesh",
     "email": "[email protected]",
@@ -15,7 +15,11 @@
     "productivity",
     "prioritization",
     "github-issues",
-    "linear"
+    "linear",
+    "workflow",
+    "autonomous",
+    "code-review",
+    "quality-gates"
   ],
   "sharedLib": {
     "path": "lib",
@@ -23,6 +27,39 @@
   },
   "requires": [
     "lib/platform/detect-platform.js",
-    "lib/platform/verify-tools.js"
-  ]
+    "lib/platform/verify-tools.js",
+    "lib/state/workflow-state.js",
+    "lib/patterns/slop-patterns.js"
+  ],
+  "hooks": {
+    "SubagentStop": [
+      {
+        "matcher": "implementation-agent",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Implementation complete. Before proceeding to review, run pre-review quality gates:\n1. Launch deslop-work agent to clean AI slop from new work (committed but unpushed changes)\n2. Launch test-coverage-checker agent to validate test coverage\nRun both in parallel, then proceed to review-orchestrator."
+          }
+        ]
+      },
+      {
+        "matcher": "review-orchestrator",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Review iteration complete. Check the review result:\n- If APPROVED (critical=0, high=0): Run delivery-validator agent to autonomously validate task completion\n- If NOT APPROVED: Run deslop-work agent to clean any slop introduced by review fixes, then re-run review-orchestrator\nNo human intervention - workflow continues autonomously."
+          }
+        ]
+      },
+      {
+        "matcher": "delivery-validator",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Delivery validation complete. Check the result:\n- If APPROVED: Run docs-updater agent to update documentation related to changes, then proceed to ship phase\n- If NOT APPROVED: Return to implementation phase with the fix instructions from the validator\nNo human intervention - workflow continues autonomously."
+          }
+        ]
+      }
+    ]
+  }
 }

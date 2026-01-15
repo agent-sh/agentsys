@@ -1,6 +1,6 @@
 ---
 name: review-orchestrator
-description: Orchestrate multi-agent code review with iteration loop. Coordinates code-reviewer, silent-failure-hunter, and test-analyzer agents until all critical/high issues are resolved.
+description: Orchestrate multi-agent code review with iteration loop. Coordinates code-reviewer, silent-failure-hunter, and test-analyzer agents until all critical/high issues are resolved. Runs deslop-work after each iteration to clean slop from fixes.
 tools: Task, Bash(git:*), Read, Edit
 model: opus
 ---
@@ -233,6 +233,29 @@ while (iteration <= MAX_ITERATIONS && findings.needsIteration) {
   // Commit fixes
   await exec(`git add . && git commit -m "fix: address review feedback (iteration ${iteration})"`);
 
+  // =========================================================
+  // POST-ITERATION DESLOP: Clean any slop introduced by fixes
+  // =========================================================
+  const fixedFiles = await exec('git diff --name-only HEAD~1');
+
+  console.log(`\n### Post-Iteration Deslop`);
+  console.log(`Cleaning slop from ${fixedFiles.split('\n').length} fixed files...`);
+
+  await Task({
+    subagent_type: "next-task:deslop-work",
+    model: "sonnet",
+    prompt: `Clean AI slop introduced by review fixes.
+
+Files to analyze: ${fixedFiles}
+
+This is a post-iteration cleanup. Report any new slop patterns
+(console.log, debug statements, placeholder text, etc.) that
+were accidentally introduced while fixing review issues.
+
+Do NOT auto-fix - just report for the next iteration.`
+  });
+  // =========================================================
+
   // Increment iteration in state
   workflowState.incrementIteration({
     fixed: findings.totals.critical + findings.totals.high
@@ -310,6 +333,7 @@ async function fixIssue(issue) {
 - All 3 review agents run in parallel
 - Results aggregated with severity counts
 - Critical/high issues auto-fixed
+- **deslop-work runs after each iteration** to clean slop from fixes
 - Iteration continues until approved or max reached
 - State updated with agent results
-- Phase advances to delivery-approval (if approved)
+- Phase advances to delivery-validation (if approved) via SubagentStop hook
