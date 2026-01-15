@@ -272,34 +272,181 @@ const slopPatterns = {
 // Freeze the patterns object for V8 optimization
 deepFreeze(slopPatterns);
 
+// ============================================================================
+// Pre-indexed Maps for O(1) lookup performance (#18)
+// Built once at module load time, avoiding iteration on every lookup
+// ============================================================================
+
 /**
- * Get patterns for a specific language
+ * Pre-indexed patterns by language
+ * Key: language name (or 'universal' for language-agnostic patterns)
+ * Value: Object of pattern name -> pattern definition
+ */
+const _patternsByLanguage = new Map();
+
+/**
+ * Pre-indexed patterns by severity
+ * Key: severity level ('critical', 'high', 'medium', 'low')
+ * Value: Object of pattern name -> pattern definition
+ */
+const _patternsBySeverity = new Map();
+
+/**
+ * Pre-indexed patterns by autoFix strategy
+ * Key: autoFix type ('remove', 'replace', 'add_logging', 'flag', 'none')
+ * Value: Object of pattern name -> pattern definition
+ */
+const _patternsByAutoFix = new Map();
+
+/**
+ * Set of all available languages for O(1) existence check
+ */
+const _availableLanguages = new Set();
+
+/**
+ * Set of all available severity levels for O(1) existence check
+ */
+const _availableSeverities = new Set();
+
+// Build indexes at module load time
+(function buildIndexes() {
+  for (const [name, pattern] of Object.entries(slopPatterns)) {
+    // Index by language
+    const lang = pattern.language || 'universal';
+    if (!_patternsByLanguage.has(lang)) {
+      _patternsByLanguage.set(lang, {});
+    }
+    _patternsByLanguage.get(lang)[name] = pattern;
+    _availableLanguages.add(lang);
+    
+    // Index by severity
+    const severity = pattern.severity;
+    if (!_patternsBySeverity.has(severity)) {
+      _patternsBySeverity.set(severity, {});
+    }
+    _patternsBySeverity.get(severity)[name] = pattern;
+    _availableSeverities.add(severity);
+    
+    // Index by autoFix strategy
+    const autoFix = pattern.autoFix || 'none';
+    if (!_patternsByAutoFix.has(autoFix)) {
+      _patternsByAutoFix.set(autoFix, {});
+    }
+    _patternsByAutoFix.get(autoFix)[name] = pattern;
+  }
+})();
+
+// Freeze the index Sets
+Object.freeze(_availableLanguages);
+Object.freeze(_availableSeverities);
+
+/**
+ * Get patterns for a specific language (O(1) lookup via pre-indexed Map)
+ * Includes universal patterns that apply to all languages
  * @param {string} language - Language identifier ('javascript', 'python', 'rust', etc.)
- * @returns {Object} Filtered patterns
+ * @returns {Object} Filtered patterns (language-specific + universal)
  */
 function getPatternsForLanguage(language) {
-  const filtered = {};
-  for (const [name, pattern] of Object.entries(slopPatterns)) {
-    if (!pattern.language || pattern.language === language) {
-      filtered[name] = pattern;
-    }
-  }
-  return filtered;
+  const langPatterns = _patternsByLanguage.get(language) || {};
+  const universalPatterns = _patternsByLanguage.get('universal') || {};
+  
+  // Merge language-specific with universal patterns
+  return { ...universalPatterns, ...langPatterns };
 }
 
 /**
- * Get patterns by severity
+ * Get patterns for a specific language only (excludes universal patterns)
+ * @param {string} language - Language identifier
+ * @returns {Object} Language-specific patterns only
+ */
+function getPatternsForLanguageOnly(language) {
+  return _patternsByLanguage.get(language) || {};
+}
+
+/**
+ * Get universal patterns (apply to all languages)
+ * @returns {Object} Universal patterns
+ */
+function getUniversalPatterns() {
+  return _patternsByLanguage.get('universal') || {};
+}
+
+/**
+ * Get patterns by severity (O(1) lookup via pre-indexed Map)
  * @param {string} severity - Severity level ('critical', 'high', 'medium', 'low')
  * @returns {Object} Filtered patterns
  */
 function getPatternsBySeverity(severity) {
-  const filtered = {};
-  for (const [name, pattern] of Object.entries(slopPatterns)) {
-    if (pattern.severity === severity) {
-      filtered[name] = pattern;
-    }
+  return _patternsBySeverity.get(severity) || {};
+}
+
+/**
+ * Get patterns by autoFix strategy (O(1) lookup via pre-indexed Map)
+ * @param {string} autoFix - AutoFix strategy ('remove', 'replace', 'add_logging', 'flag', 'none')
+ * @returns {Object} Filtered patterns
+ */
+function getPatternsByAutoFix(autoFix) {
+  return _patternsByAutoFix.get(autoFix) || {};
+}
+
+/**
+ * Get patterns matching multiple criteria (language AND severity)
+ * @param {Object} criteria - Filter criteria
+ * @param {string} [criteria.language] - Language filter
+ * @param {string} [criteria.severity] - Severity filter
+ * @param {string} [criteria.autoFix] - AutoFix strategy filter
+ * @returns {Object} Patterns matching all criteria
+ */
+function getPatternsByCriteria(criteria = {}) {
+  let result = { ...slopPatterns };
+  
+  if (criteria.language) {
+    const langPatterns = getPatternsForLanguage(criteria.language);
+    result = Object.fromEntries(
+      Object.entries(result).filter(([name]) => name in langPatterns)
+    );
   }
-  return filtered;
+  
+  if (criteria.severity) {
+    const severityPatterns = getPatternsBySeverity(criteria.severity);
+    result = Object.fromEntries(
+      Object.entries(result).filter(([name]) => name in severityPatterns)
+    );
+  }
+  
+  if (criteria.autoFix) {
+    const autoFixPatterns = getPatternsByAutoFix(criteria.autoFix);
+    result = Object.fromEntries(
+      Object.entries(result).filter(([name]) => name in autoFixPatterns)
+    );
+  }
+  
+  return result;
+}
+
+/**
+ * Get all available languages
+ * @returns {Array<string>} List of language identifiers
+ */
+function getAvailableLanguages() {
+  return Array.from(_availableLanguages);
+}
+
+/**
+ * Get all available severity levels
+ * @returns {Array<string>} List of severity levels
+ */
+function getAvailableSeverities() {
+  return Array.from(_availableSeverities);
+}
+
+/**
+ * Check if patterns exist for a language
+ * @param {string} language - Language identifier
+ * @returns {boolean} True if patterns exist
+ */
+function hasLanguage(language) {
+  return _patternsByLanguage.has(language);
 }
 
 /**
@@ -320,7 +467,17 @@ function isFileExcluded(filePath, excludePatterns) {
 
 module.exports = {
   slopPatterns,
+  // Pre-indexed lookup functions (O(1) performance)
   getPatternsForLanguage,
+  getPatternsForLanguageOnly,
+  getUniversalPatterns,
   getPatternsBySeverity,
+  getPatternsByAutoFix,
+  getPatternsByCriteria,
+  // Metadata functions
+  getAvailableLanguages,
+  getAvailableSeverities,
+  hasLanguage,
+  // File exclusion
   isFileExcluded
 };

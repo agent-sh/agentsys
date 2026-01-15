@@ -294,11 +294,75 @@ const reviewPatterns = {
 // Freeze the patterns object for V8 optimization
 deepFreeze(reviewPatterns);
 
-// Pre-compute available frameworks Set for O(1) lookup
-const _availableFrameworks = null; // Lazy initialization
+// ============================================================================
+// Pre-indexed Maps for O(1) lookup performance (#18)
+// Built once at module load time, avoiding iteration on every lookup
+// ============================================================================
 
 /**
- * Get review patterns for a detected framework
+ * Pre-indexed patterns by category across all frameworks
+ * Key: category name (e.g., 'security', 'performance', 'error_handling')
+ * Value: Map of framework -> array of patterns
+ */
+const _patternsByCategory = new Map();
+
+/**
+ * Set of all frameworks for O(1) existence check
+ */
+const _frameworksSet = new Set(Object.keys(reviewPatterns));
+
+/**
+ * Set of all categories across all frameworks
+ */
+const _categoriesSet = new Set();
+
+/**
+ * Count of patterns per framework for quick stats
+ */
+const _patternCountByFramework = new Map();
+
+/**
+ * Flattened pattern index for full-text search
+ * Key: framework
+ * Value: array of { category, pattern } for all patterns
+ */
+const _flattenedPatterns = new Map();
+
+// Build indexes at module load time
+(function buildIndexes() {
+  for (const [framework, categories] of Object.entries(reviewPatterns)) {
+    let totalPatterns = 0;
+    const flattened = [];
+    
+    for (const [category, patterns] of Object.entries(categories)) {
+      _categoriesSet.add(category);
+      
+      // Index by category
+      if (!_patternsByCategory.has(category)) {
+        _patternsByCategory.set(category, new Map());
+      }
+      _patternsByCategory.get(category).set(framework, patterns);
+      
+      // Count patterns
+      totalPatterns += patterns.length;
+      
+      // Flatten for search
+      for (const pattern of patterns) {
+        flattened.push({ category, pattern });
+      }
+    }
+    
+    _patternCountByFramework.set(framework, totalPatterns);
+    _flattenedPatterns.set(framework, flattened);
+  }
+})();
+
+// Freeze the index Sets
+Object.freeze(_frameworksSet);
+Object.freeze(_categoriesSet);
+
+/**
+ * Get review patterns for a detected framework (O(1) lookup)
  * @param {string} framework - Framework name
  * @returns {Object|null} Patterns for framework or null if not found
  */
@@ -308,27 +372,140 @@ function getPatternsForFramework(framework) {
 }
 
 /**
- * Get all available frameworks
- * @returns {Array<string>} List of framework names
+ * Get patterns for a specific category across all frameworks
+ * @param {string} category - Category name (e.g., 'security', 'performance')
+ * @returns {Map<string, Array>} Map of framework -> patterns for that category
  */
-function getAvailableFrameworks() {
-  return Object.keys(reviewPatterns);
+function getPatternsByCategory(category) {
+  return _patternsByCategory.get(category) || new Map();
 }
 
 /**
- * Check if patterns exist for a framework
- * Uses cached Set for O(1) lookup performance
+ * Get patterns for a framework and category combination (O(1) lookup)
+ * @param {string} framework - Framework name
+ * @param {string} category - Category name
+ * @returns {Array|null} Array of pattern strings or null
+ */
+function getPatternsForFrameworkCategory(framework, category) {
+  const frameworkPatterns = reviewPatterns[framework.toLowerCase()];
+  if (!frameworkPatterns) return null;
+  return frameworkPatterns[category] || null;
+}
+
+/**
+ * Get all available frameworks (O(1) via pre-computed Set)
+ * @returns {Array<string>} List of framework names
+ */
+function getAvailableFrameworks() {
+  return Array.from(_frameworksSet);
+}
+
+/**
+ * Get all available categories across all frameworks
+ * @returns {Array<string>} List of category names
+ */
+function getAvailableCategories() {
+  return Array.from(_categoriesSet);
+}
+
+/**
+ * Get categories available for a specific framework
+ * @param {string} framework - Framework name
+ * @returns {Array<string>} List of category names for the framework
+ */
+function getCategoriesForFramework(framework) {
+  const frameworkPatterns = reviewPatterns[framework.toLowerCase()];
+  if (!frameworkPatterns) return [];
+  return Object.keys(frameworkPatterns);
+}
+
+/**
+ * Check if patterns exist for a framework (O(1) lookup)
  * @param {string} framework - Framework name
  * @returns {boolean} True if patterns available
  */
 function hasPatternsFor(framework) {
   if (typeof framework !== 'string') return false;
-  return framework.toLowerCase() in reviewPatterns;
+  return _frameworksSet.has(framework.toLowerCase());
+}
+
+/**
+ * Check if a category exists across any framework (O(1) lookup)
+ * @param {string} category - Category name
+ * @returns {boolean} True if category exists
+ */
+function hasCategory(category) {
+  return _categoriesSet.has(category);
+}
+
+/**
+ * Get pattern count for a framework
+ * @param {string} framework - Framework name
+ * @returns {number} Number of patterns
+ */
+function getPatternCount(framework) {
+  return _patternCountByFramework.get(framework.toLowerCase()) || 0;
+}
+
+/**
+ * Get total pattern count across all frameworks
+ * @returns {number} Total pattern count
+ */
+function getTotalPatternCount() {
+  let total = 0;
+  for (const count of _patternCountByFramework.values()) {
+    total += count;
+  }
+  return total;
+}
+
+/**
+ * Search patterns by keyword across all frameworks
+ * @param {string} keyword - Search term (case-insensitive)
+ * @returns {Array<{framework: string, category: string, pattern: string}>} Matching patterns
+ */
+function searchPatterns(keyword) {
+  const lowerKeyword = keyword.toLowerCase();
+  const results = [];
+  
+  for (const [framework, patterns] of _flattenedPatterns) {
+    for (const { category, pattern } of patterns) {
+      if (pattern.toLowerCase().includes(lowerKeyword)) {
+        results.push({ framework, category, pattern });
+      }
+    }
+  }
+  
+  return results;
+}
+
+/**
+ * Get frameworks that have a specific category
+ * @param {string} category - Category name
+ * @returns {Array<string>} List of frameworks with this category
+ */
+function getFrameworksWithCategory(category) {
+  const categoryMap = _patternsByCategory.get(category);
+  if (!categoryMap) return [];
+  return Array.from(categoryMap.keys());
 }
 
 module.exports = {
   reviewPatterns,
+  // Pre-indexed lookup functions (O(1) performance)
   getPatternsForFramework,
+  getPatternsByCategory,
+  getPatternsForFrameworkCategory,
+  // Metadata functions
   getAvailableFrameworks,
-  hasPatternsFor
+  getAvailableCategories,
+  getCategoriesForFramework,
+  hasPatternsFor,
+  hasCategory,
+  // Stats functions
+  getPatternCount,
+  getTotalPatternCount,
+  // Search functions
+  searchPatterns,
+  getFrameworksWithCategory
 };
