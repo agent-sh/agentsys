@@ -163,13 +163,21 @@ describe('workflow-state', () => {
       expect(updated.phases.history[0].status).toBe('in_progress');
     });
 
-    it('should reject invalid phase names', () => {
+    it('should reject invalid phase names and leave state unchanged', () => {
       const state = workflowState.createState();
       workflowState.writeState(state, testDir);
 
+      // Capture state before failed operation
+      const stateBefore = workflowState.readState(testDir);
+
       const result = workflowState.startPhase('invalid-phase', testDir);
 
+      // Verify operation failed
       expect(result).toBeNull();
+
+      // Verify state unchanged - no partial writes occurred
+      const stateAfter = workflowState.readState(testDir);
+      expect(stateAfter).toStrictEqual(stateBefore);
     });
   });
 
