@@ -1,6 +1,6 @@
 ---
 name: review-orchestrator
-description: Orchestrate multi-agent code review with iteration loop. Coordinates code-reviewer, silent-failure-hunter, and test-analyzer agents until all critical/high issues are resolved. Runs deslop-work after each iteration to clean slop from fixes.
+description: Orchestrate multi-agent code review. Use this agent after implementation to coordinate code-reviewer, silent-failure-hunter, and test-analyzer until all critical/high issues are resolved.
 tools: Task, Bash(git:*), Read, Edit
 model: opus
 ---
@@ -328,6 +328,114 @@ async function fixIssue(issue) {
 }
 ```
 
+## Output Format (JSON)
+
+```json
+{
+  "status": "approved",
+  "iterations": 2,
+  "agents": {
+    "codeReviewer": {
+      "status": "completed",
+      "findings": { "critical": 0, "high": 0, "medium": 2, "low": 3 }
+    },
+    "silentFailureHunter": {
+      "status": "completed",
+      "findings": { "critical": 0, "high": 0, "medium": 1, "low": 0 }
+    },
+    "testAnalyzer": {
+      "status": "completed",
+      "findings": { "critical": 0, "high": 0, "medium": 0, "low": 2 }
+    }
+  },
+  "summary": {
+    "totalIssuesFound": 12,
+    "issuesFixed": 4,
+    "remainingIssues": {
+      "critical": 0,
+      "high": 0,
+      "medium": 3,
+      "low": 5
+    }
+  },
+  "fixedIssues": [
+    {
+      "file": "src/api/client.ts",
+      "line": 42,
+      "severity": "critical",
+      "category": "security",
+      "description": "Hardcoded API key in source",
+      "fixApplied": "Moved to environment variable"
+    },
+    {
+      "file": "src/utils/parser.ts",
+      "line": 87,
+      "severity": "high",
+      "category": "bug",
+      "description": "Unhandled null case in parse function",
+      "fixApplied": "Added null check with early return"
+    }
+  ],
+  "notesForPR": [
+    "Medium: Consider extracting duplicated logic in src/handlers/*.ts",
+    "Low: Variable naming could be more descriptive in parser.ts"
+  ]
+}
+```
+
+## ⛔ WORKFLOW GATES - READ CAREFULLY
+
+### Prerequisites (MUST be true before this agent runs)
+
+```
+✓ implementation-agent completed
+✓ deslop-work ran on new code
+✓ test-coverage-checker ran (advisory)
+```
+
+### What This Agent MUST NOT Do
+
+```
+╔══════════════════════════════════════════════════════════════════╗
+║  ⛔ DO NOT CREATE A PULL REQUEST                                 ║
+║  ⛔ DO NOT PUSH TO REMOTE                                        ║
+║  ⛔ DO NOT SKIP TO SHIPPING                                      ║
+║  ⛔ DO NOT INVOKE delivery-validator YOURSELF                    ║
+╚══════════════════════════════════════════════════════════════════╝
+```
+
+### Required Workflow Position
+
+```
+implementation-agent
+        ↓
+   Pre-review gates (deslop-work + test-coverage-checker)
+        ↓
+review-orchestrator (YOU ARE HERE)
+        ↓
+   [STOP WHEN APPROVED]
+        ↓
+   SubagentStop hook triggers automatically
+        ↓
+   delivery-validator (must approve)
+        ↓
+   docs-updater
+        ↓
+   /ship command (creates PR)
+```
+
+### Required Handoff
+
+When review is APPROVED (all critical/high resolved), you MUST:
+1. Update workflow state with `reviewApproved: true`
+2. Output the approval summary
+3. **STOP** - the SubagentStop hook will trigger delivery-validator
+
+If review FAILED (max iterations reached), you MUST:
+1. Update workflow state with failure
+2. Report remaining issues
+3. **STOP** - workflow will handle retry/escalation
+
 ## Success Criteria
 
 - All 3 review agents run in parallel
@@ -336,4 +444,12 @@ async function fixIssue(issue) {
 - **deslop-work runs after each iteration** to clean slop from fixes
 - Iteration continues until approved or max reached
 - State updated with agent results
-- Phase advances to delivery-validation (if approved) via SubagentStop hook
+- **STOP after approval** - SubagentStop hook advances to delivery-validator
+
+## Model Choice: Opus
+
+This agent uses **opus** because:
+- Coordinates multiple specialized review agents
+- Must aggregate and prioritize findings intelligently
+- Fixing issues requires understanding code context
+- Iteration decisions need judgment about when to stop

@@ -319,66 +319,73 @@ Total time: 8 minutes
 
 ---
 
-## Example 5: Merge Someone Else's PR
+## Example 5: Full Autonomous Workflow with /next-task
 
-**Scenario**: A teammate created a PR that needs review and merging.
+**Scenario**: You want Claude to handle the entire development workflow autonomously.
 
 ### In Claude Code Chat:
 
 ```
-You: /pr-merge 143
+You: /next-task
 ```
 
 **Claude's Response:**
 ```
-Loading PR #143: "Add user profile page" by @teammate
+## Policy Selection
 
-PR Details:
-- Files changed: 5
-- Commits: 3
-- Status: Open
-- CI: ✓ Passed
-- Reviews: 1 approval, 1 comment
+Select workflow preferences:
+[x] Task source: GitHub Issues
+[x] Priority: Bugs first
+[x] Stop at: PR merged
 
-Review comments found:
-1. @reviewer: "Can we add validation for the email field?"
-2. @reviewer: "Looks good! ✓"
+## Task Discovery
 
-Addressing review comment...
-✓ Added email validation to profile form
-✓ Added test for email validation
-✓ Pushed changes
-✓ Commented on PR: "Added email validation as requested"
+Found 5 open issues:
+1. #142 [bug] Fix authentication timeout (high priority)
+2. #138 [feature] Add dark mode toggle
+3. #135 [bug] Form validation error message
+4. #130 [feature] Export to CSV
+5. #127 [docs] Update API reference
 
-Running quality validation agents...
-- code-quality: ✓ approved
-- security: ✓ approved
-- test-coverage: ✓ approved (coverage maintained at 92%)
+Select a task: #142
 
-All checks passed, ready to merge!
+## Worktree Setup
+✓ Created worktree at ../worktrees/fix-auth-timeout-142
+✓ Claimed task in tasks.json registry
 
-Merging PR #143...
-✓ Merged to main (squash)
-✓ Branch deleted
+## Exploration
+Analyzing codebase for authentication-related code...
+✓ Found key files: src/auth/*, src/middleware/auth.ts
 
-Testing development deployment...
-⏳ Waiting for deployment...
-✓ Development deployed and validated
+## Planning
+Entering plan mode for user approval...
 
-Merging to production...
-✓ Merged main → stable
-⏳ Waiting for production deployment...
-✓ Production deployed and validated
+[Plan presented to user for approval]
 
-✓ PR #143 MERGED AND DEPLOYED!
+## Implementation (After approval)
+✓ Fixed timeout in auth middleware
+✓ Added retry logic
+✓ Committed changes
 
-Summary:
-- Addressed review comments
-- All validation passed
-- Deployed to development and production
-- Feature is live
+## Quality Gates
+✓ Deslop: Cleaned debug statements
+✓ Test coverage: 94% (tests exercise new code)
 
-Team member @teammate notified of successful merge.
+## Review Loop
+- code-reviewer: 1 high issue found
+✓ Fixed high priority issue
+✓ Deslop after fix
+- code-reviewer: ✓ Approved
+
+## Delivery Validation
+✓ Tests pass
+✓ Build passes
+✓ Lint passes
+
+## Docs Update
+✓ Updated CHANGELOG.md
+
+Passing to /ship for PR workflow...
 ```
 
 ---
@@ -516,11 +523,11 @@ Claude: Now only 3 medium issues remain
 4. /project-review           # Full audit
 ```
 
-### PR Review
+### Ship Your Work
 ```
-1. /pr-merge 123             # Review and merge teammate's PR
-2. Validate deployment
-3. Monitor production
+1. /ship                     # Complete PR workflow
+2. Wait for CI and merge
+3. Monitor deployment
 ```
 
 ---

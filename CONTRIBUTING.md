@@ -95,7 +95,6 @@ awsome-claude-slash/
 │   │   ├── commands/
 │   │   └── lib/         # Copy of shared lib (DO NOT edit directly)
 │   ├── next-task/
-│   ├── pr-merge/
 │   ├── project-review/
 │   └── ship/
 ├── adapters/            # Codex/OpenCode adapters
@@ -203,7 +202,7 @@ function detectCI() {
    }
    ```
 
-2. Update `/ship` and `/pr-merge` commands
+2. Update `/ship` command
 
 3. Test deployment validation
 

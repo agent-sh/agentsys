@@ -102,28 +102,6 @@ codex
 
 ---
 
-### 🔀 `/pr-merge` - Intelligent PR Merge
-
-Merge PRs with comprehensive validation.
-
-```bash
-codex
-> /pr-merge
-> /pr-merge 123
-> /pr-merge 123 --strategy rebase
-```
-
-**What it does:**
-- Addresses review comments
-- Runs validation agents
-- Waits for CI
-- Tests deployments
-- Auto-rollback on failure
-
-**Requires:** Git, GitHub CLI (`gh`)
-
----
-
 ## Installation Details
 
 The installer:
@@ -140,8 +118,7 @@ The installer:
 │   ├── deslop-around.md
 │   ├── next-task.md
 │   ├── project-review.md
-│   ├── ship.md
-│   └── pr-merge.md
+│   └── ship.md
 ├── lib/
 │   ├── platform/
 │   │   ├── detect-platform.js

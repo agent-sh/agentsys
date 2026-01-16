@@ -303,10 +303,52 @@ workflowState.updateState({
 });
 ```
 
+## ⛔ WORKFLOW GATES - READ CAREFULLY
+
+### What This Agent MUST NOT Do
+
+```
+╔══════════════════════════════════════════════════════════════════╗
+║  ⛔ DO NOT CREATE A PULL REQUEST                                 ║
+║  ⛔ DO NOT PUSH TO REMOTE                                        ║
+║  ⛔ DO NOT RUN REVIEW AGENTS YOURSELF                            ║
+║  ⛔ DO NOT SKIP TO SHIPPING                                      ║
+╚══════════════════════════════════════════════════════════════════╝
+```
+
+This agent's job is ONLY to implement and commit locally. The workflow continues:
+
+```
+implementation-agent (YOU ARE HERE)
+        ↓
+   [STOP HERE]
+        ↓
+   SubagentStop hook triggers automatically
+        ↓
+   Pre-review gates: deslop-work + test-coverage-checker
+        ↓
+   review-orchestrator (must approve)
+        ↓
+   delivery-validator (must approve)
+        ↓
+   docs-updater
+        ↓
+   /ship command (creates PR)
+```
+
+### Required Handoff
+
+When implementation is complete, you MUST:
+1. Update workflow state with `implementationComplete: true`
+2. Output the completion summary below
+3. **STOP** - the SubagentStop hook will trigger the next phase
+
+DO NOT invoke any other agents. DO NOT proceed to review yourself.
+
 ## Output Format
 
 ```markdown
-## Implementation Complete
+## Implementation Complete - Awaiting Review
 
 **Task**: #${task.id} - ${task.title}
 
@@ -328,7 +370,13 @@ ${changes.map(c => `- ${c.file}: ${c.description}`).join('\n')}
 ### Git Log
 ${gitLog}
 
-Proceeding to review phase...
+---
+⏸️ STOPPING HERE - SubagentStop hook will trigger pre-review gates
+   → deslop-work + test-coverage-checker (parallel)
+   → review-orchestrator
+   → delivery-validator
+   → docs-updater
+   → /ship
 ```
 
 ## Quality Checklist
@@ -345,3 +393,11 @@ Before marking implementation complete:
 - [ ] No debug code or console.logs left
 - [ ] No commented-out code
 - [ ] Documentation updated if needed
+
+## Model Choice: Opus
+
+This agent uses **opus** because:
+- Writing production code requires understanding context deeply
+- Must follow existing patterns accurately
+- Error handling and edge cases need careful reasoning
+- Most impactful phase - mistakes here are costly

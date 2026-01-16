@@ -48,10 +48,9 @@ You'll see:
 ```
 Available Commands:
 - /deslop-around - Cleanup AI slop
-- /next-task - Intelligent task prioritization
+- /next-task - Master workflow orchestrator
 - /project-review - Multi-agent code review
-- /ship - Complete PR workflow
-- /pr-merge - Intelligent PR merge
+- /ship - Complete PR workflow (commit to production)
 ```
 
 ### Try Your First Command
@@ -96,7 +95,6 @@ Would you like to apply fixes?
 
 **4. Shipping & Deployment**
 - `/ship` - Complete workflow: commit → PR → CI → merge → deploy
-- `/pr-merge` - Merge existing PRs with validation
 
 ### When to Use Each
 
@@ -124,10 +122,10 @@ Would you like to apply fixes?
 # Handles everything: PR, CI, merge, deploy, validate
 ```
 
-**Reviewing Teammate's PR:**
+**Reviewing Code:**
 ```
-/pr-merge 123
-# Validates and merges with testing
+/project-review
+# Multi-agent code review with specialized agents
 ```
 
 ---
@@ -249,14 +247,6 @@ Total time: 8 minutes
 /ship --strategy rebase        # Use rebase instead of squash
 ```
 
-### `/pr-merge`
-
-```bash
-/pr-merge                      # Auto-detect PR from branch
-/pr-merge 123                  # Merge specific PR
-/pr-merge 123 --skip-validation  # Skip deployment checks (dangerous!)
-```
-
 ---
 
 ## Part 7: Tips for Success
@@ -325,11 +315,6 @@ Your code is cleaned, reviewed, and deployed!
 /deslop-around → /project-review → /ship
 ```
 
-**For Teammate PRs:**
-```
-/pr-merge <number>
-```
-
 **For Planning:**
 ```
 /next-task → pick task → /next-task --implement
@@ -350,7 +335,7 @@ cd your-project/
 git status
 ```
 
-### Required for /ship and /pr-merge
+### Required for /ship
 
 ```bash
 # Install GitHub CLI
@@ -423,8 +408,7 @@ gh auth login
 **This is normal!**
 - `/ship`: 5-15 min (includes CI wait)
 - `/project-review`: 2-5 min (thorough analysis)
-- `/pr-merge`: 3-10 min (includes validation)
-- `/next-task`: 10-30 sec
+- `/next-task`: 10-30 min (full workflow with review)
 - `/deslop-around`: 30-60 sec
 
 ---

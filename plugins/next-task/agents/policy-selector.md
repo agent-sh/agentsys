@@ -2,7 +2,7 @@
 name: policy-selector
 description: Configure workflow policy via checkbox selection. Use this agent at the start of /next-task to gather user preferences for task source, priority, and stopping point.
 tools: Read, Bash(git:*)
-model: sonnet
+model: haiku
 ---
 
 # Policy Selector Agent
@@ -238,3 +238,11 @@ Proceeding to task discovery...
 - First option is always "Continue with defaults"
 - Policy is saved to workflow state
 - Phase advances to task-discovery
+
+## Model Choice: Haiku
+
+This agent uses **haiku** because:
+- Displays pre-defined checkbox options (no reasoning needed)
+- Simply captures user selections and saves to state
+- No complex analysis or decision-making
+- Fast response improves UX for interactive prompts

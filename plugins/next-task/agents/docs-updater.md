@@ -1,7 +1,7 @@
 ---
 name: docs-updater
-description: Update documentation related to recent code changes. Runs after delivery validation. Focuses only on docs relevant to modified files.
-tools: Bash(git:*), Read, Write, Edit, Grep, Glob
+description: Update documentation related to recent code changes. Use this agent after delivery validation to sync docs with modified files.
+tools: Bash(git:*), Read, Grep, Glob, Task
 model: sonnet
 ---
 
@@ -10,6 +10,10 @@ model: sonnet
 Update documentation that relates to the work done.
 Unlike `/update-docs-around` which syncs all docs, this agent focuses specifically
 on documentation related to the files modified in the current workflow.
+
+**Architecture**: Sonnet discovers → Haiku executes
+- This agent (sonnet): Find related docs, analyze issues, create fix list
+- simple-fixer (haiku): Execute simple updates mechanically
 
 ## Scope
 
@@ -220,31 +224,69 @@ async function updateChangelog(task) {
 }
 ```
 
-## Phase 6: Apply Safe Updates
+## Phase 6: Create Fix List
 
-Auto-fix issues where safe to do so:
+Build a structured fix list for simple-fixer:
 
 ```javascript
-async function applySafeUpdates(issues) {
-  const applied = [];
-  const flagged = [];
+function createDocFixList(issues) {
+  const fixList = {
+    fixes: [],
+    commitMessage: 'docs: update documentation for recent changes'
+  };
 
   for (const issue of issues) {
-    if (issue.type === 'outdated-import' && issue.newPath) {
-      // Safe to auto-fix import paths
-      await editFile(issue.docFile, issue.current, issue.newPath);
-      applied.push(issue);
-    } else if (issue.type === 'changelog-missing') {
-      // Safe to add changelog entry
-      await updateChangelog(issue.task);
-      applied.push(issue);
-    } else {
-      // Flag for manual review
-      flagged.push(issue);
+    switch (issue.type) {
+      case 'outdated-import':
+        if (issue.newPath) {
+          fixList.fixes.push({
+            file: issue.docFile,
+            line: issue.line,
+            action: 'replace',
+            old: issue.current,
+            new: issue.newPath,
+            reason: 'Update import path'
+          });
+        }
+        break;
+
+      case 'outdated-version':
+        fixList.fixes.push({
+          file: issue.docFile,
+          line: issue.line,
+          action: 'replace',
+          old: issue.oldVersion,
+          new: issue.newVersion,
+          reason: 'Update version number'
+        });
+        break;
     }
   }
 
-  return { applied, flagged };
+  return fixList;
+}
+```
+
+## Phase 7: Delegate Fixes to simple-fixer (haiku)
+
+```javascript
+async function applyDocUpdates(fixList, flaggedIssues) {
+  if (fixList.fixes.length === 0) {
+    console.log("No auto-fixable documentation issues.");
+    return { applied: 0, flagged: flaggedIssues.length };
+  }
+
+  console.log(`\n## Delegating ${fixList.fixes.length} doc fixes to simple-fixer (haiku)`);
+
+  const result = await Task({
+    subagent_type: 'simple-fixer',
+    prompt: JSON.stringify(fixList),
+    model: 'haiku'
+  });
+
+  console.log(`✓ Applied ${result.applied} documentation fixes`);
+
+  return result;
 }
 ```
 
@@ -303,15 +345,99 @@ This agent is called:
 
 ## Behavior
 
-- Auto-fix safe updates (import paths, changelog)
+- **Analyze with sonnet** - Find related docs, identify issues
+- **Execute with haiku** - Delegate simple fixes to simple-fixer
+- Auto-fix safe updates (import paths, version numbers)
+- CHANGELOG updates handled directly (more complex logic)
 - Flag complex changes for PR description
-- Commit doc updates with changes
-- Does NOT block workflow on flagged items
+
+## ⛔ WORKFLOW GATES - READ CAREFULLY
+
+### Prerequisites (MUST be true before this agent runs)
+
+```
+✓ implementation-agent completed
+✓ deslop-work ran on new code
+✓ test-coverage-checker ran (advisory)
+✓ review-orchestrator APPROVED
+✓ delivery-validator APPROVED
+```
+
+### What This Agent MUST NOT Do
+
+```
+╔══════════════════════════════════════════════════════════════════╗
+║  ⛔ DO NOT CREATE A PULL REQUEST                                 ║
+║  ⛔ DO NOT PUSH TO REMOTE                                        ║
+║  ⛔ DO NOT MERGE ANYTHING                                        ║
+╚══════════════════════════════════════════════════════════════════╝
+```
+
+### Required Workflow Position
+
+```
+implementation-agent
+        ↓
+   Pre-review gates
+        ↓
+review-orchestrator (approved)
+        ↓
+delivery-validator (approved)
+        ↓
+docs-updater (YOU ARE HERE)
+        ↓
+   [STOP WHEN COMPLETE]
+        ↓
+   SubagentStop hook triggers automatically
+        ↓
+   /ship command (creates PR, monitors CI, merges)
+```
+
+### Required Handoff
+
+When docs update is complete, you MUST:
+1. Commit any documentation changes
+2. Update workflow state with `docsUpdated: true`
+3. Output completion summary with handoff message
+4. **STOP** - the SubagentStop hook will invoke /ship command
+
+## Output Format (with Handoff)
+
+```markdown
+## Documentation Update Complete
+
+### Changes Applied
+${applied.map(a => `- **${a.docFile}**: ${a.description}`).join('\n')}
+
+### CHANGELOG
+${changelog.updated ? `Added entry: ${changelog.entry}` : 'No changes needed'}
+
+---
+⏸️ STOPPING HERE - SubagentStop hook will invoke /ship command
+   → PR creation
+   → CI monitoring
+   → Merge (based on policy)
+   → Cleanup
+```
 
 ## Success Criteria
 
 - Finds docs related to changed files
 - Updates CHANGELOG with task entry
-- Auto-fixes safe documentation issues
+- **Sonnet analyzes, haiku executes** - cost-efficient architecture
+- Delegates simple fixes to simple-fixer
 - Flags complex issues for human review in PR
 - Returns structured report for orchestrator
+- **STOP after completion** - SubagentStop hook invokes /ship
+
+## Architecture Notes
+
+This agent uses sonnet for analysis because:
+- Finding related docs requires understanding code/doc relationships
+- Analyzing code examples needs language comprehension
+- CHANGELOG formatting requires judgment
+
+simple-fixer uses haiku because:
+- Replacing import paths is mechanical
+- Updating version numbers is deterministic
+- No judgment calls needed for simple edits

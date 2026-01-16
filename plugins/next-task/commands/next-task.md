@@ -8,298 +8,251 @@ allowed-tools: Bash(git:*), Bash(gh:*), Bash(npm:*), Bash(node:*), Read, Write, 
 
 Discover what to work on next and execute the complete implementation workflow.
 
-## ⚠️ FULLY AUTONOMOUS WORKFLOW
+## Workflow Overview
 
-When a task is selected, this triggers an **autonomous workflow** that runs to the policy-based stopping point.
-**NO human intervention from task selection until the workflow completes.**
+```
+Policy Selection → Task Discovery → Worktree Setup → Exploration → Planning
+       ↓                                                              ↓
+   (User input)                                              (User approval)
+                                                                      ↓
+                    ← ← ← AUTONOMOUS FROM HERE → → →
+                                                                      ↓
+Implementation → Pre-Review Gates → Review Loop → Delivery Validation
+                                                                      ↓
+                                                        Docs Update → /ship
+```
 
-### Workflow Phases
-
-1. **Policy Selection** → Ask user preferences via checkboxes
-2. **Task Discovery** → Find and prioritize tasks (user selects one)
-3. **Worktree Setup** → Create isolated development environment [sonnet]
-4. **Exploration** → Deep codebase analysis [opus]
-5. **Planning** → Design implementation plan [opus]
-6. **User Approval** → Get plan approval (LAST human interaction)
-7. **Implementation** → Execute the plan [opus]
-8. **Pre-Review Gates** → deslop-work + test-coverage-checker [sonnet]
-9. **Review Loop** → Multi-agent review until approved [opus]
-   - (After each iteration: deslop-work runs on fixes)
-10. **Delivery Validation** → Autonomous validation [sonnet]
-11. **Docs Update** → Update related documentation [sonnet]
-12. **Ship** → PR creation, CI monitoring, merge
-13. **Cleanup** → Remove worktree, update state
-
-**After plan approval (Phase 6), everything runs autonomously until the policy-based stopping point.**
-
-### Human Interaction Points (ONLY THESE)
-1. `/next-task` call → Policy selection via checkboxes
+**Human interaction points (ONLY THESE):**
+1. Policy selection via checkboxes
 2. Task selection from ranked list
 3. Plan approval (EnterPlanMode/ExitPlanMode)
 
-**That's it - everything else is autonomous.**
+**After plan approval, everything runs autonomously until delivery validation passes.**
+
+## ⛔ WORKFLOW ENFORCEMENT - CRITICAL
+
+```
+╔══════════════════════════════════════════════════════════════════════════╗
+║                         MANDATORY WORKFLOW GATES                          ║
+╠══════════════════════════════════════════════════════════════════════════╣
+║                                                                          ║
+║  Each phase MUST complete and approve before the next can start:         ║
+║                                                                          ║
+║  1. implementation-agent completes                                       ║
+║           ↓ MUST trigger                                                 ║
+║  2. deslop-work + test-coverage-checker (parallel)                       ║
+║           ↓ MUST trigger                                                 ║
+║  3. review-orchestrator (MUST approve - all critical/high resolved)      ║
+║           ↓ MUST trigger (only if approved)                              ║
+║  4. delivery-validator (MUST approve - tests pass, build passes)         ║
+║           ↓ MUST trigger (only if approved)                              ║
+║  5. docs-updater                                                         ║
+║           ↓ MUST trigger                                                 ║
+║  6. /ship command (creates PR, monitors CI, merges)                      ║
+║                                                                          ║
+╠══════════════════════════════════════════════════════════════════════════╣
+║                                                                          ║
+║  ⛔ NO AGENT may create a PR - only /ship creates PRs                    ║
+║  ⛔ NO AGENT may push to remote - only /ship pushes                      ║
+║  ⛔ NO AGENT may skip the review-orchestrator                            ║
+║  ⛔ NO AGENT may skip the delivery-validator                             ║
+║  ⛔ NO AGENT may skip the docs-updater                                   ║
+║                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════╝
+```
+
+### SubagentStop Hook Enforcement
+
+The `hooks/hooks.json` SubagentStop hook enforces this sequence. When any agent
+completes, the hook determines and triggers the next mandatory phase. Agents
+MUST NOT invoke subsequent phases themselves - they STOP and let the hook handle it.
 
 ## Arguments
 
 Parse from $ARGUMENTS:
 - `--status`: Show current workflow state and exit
-- `--resume`: Continue from last checkpoint
+- `--resume [task/branch/worktree]`: Continue from last checkpoint
 - `--abort`: Cancel workflow and cleanup
 - `--implement`: Skip to implementation after task selection
 - `[filter]`: Task filter (bug, feature, security, test)
 
-## Pre-flight: Load State and Check Arguments
+### Resume Syntax
+
+```
+/next-task --resume                     # Resume active worktree (if only one)
+/next-task --resume 123                 # Resume by task ID
+/next-task --resume feature/my-task-123 # Resume by branch name
+/next-task --resume ../worktrees/my-task-123  # Resume by worktree path
+```
+
+## Pre-flight: Handle Arguments
 
 ```javascript
 const workflowState = require('${CLAUDE_PLUGIN_ROOT}/lib/state/workflow-state.js');
-
-// Parse arguments
 const args = '$ARGUMENTS'.split(' ').filter(Boolean);
-const hasStatus = args.includes('--status');
-const hasResume = args.includes('--resume');
-const hasAbort = args.includes('--abort');
-const hasImplement = args.includes('--implement');
-const filter = args.find(a => !a.startsWith('--'));
 
-// Check for existing workflow
-const existingState = workflowState.readState();
-const hasActiveWorkflow = workflowState.hasActiveWorkflow();
-```
-
-## Handle --status Flag
-
-```javascript
-if (hasStatus) {
-  if (!existingState) {
-    console.log("No active workflow.");
-    return;
-  }
-
+// Handle --status
+if (args.includes('--status')) {
   const summary = workflowState.getWorkflowSummary();
-  console.log(`
-## Workflow Status
-
-**ID**: ${summary.id}
-**Status**: ${summary.status}
-**Phase**: ${summary.currentPhase}
-**Progress**: ${summary.progress} (${summary.progressPercent}%)
-
-**Task**: ${summary.task ? `#${summary.task.id} - ${summary.task.title}` : 'Not selected'}
-**PR**: ${summary.pr ? `#${summary.pr.number} (${summary.pr.ciStatus})` : 'Not created'}
-
-**Can Resume**: ${summary.canResume ? 'Yes' : 'No'}
-**Resume From**: ${summary.resumeFrom || 'N/A'}
-  `);
+  if (!summary) { console.log("No active workflow."); return; }
+  console.log(`## Status: ${summary.status} | Phase: ${summary.currentPhase} | Task: ${summary.task?.title || 'None'}`);
   return;
 }
-```
 
-## Handle --abort Flag
-
-```javascript
-if (hasAbort) {
-  if (!existingState) {
-    console.log("No workflow to abort.");
-    return;
-  }
-
-  console.log("Aborting workflow...");
-
-  // Cleanup worktree if exists
-  if (existingState.git?.worktreePath) {
-    await Bash({ command: `git worktree remove "${existingState.git.worktreePath}" --force 2>/dev/null || true` });
-  }
-
-  // Delete branch if exists
-  if (existingState.git?.workingBranch) {
-    await Bash({ command: `git branch -D "${existingState.git.workingBranch}" 2>/dev/null || true` });
-  }
-
+// Handle --abort
+if (args.includes('--abort')) {
   workflowState.abortWorkflow('User requested abort');
-  workflowState.deleteState();
-
-  console.log("✓ Workflow aborted and cleaned up.");
+  console.log("✓ Workflow aborted.");
   return;
 }
-```
 
-## Handle --resume Flag
+// Handle --resume
+if (args.includes('--resume')) {
+  const resumeArg = args[args.indexOf('--resume') + 1];
+  const worktree = await findWorktreeToResume(resumeArg);
 
-```javascript
-if (hasResume) {
-  if (!existingState || !existingState.checkpoints?.canResume) {
-    console.log("No workflow to resume.");
+  if (!worktree) {
+    console.log("No worktree found to resume. Specify task ID, branch, or worktree path.");
     return;
   }
 
-  const resumePhase = existingState.checkpoints.resumeFrom;
-  console.log(`Resuming workflow from phase: ${resumePhase}`);
-
-  // Restore working directory if in worktree
-  if (existingState.git?.worktreePath) {
-    await Bash({ command: `cd "${existingState.git.worktreePath}"` });
+  // Read workflow-status.json from the worktree
+  const statusPath = path.join(worktree.path, '.claude', 'workflow-status.json');
+  if (!fs.existsSync(statusPath)) {
+    console.log(`No workflow-status.json found in ${worktree.path}`);
+    return;
   }
 
-  // Jump to the resume phase
-  CURRENT_PHASE = resumePhase;
-  // Continue with workflow from that phase...
+  const status = JSON.parse(fs.readFileSync(statusPath, 'utf8'));
+  const lastStep = status.steps[status.steps.length - 1];
+
+  console.log(`
+## Resuming Workflow
+
+**Task**: #${status.task.id} - ${status.task.title}
+**Worktree**: ${worktree.path}
+**Branch**: ${status.git.branch}
+**Last Step**: ${lastStep.step} (${lastStep.status})
+**Last Activity**: ${status.workflow.lastActivityAt}
+  `);
+
+  // Change to worktree
+  process.chdir(worktree.path);
+
+  // Determine resume phase from last completed step
+  const resumePhase = mapStepToPhase(lastStep.step);
+  console.log(`Resuming from phase: ${resumePhase}`);
+
+  // Continue workflow from that phase...
+}
+
+async function findWorktreeToResume(arg) {
+  const registryPath = '.claude/tasks.json';
+  if (!fs.existsSync(registryPath)) return null;
+
+  const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+
+  // No argument - if only one active task, use it
+  if (!arg && registry.tasks.length === 1) {
+    return { path: registry.tasks[0].worktreePath, task: registry.tasks[0] };
+  }
+
+  // Search by task ID
+  const byId = registry.tasks.find(t => t.id === arg);
+  if (byId) return { path: byId.worktreePath, task: byId };
+
+  // Search by branch name
+  const byBranch = registry.tasks.find(t => t.branch === arg || t.branch.endsWith(arg));
+  if (byBranch) return { path: byBranch.worktreePath, task: byBranch };
+
+  // Direct path
+  if (arg && fs.existsSync(arg)) {
+    return { path: arg, task: null };
+  }
+
+  return null;
+}
+
+function mapStepToPhase(step) {
+  const stepToPhase = {
+    'worktree-created': 'exploration',
+    'exploration-completed': 'planning',
+    'plan-approved': 'implementation',
+    'implementation-completed': 'pre-review-gates',
+    'deslop-work-completed': 'review-loop',
+    'review-approved': 'delivery-validation',
+    'delivery-validation-passed': 'docs-update',
+    'docs-updated': 'ship',
+    'ready-to-ship': 'ship'
+  };
+  return stepToPhase[step] || 'exploration';
 }
 ```
 
 ## Phase 1: Policy Selection
 
-If no active workflow or starting fresh:
+→ **Agent**: `next-task:policy-selector` (haiku)
 
 ```javascript
-if (!hasResume || !hasActiveWorkflow) {
-  // Use AskUserQuestion for policy configuration
-  const policyAnswers = await AskUserQuestion({
-    questions: [
-      {
-        header: "Task Source",
-        question: "Where should I look for tasks?",
-        options: [
-          { label: "Continue with defaults (Recommended)", description: "Use GitHub Issues" },
-          { label: "GitHub Issues", description: "Open issues in this repository" },
-          { label: "Linear", description: "Tasks linked from Linear" },
-          { label: "PLAN.md", description: "Tasks from PLAN.md file" }
-        ],
-        multiSelect: false
-      },
-      {
-        header: "Priority",
-        question: "What type of tasks should I prioritize?",
-        options: [
-          { label: "Continue (Recommended)", description: "Resume or pick by priority" },
-          { label: "Bugs", description: "Bug fixes first" },
-          { label: "Security", description: "Security issues highest" },
-          { label: "Features", description: "New features" }
-        ],
-        multiSelect: false
-      },
-      {
-        header: "Stop Point",
-        question: "How far should I take this task?",
-        options: [
-          { label: "Merged (Recommended)", description: "PR merged to main" },
-          { label: "PR Created", description: "Stop after PR" },
-          { label: "All Green", description: "Stop when CI passes" },
-          { label: "Deployed", description: "Deploy to staging" },
-          { label: "Production", description: "Full production release" }
-        ],
-        multiSelect: false
-      }
-    ]
-  });
+workflowState.startPhase('policy-selection');
 
-  // Map responses to policy
-  const policy = mapPolicyResponses(policyAnswers);
+await Task({
+  subagent_type: "next-task:policy-selector",
+  prompt: `Configure workflow via checkbox selection. Gather: task source, priority filter, stopping point.`
+});
 
-  // Apply CLI filter if provided
-  if (filter) {
-    policy.priorityFilter = filter;
-  }
-
-  // Create new workflow state
-  const state = workflowState.createState('next-task', policy);
-  workflowState.writeState(state);
-  workflowState.startPhase('policy-selection');
-  workflowState.completePhase({ policy });
-}
+// Policy now in state
 ```
 
 ## Phase 2: Task Discovery
 
-Launch the task-discoverer agent:
+→ **Agent**: `next-task:task-discoverer` (inherit)
 
 ```javascript
 workflowState.startPhase('task-discovery');
 
-const discoveryResult = await Task({
+await Task({
   subagent_type: "next-task:task-discoverer",
-  model: "sonnet",
-  prompt: `Discover and prioritize tasks based on policy.
-
-Policy: ${JSON.stringify(policy)}
-Filter: ${filter || 'none'}
-
-Steps:
-1. Fetch tasks from configured source (${policy.taskSource})
-2. Filter by priority (${policy.priorityFilter})
-3. Validate against codebase (check if already implemented)
-4. Score and rank tasks
-5. Present top 5 to user for selection via AskUserQuestion
-6. Update workflow state with selected task
-
-Return the selected task details.`
+  prompt: `Discover tasks from ${policy.taskSource}, filter by ${policy.priorityFilter}. Present top 5 to user for selection.`
 });
 
-// Task is now in state.task
-workflowState.completePhase({ taskSelected: true });
+// Selected task now in state.task
 ```
 
 ## Phase 3: Worktree Setup
 
-Launch the worktree-manager agent:
+→ **Agent**: `next-task:worktree-manager` (haiku)
 
 ```javascript
 workflowState.startPhase('worktree-setup');
 
 await Task({
   subagent_type: "next-task:worktree-manager",
-  model: "sonnet",
-  prompt: `Create isolated worktree for task development.
-
-Task: #${state.task.id} - ${state.task.title}
-
-Steps:
-1. Generate branch name: feature/{task-slug}-{id}
-2. Create worktree at ../worktrees/{task-slug}
-3. Change directory to worktree (anchor pwd)
-4. Update workflow state with git info
-
-CRITICAL: After this, all operations must happen in the worktree.`
+  prompt: `Create worktree for task #${state.task.id} - ${state.task.title}. Anchor pwd to worktree.`
 });
 
-workflowState.completePhase({ worktreeCreated: true });
+// All subsequent operations happen in worktree
 ```
 
 ## Phase 4: Exploration
 
-Launch the exploration-agent (opus):
+→ **Agent**: `next-task:exploration-agent` (opus)
 
 ```javascript
 workflowState.startPhase('exploration');
 
-const explorationResult = await Task({
+await Task({
   subagent_type: "next-task:exploration-agent",
   model: "opus",
-  prompt: `Deep codebase analysis for task implementation.
-
-Task: #${state.task.id} - ${state.task.title}
-Description: ${state.task.description}
-
-Thoroughly explore:
-1. Extract keywords from task
-2. Search for related code
-3. Analyze file structure
-4. Deep dive into key files
-5. Trace dependencies
-6. Find existing patterns to follow
-7. Check git history for context
-
-Output: Comprehensive exploration report with key files, patterns, and recommendations.`
+  prompt: `Deep codebase analysis for task #${state.task.id}. Find key files, patterns, dependencies.`
 });
 
-workflowState.completePhase({
-  keyFiles: explorationResult.keyFiles,
-  patterns: explorationResult.patterns
-});
+// Exploration results in state for planning
 ```
 
 ## Phase 5: Planning
 
-Launch the planning-agent (opus):
+→ **Agent**: `next-task:planning-agent` (opus)
 
 ```javascript
 workflowState.startPhase('planning');
@@ -307,40 +260,20 @@ workflowState.startPhase('planning');
 await Task({
   subagent_type: "next-task:planning-agent",
   model: "opus",
-  prompt: `Design detailed implementation plan.
-
-Task: #${state.task.id} - ${state.task.title}
-Exploration Results: ${JSON.stringify(explorationResult)}
-
-Create a comprehensive plan:
-1. Analyze requirements
-2. Review existing patterns
-3. Design step-by-step implementation
-4. Identify critical paths and risks
-5. Plan test strategy
-6. Enter plan mode for user approval
-
-Output: Detailed implementation plan ready for approval.`
+  prompt: `Design implementation plan for task #${state.task.id}. Enter plan mode for user approval.`
 });
 
-// Planning agent will use EnterPlanMode for approval
-// After approval, completePhase is called
+// Agent uses EnterPlanMode → user approves → ExitPlanMode
 ```
 
 ## Phase 6: User Approval
 
-The planning-agent handles this via EnterPlanMode/ExitPlanMode.
-Wait for user to approve the plan before continuing.
-
-```javascript
-// Plan approval happens in planning-agent
-// State is updated when plan is approved
-workflowState.completePhase({ planApproved: true });
-```
+Planning agent handles this via EnterPlanMode/ExitPlanMode.
+**This is the LAST human interaction point.**
 
 ## Phase 7: Implementation
 
-Launch the implementation-agent (opus):
+→ **Agent**: `next-task:implementation-agent` (opus)
 
 ```javascript
 workflowState.startPhase('implementation');
@@ -348,79 +281,32 @@ workflowState.startPhase('implementation');
 await Task({
   subagent_type: "next-task:implementation-agent",
   model: "opus",
-  prompt: `Execute the approved implementation plan.
-
-Task: #${state.task.id} - ${state.task.title}
-Plan: ${approvedPlan}
-
-Execute each step:
-1. Pre-implementation setup
-2. For each plan step:
-   - Modify files as specified
-   - Verify changes compile/lint
-   - Run relevant tests
-   - Commit the step
-3. Write tests for new code
-4. Run full verification (types, lint, tests, build)
-5. Fix any failures
-6. Update workflow state
-
-Output: Implementation complete with all commits made.`
+  prompt: `Execute approved plan for task #${state.task.id}. Commit changes incrementally.`
 });
 
-workflowState.completePhase({
-  implementationComplete: true,
-  commits: commitCount
-});
-
-// NOTE: SubagentStop hook automatically triggers pre-review gates
+// → SubagentStop hook triggers pre-review gates
 ```
 
-## Phase 7.5: Pre-Review Gates (Triggered by SubagentStop Hook)
+## Phase 8: Pre-Review Gates
 
-After implementation-agent completes, the SubagentStop hook automatically runs:
+→ **Agents** (parallel): `next-task:deslop-work` (sonnet) + `next-task:test-coverage-checker` (sonnet)
+
+Triggered automatically by SubagentStop hook after implementation.
 
 ```javascript
 workflowState.startPhase('pre-review-gates');
 
-// Get changed files for analysis
-const changedFiles = await Bash({ command: 'git diff --name-only origin/main..HEAD' });
-
-// Run both quality gates in parallel
-const preReviewResults = await Promise.all([
-  // 1. Deslop Work - Clean AI slop from new code
-  Task({
-    subagent_type: "next-task:deslop-work",
-    model: "sonnet",
-    prompt: `Clean AI slop from new work (committed but unpushed changes).
-
-Files to analyze: ${changedFiles}
-
-Report issues found. Do NOT auto-fix - implementation-agent handles fixes if needed.`
-  }),
-
-  // 2. Test Coverage Checker - Validate test coverage
-  Task({
-    subagent_type: "next-task:test-coverage-checker",
-    model: "sonnet",
-    prompt: `Validate test coverage for new work.
-
-Files to analyze: ${changedFiles}
-
-Report coverage gaps. This is advisory - does not block workflow.`
-  })
+await Promise.all([
+  Task({ subagent_type: "next-task:deslop-work", prompt: `Clean AI slop from new work.` }),
+  Task({ subagent_type: "next-task:test-coverage-checker", prompt: `Validate test coverage (advisory).` })
 ]);
 
-workflowState.completePhase({
-  slopIssues: preReviewResults[0].summary,
-  coverageGaps: preReviewResults[1].gaps,
-  preReviewContext: preReviewResults
-});
+// → Proceeds to review loop
 ```
 
-## Phase 8: Review Loop
+## Phase 9: Review Loop
 
-Launch the review-orchestrator (opus):
+→ **Agent**: `next-task:review-orchestrator` (opus)
 
 ```javascript
 workflowState.startPhase('review-loop');
@@ -428,334 +314,147 @@ workflowState.startPhase('review-loop');
 await Task({
   subagent_type: "next-task:review-orchestrator",
   model: "opus",
-  prompt: `Orchestrate multi-agent code review.
-
-Changed files: ${changedFiles}
-Pre-review context: ${JSON.stringify(preReviewResults)}
-Max iterations: ${policy.maxReviewIterations || 3}
-
-Coordinate review:
-1. Launch 3 review agents in parallel:
-   - pr-review-toolkit:code-reviewer
-   - pr-review-toolkit:silent-failure-hunter
-   - pr-review-toolkit:pr-test-analyzer
-2. Aggregate findings
-3. Auto-fix critical and high issues
-4. Commit fixes
-5. Re-run review
-6. Repeat until approved or max iterations
-
-Output: Review approved or failed with remaining issues.`
+  prompt: `Orchestrate multi-agent review. Fix critical/high issues. Max ${policy.maxReviewIterations || 3} iterations.`
 });
 
-// NOTE: SubagentStop hook triggers deslop-work after each iteration
-// If not approved, deslop-work runs on fixes before next iteration
-
-// Check if review passed
-if (reviewResult.approved) {
-  workflowState.completePhase({ reviewApproved: true });
-} else {
-  workflowState.failPhase('Review failed', reviewResult);
-  return;
-}
-
-// NOTE: SubagentStop hook automatically triggers delivery-validator
+// Runs deslop-work after each iteration to clean fixes
+// → SubagentStop hook triggers delivery validation when approved
 ```
 
-## Phase 9: Delivery Validation (Autonomous - Triggered by SubagentStop Hook)
+## Phase 10: Delivery Validation
 
-After review-orchestrator approves, the SubagentStop hook automatically runs delivery validation:
+→ **Agent**: `next-task:delivery-validator` (sonnet)
+
+Triggered automatically by SubagentStop hook after review approval.
 
 ```javascript
 workflowState.startPhase('delivery-validation');
 
-// NOTE: This runs AUTOMATICALLY via SubagentStop hook - NO human intervention
-const deliveryResult = await Task({
+const result = await Task({
   subagent_type: "next-task:delivery-validator",
-  model: "sonnet",
-  prompt: `Autonomously validate task completion and approve for shipping.
-
-Task: #${state.task.id} - ${state.task.title}
-Requirements: ${state.task.description}
-Changed files: ${changedFiles}
-Review result: Approved (all critical/high issues resolved)
-
-Validation checks:
-1. Review status - all critical/high resolved
-2. Tests pass - npm test succeeds
-3. Build passes - npm run build succeeds
-4. Task requirements met - compare implementation vs task description
-5. No regressions - test count >= before implementation
-
-Output: { approved: true/false, checks: {...}, reason: "..." }
-
-CRITICAL: If validation fails, return to implementation with fix instructions.
-NO human intervention - workflow retries automatically.`
+  prompt: `Validate task completion. Check: tests pass, build passes, requirements met, no regressions.`
 });
 
-if (!deliveryResult.approved) {
-  // Return to implementation phase with specific fix instructions
-  workflowState.failPhase(deliveryResult.reason, {
-    needsWork: true,
-    fixInstructions: deliveryResult.fixInstructions,
-    recommendation: 'Return to implementation phase to address issues'
-  });
-
-  // Workflow automatically retries from implementation
-  // NO human intervention - fully autonomous
-  return;
+if (!result.approved) {
+  // Return to implementation with fix instructions - automatic retry
+  workflowState.failPhase(result.reason, { fixInstructions: result.fixInstructions });
+  return; // Workflow retries from implementation
 }
 
-workflowState.completePhase({ deliveryApproved: true, checks: deliveryResult.checks });
-
-// NOTE: SubagentStop hook automatically triggers docs-updater
+workflowState.completePhase({ deliveryApproved: true });
 ```
 
-## Phase 9.5: Docs Update (Triggered by SubagentStop Hook)
+## Phase 11: Docs Update
 
-After delivery-validator approves, the SubagentStop hook automatically runs docs update:
+→ **Agent**: `next-task:docs-updater` (sonnet)
+
+Triggered automatically by SubagentStop hook after delivery validation.
 
 ```javascript
 workflowState.startPhase('docs-update');
 
-// NOTE: This runs AUTOMATICALLY via SubagentStop hook - NO human intervention
 await Task({
   subagent_type: "next-task:docs-updater",
-  model: "sonnet",
-  prompt: `Update documentation related to recent changes.
-
-Task: #${state.task.id} - ${state.task.title}
-Changed files: ${changedFiles}
-
-Scope:
-1. Find docs that reference changed files/modules
-2. Update CHANGELOG.md with task entry
-3. Fix outdated code examples
-4. Update API documentation if needed
-
-Auto-fix safe updates. Flag complex changes for PR description.`
+  prompt: `Update docs for changed files. CHANGELOG, API docs, code examples.`
 });
 
 workflowState.completePhase({ docsUpdated: true });
 ```
 
-## Phase 10-13: Ship (PR Creation, CI, Comments)
+## Handoff to /ship
 
-Launch ship workflow phases:
-
-```javascript
-// Ship prep: rebase and push
-workflowState.startPhase('ship-prep');
-await Bash({ command: 'git fetch origin && git rebase origin/main' });
-
-const conflicts = await Bash({ command: 'git diff --name-only --diff-filter=U' });
-if (conflicts) {
-  await Task({ subagent_type: "next-task:conflict-resolver", model: "sonnet", prompt: `Resolve merge conflicts: ${conflicts}` });
-}
-
-await Bash({ command: 'git push -u origin HEAD' });
-workflowState.completePhase({ pushed: true });
-
-// Create PR
-workflowState.startPhase('create-pr');
-const prResult = await Bash({
-  command: `gh pr create --title "${state.task.title}" --body "$(cat <<'EOF'
-## Summary
-Implements #${state.task.id}
-
-## Changes
-${changesSummary}
-
-## Test Plan
-${testPlan}
-
-Closes #${state.task.id}
-EOF
-)"`
-});
-
-const prNumber = extractPRNumber(prResult);
-workflowState.updateState({ pr: { number: prNumber, url: prResult, state: 'open', ciStatus: 'pending' } });
-workflowState.completePhase({ prCreated: true, prNumber });
-
-// CI Monitoring
-workflowState.startPhase('ci-wait');
-await Task({
-  subagent_type: "next-task:ci-monitor",
-  model: "sonnet",
-  prompt: `Monitor CI/PR comments for PR #${prNumber}. Wait 180s, check status, auto-fix issues, repeat until green (max 30min).`
-});
-workflowState.completePhase({ ciPassed: true });
-```
-
-## Phase 14: Merge
-
-Based on policy, merge or wait:
+After docs update completes, pass to /ship command for:
+- PR creation
+- CI monitoring
+- Merge (based on policy)
+- Deploy (if policy allows)
+- Cleanup
 
 ```javascript
-workflowState.startPhase('merge');
-
-if (policy.stoppingPoint === 'all-green') {
-  console.log("Stopping at all-green as per policy.");
-  workflowState.completePhase({ stoppedAtGreen: true });
-  return;
-}
-
-// Check if human approval needed
-const needsHumanApproval = policy.stoppingPoint === 'pr-created';
-
-if (needsHumanApproval) {
-  console.log("PR created. Waiting for human to merge.");
-  workflowState.completePhase({ waitingForHuman: true });
-  return;
-}
-
-// Auto-merge
-await Bash({
-  command: `gh pr merge ${prNumber} --${policy.mergeStrategy || 'squash'} --delete-branch`
-});
-
-workflowState.updateState({
-  pr: { state: 'merged' }
-});
-
-workflowState.completePhase({ merged: true });
-```
-
-## Phase 15-17: Deploy (Conditional)
-
-If policy allows deployment:
-
-```javascript
-if (['deployed', 'production'].includes(policy.stoppingPoint)) {
-  workflowState.startPhase('deploy');
-
-  // Invoke ship's deployment phases
-  await Task({
-    subagent_type: "next-task:deployment-agent",
-    model: "sonnet",
-    prompt: `Handle deployment for merged PR.
-
-    Target: ${policy.stoppingPoint}
-    Platform: ${detectedPlatform}
-
-    Steps:
-    1. Wait for deployment to complete
-    2. Run health checks
-    3. Monitor for errors
-    4. If production: extra validation
-    5. Rollback if needed`
-  });
-
-  workflowState.completePhase({ deployed: true });
-}
-```
-
-## Phase Complete: Cleanup
-
-```javascript
-workflowState.startPhase('complete');
-
-// Return to original directory
-const originalDir = process.cwd().replace(/\/worktrees\/[^/]+$/, '');
-await Bash({ command: `cd "${originalDir}"` });
-
-// Remove worktree
-if (state.git?.worktreePath) {
-  await Bash({ command: `git worktree remove "${state.git.worktreePath}" --force` });
-}
-
-// Final report
-const summary = workflowState.getWorkflowSummary();
-
 console.log(`
-## ✓ Workflow Complete
+## ✓ Implementation Complete - Ready to Ship
 
-**Task**: #${state.task.id} - ${state.task.title}
-**PR**: #${state.pr.number} - ${state.pr.state}
-**Duration**: ${formatDuration(summary.duration)}
+Task #${state.task.id} passed all validation checks.
 
-### Phases Completed
-${state.phases.history.map(p => `- ${p.phase}: ${p.status}`).join('\n')}
-
-### Metrics
-- Files modified: ${state.metrics.filesModified}
-- Lines added: ${state.metrics.linesAdded}
-- Lines removed: ${state.metrics.linesRemoved}
-- Review iterations: ${state.agents?.totalIterations || 0}
+→ Passing to /ship for PR creation and merge workflow.
 `);
 
-workflowState.completeWorkflow({ success: true });
+// Invoke ship command
+await Skill({ skill: "ship:ship" });
 ```
 
 ## Error Handling
 
 ```javascript
-// Global error handler
 try {
   // ... workflow phases ...
 } catch (error) {
-  console.error(`Workflow error: ${error.message}`);
-
-  workflowState.failPhase(error.message, {
-    stack: error.stack,
-    phase: currentPhase
-  });
-
+  workflowState.failPhase(error.message, { phase: currentPhase });
   console.log(`
-## Workflow Failed
-
-**Phase**: ${currentPhase}
-**Error**: ${error.message}
+## Workflow Failed at ${currentPhase}
 
 Use \`/next-task --resume\` to retry from checkpoint.
-Use \`/next-task --abort\` to cancel and cleanup.
+Use \`/next-task --abort\` to cancel.
   `);
 }
 ```
 
-## Helper Functions
+## State Management Architecture
+
+Two-file state management to prevent collisions across parallel workflows:
+
+### Main Repo: `.claude/tasks.json`
+```
+- Shared registry of claimed tasks
+- task-discoverer reads to exclude claimed tasks
+- worktree-manager adds entry when creating worktree
+- ship removes entry on cleanup
+```
+
+### Worktree: `.claude/workflow-status.json`
+```
+- Local to each worktree
+- Tracks all steps with timestamps
+- Used for --resume to find last step
+- Isolated from other workflows
+```
+
+### Step Recording
+
+Each agent MUST record its step in the worktree's workflow-status.json:
 
 ```javascript
-const POLICY_MAPS = {
-  source: { 'Continue with defaults (Recommended)': 'gh-issues', 'GitHub Issues': 'gh-issues', 'Linear': 'linear', 'PLAN.md': 'tasks-md' },
-  priority: { 'Continue (Recommended)': 'continue', 'Bugs': 'bugs', 'Security': 'security', 'Features': 'features' },
-  stop: { 'Merged (Recommended)': 'merged', 'PR Created': 'pr-created', 'All Green': 'all-green', 'Deployed': 'deployed', 'Production': 'production' }
-};
+function recordStep(stepName, status, result = null) {
+  const statusPath = '.claude/workflow-status.json';
+  const state = JSON.parse(fs.readFileSync(statusPath, 'utf8'));
 
-function mapPolicyResponses(answers) {
-  return {
-    taskSource: POLICY_MAPS.source[answers['Task Source']] || 'gh-issues',
-    priorityFilter: POLICY_MAPS.priority[answers['Priority']] || 'continue',
-    stoppingPoint: POLICY_MAPS.stop[answers['Stop Point']] || 'merged',
-    mergeStrategy: 'squash',
-    autoFix: true,
-    maxReviewIterations: 3
-  };
-}
+  state.steps.push({
+    step: stepName,
+    status: status,
+    startedAt: new Date().toISOString(),
+    completedAt: status === 'completed' ? new Date().toISOString() : null,
+    result: result
+  });
 
-function formatDuration(ms) {
-  return `${Math.floor(ms / 60000)}m ${Math.floor((ms % 60000) / 1000)}s`;
+  state.workflow.lastActivityAt = new Date().toISOString();
+  state.workflow.currentPhase = stepName;
+  state.resume.resumeFromStep = stepName;
+
+  fs.writeFileSync(statusPath, JSON.stringify(state, null, 2));
 }
 ```
 
 ## Success Criteria
 
-- ✅ Policy selection via checkboxes
-- ✅ State management throughout
-- ✅ Resume capability (--resume)
-- ✅ Status checking (--status)
-- ✅ Abort capability (--abort)
-- ✅ Worktree isolation
-- ✅ Multi-agent orchestration
-- ✅ Opus for complex tasks (explore, plan, implement, review)
-- ✅ Sonnet for operational/validation tasks (worktree, monitoring, quality gates)
-- ✅ **Fully autonomous after plan approval** - no human in the loop
-- ✅ Policy-based stopping points
-- ✅ Pre-review quality gates (deslop-work + test-coverage-checker)
-- ✅ Post-iteration deslop (cleans fixes before next review round)
-- ✅ Autonomous delivery validation (not manual approval)
-- ✅ Automatic docs update for changed code
-- ✅ SubagentStop hooks for workflow automation
+- Policy selection via checkboxes
+- **Two-file state management** (main repo registry + worktree status)
+- **Resume by task ID, branch, or worktree path**
+- Worktree isolation
+- Opus for complex tasks (explore, plan, implement, review)
+- Sonnet for validation tasks (quality gates, delivery)
+- Haiku for simple tasks (policy, worktree)
+- Fully autonomous after plan approval
+- SubagentStop hooks for phase transitions
+- Handoff to /ship for PR workflow
 
 Begin workflow now.

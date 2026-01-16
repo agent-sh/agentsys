@@ -98,10 +98,9 @@ In Claude Code, type:
 
 You should see the 5 commands listed:
 - `/deslop-around` - Cleanup AI slop
-- `/next-task` - Intelligent task prioritization
+- `/next-task` - Master workflow orchestrator
 - `/project-review` - Multi-agent code review
-- `/ship` - Complete PR workflow
-- `/pr-merge` - Intelligent PR merge
+- `/ship` - Complete PR workflow (commit to production)
 
 ### Test Platform Detection
 
@@ -118,7 +117,7 @@ Claude should be able to run the platform detection and tell you about your proj
 
 ### Required Tools
 - **Git** - Version control (required for all commands)
-- **GitHub CLI (gh)** - Required for `/ship` and `/pr-merge`
+- **GitHub CLI (gh)** - Required for `/ship`
   ```bash
   # Install GitHub CLI
   # macOS:
@@ -294,17 +293,6 @@ Complete PR workflow from commit to production.
 /ship --strategy rebase           # Use rebase instead of squash
 ```
 
-### `/pr-merge [pr-number] [--strategy] [--skip-validation]`
-
-Intelligent PR merge with validation.
-
-**Examples:**
-```
-/pr-merge                         # Auto-detect PR from branch
-/pr-merge 123                     # Merge specific PR
-/pr-merge 123 --strategy merge    # Use merge strategy
-```
-
 ---
 
 ## Updating the Plugin
@@ -383,7 +371,7 @@ ls -la $CLAUDE_PLUGIN_ROOT/lib/
 
 ### "GitHub CLI not found"
 
-**Problem**: `/ship` or `/pr-merge` fail
+**Problem**: `/ship` fails with GitHub CLI error
 
 **Solution**:
 ```bash
@@ -421,8 +409,7 @@ node $CLAUDE_PLUGIN_ROOT/lib/platform/detect-platform.js
 **Explanation**: This is normal for some commands:
 - `/ship`: 5-15 minutes (includes CI wait time)
 - `/project-review`: 2-5 minutes (thorough analysis)
-- `/pr-merge`: 3-10 minutes (includes validation)
-- `/next-task`: 10-30 seconds (fetches issues)
+- `/next-task`: 10-30 minutes (full workflow with review)
 - `/deslop-around`: 30-60 seconds (scans codebase)
 
 These times include external operations (CI, deployments, etc.)

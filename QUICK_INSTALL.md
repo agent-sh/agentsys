@@ -44,7 +44,6 @@ You should see 5 new commands:
 - `/next-task`
 - `/project-review`
 - `/ship`
-- `/pr-merge`
 
 ### Step 4: Try Your First Command
 
@@ -78,7 +77,7 @@ Before using the commands, make sure you have:
   git --version  # Should show version
   ```
 
-### For `/ship` and `/pr-merge` Commands
+### For `/ship` Command
 - **GitHub CLI**
   ```bash
   # Install
@@ -109,11 +108,8 @@ Once installed, use these in Claude Code:
 # Get comprehensive code review
 /project-review
 
-# Ship your code to production
+# Ship your code to production (commit → PR → CI → merge → deploy)
 /ship
-
-# Merge a PR with validation
-/pr-merge <pr-number>
 ```
 
 ---

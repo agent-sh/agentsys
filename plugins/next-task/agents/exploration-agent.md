@@ -267,3 +267,11 @@ A thorough exploration must:
 - Identify potential risks
 - Provide actionable recommendations
 - NOT miss critical files that would cause issues later
+
+## Model Choice: Opus
+
+This agent uses **opus** because:
+- Deep codebase analysis requires connecting disparate information
+- Understanding architectural patterns needs strong reasoning
+- Missing critical files causes downstream failures
+- Investment in exploration prevents costly rework later

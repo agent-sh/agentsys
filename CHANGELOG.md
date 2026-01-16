@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-01-16
+
+### Added
+- **Two-File State Management** to prevent workflow collisions
+  - `tasks.json` in main repo: Shared registry of claimed tasks
+  - `workflow-status.json` in worktree: Local step tracking with timestamps
+  - Resume by task ID, branch name, or worktree path
+- **New Agents**
+  - `ci-fixer.md` (sonnet): Fix CI failures and PR comments, called by ci-monitor
+  - `simple-fixer.md` (haiku): Execute pre-defined code fixes mechanically
+- **Workflow Enforcement Gates** - Explicit STOP gates in all agents
+  - Agents cannot skip review-orchestrator, delivery-validator, docs-updater
+  - Agents cannot create PRs - only /ship creates PRs
+  - SubagentStop hooks enforce mandatory workflow sequence
+- **State Schema Files**
+  - `tasks-registry.schema.json`: Schema for main repo task registry
+  - `worktree-status.schema.json`: Schema for worktree step tracking
+
+### Changed
+- **Model Optimization** for cost efficiency
+  - `policy-selector`: sonnet → haiku (simple checkbox UI)
+  - `worktree-manager`: sonnet → haiku (scripted git commands)
+  - `task-discoverer`: sonnet → inherit (varies by context)
+  - `ci-monitor`: sonnet → haiku (watching) + sonnet subagent (fixing)
+  - `deslop-work`: Now delegates fixes to simple-fixer (haiku)
+  - `docs-updater`: Now delegates fixes to simple-fixer (haiku)
+- **test-coverage-checker** enhanced with quality validation
+  - Validates tests actually exercise new code (not just path matching)
+  - Detects trivial assertions (e.g., `expect(true).toBe(true)`)
+  - Checks for edge case coverage
+  - Verifies tests import the source file they claim to test
+- **next-task.md** refactored from 761 to ~350 lines
+  - Progressive disclosure - orchestrates agents, doesn't duplicate knowledge
+  - Ends at delivery validation, hands off to /ship
+  - Added State Management Architecture section
+- **ship.md** integration with next-task
+  - Skips review loop when called from next-task (already done)
+  - Removes task from registry on cleanup
+
+### Fixed
+- Workflow enforcement: Agents can no longer skip mandatory gates
+- State collisions: Parallel workflows no longer write to same file
+- Trigger language standardized: "Use this agent [when/after] X to Y"
+- Removed "CRITICAL" language from worktree-manager (per best practices)
+- Added model choice rationale documentation to all agents
+
 ## [2.1.2] - 2026-01-16
 
 ### Fixed

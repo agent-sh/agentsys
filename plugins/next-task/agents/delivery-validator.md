@@ -1,6 +1,6 @@
 ---
 name: delivery-validator
-description: Autonomously validate task completion and approve for shipping. No human intervention - either passes validation or returns to implementation with specific fix instructions.
+description: Validate task completion autonomously. Use this agent after review approval to run validation checks and either approve for shipping or return to implementation with fix instructions.
 tools: Bash(git:*), Bash(npm:*), Read, Grep, Glob
 model: sonnet
 ---
@@ -356,6 +356,60 @@ This agent is called:
 1. **After review loop completes** with approval
 2. **After each retry** when previous validation failed
 
+## ⛔ WORKFLOW GATES - READ CAREFULLY
+
+### Prerequisites (MUST be true before this agent runs)
+
+```
+✓ implementation-agent completed
+✓ deslop-work ran on new code
+✓ test-coverage-checker ran (advisory)
+✓ review-orchestrator APPROVED (all critical/high resolved)
+```
+
+### What This Agent MUST NOT Do
+
+```
+╔══════════════════════════════════════════════════════════════════╗
+║  ⛔ DO NOT CREATE A PULL REQUEST                                 ║
+║  ⛔ DO NOT PUSH TO REMOTE                                        ║
+║  ⛔ DO NOT INVOKE /ship YOURSELF                                 ║
+║  ⛔ DO NOT SKIP docs-updater                                     ║
+╚══════════════════════════════════════════════════════════════════╝
+```
+
+### Required Workflow Position
+
+```
+implementation-agent
+        ↓
+   Pre-review gates
+        ↓
+review-orchestrator (MUST have approved)
+        ↓
+delivery-validator (YOU ARE HERE)
+        ↓
+   [STOP WHEN VALIDATED]
+        ↓
+   SubagentStop hook triggers automatically
+        ↓
+   docs-updater
+        ↓
+   /ship command (creates PR)
+```
+
+### Required Handoff
+
+If validation PASSES, you MUST:
+1. Update workflow state with `deliveryApproved: true`
+2. Output the validation summary
+3. **STOP** - the SubagentStop hook will trigger docs-updater
+
+If validation FAILS, you MUST:
+1. Update workflow state with failure and fix instructions
+2. **STOP** - workflow will return to implementation phase
+3. DO NOT proceed to docs-updater or ship
+
 ## Success Criteria
 
 - Runs all 5 validation checks
@@ -363,3 +417,12 @@ This agent is called:
 - Generates specific fix instructions on failure
 - Returns structured JSON for orchestrator
 - NO manual approval required
+- **STOP after validation** - SubagentStop hook handles next phase
+
+## Model Choice: Sonnet
+
+This agent uses **sonnet** because:
+- Validation checks are structured and deterministic
+- Comparing requirements to implementation needs moderate reasoning
+- Generating fix instructions requires understanding, not creativity
+- Faster than opus, sufficient for validation logic

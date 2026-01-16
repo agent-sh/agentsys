@@ -1,14 +1,17 @@
 ---
 name: test-coverage-checker
-description: Validate new/modified code has corresponding test coverage. Runs before first review round. Advisory only - reports gaps but does not block workflow.
+description: Validate test coverage quality for new code. Use this agent before the first review round to verify tests exist, are meaningful, and actually exercise the new code (not just path matching).
 tools: Bash(git:*), Read, Grep, Glob
 model: sonnet
 ---
 
 # Test Coverage Checker Agent
 
-Validate that new work has appropriate test coverage.
+Validate that new work has appropriate, meaningful test coverage.
 This is an advisory agent - it reports coverage gaps but does NOT block the workflow.
+
+**Important**: This agent validates test QUALITY, not just test EXISTENCE. A test file
+that exists but doesn't meaningfully exercise the new code is flagged as a gap.
 
 ## Scope
 
@@ -178,6 +181,143 @@ async function findNewExports(file) {
 }
 ```
 
+## Phase 6: Validate Test Quality
+
+**Critical**: Don't just check if test files exist - verify tests actually exercise the new code.
+
+```javascript
+async function validateTestQuality(sourceFile, testFile, newExports) {
+  const testContent = await readFile(testFile);
+  const sourceContent = await readFile(sourceFile);
+  const issues = [];
+
+  // 1. Check if new exports are actually tested
+  for (const exportName of newExports) {
+    const testMentions = testContent.match(new RegExp(exportName, 'g'));
+    if (!testMentions || testMentions.length === 0) {
+      issues.push({
+        type: 'untested-export',
+        export: exportName,
+        message: `New export '${exportName}' is not referenced in test file`
+      });
+    }
+  }
+
+  // 2. Check for meaningful assertions (not just trivial tests)
+  const trivialPatterns = [
+    /expect\s*\(\s*true\s*\)/,
+    /expect\s*\(\s*1\s*\)\s*\.toBe\s*\(\s*1\s*\)/,
+    /assert\s*\(\s*True\s*\)/,
+    /\.toBeDefined\s*\(\s*\)/  // Only toBeDefined without other checks
+  ];
+
+  for (const pattern of trivialPatterns) {
+    if (pattern.test(testContent)) {
+      issues.push({
+        type: 'trivial-assertion',
+        message: 'Test contains trivial assertions that don\'t validate behavior'
+      });
+      break;
+    }
+  }
+
+  // 3. Check test describes/its match the source functionality
+  const describeTitles = testContent.match(/describe\s*\(\s*['"`]([^'"`]+)['"`]/g) || [];
+  const itTitles = testContent.match(/it\s*\(\s*['"`]([^'"`]+)['"`]/g) || [];
+
+  if (describeTitles.length === 0 && itTitles.length === 0) {
+    issues.push({
+      type: 'no-test-structure',
+      message: 'Test file lacks describe/it blocks - may not be a real test'
+    });
+  }
+
+  // 4. Check for edge case coverage hints
+  const edgeCasePatterns = ['null', 'undefined', 'empty', 'error', 'invalid', 'edge', 'boundary'];
+  const hasEdgeCases = edgeCasePatterns.some(p => testContent.toLowerCase().includes(p));
+
+  if (!hasEdgeCases && newExports.length > 0) {
+    issues.push({
+      type: 'missing-edge-cases',
+      message: 'Tests may lack edge case coverage (no null/error/boundary tests detected)',
+      severity: 'warning'
+    });
+  }
+
+  // 5. Check if test actually imports/requires the source
+  const sourceBasename = sourceFile.split('/').pop().replace(/\.[^.]+$/, '');
+  const importPatterns = [
+    new RegExp(`from\\s+['"][^'"]*${sourceBasename}['"]`),
+    new RegExp(`require\\s*\\(\\s*['"][^'"]*${sourceBasename}['"]`),
+    new RegExp(`import\\s+.*${sourceBasename}`)
+  ];
+
+  const importsSource = importPatterns.some(p => p.test(testContent));
+  if (!importsSource) {
+    issues.push({
+      type: 'no-source-import',
+      message: `Test file doesn't appear to import '${sourceBasename}'`,
+      severity: 'critical'
+    });
+  }
+
+  return {
+    testFile,
+    sourceFile,
+    quality: issues.length === 0 ? 'good' : issues.some(i => i.severity === 'critical') ? 'poor' : 'needs-improvement',
+    issues
+  };
+}
+```
+
+## Phase 7: Analyze Test Coverage Depth
+
+Check if tests cover the actual logic paths in the new code:
+
+```javascript
+async function analyzeTestDepth(sourceFile, testFile, diff) {
+  const analysis = {
+    sourceComplexity: 'unknown',
+    testCoverage: 'unknown',
+    suggestions: []
+  };
+
+  // Extract conditionals and branches from new code
+  const newBranches = [];
+  const branchPatterns = [
+    /^\+.*if\s*\(/gm,
+    /^\+.*else\s*\{/gm,
+    /^\+.*\?\s*.*:/gm,  // Ternary
+    /^\+.*switch\s*\(/gm,
+    /^\+.*case\s+/gm,
+    /^\+.*catch\s*\(/gm
+  ];
+
+  for (const pattern of branchPatterns) {
+    const matches = diff.match(pattern) || [];
+    newBranches.push(...matches);
+  }
+
+  if (newBranches.length > 3) {
+    analysis.sourceComplexity = 'high';
+    analysis.suggestions.push('New code has multiple branches - ensure each path is tested');
+  }
+
+  // Check for async/await patterns that need error testing
+  const hasAsync = /^\+.*async\s+|^\+.*await\s+/m.test(diff);
+  if (hasAsync) {
+    const testContent = await readFile(testFile);
+    const hasAsyncTests = /\.rejects|\.resolves|async.*expect|try.*catch.*expect/i.test(testContent);
+
+    if (!hasAsyncTests) {
+      analysis.suggestions.push('New async code detected - add tests for promise rejection scenarios');
+    }
+  }
+
+  return analysis;
+}
+```
+
 ## Output Format (JSON)
 
 ```json
@@ -203,15 +343,36 @@ async function findNewExports(file) {
       "newExports": ["newFunction"]
     }
   ],
+  "qualityIssues": [
+    {
+      "file": "src/api-client.ts",
+      "testFile": "tests/api-client.test.ts",
+      "quality": "needs-improvement",
+      "issues": [
+        {
+          "type": "untested-export",
+          "export": "handleRetry",
+          "message": "New export 'handleRetry' is not referenced in test file"
+        },
+        {
+          "type": "missing-edge-cases",
+          "message": "Tests may lack edge case coverage",
+          "severity": "warning"
+        }
+      ],
+      "suggestions": ["New async code detected - add tests for promise rejection scenarios"]
+    }
+  ],
   "covered": [
     {
       "file": "src/utils.ts",
-      "testFile": "tests/utils.test.ts"
+      "testFile": "tests/utils.test.ts",
+      "quality": "good"
     }
   ],
   "summary": {
-    "status": "gaps-found",
-    "recommendation": "Consider adding tests for 2 files with new exports"
+    "status": "quality-issues-found",
+    "recommendation": "2 files missing tests, 1 file has tests but doesn't exercise new code"
   }
 }
 ```
@@ -227,9 +388,10 @@ async function findNewExports(file) {
 | Files Analyzed | ${filesAnalyzed} |
 | Files with Tests | ${filesWithTests} |
 | Files Missing Tests | ${filesMissingTests} |
-| Coverage | ${coveragePercent}% |
+| Tests with Quality Issues | ${qualityIssues.length} |
+| Effective Coverage | ${effectiveCoveragePercent}% |
 
-### Coverage Gaps
+### Missing Test Files
 ${gaps.map(g => `
 **${g.file}**
 - Reason: ${g.reason}
@@ -237,8 +399,15 @@ ${gaps.map(g => `
 ${g.candidates ? `- Suggested test location: ${g.candidates[0]}` : ''}
 `).join('\n')}
 
-### Covered Files
-${covered.map(c => `- ${c.file} → ${c.testFile}`).join('\n')}
+### Test Quality Issues
+${qualityIssues.map(q => `
+**${q.file}** → ${q.testFile} (Quality: ${q.quality})
+${q.issues.map(i => `- ⚠️ ${i.message}`).join('\n')}
+${q.suggestions?.map(s => `- 💡 ${s}`).join('\n') || ''}
+`).join('\n')}
+
+### Well-Covered Files
+${covered.filter(c => c.quality === 'good').map(c => `- ✓ ${c.file} → ${c.testFile}`).join('\n')}
 
 ### Recommendation
 ${summary.recommendation}
@@ -262,5 +431,17 @@ This agent is called:
 - Correctly identifies test file conventions
 - Maps source files to test files
 - Detects new exports that need testing
+- **Validates tests actually exercise the new code** (not just path matching)
+- **Flags trivial or meaningless tests** (e.g., `expect(true).toBe(true)`)
+- **Checks for edge case coverage** in tests
+- **Verifies tests import the source file** they claim to test
 - Provides actionable recommendations
 - Does NOT block workflow on missing tests
+
+## Model Choice: Sonnet
+
+This agent uses **sonnet** because:
+- Test quality validation requires understanding code relationships
+- Pattern detection needs more than simple matching
+- Analyzing test meaningfulness requires moderate reasoning
+- Advisory role means occasional misses are acceptable

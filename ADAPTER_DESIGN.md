@@ -34,8 +34,7 @@ awsome-slash/
 │   ├── deslop-around/
 │   ├── next-task/
 │   ├── project-review/
-│   ├── ship/
-│   └── pr-merge/
+│   └── ship/
 ├── adapters/                     # NEW: Tool-specific adapters
 │   ├── codex/
 │   │   ├── install.sh           # Codex CLI installation script
@@ -69,7 +68,7 @@ cd awsome-slash
 ./adapters/codex/install.sh
 
 # Commands become available as:
-# /ship, /deslop-around, /next-task, /project-review, /pr-merge
+# /ship, /deslop-around, /next-task, /project-review
 ```
 
 ### OpenCode (NEW)
@@ -83,7 +82,7 @@ cd awsome-slash
 ./adapters/opencode/install.sh
 
 # Commands become available as:
-# /ship, /deslop-around, /next-task, /project-review, /pr-merge
+# /ship, /deslop-around, /next-task, /project-review
 ```
 
 ## Tool-Specific Differences
@@ -126,7 +125,6 @@ cd awsome-slash
 | `/next-task` | ✅ Full | ⚠️ Partial | ⚠️ Partial | Needs `gh` CLI, code validation works |
 | `/project-review` | ✅ Full | ⚠️ Partial | ⚠️ Partial | Multi-agent may differ per tool |
 | `/ship` | ✅ Full | ⚠️ Partial | ⚠️ Partial | CI/CD detection works, subagents may differ |
-| `/pr-merge` | ✅ Full | ⚠️ Partial | ⚠️ Partial | Same as `/ship` |
 
 **Legend:**
 - ✅ Full: Complete feature parity
@@ -191,8 +189,8 @@ sed "s|\${CLAUDE_PLUGIN_ROOT}|$OPENCODE_COMMANDS_DIR|g" ...
 
 ## Success Criteria
 
-- [ ] All 5 commands installable on Codex CLI
-- [ ] All 5 commands installable on OpenCode
+- [ ] All 4 commands installable on Codex CLI
+- [ ] All 4 commands installable on OpenCode
 - [ ] Platform detection works on all tools
 - [ ] Clear documentation per tool
 - [ ] Automated installation (one command)

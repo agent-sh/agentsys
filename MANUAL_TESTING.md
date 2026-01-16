@@ -410,63 +410,6 @@ git branch --show-current  # Should be "main"
 
 ---
 
-## Test Command 5: `/pr-merge`
-
-### Prerequisites
-
-1. **Create a PR manually**:
-```bash
-git checkout -b feature/manual-pr
-echo "test" > test.txt
-git add test.txt
-git commit -m "Test PR"
-git push -u origin feature/manual-pr
-gh pr create --title "Test PR" --body "Testing pr-merge"
-```
-
-2. **Get PR number**:
-```bash
-gh pr list
-```
-
-### Test the Command
-
-**In Claude Code:**
-```
-/pr-merge <pr-number>
-```
-
-**Or auto-detect:**
-```
-git checkout feature/manual-pr
-/pr-merge
-```
-
-**Expected Behavior**:
-1. ✅ Identifies PR
-2. ✅ Addresses review comments (if any)
-3. ✅ Runs quality validation agents
-4. ✅ Waits for CI
-5. ✅ Merges PR
-6. ✅ Tests development environment (if multi-branch)
-7. ✅ Merges to production (if multi-branch)
-8. ✅ Validates production
-9. ✅ Cleans up branches
-
-**Manual Verification**:
-```bash
-# Check PR is merged
-gh pr view <number>  # Should show "MERGED"
-
-# Check branch is deleted
-git branch -a | grep manual-pr  # Should be gone
-
-# Check you're on main
-git branch --show-current
-```
-
----
-
 ## Common Issues & Troubleshooting
 
 ### Issue: "GitHub CLI not found"
@@ -533,7 +476,6 @@ After testing all commands, verify:
 - [ ] ✅ `/next-task` lists prioritized tasks
 - [ ] ✅ `/project-review` finds real issues
 - [ ] ✅ `/ship` creates PR and merges successfully
-- [ ] ✅ `/pr-merge` merges existing PR correctly
 - [ ] ✅ All commands respect your project structure
 - [ ] ✅ All commands handle errors gracefully
 - [ ] ✅ No false positives in detection/review
@@ -617,10 +559,9 @@ time node lib/platform/verify-tools.js
 
 Track time for each command:
 - `/deslop-around`: ~30-60 seconds (depending on repo size)
-- `/next-task`: ~10-30 seconds (depending on issue count)
+- `/next-task`: ~10-30 minutes (full workflow with review)
 - `/project-review`: ~2-5 minutes (depending on repo size and issues found)
 - `/ship`: ~5-15 minutes (including CI wait time)
-- `/pr-merge`: ~3-10 minutes (including CI wait time)
 
 ---
 

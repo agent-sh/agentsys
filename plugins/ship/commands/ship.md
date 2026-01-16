@@ -10,6 +10,15 @@ End-to-end workflow: commit → PR → CI → review → merge → deploy → va
 
 Auto-adapts to your project's CI platform, deployment platform, and branch strategy.
 
+## Integration with /next-task
+
+When called from the `/next-task` workflow (via `--state-file`), this command:
+- **SKIPS review** (already done by review-orchestrator)
+- **SKIPS deslop/docs** (already done by deslop-work, docs-updater)
+- **Trusts** that all quality gates passed before reaching this point
+
+When called standalone, this command runs the full workflow including review.
+
 ## Arguments
 
 Parse from $ARGUMENTS:
@@ -399,9 +408,30 @@ fi
 
 ## Phase 5: Review Loop (Subagent Quality Gates)
 
-Multi-agent code review with approval gates:
+### Skip If Called From /next-task Workflow
 
-### Invoke Specialized Agents
+```javascript
+// Check if called from next-task workflow with completed review
+if (workflowState) {
+  const state = workflowState.readState();
+  const reviewPhase = state?.phases?.history?.find(p => p.phase === 'review-loop');
+
+  if (reviewPhase?.result?.approved) {
+    console.log("## Review Loop: SKIPPED");
+    console.log("Review already completed and approved by next-task workflow.");
+    console.log(`- Review iterations: ${reviewPhase.result.iterations}`);
+    console.log(`- Remaining issues: ${reviewPhase.result.remainingIssues?.medium || 0} medium, ${reviewPhase.result.remainingIssues?.low || 0} low`);
+
+    // Skip to Phase 6: Merge
+    SKIP_REVIEW = true;
+  }
+}
+```
+
+**When called standalone** (not from next-task), run the full review loop.
+**When called from next-task** with `--state-file`, skip review (already done).
+
+### Invoke Specialized Agents (If Not Skipped)
 
 ```markdown
 Launching 3 review agents for PR #${PR_NUMBER}...
@@ -871,7 +901,7 @@ else
   # Rollback mechanism with --force-with-lease for safety
   git checkout $PROD_BRANCH
   git reset --hard HEAD~1
-  
+
   # Use --force-with-lease to prevent overwriting unexpected remote changes
   if ! git push --force-with-lease origin $PROD_BRANCH; then
     echo "✗ Force push failed - remote may have unexpected changes"
@@ -900,7 +930,7 @@ if [ "$ERROR_COUNT" -gt 20 ]; then
   # Rollback with --force-with-lease for safety
   git checkout $PROD_BRANCH
   git reset --hard HEAD~1
-  
+
   if ! git push --force-with-lease origin $PROD_BRANCH; then
     echo "✗ Force push failed - remote may have unexpected changes"
     echo "Manual intervention required"
@@ -930,7 +960,7 @@ if jq -e '.scripts["smoke-test:prod"]' package.json > /dev/null 2>&1; then
 
     git checkout $PROD_BRANCH
     git reset --hard HEAD~1
-    
+
     if ! git push --force-with-lease origin $PROD_BRANCH; then
       echo "✗ Force push failed - remote may have unexpected changes"
       echo "Manual intervention required"
@@ -956,7 +986,7 @@ rollback_production() {
   # Revert production branch
   git checkout $PROD_BRANCH
   git reset --hard HEAD~1
-  
+
   # Use --force-with-lease to prevent overwriting unexpected remote changes
   if ! git push --force-with-lease origin $PROD_BRANCH; then
     echo "✗ Force push failed - remote may have unexpected changes"
@@ -1002,6 +1032,47 @@ if [ "$WORKTREES" -gt 1 ]; then
 
   echo "✓ Worktrees cleaned up"
 fi
+```
+
+### Remove Task from Registry (Main Repo)
+
+When cleanup completes, remove the task from the main repo's tasks.json registry:
+
+```javascript
+const fs = require('fs');
+
+function removeTaskFromRegistry(taskId, mainRepoPath) {
+  const registryPath = path.join(mainRepoPath, '.claude', 'tasks.json');
+
+  if (!fs.existsSync(registryPath)) {
+    console.log('No tasks.json registry found, skipping');
+    return;
+  }
+
+  const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+  const originalCount = registry.tasks.length;
+
+  // Remove the completed task
+  registry.tasks = registry.tasks.filter(t => t.id !== taskId);
+
+  if (registry.tasks.length < originalCount) {
+    fs.writeFileSync(registryPath, JSON.stringify(registry, null, 2));
+    console.log(`✓ Removed task #${taskId} from tasks.json registry`);
+  } else {
+    console.log(`Task #${taskId} not found in registry (may have been cleaned already)`);
+  }
+}
+
+// Get main repo path from workflow state
+if (workflowState) {
+  const state = workflowState.readState();
+  const mainRepoPath = state?.git?.mainRepoPath || process.cwd();
+  const taskId = state?.task?.id;
+
+  if (taskId) {
+    removeTaskFromRegistry(taskId, mainRepoPath);
+  }
+}
 ```
 
 ### Linear Integration (Optional)

@@ -67,7 +67,6 @@ When you install the plugin, command files are placed in:
 ~/.claude/plugins/awsome-slash/commands/
   ├── deslop-around.md
   ├── next-task.md
-  ├── pr-merge.md
   ├── project-review.md
   └── ship.md
 ```
@@ -155,7 +154,6 @@ awsome-slash/
 ├── commands/              # Slash command files
 │   ├── deslop-around.md   # → /deslop-around
 │   ├── next-task.md       # → /next-task
-│   ├── pr-merge.md        # → /pr-merge
 │   ├── project-review.md  # → /project-review
 │   └── ship.md            # → /ship
 ├── lib/                   # Infrastructure
@@ -217,12 +215,6 @@ No configuration files needed!
 ```
 > /project-review
 # Comprehensive multi-agent review
-```
-
-**Reviewing Teammate's PR:**
-```
-> /pr-merge 123
-# Review, validate, and merge PR #123
 ```
 
 ### Maintenance
@@ -287,16 +279,6 @@ Complete PR workflow to production.
 /ship --strategy rebase           # Use rebase
 ```
 
-### `/pr-merge [pr-number] [options]`
-
-Merge PR with validation.
-
-**Examples:**
-```
-/pr-merge                         # Auto-detect from branch
-/pr-merge 123                     # Merge PR #123
-```
-
 ---
 
 ## Prerequisites
@@ -310,7 +292,7 @@ Merge PR with validation.
   git status  # Must show valid git repo
   ```
 
-### Required for /ship and /pr-merge
+### Required for /ship
 
 - **GitHub CLI (gh)**: For PR operations
   ```bash
@@ -351,7 +333,7 @@ claude plugin install https://github.com/avifenesh/awsome-slash
 
 ### "GitHub CLI not found"
 
-For `/ship` and `/pr-merge` only:
+For `/ship` only:
 ```bash
 brew install gh
 gh auth login

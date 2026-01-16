@@ -52,7 +52,7 @@ Please include:
 1. **Review Generated Code:** Always review code changes made by agents before committing
 2. **Check Credentials:** Never commit secrets, API keys, or credentials
 3. **Deployment Caution:** Validate deployments before shipping to production
-4. **PR Reviews:** Use `/pr-merge` quality gates to catch security issues
+4. **PR Reviews:** Use `/project-review` quality gates to catch security issues
 
 ### Platform Detection Scripts
 
@@ -65,8 +65,8 @@ The platform detection scripts in `lib/` execute shell commands. They:
 ### Command Safety
 
 Commands that modify your repository:
-- `/ship` - Commits and pushes code
-- `/pr-merge` - Merges pull requests
+- `/ship` - Commits, pushes code, creates and merges PRs
+- `/next-task` - Full workflow automation including code changes
 - `/deslop-around --apply` - Modifies source files
 
 Always review changes with `git status` and `git diff` before running commands that commit or push.

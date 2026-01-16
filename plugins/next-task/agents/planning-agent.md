@@ -226,3 +226,11 @@ A good plan must:
 - Skipping test planning
 - Over-engineering beyond requirements
 - Under-estimating complexity
+
+## Model Choice: Opus
+
+This agent uses **opus** because:
+- Architectural design requires deep reasoning
+- Must synthesize exploration findings into coherent plan
+- Plan quality determines implementation success
+- User approval gate means plan must be defensible

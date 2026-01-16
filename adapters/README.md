@@ -121,7 +121,6 @@ Installers automatically handle these substitutions.
 | `/next-task` | ✅ Full | ✅ Full | ✅ Full | Requires `gh` CLI |
 | `/project-review` | ✅ Full | ⚠️ Partial | ⚠️ Partial | Multi-agent may differ |
 | `/ship` | ✅ Full | ⚠️ Partial | ⚠️ Partial | CI/CD works, agents may vary |
-| `/pr-merge` | ✅ Full | ⚠️ Partial | ⚠️ Partial | Same as `/ship` |
 
 ---
 
@@ -179,7 +178,7 @@ claude plugin install deslop-around@awsome-slash
 All tools require:
 - **Git** - Version control
 - **Node.js 18+** - For platform detection scripts
-- **GitHub CLI (`gh`)** - For PR-related commands (`/ship`, `/pr-merge`)
+- **GitHub CLI (`gh`)** - For PR-related commands (`/ship`)
 
 Optional (enables additional features):
 - Railway CLI, Vercel CLI, Netlify CLI - For deployment detection

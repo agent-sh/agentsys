@@ -1,8 +1,8 @@
 ---
 name: task-discoverer
-description: Discover and prioritize tasks from configured sources. Use after policy selection to find the next task to work on.
+description: Discover and prioritize tasks from configured sources. Use this agent after policy selection to find the next task to work on.
 tools: Bash(gh:*), Bash(git:*), Grep, Read
-model: sonnet
+model: inherit
 ---
 
 # Task Discoverer Agent
@@ -21,7 +21,35 @@ console.log(`Task Source: ${policy.taskSource}`);
 console.log(`Priority Filter: ${policy.priorityFilter}`);
 ```
 
-## Phase 2: Fetch Tasks by Source
+## Phase 2: Load Claimed Tasks Registry
+
+Before fetching tasks, check which tasks are already claimed by other workflows:
+
+```javascript
+const TASKS_REGISTRY_PATH = '.claude/tasks.json';
+
+function loadClaimedTasks() {
+  try {
+    const content = await readFile(TASKS_REGISTRY_PATH);
+    const registry = JSON.parse(content);
+    return registry.tasks || [];
+  } catch (e) {
+    // No registry yet, that's fine
+    return [];
+  }
+}
+
+const claimedTasks = loadClaimedTasks();
+const claimedIds = new Set(claimedTasks.map(t => t.id));
+
+console.log(`Found ${claimedTasks.length} tasks already claimed by other workflows`);
+if (claimedTasks.length > 0) {
+  console.log('Claimed tasks (will be excluded):');
+  claimedTasks.forEach(t => console.log(`  - #${t.id}: ${t.title} (${t.status})`));
+}
+```
+
+## Phase 3: Fetch Tasks by Source
 
 ### GitHub Issues
 
@@ -70,7 +98,30 @@ if [ "$TASK_SOURCE" = "tasks-md" ]; then
 fi
 ```
 
-## Phase 3: Apply Priority Filter
+## Phase 4: Exclude Claimed Tasks
+
+Remove tasks that are already claimed by other workflows:
+
+```javascript
+function excludeClaimedTasks(tasks, claimedIds) {
+  const available = tasks.filter(task => {
+    const taskId = String(task.number || task.id || task.line);
+    return !claimedIds.has(taskId);
+  });
+
+  const excluded = tasks.length - available.length;
+  if (excluded > 0) {
+    console.log(`Excluded ${excluded} task(s) already claimed by other workflows`);
+  }
+
+  return available;
+}
+
+// Apply exclusion
+tasks = excludeClaimedTasks(tasks, claimedIds);
+```
+
+## Phase 5: Apply Priority Filter
 
 Filter tasks based on policy.priorityFilter:
 
@@ -92,7 +143,7 @@ function filterByPriority(tasks, filter) {
 }
 ```
 
-## Phase 4: Code Validation
+## Phase 6: Code Validation
 
 Validate tasks aren't already implemented:
 
@@ -127,7 +178,7 @@ validate_task() {
 }
 ```
 
-## Phase 5: Priority Scoring
+## Phase 7: Priority Scoring
 
 Score tasks for prioritization:
 
@@ -172,7 +223,7 @@ function scoreTask(task, recentFiles) {
 }
 ```
 
-## Phase 6: Present Recommendations
+## Phase 8: Present Recommendations
 
 Present top 5 tasks to user:
 
@@ -196,7 +247,7 @@ Based on policy: **${policy.priorityFilter}** from **${policy.taskSource}**
 Select a task (1-5) or provide a custom task:
 ```
 
-## Phase 7: User Selection via AskUserQuestion
+## Phase 9: User Selection via AskUserQuestion
 
 ```javascript
 AskUserQuestion({
@@ -228,7 +279,7 @@ AskUserQuestion({
 })
 ```
 
-## Phase 8: Update State with Selected Task
+## Phase 10: Update State with Selected Task
 
 ```javascript
 const selectedTask = tasks[userSelection - 1];
@@ -252,7 +303,7 @@ workflowState.completePhase({
 });
 ```
 
-## Phase 9: Output
+## Phase 11: Output
 
 ```markdown
 ## Task Selected
@@ -287,6 +338,8 @@ fi
 
 ## Success Criteria
 
+- **Loads tasks.json registry** from main repo
+- **Excludes claimed tasks** that are in-progress by other workflows
 - Tasks fetched from configured source
 - Filtered by priority policy
 - Validated against codebase
@@ -294,3 +347,11 @@ fi
 - User selection captured
 - State updated with task details
 - Phase advanced to worktree-setup
+
+## Model Choice: Inherit
+
+This agent uses **inherit** because:
+- Complexity varies by calling context
+- When called from orchestrator (sonnet), inherits sonnet
+- Simple task fetching doesn't need opus
+- Allows flexibility without over-specifying

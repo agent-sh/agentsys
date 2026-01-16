@@ -2,10 +2,7 @@
   "mcpServers": {
     "awesome-slash": {
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp-server/index.js"],
-      "env": {
-        "PLUGIN_ROOT": "${CLAUDE_PLUGIN_ROOT}"
-      }
+      "args": ["./mcp-server/index.js"]
     }
   }
 }

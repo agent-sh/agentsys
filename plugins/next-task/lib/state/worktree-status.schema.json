@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "worktree-status.schema.json",
+  "title": "Worktree Workflow Status",
+  "description": "Workflow status file stored within the worktree. Tracks all steps with timestamps for resume capability.",
+  "type": "object",
+  "required": ["version", "task", "workflow", "steps"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Schema version",
+      "default": "1.0.0"
+    },
+    "task": {
+      "type": "object",
+      "required": ["id", "source", "title"],
+      "description": "The task this worktree is implementing",
+      "properties": {
+        "id": { "type": "string" },
+        "source": { "type": "string", "enum": ["github", "linear", "tasks-md", "manual"] },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "url": { "type": ["string", "null"], "format": "uri" }
+      }
+    },
+    "workflow": {
+      "type": "object",
+      "required": ["id", "startedAt", "status"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Workflow identifier"
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastActivityAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "paused", "completed", "failed", "aborted"]
+        },
+        "currentPhase": {
+          "type": "string",
+          "description": "Current phase name"
+        }
+      }
+    },
+    "git": {
+      "type": "object",
+      "properties": {
+        "branch": { "type": "string" },
+        "baseSha": { "type": "string" },
+        "currentSha": { "type": "string" },
+        "mainRepPath": { "type": "string", "description": "Path to main repository" }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "description": "Workflow policy settings",
+      "properties": {
+        "stoppingPoint": { "type": "string" },
+        "mergeStrategy": { "type": "string" },
+        "maxReviewIterations": { "type": "integer" }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "description": "Ordered list of workflow steps with timestamps",
+      "items": {
+        "type": "object",
+        "required": ["step", "status", "startedAt"],
+        "properties": {
+          "step": {
+            "type": "string",
+            "enum": [
+              "worktree-created",
+              "exploration-started",
+              "exploration-completed",
+              "planning-started",
+              "planning-completed",
+              "plan-approved",
+              "implementation-started",
+              "implementation-completed",
+              "deslop-work-completed",
+              "test-coverage-checked",
+              "review-started",
+              "review-iteration-1",
+              "review-iteration-2",
+              "review-iteration-3",
+              "review-approved",
+              "delivery-validation-started",
+              "delivery-validation-passed",
+              "docs-updated",
+              "ready-to-ship"
+            ],
+            "description": "Step identifier"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["started", "completed", "failed", "skipped"]
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "duration": {
+            "type": ["integer", "null"],
+            "description": "Duration in milliseconds"
+          },
+          "result": {
+            "type": ["object", "null"],
+            "description": "Step-specific result data"
+          },
+          "error": {
+            "type": ["string", "null"],
+            "description": "Error message if failed"
+          }
+        }
+      }
+    },
+    "resume": {
+      "type": "object",
+      "description": "Resume capability information",
+      "properties": {
+        "canResume": {
+          "type": "boolean",
+          "default": true
+        },
+        "resumeFromStep": {
+          "type": ["string", "null"],
+          "description": "Step to resume from"
+        },
+        "resumeContext": {
+          "type": ["object", "null"],
+          "description": "Context needed for resume"
+        }
+      }
+    },
+    "agents": {
+      "type": "object",
+      "description": "Agent execution tracking",
+      "properties": {
+        "reviewIterations": { "type": "integer", "default": 0 },
+        "issuesFound": { "type": "integer", "default": 0 },
+        "issuesFixed": { "type": "integer", "default": 0 }
+      }
+    }
+  },
+  "examples": [
+    {
+      "version": "1.0.0",
+      "task": {
+        "id": "123",
+        "source": "github",
+        "title": "Add user authentication",
+        "url": "https://github.com/org/repo/issues/123"
+      },
+      "workflow": {
+        "id": "workflow-20240115-103000-abc123",
+        "startedAt": "2024-01-15T10:30:00Z",
+        "lastActivityAt": "2024-01-15T11:45:00Z",
+        "status": "active",
+        "currentPhase": "implementation"
+      },
+      "git": {
+        "branch": "feature/add-user-authentication-123",
+        "baseSha": "abc123def",
+        "currentSha": "xyz789ghi",
+        "mainRepoPath": "/path/to/main/repo"
+      },
+      "policy": {
+        "stoppingPoint": "merged",
+        "mergeStrategy": "squash",
+        "maxReviewIterations": 3
+      },
+      "steps": [
+        {
+          "step": "worktree-created",
+          "status": "completed",
+          "startedAt": "2024-01-15T10:30:00Z",
+          "completedAt": "2024-01-15T10:30:05Z",
+          "duration": 5000
+        },
+        {
+          "step": "exploration-started",
+          "status": "completed",
+          "startedAt": "2024-01-15T10:30:10Z",
+          "completedAt": "2024-01-15T10:35:00Z",
+          "duration": 290000
+        },
+        {
+          "step": "exploration-completed",
+          "status": "completed",
+          "startedAt": "2024-01-15T10:35:00Z",
+          "completedAt": "2024-01-15T10:35:00Z",
+          "result": { "keyFiles": ["src/auth/index.ts"], "patterns": ["middleware"] }
+        },
+        {
+          "step": "implementation-started",
+          "status": "started",
+          "startedAt": "2024-01-15T11:00:00Z"
+        }
+      ],
+      "resume": {
+        "canResume": true,
+        "resumeFromStep": "implementation-started"
+      }
+    }
+  ]
+}

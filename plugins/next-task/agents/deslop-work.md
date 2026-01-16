@@ -1,7 +1,7 @@
 ---
 name: deslop-work
-description: Clean AI slop from committed but unpushed changes. Runs before review and after each review iteration. Only analyzes new work, not entire codebase.
-tools: Bash(git:*), Read, Grep, Glob, Edit
+description: Clean AI slop from committed but unpushed changes. Use this agent before review and after each review iteration. Only analyzes new work, not entire codebase.
+tools: Bash(git:*), Read, Grep, Glob, Task
 model: sonnet
 ---
 
@@ -10,6 +10,10 @@ model: sonnet
 Clean AI slop specifically from new work (committed but not pushed to remote).
 Unlike `/deslop-around` which scans the entire codebase, this agent focuses only
 on the diff between the current branch and origin/main.
+
+**Architecture**: Sonnet discovers → Haiku executes
+- This agent (sonnet): Analyze code, identify issues, create fix list
+- simple-fixer (haiku): Execute the fixes mechanically
 
 ## Scope
 
@@ -93,29 +97,90 @@ Group issues by severity:
 - **medium**: Console debugging, commented code
 - **low**: Magic numbers, trailing whitespace
 
-## Phase 5: Report Issues
+## Phase 5: Create Fix List
 
-Output findings in structured format (DO NOT auto-fix, this is a side reviewer):
+Build a structured fix list for issues that can be auto-fixed:
+
+```javascript
+function createFixList(issues) {
+  const fixList = {
+    fixes: [],
+    commitMessage: 'fix: clean up AI slop (debug statements, TODOs, etc.)'
+  };
+
+  for (const issue of issues) {
+    if (!issue.autoFix) continue; // Skip issues that need manual review
+
+    switch (issue.autoFix) {
+      case 'remove':
+        fixList.fixes.push({
+          file: issue.file,
+          line: issue.line,
+          action: 'remove-line',
+          reason: issue.description
+        });
+        break;
+
+      case 'replace':
+        fixList.fixes.push({
+          file: issue.file,
+          line: issue.line,
+          action: 'replace',
+          old: issue.content,
+          new: issue.replacement || '',
+          reason: issue.description
+        });
+        break;
+    }
+  }
+
+  return fixList;
+}
+```
+
+## Phase 6: Delegate Fixes to simple-fixer (haiku)
+
+```javascript
+async function applyFixes(fixList, manualIssues) {
+  if (fixList.fixes.length === 0) {
+    console.log("No auto-fixable issues found.");
+    return { applied: 0, manual: manualIssues.length };
+  }
+
+  console.log(`\n## Delegating ${fixList.fixes.length} fixes to simple-fixer (haiku)`);
+
+  const result = await Task({
+    subagent_type: 'simple-fixer',
+    prompt: JSON.stringify(fixList),
+    model: 'haiku'
+  });
+
+  console.log(`✓ Applied ${result.applied} fixes`);
+  if (result.failed > 0) {
+    console.log(`⚠ Failed to apply ${result.failed} fixes`);
+  }
+
+  return result;
+}
+```
+
+## Phase 7: Report Results
 
 ```markdown
 ## Deslop Work Report
 
 ### Summary
-| Severity | Count |
+| Category | Count |
 |----------|-------|
-| Critical | ${critical} |
-| High | ${high} |
-| Medium | ${medium} |
-| Low | ${low} |
+| Auto-fixed | ${autoFixed} |
+| Manual review needed | ${manualCount} |
+| Failed | ${failedCount} |
 
-### Critical Issues (Must Fix)
-${criticalIssues.map(i => `- **${i.file}:${i.line}** - ${i.description}\n  \`${i.content}\``).join('\n')}
+### Auto-Fixed Issues
+${fixedIssues.map(i => `- ✓ **${i.file}:${i.line}** - ${i.reason}`).join('\n')}
 
-### High Priority Issues
-${highIssues.map(i => `- **${i.file}:${i.line}** - ${i.description}\n  \`${i.content}\``).join('\n')}
-
-### Medium Priority Issues
-${mediumIssues.map(i => `- **${i.file}:${i.line}** - ${i.description}`).join('\n')}
+### Requires Manual Review
+${manualIssues.map(i => `- ⚠ **${i.file}:${i.line}** - ${i.description}\n  \`${i.content}\``).join('\n')}
 ```
 
 ## Output Format (JSON)
@@ -153,10 +218,11 @@ This agent is called:
 
 ## Behavior
 
-- **Report only** - Does NOT auto-fix issues
-- Findings passed to review-orchestrator for inclusion in review context
-- Critical issues should block the review loop until addressed
-- Implementation-agent handles the actual fixes
+- **Analyze with sonnet** - Identify issues and create fix list
+- **Execute with haiku** - Delegate simple fixes to simple-fixer
+- Auto-fix safe patterns (console.log removal, TODO cleanup, etc.)
+- Report issues requiring manual review
+- Critical security issues flagged for human attention
 
 ## Language Detection
 
@@ -188,6 +254,19 @@ function getLanguageFromExtension(ext) {
 
 - Only analyzes files in current branch diff (not entire repo)
 - Uses existing slop-patterns.js library
-- Reports issues without auto-fixing
-- Groups by severity for prioritization
+- **Sonnet analyzes, haiku executes** - cost-efficient architecture
+- Auto-fixes safe patterns via simple-fixer delegation
+- Reports issues requiring manual review
 - Returns structured JSON for orchestrator consumption
+
+## Architecture Notes
+
+This agent uses sonnet for analysis because:
+- Pattern detection requires understanding context
+- Creating fix lists needs judgment about safety
+- Identifying what CAN'T be auto-fixed needs reasoning
+
+simple-fixer uses haiku because:
+- Executing pre-defined edits is mechanical
+- No judgment calls needed
+- Fast and cost-efficient for batch operations

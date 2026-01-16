@@ -102,27 +102,6 @@ opencode
 
 ---
 
-### 🔀 `/pr-merge` - Intelligent PR Merge
-
-Merge PRs with comprehensive validation.
-
-```bash
-opencode
-> /pr-merge
-> /pr-merge 123
-> /pr-merge 123 --strategy rebase
-```
-
-**What it does:**
-- Addresses review comments
-- Runs validation agents
-- Waits for CI
-- Tests deployments
-- Auto-rollback on failure
-
-**Requires:** Git, GitHub CLI (`gh`)
-
----
 
 ## OpenCode-Specific Features
 
@@ -177,7 +156,6 @@ The installer:
 ├── next-task.md
 ├── project-review.md
 ├── ship.md
-├── pr-merge.md
 ├── lib/
 │   ├── platform/
 │   │   ├── detect-platform.js

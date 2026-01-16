@@ -2,7 +2,7 @@
 name: worktree-manager
 description: Create and manage git worktrees for isolated task development. Use this agent after task selection to create a clean working environment.
 tools: Bash(git:*), Read, Write
-model: sonnet
+model: haiku
 ---
 
 # Worktree Manager Agent
@@ -49,7 +49,7 @@ function generateWorktreePath(task) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
-    .substring(0, 40);
+    .substring(0, 40); // Limit slug length for filesystem compatibility
 
   // Include task ID for uniqueness
   const fullSlug = task.id ? `${slug}-${task.id}` : slug;
@@ -132,9 +132,60 @@ else
 fi
 ```
 
-## Phase 6: Anchor PWD to Worktree
+## Phase 6: Claim Task in Registry (Main Repo)
 
-**CRITICAL**: Change to the worktree directory to anchor all subsequent operations:
+Add this task to the main repo's tasks.json registry to prevent other workflows from claiming it:
+
+```javascript
+const fs = require('fs');
+const TASKS_REGISTRY_PATH = '.claude/tasks.json';
+const MAIN_REPO_PATH = process.cwd(); // Still in main repo at this point
+
+function claimTaskInRegistry(task, branch, worktreePath) {
+  // Ensure .claude directory exists
+  if (!fs.existsSync('.claude')) {
+    fs.mkdirSync('.claude', { recursive: true });
+  }
+
+  // Load or create registry
+  let registry = { version: '1.0.0', tasks: [] };
+  if (fs.existsSync(TASKS_REGISTRY_PATH)) {
+    registry = JSON.parse(fs.readFileSync(TASKS_REGISTRY_PATH, 'utf8'));
+  }
+
+  // Add this task
+  const taskEntry = {
+    id: task.id,
+    source: task.source,
+    title: task.title,
+    branch: branch,
+    worktreePath: path.resolve(worktreePath),
+    claimedAt: new Date().toISOString(),
+    claimedBy: state.workflow.id,
+    status: 'claimed',
+    lastActivityAt: new Date().toISOString()
+  };
+
+  // Check if already claimed (shouldn't happen, but safety check)
+  const existingIdx = registry.tasks.findIndex(t => t.id === task.id);
+  if (existingIdx >= 0) {
+    console.log(`WARNING: Task #${task.id} was already in registry, updating...`);
+    registry.tasks[existingIdx] = taskEntry;
+  } else {
+    registry.tasks.push(taskEntry);
+  }
+
+  // Write registry
+  fs.writeFileSync(TASKS_REGISTRY_PATH, JSON.stringify(registry, null, 2));
+  console.log(`✓ Claimed task #${task.id} in tasks.json registry`);
+}
+
+claimTaskInRegistry(state.task, BRANCH_NAME, WORKTREE_PATH);
+```
+
+## Phase 7: Anchor PWD to Worktree
+
+**Important**: Change to the worktree directory to anchor all subsequent operations:
 
 ```bash
 cd "$WORKTREE_PATH"
@@ -150,7 +201,70 @@ echo "✓ Working directory anchored to: $(pwd)"
 echo "✓ On branch: $CURRENT_BRANCH"
 ```
 
-## Phase 7: Update Workflow State
+## Phase 8: Create Worktree Status File
+
+Create the workflow-status.json file in this worktree to track steps:
+
+```javascript
+const fs = require('fs');
+const WORKTREE_STATUS_PATH = '.claude/workflow-status.json';
+
+function createWorktreeStatus(task, workflow, branch, mainRepoPath) {
+  // Ensure .claude directory exists in worktree
+  if (!fs.existsSync('.claude')) {
+    fs.mkdirSync('.claude', { recursive: true });
+  }
+
+  const status = {
+    version: '1.0.0',
+    task: {
+      id: task.id,
+      source: task.source,
+      title: task.title,
+      description: task.description || '',
+      url: task.url || null
+    },
+    workflow: {
+      id: workflow.id,
+      startedAt: workflow.startedAt,
+      lastActivityAt: new Date().toISOString(),
+      status: 'active',
+      currentPhase: 'worktree-setup'
+    },
+    git: {
+      branch: branch,
+      baseSha: await exec('git rev-parse HEAD'),
+      currentSha: await exec('git rev-parse HEAD'),
+      mainRepoPath: mainRepoPath
+    },
+    policy: state.policy || {},
+    steps: [
+      {
+        step: 'worktree-created',
+        status: 'completed',
+        startedAt: workflow.startedAt,
+        completedAt: new Date().toISOString()
+      }
+    ],
+    resume: {
+      canResume: true,
+      resumeFromStep: 'worktree-created'
+    },
+    agents: {
+      reviewIterations: 0,
+      issuesFound: 0,
+      issuesFixed: 0
+    }
+  };
+
+  fs.writeFileSync(WORKTREE_STATUS_PATH, JSON.stringify(status, null, 2));
+  console.log(`✓ Created workflow-status.json in worktree`);
+}
+
+createWorktreeStatus(state.task, state.workflow, BRANCH_NAME, MAIN_REPO_PATH);
+```
+
+## Phase 9: Update Workflow State
 
 Update the workflow state with git information:
 
@@ -162,8 +276,8 @@ workflowState.updateState({
     originalBranch: ORIGINAL_BRANCH,
     workingBranch: BRANCH_NAME,
     worktreePath: WORKTREE_PATH,
-    baseSha: $(git rev-parse HEAD),
-    currentSha: $(git rev-parse HEAD),
+    baseSha: await exec('git rev-parse HEAD'),
+    currentSha: await exec('git rev-parse HEAD'),
     isWorktree: true
   }
 });
@@ -175,7 +289,7 @@ workflowState.completePhase({
 });
 ```
 
-## Phase 8: Output Summary
+## Phase 10: Output Summary
 
 Report the worktree setup:
 
@@ -241,8 +355,18 @@ fi
 
 ## Success Criteria
 
+- **Task claimed in main repo's tasks.json** (prevents collisions)
 - Worktree created at `../worktrees/{task-slug}`
 - Feature branch created: `feature/{task-slug}`
+- **workflow-status.json created in worktree** (for resume capability)
 - PWD anchored to worktree directory
 - Workflow state updated with git info
 - Phase advanced to exploration
+
+## Model Choice: Haiku
+
+This agent uses **haiku** because:
+- Executes scripted git commands (deterministic)
+- No complex reasoning about code or architecture
+- Simple string manipulation for slugs/paths
+- Fast execution for setup operations

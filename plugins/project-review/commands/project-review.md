@@ -809,17 +809,17 @@ If `git` and `gh` are available and this is a GitHub repository, create issues f
 ```bash
 if [ "$GH_AVAILABLE" = "true" ] && [ "$IS_GITHUB_REPO" = "true" ]; then
   echo "Creating GitHub issues for deferred items..."
-  
+
   # For each non-security deferred issue, create a GitHub issue
   # DO NOT create public issues for security-sensitive findings
   # Security issues should remain internal/private
-  
+
   for issue in "${DEFERRED_NON_SECURITY_ISSUES[@]}"; do
     gh issue create \
       --title "${issue.title}" \
       --body "${issue.body}"
   done
-  
+
   echo "Created ${#DEFERRED_NON_SECURITY_ISSUES[@]} GitHub issues"
 fi
 ```

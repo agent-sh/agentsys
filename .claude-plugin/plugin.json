@@ -1,0 +1,11 @@
+{
+  "name": "awsome-slash",
+  "version": "2.1.2",
+  "description": "Professional-grade slash commands for Claude Code with cross-platform support",
+  "author": {
+    "name": "Avi Fenesh",
+    "url": "https://github.com/avifenesh"
+  },
+  "repository": "https://github.com/avifenesh/awsome-slash",
+  "license": "MIT"
+}
