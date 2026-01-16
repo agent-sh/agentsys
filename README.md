@@ -5,19 +5,20 @@
 A cross-platform plugin providing powerful, zero-configuration slash commands for development workflows. Works with **Claude Code**, **Codex CLI**, and **OpenCode**.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-2.0.0-blue)](https://github.com/avifenesh/awsome-slash/releases)
+[![Version](https://img.shields.io/badge/version-2.1.1-blue)](https://github.com/avifenesh/awsome-slash/releases)
 [![GitHub stars](https://img.shields.io/github/stars/avifenesh/awsome-slash?style=flat&color=yellow)](https://github.com/avifenesh/awsome-slash/stargazers)
 [![Claude Code](https://img.shields.io/badge/Claude-Code%20Plugin-blue)](https://code.claude.com/)
 [![Codex CLI](https://img.shields.io/badge/Codex-CLI%20Compatible-green)](https://developers.openai.com/codex/cli)
 [![OpenCode](https://img.shields.io/badge/OpenCode-Compatible-orange)](https://opencode.ai)
 
-## What's New in v2.0.0
+## What's New in v2.1.0
 
-- **Master Workflow Orchestrator** - `/next-task` now runs complete task-to-production workflows
-- **State Management** - Resume interrupted workflows with `--resume`
-- **8 Specialist Agents** - Opus for complex tasks, Sonnet for operations
-- **Cross-Platform MCP Server** - Works with OpenCode and Codex CLI
-- **Removed pr-merge** - Functionality absorbed into `/ship` and `/next-task`
+- **Fully Autonomous Workflow** - No human intervention after plan approval until policy stop point
+- **Quality Gate Agents** - Pre-review gates (deslop-work, test-coverage-checker) and delivery validation
+- **12 Specialist Agents** - Enhanced with delivery-validator, docs-updater, and more
+- **SubagentStop Hooks** - Automatic phase transitions for seamless workflow
+- **Documentation Automation** - Auto-updates docs after delivery validation
+- **New Commands** - `/update-docs-around`, `/delivery-approval` for standalone use
 
 ---
 
@@ -55,46 +56,52 @@ cd awsome-slash
 
 ## Available Commands
 
-### 📋 `/next-task` - Master Workflow Orchestrator
+### 📋 `/next-task:next-task` - Master Workflow Orchestrator
 
 Complete task-to-production automation with state management and resume capability.
 
 ```bash
-/next-task                   # Start new workflow with policy selection
-/next-task --status          # Check current workflow state
-/next-task --resume          # Resume from last checkpoint
-/next-task --abort           # Cancel workflow and cleanup
-/next-task bug               # Filter by task type
+/next-task:next-task                   # Start new workflow with policy selection
+/next-task:next-task --status          # Check current workflow state
+/next-task:next-task --resume          # Resume from last checkpoint
+/next-task:next-task --abort           # Cancel workflow and cleanup
+/next-task:next-task bug               # Filter by task type
 ```
 
-**17-Phase Workflow:**
+**13-Phase Autonomous Workflow:**
 1. Policy Selection → Ask user preferences via checkboxes
 2. Task Discovery → Find and prioritize tasks from GitHub/Linear/PLAN.md
-3. Worktree Setup → Create isolated development environment
-4. Exploration → Deep codebase analysis (opus)
-5. Planning → Design implementation plan (opus)
-6. User Approval → Get plan approval before implementation
-7. Implementation → Execute the plan with quality code (opus)
-8. Review Loop → Multi-agent review until approved (opus)
-9. Ship → PR creation, CI monitoring, merge
-10. Cleanup → Remove worktree, update state
+3. Worktree Setup → Create isolated development environment [sonnet]
+4. Exploration → Deep codebase analysis [opus]
+5. Planning → Design implementation plan [opus]
+6. **User Approval → Get plan approval (LAST human interaction)**
+7. Implementation → Execute the plan [opus]
+8. **Pre-Review Gates → deslop-work + test-coverage-checker [sonnet]**
+9. Review Loop → Multi-agent review until approved [opus]
+10. **Delivery Validation → Autonomous task completion check [sonnet]**
+11. **Docs Update → Auto-update related documentation [sonnet]**
+12. Ship → PR creation, CI monitoring, merge
+13. Cleanup → Remove worktree, update state
 
 **Features:**
+- **Fully autonomous** after plan approval - no human in the loop
 - Resume capability with `.claude/.workflow-state.json`
-- 8 specialist agents with model optimization
+- 12 specialist agents with model optimization (opus/sonnet)
+- Quality gates: deslop-work, test-coverage-checker, delivery-validator, docs-updater
+- SubagentStop hooks for automatic workflow transitions
 - Policy-based stopping points (pr-created, merged, deployed, production)
 
 ---
 
-### 🚀 `/ship` - Complete PR Workflow
+### 🚀 `/ship:ship` - Complete PR Workflow
 
 Ship your code from commit to production with full validation and state integration.
 
 ```bash
-/ship                        # Default workflow
-/ship --strategy rebase      # Rebase before merge
-/ship --dry-run              # Show plan without executing
-/ship --state-file PATH      # Integrate with next-task workflow
+/ship:ship                        # Default workflow
+/ship:ship --strategy rebase      # Rebase before merge
+/ship:ship --dry-run              # Show plan without executing
+/ship:ship --state-file PATH      # Integrate with next-task workflow
 ```
 
 **12-Phase Workflow:**
@@ -117,14 +124,14 @@ Ship your code from commit to production with full validation and state integrat
 
 ---
 
-### 🧹 `/deslop-around` - AI Slop Cleanup
+### 🧹 `/deslop-around:deslop-around` - AI Slop Cleanup
 
 Remove debugging code, old TODOs, and AI slop from your codebase.
 
 ```bash
-/deslop-around               # Report mode - analyze only
-/deslop-around apply         # Apply fixes with verification
-/deslop-around apply src/ 10 # Fix up to 10 issues in src/
+/deslop-around:deslop-around               # Report mode - analyze only
+/deslop-around:deslop-around apply         # Apply fixes with verification
+/deslop-around:deslop-around apply src/ 10 # Fix up to 10 issues in src/
 ```
 
 **Detects:**
@@ -135,18 +142,56 @@ Remove debugging code, old TODOs, and AI slop from your codebase.
 
 ---
 
-### 🔍 `/project-review` - Multi-Agent Code Review
+### 🔍 `/project-review:project-review` - Multi-Agent Code Review
 
 Comprehensive code review with specialized agents that iterate until zero issues.
 
 ```bash
-/project-review              # Full codebase review
-/project-review --recent     # Only recent changes
-/project-review --domain security
+/project-review:project-review              # Full codebase review
+/project-review:project-review --recent     # Only recent changes
+/project-review:project-review --domain security
 ```
 
 **8 Specialized Agents:**
 Security · Performance · Architecture · Testing · Error Handling · Code Quality · Type Safety · Documentation
+
+---
+
+### 📝 `/next-task:update-docs-around` - Documentation Sync
+
+Sync documentation with actual code state across the entire repository.
+
+```bash
+/next-task:update-docs-around               # Report mode - analyze only
+/next-task:update-docs-around --apply       # Apply safe fixes
+/next-task:update-docs-around docs/ --apply # Sync specific directory
+```
+
+**Checks:**
+- Outdated code references in documentation
+- Invalid syntax in code examples
+- Missing CHANGELOG entries
+- Version mismatches
+- Broken file/import paths
+
+---
+
+### ✅ `/next-task:delivery-approval` - Delivery Validation
+
+Validate task completion and approve for shipping (standalone or part of workflow).
+
+```bash
+/next-task:delivery-approval                # Validate current work
+/next-task:delivery-approval --task-id 142  # Validate specific task
+/next-task:delivery-approval --verbose      # Show detailed check output
+```
+
+**Validation Checks:**
+- Tests pass (npm test)
+- Build passes (npm run build)
+- Lint passes
+- Type check passes
+- Task requirements met
 
 ---
 
@@ -183,18 +228,31 @@ Workflows persist state in `.claude/.workflow-state.json`:
 }
 ```
 
-### Specialist Agents
+### Specialist Agents (12 Total)
 
-| Agent | Model | Purpose |
-|-------|-------|---------|
-| policy-selector | Sonnet | Configure workflow policy |
-| task-discoverer | Sonnet | Find and prioritize tasks |
-| worktree-manager | Sonnet | Create isolated worktrees |
-| ci-monitor | Sonnet | Monitor CI/PR status |
-| exploration-agent | **Opus** | Deep codebase analysis |
-| planning-agent | **Opus** | Design implementation plans |
-| implementation-agent | **Opus** | Execute plans with quality |
-| review-orchestrator | **Opus** | Multi-agent code review |
+**Core Workflow (Opus - Complex Tasks):**
+| Agent | Purpose |
+|-------|---------|
+| exploration-agent | Deep codebase analysis |
+| planning-agent | Design implementation plans |
+| implementation-agent | Execute plans with quality code |
+| review-orchestrator | Multi-agent code review with iteration |
+
+**Quality Gates (Sonnet - Side Reviewers):**
+| Agent | Purpose |
+|-------|---------|
+| deslop-work | Clean AI slop from new work (committed but unpushed) |
+| test-coverage-checker | Validate new work has test coverage |
+| delivery-validator | Autonomous delivery validation (NOT manual) |
+| docs-updater | Update docs related to changes |
+
+**Operational (Sonnet - Infrastructure):**
+| Agent | Purpose |
+|-------|---------|
+| policy-selector | Configure workflow policy |
+| task-discoverer | Find and prioritize tasks |
+| worktree-manager | Create isolated worktrees |
+| ci-monitor | Monitor CI/PR status with sleep loops |
 
 ---
 
@@ -206,8 +264,9 @@ awsome-slash/
 │   └── marketplace.json      # Claude Code marketplace manifest
 ├── plugins/
 │   ├── next-task/           # Master workflow orchestrator
-│   │   ├── commands/
-│   │   └── agents/          # 8 specialist agents
+│   │   ├── commands/        # next-task, update-docs-around, delivery-approval
+│   │   ├── agents/          # 12 specialist agents
+│   │   └── hooks/           # SubagentStop hooks for workflow automation
 │   ├── ship/                # PR workflow
 │   ├── deslop-around/       # AI slop cleanup
 │   └── project-review/      # Multi-agent review

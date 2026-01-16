@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2026-01-16
+
+### Fixed
+- Removed invalid `sharedLib` and `requires` keys from all plugin.json files
+- Moved SubagentStop hooks to proper `hooks/hooks.json` file location
+- Fixed marketplace schema validation errors
+
+## [2.1.0] - 2026-01-16
+
+### Added
+- **Quality Gate Agents** for fully autonomous workflow after plan approval
+  - `deslop-work.md` - Clean AI slop from committed but unpushed changes
+  - `test-coverage-checker.md` - Validate new work has test coverage
+  - `delivery-validator.md` - Autonomous delivery validation (NOT manual approval)
+  - `docs-updater.md` - Update docs related to changes after delivery validation
+- **New Commands**
+  - `/update-docs-around` - Standalone docs sync command for entire repo
+  - `/delivery-approval` - Standalone delivery validation command
+- **SubagentStop Hooks** in plugin.json for automatic workflow phase transitions
+- **Workflow Automation** - No human intervention from plan approval until policy stop point
+
+### Changed
+- Updated workflow to 13 phases (was 17) with new quality gate phases
+- Pre-review gates now run before first review (deslop-work + test-coverage-checker)
+- Post-iteration deslop runs after each review iteration to clean fixes
+- Delivery validation is now autonomous (not manual approval)
+- Documentation auto-updates after delivery validation
+- Total agents increased from 8 to 12 specialist agents
+
+### Improved
+- Review-orchestrator.md now calls deslop-work after each iteration
+- Next-task.md updated with new phases (7.5, 9, 9.5) for autonomous flow
+- Full autonomous flow after plan approval - only 3 human touchpoints total
+
+## [2.0.0] - 2026-01-15
+
+### Added
+- **Master Workflow Orchestrator** - Complete task-to-production automation
+- **State Management** - `.claude/.workflow-state.json` for workflow persistence
+- **8 Specialist Agents** - Opus for complex tasks, Sonnet for operations
+- **Cross-Platform MCP Server** - Integration with OpenCode and Codex CLI
+- **Resume Capability** - `--status`, `--resume`, `--abort` flags
+
+### Changed
+- Removed `pr-merge` plugin - functionality absorbed into `next-task` and `ship`
+- Updated marketplace.json to v2.0.0
+
 ## [1.1.0] - 2026-01-15
 
 ### Added
