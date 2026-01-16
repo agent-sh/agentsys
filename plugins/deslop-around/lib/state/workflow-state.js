@@ -205,19 +205,42 @@ function updateState(updates, baseDir = process.cwd()) {
 }
 
 /**
- * Deep merge two objects
+ * Deep merge two objects (with prototype pollution protection)
  * @param {Object} target - Target object
  * @param {Object} source - Source object
  * @returns {Object} Merged object
  */
 function deepMerge(target, source) {
+  // Handle null/undefined cases
+  if (!source || typeof source !== 'object') return target;
+  if (!target || typeof target !== 'object') return source;
+
   const result = { ...target };
 
-  for (const key in source) {
-    if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
-      result[key] = deepMerge(result[key] || {}, source[key]);
-    } else {
-      result[key] = source[key];
+  for (const key of Object.keys(source)) {
+    // Protect against prototype pollution
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+      continue;
+    }
+
+    const sourceVal = source[key];
+    const targetVal = result[key];
+
+    // Handle Date objects - preserve as-is
+    if (sourceVal instanceof Date) {
+      result[key] = new Date(sourceVal.getTime());
+    }
+    // Handle null explicitly - allow overwriting with null
+    else if (sourceVal === null) {
+      result[key] = null;
+    }
+    // Recursively merge plain objects
+    else if (sourceVal && typeof sourceVal === 'object' && !Array.isArray(sourceVal)) {
+      result[key] = deepMerge(targetVal || {}, sourceVal);
+    }
+    // Replace arrays and primitives
+    else {
+      result[key] = sourceVal;
     }
   }
 

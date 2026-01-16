@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Error Handling**: `readState()` now returns Error object for corrupted JSON files instead of null (#50)
   - Enables distinction between missing files (returns `null`) and corrupted files (returns `Error` with code `ERR_STATE_CORRUPTED`)
   - Updated all internal callers and plugin copies to handle Error returns gracefully
+- **Security**: `deepMerge()` prototype pollution protection now applied to all plugin copies
+  - Prevents `__proto__`, `constructor`, `prototype` key injection attacks
+  - Uses `Object.keys()` instead of `for...in` to avoid inherited property iteration
+  - Handles null/undefined and Date objects properly
+- **Ship CI Loop**: Mandatory comment resolution before merge
+  - Phase 4 now ALWAYS runs, even when called from /next-task
+  - Phase 6 includes mandatory pre-merge check for zero unresolved threads
+  - Clarified that "SKIPS review" only applies to Phase 5 internal agents, not external auto-reviewers
 
 ## [2.3.0] - 2026-01-16
 

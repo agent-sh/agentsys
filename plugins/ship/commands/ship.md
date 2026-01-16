@@ -25,9 +25,11 @@ Auto-adapts to your project's CI platform, deployment platform, and branch strat
 ## Integration with /next-task
 
 When called from `/next-task` workflow (via `--state-file`):
-- **SKIPS review** (already done by review-orchestrator)
+- **SKIPS Phase 5** internal review agents (already done by review-orchestrator)
 - **SKIPS deslop/docs** (already done by deslop-work, docs-updater)
 - **Trusts** that all quality gates passed
+
+**CRITICAL: Phase 4 ALWAYS runs** - even from /next-task. External auto-reviewers (Gemini, Copilot, CodeRabbit) comment AFTER PR creation and must be addressed.
 
 When called standalone, runs full workflow including review.
 
@@ -235,12 +237,40 @@ Iterate until all critical/high issues resolved (max 3 iterations).
 
 ## Phase 6: Merge PR
 
+**MANDATORY PRE-MERGE CHECKS** - Do NOT skip these:
+
 ```bash
-# Verify mergeable
+# 1. Verify mergeable status
 MERGEABLE=$(gh pr view $PR_NUMBER --json mergeable --jq '.mergeable')
 [ "$MERGEABLE" != "MERGEABLE" ] && { echo "✗ PR not mergeable"; exit 1; }
 
-# Merge with strategy (default: squash)
+# 2. MANDATORY: Verify ALL comments resolved (zero unresolved threads)
+REPO_INFO=$(gh repo view --json owner,name --jq '"\(.owner.login)/\(.name)"')
+OWNER=$(echo "$REPO_INFO" | cut -d'/' -f1)
+REPO=$(echo "$REPO_INFO" | cut -d'/' -f2)
+
+UNRESOLVED=$(gh api graphql -f query='
+  query($owner: String!, $repo: String!, $pr: Int!) {
+    repository(owner: $owner, name: $repo) {
+      pullRequest(number: $pr) {
+        reviewThreads(first: 100) {
+          nodes { isResolved }
+        }
+      }
+    }
+  }
+' -f owner="$OWNER" -f repo="$REPO" -F pr=$PR_NUMBER \
+  --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
+
+if [ "$UNRESOLVED" -gt 0 ]; then
+  echo "✗ CANNOT MERGE: $UNRESOLVED unresolved comment threads"
+  echo "Go back to Phase 4 and address ALL comments"
+  exit 1
+fi
+
+echo "✓ All comments resolved"
+
+# 3. Merge with strategy (default: squash)
 STRATEGY=${STRATEGY:-squash}
 gh pr merge $PR_NUMBER --$STRATEGY --delete-branch
 
