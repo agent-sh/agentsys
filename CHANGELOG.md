@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-01-18
+
+### Added
+- **Reality Check Plugin**: Deep repository analysis to detect plan drift and gaps
+  - Multi-agent parallel scanning architecture (issue-scanner, doc-analyzer, code-explorer, plan-synthesizer)
+  - Detects drift: plan stagnation, priority neglect, documentation lag, scope overcommit
+  - Identifies gaps: missing tests, outdated docs, overdue milestones
+  - Cross-references documented vs implemented features
+  - Generates prioritized reconstruction plans (immediate, short-term, medium-term, backlog)
+  - Interactive first-run setup with checkbox configuration
+  - Configurable via `.claude/reality-check.local.md` settings file
+  - Commands: `/reality-check:scan`, `/reality-check:set`
+  - Includes `reality-analysis` skill for drift detection patterns and prioritization frameworks
+
 ### Improved
 - **Test Coverage**: Enhanced `workflow-state.test.js` to verify state immutability after failed operations (#60)
   - Added validation that `startPhase()` with invalid phase name leaves state completely unchanged

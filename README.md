@@ -5,17 +5,17 @@
 A cross-platform plugin providing powerful, zero-configuration slash commands for development workflows. Works with **Claude Code**, **Codex CLI**, and **OpenCode**.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-2.3.0-blue)](https://github.com/avifenesh/awsome-slash/releases)
+[![Version](https://img.shields.io/badge/version-2.4.0-blue)](https://github.com/avifenesh/awsome-slash/releases)
 [![GitHub stars](https://img.shields.io/github/stars/avifenesh/awsome-slash?style=flat&color=yellow)](https://github.com/avifenesh/awsome-slash/stargazers)
 [![Claude Code](https://img.shields.io/badge/Claude-Code%20Plugin-blue)](https://code.claude.com/)
 [![Codex CLI](https://img.shields.io/badge/Codex-CLI%20Compatible-green)](https://developers.openai.com/codex/cli)
 [![OpenCode](https://img.shields.io/badge/OpenCode-Compatible-orange)](https://opencode.ai)
 
-## What's New in v2.3.0
+## What's New in v2.4.0
 
-- **CI & Review Monitor Loop** - Auto-addresses ALL PR comments before merge
-- **Progressive Disclosure** - Reduced context consumption by 70-80%
-- **14 Specialist Agents** - Optimized with sonnet→haiku delegation pattern
+- **Reality Check Plugin** - Deep repository analysis to detect plan drift and gaps
+- **Multi-Agent Parallel Scanning** - Issue scanner, doc analyzer, code explorer run simultaneously
+- **Prioritized Reconstruction Plans** - Automated drift detection with priority-weighted action items
 
 ---
 
@@ -189,6 +189,42 @@ Validate task completion and approve for shipping (standalone or part of workflo
 - Lint passes
 - Type check passes
 - Task requirements met
+
+---
+
+### 🎯 `/reality-check:scan` - Plan Drift Detection
+
+Deep repository analysis to identify where documented plans diverge from actual code reality.
+
+```bash
+/reality-check:scan           # Full reality check scan
+/reality-check:set            # Configure scan settings
+```
+
+**Multi-Agent Parallel Scan:**
+1. **Issue Scanner** - Analyzes GitHub issues, PRs, milestones
+2. **Doc Analyzer** - Examines README, PLAN.md, CLAUDE.md, docs/
+3. **Code Explorer** - Deep codebase structure and feature analysis
+4. **Plan Synthesizer** - Combines findings and creates prioritized plan
+
+**Detects:**
+- Plan stagnation (low completion rates)
+- Priority neglect (stale high-priority issues)
+- Documentation lag (features not documented)
+- Scope overcommit (documented but not implemented)
+- Missing tests, outdated docs, overdue milestones
+
+**Output:**
+- Drift analysis with severity ratings
+- Gap identification (missing tests, docs, CI)
+- Cross-reference: documented vs implemented features
+- Prioritized reconstruction plan (immediate, short-term, medium-term)
+
+**First-Run Setup:**
+Interactive checkboxes configure:
+- Data sources (GitHub, Linear, docs, code)
+- Scan depth (quick, medium, thorough)
+- Output format (file, display, both)
 
 ---
 
