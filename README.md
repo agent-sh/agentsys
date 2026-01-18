@@ -20,47 +20,21 @@ A cross-platform plugin providing powerful, zero-configuration slash commands fo
 
 ---
 
-## Installation
-
-### npm (Recommended)
+## Quick Install
 
 ```bash
+# npm (recommended)
 npm install awesome-slash
-```
 
-### Claude Code
-
-```bash
-# Option 1: npm (recommended)
+# Claude Code
 claude plugin add npm:awesome-slash
 
-# Option 2: GitHub
-claude plugin add github:avifenesh/awesome-slash
-
-# Option 3: Local clone
+# OpenCode / Codex CLI
 git clone https://github.com/avifenesh/awesome-slash.git
-./scripts/install/claude.sh
+./scripts/install/opencode.sh  # or codex.sh
 ```
 
-### OpenCode
-
-```bash
-npm install awesome-slash
-# or
-git clone https://github.com/avifenesh/awesome-slash.git
-cd awesome-slash
-./scripts/install/opencode.sh
-```
-
-### Codex CLI
-
-```bash
-npm install awesome-slash
-# or
-git clone https://github.com/avifenesh/awesome-slash.git
-cd awesome-slash
-./scripts/install/codex.sh
-```
+**See [docs/INSTALLATION.md](./docs/INSTALLATION.md) for all options, prerequisites, and troubleshooting.**
 
 ---
 

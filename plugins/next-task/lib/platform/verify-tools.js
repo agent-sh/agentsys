@@ -15,14 +15,19 @@ const { execFileSync, spawnSync, spawn } = require('child_process');
 // Detect Windows platform
 const isWindows = process.platform === 'win32';
 
+// Import shared deprecation utilities
+const { warnDeprecation, _resetDeprecationWarnings } = require('../utils/deprecation');
+
 /**
  * Checks if a tool is available and returns its version (sync)
  * Uses safe execution methods to avoid shell injection vulnerabilities
+ * @deprecated Use checkToolAsync() instead. Will be removed in v3.0.0.
  * @param {string} command - Command to check (e.g., 'git', 'node')
  * @param {string} versionFlag - Flag to get version (default: '--version')
  * @returns {Object} { available: boolean, version: string|null }
  */
 function checkTool(command, versionFlag = '--version') {
+  warnDeprecation('checkTool', 'checkToolAsync');
   // Validate command contains only safe characters (alphanumeric, underscore, hyphen)
   if (!/^[a-zA-Z0-9_-]+$/.test(command)) {
     return { available: false, version: null };
@@ -179,9 +184,11 @@ const TOOL_DEFINITIONS = [
 
 /**
  * Verifies all development tools (sync)
+ * @deprecated Use verifyToolsAsync() instead. Will be removed in v3.0.0.
  * @returns {Object} Tool availability map
  */
 function verifyTools() {
+  warnDeprecation('verifyTools', 'verifyToolsAsync');
   const result = {};
   for (const tool of TOOL_DEFINITIONS) {
     result[tool.name] = checkTool(tool.name, tool.flag);
@@ -231,5 +238,7 @@ module.exports = {
   verifyToolsAsync,
   checkTool,
   checkToolAsync,
-  TOOL_DEFINITIONS
+  TOOL_DEFINITIONS,
+  // Testing utilities (prefixed with _ to indicate internal use)
+  _resetDeprecationWarnings
 };

@@ -1,0 +1,156 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/avifenesh/awesome-slash/schemas/plugin-manifest.json",
+  "title": "Claude Code Plugin Manifest",
+  "description": "Schema for plugin.json manifest files in Claude Code plugins",
+  "type": "object",
+  "required": ["name", "version", "description", "author", "license"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Unique plugin identifier (kebab-case, lowercase)",
+      "pattern": "^[a-z0-9-]+$",
+      "minLength": 1,
+      "maxLength": 100,
+      "examples": ["awesome-slash", "next-task", "deslop-around"]
+    },
+    "version": {
+      "type": "string",
+      "description": "Semantic version (MAJOR.MINOR.PATCH)",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "examples": ["1.0.0", "2.4.2", "0.1.0-beta.1"]
+    },
+    "description": {
+      "type": "string",
+      "description": "Short description of plugin functionality",
+      "minLength": 10,
+      "maxLength": 500,
+      "examples": [
+        "Professional-grade slash commands for Claude Code",
+        "Master workflow orchestrator with autonomous task-to-production automation"
+      ]
+    },
+    "author": {
+      "type": "object",
+      "description": "Author information",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Author's full name",
+          "minLength": 1,
+          "maxLength": 100,
+          "examples": ["Avi Fenesh", "John Doe"]
+        },
+        "email": {
+          "type": "string",
+          "description": "Author's email address",
+          "format": "email",
+          "examples": ["[email protected]"]
+        },
+        "url": {
+          "type": "string",
+          "description": "Author's website or GitHub profile URL",
+          "format": "uri",
+          "examples": ["https://github.com/avifenesh"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "homepage": {
+      "type": "string",
+      "description": "Plugin homepage URL",
+      "format": "uri",
+      "examples": ["https://github.com/avifenesh/awesome-slash"]
+    },
+    "repository": {
+      "type": "string",
+      "description": "Repository URL",
+      "format": "uri",
+      "examples": [
+        "https://github.com/avifenesh/awesome-slash",
+        "git+https://github.com/avifenesh/awesome-slash.git"
+      ]
+    },
+    "license": {
+      "type": "string",
+      "description": "License identifier (SPDX format)",
+      "pattern": "^[A-Za-z0-9.-]+$",
+      "examples": ["MIT", "Apache-2.0", "GPL-3.0", "BSD-3-Clause"]
+    },
+    "keywords": {
+      "type": "array",
+      "description": "Search keywords for discoverability",
+      "items": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 50
+      },
+      "minItems": 1,
+      "maxItems": 20,
+      "uniqueItems": true,
+      "examples": [
+        ["task-management", "productivity", "workflow"],
+        ["code-review", "quality", "autonomous"]
+      ]
+    },
+    "minClaudeVersion": {
+      "type": "string",
+      "description": "Minimum Claude Code version required",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$",
+      "examples": ["1.0.0", "2.0.0"]
+    },
+    "dependencies": {
+      "type": "object",
+      "description": "Plugin dependencies with version constraints",
+      "patternProperties": {
+        "^[a-z0-9-]+$": {
+          "type": "string",
+          "description": "Version constraint (semver range)",
+          "examples": ["^1.0.0", ">=2.0.0", "~1.2.3"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "config": {
+      "type": "object",
+      "description": "Plugin configuration schema",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "name": "awesome-slash",
+      "version": "2.4.2",
+      "description": "Professional-grade slash commands for Claude Code with cross-platform support",
+      "author": {
+        "name": "Avi Fenesh",
+        "url": "https://github.com/avifenesh"
+      },
+      "repository": "https://github.com/avifenesh/awesome-slash",
+      "license": "MIT",
+      "keywords": ["workflow", "automation", "productivity"],
+      "minClaudeVersion": "1.0.0"
+    },
+    {
+      "name": "next-task",
+      "version": "2.3.1",
+      "description": "Master workflow orchestrator with autonomous task-to-production automation",
+      "author": {
+        "name": "Avi Fenesh",
+        "email": "[email protected]",
+        "url": "https://github.com/avifenesh"
+      },
+      "homepage": "https://github.com/avifenesh/awesome-slash#next-task",
+      "repository": "https://github.com/avifenesh/awesome-slash",
+      "license": "MIT",
+      "keywords": [
+        "task-management",
+        "productivity",
+        "workflow",
+        "autonomous"
+      ]
+    }
+  ]
+}

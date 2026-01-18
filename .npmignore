@@ -32,15 +32,8 @@ Thumbs.db
 
 # Documentation (keep essential only)
 ADAPTER_DESIGN.md
-COMPLETE_GUIDE.md
 CONTRIBUTING.md
-HOW_TO_USE.md
-INSTALLATION.md
 MANUAL_TESTING.md
-QUICK_INSTALL.md
-QUICKSTART.md
-USAGE_EXAMPLES.md
-docs/
 
 # Misc
 *.tgz
