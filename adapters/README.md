@@ -8,7 +8,7 @@ This directory contains adapters for using awesome-slash commands with different
 The primary target. Install via marketplace:
 ```bash
 claude plugin marketplace add avifenesh/awesome-slash
-claude plugin install deslop-around@awesome-slash
+claude plugin install awesome-slash@awesome-slash
 ```
 
 See main [README.md](../README.md) for details.
@@ -130,7 +130,7 @@ Installers automatically handle these substitutions.
 ```bash
 # Via marketplace (easiest)
 claude plugin marketplace add avifenesh/awesome-slash
-claude plugin install deslop-around@awesome-slash
+claude plugin install awesome-slash@awesome-slash
 ```
 
 **Pros:**

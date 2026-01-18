@@ -36,15 +36,33 @@ claude --add-plugin /path/to/awesome-slash/plugins/ship
 - `/next-task` - Master workflow orchestrator
 - `/ship` - Complete PR workflow
 
-### Available Agents (via Task tool)
-- `policy-selector` - Configure workflow policy
-- `task-discoverer` - Find and prioritize tasks
-- `worktree-manager` - Create isolated worktrees
+### Available Agents (18 Total)
+
+**Core Workflow (Opus):**
 - `exploration-agent` - Deep codebase analysis
 - `planning-agent` - Design implementation plans
-- `implementation-agent` - Execute plans
-- `review-orchestrator` - Multi-agent code review
-- `ci-monitor` - Monitor CI/PR status
+- `implementation-agent` - Execute plans with quality code
+- `review-orchestrator` - Multi-agent code review with iteration
+
+**Quality Gates (Sonnet):**
+- `deslop-work` - Clean AI slop from committed but unpushed changes
+- `test-coverage-checker` - Validate new work has test coverage
+- `delivery-validator` - Autonomous delivery validation
+- `docs-updater` - Update docs related to changes
+
+**Operational (Sonnet/Haiku):**
+- `policy-selector` - Configure workflow policy [haiku]
+- `task-discoverer` - Find and prioritize tasks [sonnet]
+- `worktree-manager` - Create isolated worktrees [haiku]
+- `ci-monitor` - Monitor CI status with sleep loops [haiku]
+- `ci-fixer` - Fix CI failures and PR comments [sonnet]
+- `simple-fixer` - Execute pre-defined code fixes [haiku]
+
+**Reality Check (Sonnet/Opus):**
+- `issue-scanner` - Analyze GitHub issues, PRs, milestones [sonnet]
+- `doc-analyzer` - Examine documentation for plans [sonnet]
+- `code-explorer` - Deep codebase structure analysis [sonnet]
+- `plan-synthesizer` - Combine findings into prioritized plan [opus]
 
 ## OpenCode Integration
 
@@ -97,7 +115,7 @@ You are a workflow orchestrator that manages development tasks.
 When invoked, you should:
 1. Check for existing workflow state in .claude/.workflow-state.json
 2. Continue from the last checkpoint if resuming
-3. Follow the 17-phase workflow from task discovery to completion
+3. Follow the 13-phase workflow (/next-task) or 12-phase workflow (/ship) from task discovery to completion
 ```
 
 ## Codex CLI Integration

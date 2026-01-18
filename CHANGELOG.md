@@ -21,9 +21,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Warnings appear once per function with migration guidance
   - **Sync functions will be removed in v3.0.0**
 
+## [2.4.3] - 2026-01-18
+
+### Added
+- **CLAUDE.md** - Project guidelines with release process and PR auto-review workflow
+- **npm installation option** - Added npm as primary installation method to INSTALLATION.md
+
+### Fixed
+- **Documentation sync** - Fixed outdated references across all documentation:
+  - Fixed plugin install commands in adapters/README.md (`deslop-around` → `awesome-slash`)
+  - Updated phase counts in CROSS_PLATFORM.md (`17-phase` → `13/12-phase`)
+  - Completed agent list in CROSS_PLATFORM.md (8 → 18 agents)
+  - Updated version references throughout docs
+
+### Changed
+- Reorganized INSTALLATION.md with npm as Option 1 (Recommended)
+
 ## [2.4.2] - 2026-01-18
 
 ### Fixed
+- **Security**: Addressed 32 technical debt issues from multi-agent review (#84)
+  - Fixed command injection vulnerabilities in context-optimizer.js
+  - Addressed path traversal risks in workflow-state.js
+  - Enhanced input validation across core libraries
+  - Added 255 new tests (total: 180 → 435 tests)
 - **Renamed package** from `awsome-slash` to `awesome-slash` (fixed typo)
 - Updated all internal references, repository URLs, and environment variable names
 

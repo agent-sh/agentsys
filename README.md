@@ -6,17 +6,17 @@ A cross-platform plugin providing powerful, zero-configuration slash commands fo
 
 [![npm](https://img.shields.io/npm/v/awesome-slash?color=red)](https://www.npmjs.com/package/awesome-slash)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-2.4.2-blue)](https://github.com/avifenesh/awesome-slash/releases)
+[![Version](https://img.shields.io/badge/version-2.4.3-blue)](https://github.com/avifenesh/awesome-slash/releases)
 [![GitHub stars](https://img.shields.io/github/stars/awesome-slash?style=flat&color=yellow)](https://github.com/avifenesh/awesome-slash/stargazers)
 [![Claude Code](https://img.shields.io/badge/Claude-Code%20Plugin-blue)](https://docs.anthropic.com/en/docs/claude-code)
 [![Codex CLI](https://img.shields.io/badge/Codex-CLI%20Compatible-green)](https://developers.openai.com/codex/cli)
 [![OpenCode](https://img.shields.io/badge/OpenCode-Compatible-orange)](https://opencode.ai)
 
-## What's New in v2.4.0
+## What's New in v2.4.3
 
-- **Reality Check Plugin** - Deep repository analysis to detect plan drift and gaps
-- **Multi-Agent Parallel Scanning** - Issue scanner, doc analyzer, code explorer run simultaneously
-- **Prioritized Reconstruction Plans** - Automated drift detection with priority-weighted action items
+- **Documentation Sync** - Fixed outdated phase counts, agent lists, and install commands
+- **CLAUDE.md Guidelines** - Added project guidelines with release process and PR auto-review workflow
+- **npm Installation** - Added npm as primary installation option across all docs
 
 ---
 

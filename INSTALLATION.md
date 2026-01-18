@@ -4,7 +4,24 @@ How to install and use awesome-slash in Claude Code.
 
 ---
 
-## Option 1: Install from GitHub (Recommended - Available Now!)
+## Option 1: npm (Recommended)
+
+The easiest way to install:
+
+```bash
+npm install awesome-slash
+```
+
+For Claude Code specifically:
+
+```bash
+# Install via npm
+claude plugin add npm:awesome-slash
+```
+
+---
+
+## Option 2: Install from GitHub
 
 Claude Code installs plugins through marketplaces. Add the repository as a marketplace, then install:
 
@@ -40,7 +57,7 @@ That's it! Claude will:
 
 ---
 
-## Option 2: Install from Claude Marketplace (Coming Soon)
+## Option 3: Install from Claude Marketplace (Coming Soon)
 
 Once published to the Claude marketplace:
 
@@ -56,7 +73,7 @@ Or via Claude Web Interface:
 
 ---
 
-## Option 3: Manual Installation (Advanced)
+## Option 4: Manual Installation (Advanced)
 
 If you prefer manual control:
 
