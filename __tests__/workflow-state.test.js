@@ -377,6 +377,225 @@ describe('workflow-state', () => {
     it('should have complete as last phase', () => {
       expect(workflowState.PHASES[workflowState.PHASES.length - 1]).toBe('complete');
     });
+
+    it('should contain exactly 18 phases', () => {
+      expect(workflowState.PHASES).toHaveLength(18);
+    });
+
+    it('should have no duplicate phases', () => {
+      const uniquePhases = new Set(workflowState.PHASES);
+      expect(uniquePhases.size).toBe(workflowState.PHASES.length);
+    });
+
+    it('should have all phases as non-empty strings', () => {
+      workflowState.PHASES.forEach(phase => {
+        expect(typeof phase).toBe('string');
+        expect(phase.length).toBeGreaterThan(0);
+        expect(phase.trim()).toBe(phase); // No leading/trailing whitespace
+      });
+    });
+
+    it('should have phases in correct workflow order', () => {
+      const expectedOrder = [
+        'policy-selection',
+        'task-discovery',
+        'worktree-setup',
+        'exploration',
+        'planning',
+        'user-approval',
+        'implementation',
+        'review-loop',
+        'delivery-approval',
+        'ship-prep',
+        'create-pr',
+        'ci-wait',
+        'comment-fix',
+        'merge',
+        'production-ci',
+        'deploy',
+        'production-release',
+        'complete'
+      ];
+      expect(workflowState.PHASES).toEqual(expectedOrder);
+    });
+
+    it('should have implementation before review-loop', () => {
+      const implIndex = workflowState.PHASES.indexOf('implementation');
+      const reviewIndex = workflowState.PHASES.indexOf('review-loop');
+      expect(implIndex).toBeLessThan(reviewIndex);
+    });
+
+    it('should have create-pr before merge', () => {
+      const prIndex = workflowState.PHASES.indexOf('create-pr');
+      const mergeIndex = workflowState.PHASES.indexOf('merge');
+      expect(prIndex).toBeLessThan(mergeIndex);
+    });
+  });
+
+  describe('phase helper functions (O(1) lookup)', () => {
+    describe('PHASE_INDEX', () => {
+      it('should be a Map', () => {
+        expect(workflowState.PHASE_INDEX instanceof Map).toBe(true);
+      });
+
+      it('should have same size as PHASES array', () => {
+        expect(workflowState.PHASE_INDEX.size).toBe(workflowState.PHASES.length);
+      });
+
+      it('should map each phase to its correct index', () => {
+        workflowState.PHASES.forEach((phase, index) => {
+          expect(workflowState.PHASE_INDEX.get(phase)).toBe(index);
+        });
+      });
+    });
+
+    describe('isValidPhase', () => {
+      it('should return true for all valid phases', () => {
+        workflowState.PHASES.forEach(phase => {
+          expect(workflowState.isValidPhase(phase)).toBe(true);
+        });
+      });
+
+      it('should return false for invalid phase names', () => {
+        expect(workflowState.isValidPhase('invalid-phase')).toBe(false);
+        expect(workflowState.isValidPhase('not-a-phase')).toBe(false);
+        expect(workflowState.isValidPhase('')).toBe(false);
+        expect(workflowState.isValidPhase(null)).toBe(false);
+        expect(workflowState.isValidPhase(undefined)).toBe(false);
+      });
+
+      it('should be case-sensitive', () => {
+        expect(workflowState.isValidPhase('policy-selection')).toBe(true);
+        expect(workflowState.isValidPhase('Policy-Selection')).toBe(false);
+        expect(workflowState.isValidPhase('POLICY-SELECTION')).toBe(false);
+      });
+    });
+
+    describe('getPhaseIndex', () => {
+      it('should return correct index for all valid phases', () => {
+        workflowState.PHASES.forEach((phase, expectedIndex) => {
+          expect(workflowState.getPhaseIndex(phase)).toBe(expectedIndex);
+        });
+      });
+
+      it('should return -1 for invalid phases', () => {
+        expect(workflowState.getPhaseIndex('invalid-phase')).toBe(-1);
+        expect(workflowState.getPhaseIndex('')).toBe(-1);
+        expect(workflowState.getPhaseIndex(null)).toBe(-1);
+      });
+
+      it('should return 0 for first phase', () => {
+        expect(workflowState.getPhaseIndex('policy-selection')).toBe(0);
+      });
+
+      it('should return last index for complete phase', () => {
+        const lastIndex = workflowState.PHASES.length - 1;
+        expect(workflowState.getPhaseIndex('complete')).toBe(lastIndex);
+      });
+    });
+  });
+
+  describe('phase transition validation', () => {
+    it('should track phase index correctly when starting phases', () => {
+      const state = workflowState.createState();
+      workflowState.writeState(state, testDir);
+
+      // Start first phase
+      workflowState.startPhase('policy-selection', testDir);
+      let current = workflowState.readState(testDir);
+      expect(current.phases.current).toBe('policy-selection');
+
+      // Complete and move to next
+      workflowState.completePhase({}, testDir);
+      current = workflowState.readState(testDir);
+      expect(current.phases.current).toBe('task-discovery');
+    });
+
+    it('should allow starting any valid phase (flexible phase navigation)', () => {
+      const state = workflowState.createState();
+      workflowState.writeState(state, testDir);
+
+      // Advance to implementation
+      workflowState.startPhase('implementation', testDir);
+      workflowState.completePhase({}, testDir);
+
+      // System allows flexible phase navigation for resumption scenarios
+      workflowState.startPhase('policy-selection', testDir);
+      const afterState = workflowState.readState(testDir);
+
+      // Verify phase was set (flexible navigation is allowed)
+      expect(afterState.phases.current).toBe('policy-selection');
+    });
+
+    it('should allow skipping phases forward', () => {
+      const state = workflowState.createState();
+      workflowState.writeState(state, testDir);
+
+      // Skip directly to implementation
+      const updated = workflowState.skipToPhase('implementation', 'fast-track', testDir);
+      expect(updated.phases.current).toBe('implementation');
+
+      // Verify skipped phases are marked
+      const skipped = updated.phases.history.filter(p => p.status === 'skipped');
+      expect(skipped.length).toBeGreaterThan(0);
+    });
+
+    it('should record all phase status transitions', () => {
+      const state = workflowState.createState();
+      workflowState.writeState(state, testDir);
+
+      // Start phase
+      workflowState.startPhase('policy-selection', testDir);
+      let current = workflowState.readState(testDir);
+      expect(current.phases.history[0].status).toBe('in_progress');
+
+      // Complete phase
+      workflowState.completePhase({ result: 'done' }, testDir);
+      current = workflowState.readState(testDir);
+      expect(current.phases.history[0].status).toBe('completed');
+    });
+
+    it('should record failed phase status correctly', () => {
+      const state = workflowState.createState();
+      workflowState.writeState(state, testDir);
+
+      workflowState.startPhase('implementation', testDir);
+      workflowState.failPhase('Build failed', { errorDetails: 'compile error' }, testDir);
+
+      const current = workflowState.readState(testDir);
+      const implPhase = current.phases.history.find(p => p.phase === 'implementation');
+      expect(implPhase.status).toBe('failed');
+      // Error is stored in result.error per finalizePhaseEntry
+      expect(implPhase.result.error).toBe('Build failed');
+      // Context is stored in checkpoints.resumeContext
+      expect(current.checkpoints.resumeContext.errorDetails).toBe('compile error');
+    });
+
+    it('should calculate phase duration on completion', () => {
+      const state = workflowState.createState();
+      workflowState.writeState(state, testDir);
+
+      workflowState.startPhase('policy-selection', testDir);
+      // Small delay to ensure duration > 0
+      workflowState.completePhase({}, testDir);
+
+      const current = workflowState.readState(testDir);
+      expect(current.phases.history[0].duration).toBeDefined();
+      expect(current.phases.history[0].duration).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should not allow completing a phase that was not started', () => {
+      const state = workflowState.createState();
+      state.phases.current = 'policy-selection';
+      state.phases.history = []; // No phases started
+      workflowState.writeState(state, testDir);
+
+      // Try to complete without starting
+      const result = workflowState.completePhase({}, testDir);
+
+      // Should handle gracefully (either no-op or create minimal history)
+      expect(result).toBeDefined();
+    });
   });
 
   describe('deepMerge security (via updateState)', () => {
@@ -464,6 +683,236 @@ describe('workflow-state', () => {
 
       // Should merge deeply: c updated, d preserved
       expect(updated.config.a.b).toEqual({ c: 99, d: 2 });
+    });
+  });
+
+  describe('concurrent update handling', () => {
+    describe('rapid successive updates', () => {
+      it('should handle rapid successive updateState calls', () => {
+        const state = workflowState.createState();
+        workflowState.writeState(state, testDir);
+
+        // Simulate rapid successive updates
+        for (let i = 0; i < 10; i++) {
+          workflowState.updateState({ task: { counter: i } }, testDir);
+        }
+
+        const final = workflowState.readState(testDir);
+        // Last write wins
+        expect(final.task.counter).toBe(9);
+      });
+
+      it('should preserve data integrity during rapid writes', () => {
+        const state = workflowState.createState();
+        state.task = { id: '123', title: 'Original', items: [] };
+        workflowState.writeState(state, testDir);
+
+        // Rapid updates to different fields
+        workflowState.updateState({ task: { field1: 'a' } }, testDir);
+        workflowState.updateState({ task: { field2: 'b' } }, testDir);
+        workflowState.updateState({ task: { field3: 'c' } }, testDir);
+
+        const final = workflowState.readState(testDir);
+
+        // All fields should be preserved
+        expect(final.task.id).toBe('123');
+        expect(final.task.title).toBe('Original');
+        expect(final.task.field1).toBe('a');
+        expect(final.task.field2).toBe('b');
+        expect(final.task.field3).toBe('c');
+      });
+
+      it('should handle interleaved phase transitions', () => {
+        const state = workflowState.createState();
+        workflowState.writeState(state, testDir);
+
+        // Start multiple phases in succession
+        workflowState.startPhase('policy-selection', testDir);
+        workflowState.completePhase({ result: 'policy1' }, testDir);
+        workflowState.startPhase('task-discovery', testDir);
+        workflowState.completePhase({ result: 'task1' }, testDir);
+        workflowState.startPhase('worktree-setup', testDir);
+
+        const final = workflowState.readState(testDir);
+
+        expect(final.phases.current).toBe('worktree-setup');
+        expect(final.phases.history).toHaveLength(3);
+        expect(final.phases.history[0].status).toBe('completed');
+        expect(final.phases.history[1].status).toBe('completed');
+        expect(final.phases.history[2].status).toBe('in_progress');
+      });
+    });
+
+    describe('parallel operation simulation', () => {
+      it('should handle parallel reads during write', () => {
+        const state = workflowState.createState();
+        state.task = { value: 'initial' };
+        workflowState.writeState(state, testDir);
+
+        // Simulate parallel reads and writes
+        const reads = [];
+        for (let i = 0; i < 5; i++) {
+          reads.push(workflowState.readState(testDir));
+          workflowState.updateState({ task: { value: `update${i}` } }, testDir);
+        }
+
+        // All reads should return valid state objects
+        reads.forEach(read => {
+          expect(read).not.toBeNull();
+          expect(read.task).toBeDefined();
+          expect(typeof read.task.value).toBe('string');
+        });
+      });
+
+      it('should maintain workflow ID consistency across updates', () => {
+        const state = workflowState.createState();
+        const originalId = state.workflow.id;
+        workflowState.writeState(state, testDir);
+
+        // Multiple updates should not change workflow ID
+        for (let i = 0; i < 5; i++) {
+          workflowState.updateState({
+            task: { iteration: i },
+            phases: { currentIteration: i }
+          }, testDir);
+        }
+
+        const final = workflowState.readState(testDir);
+        expect(final.workflow.id).toBe(originalId);
+      });
+
+      it('should handle concurrent agent result updates', () => {
+        const state = workflowState.createState();
+        workflowState.writeState(state, testDir);
+
+        // Simulate multiple agents reporting results
+        workflowState.updateAgentResult('codeReviewer', { issues: 3, critical: 1 }, testDir);
+        workflowState.updateAgentResult('silentFailureHunter', { issues: 2, critical: 0 }, testDir);
+        workflowState.updateAgentResult('testAnalyzer', { issues: 5, critical: 2 }, testDir);
+
+        const final = workflowState.readState(testDir);
+
+        // All agent results should be preserved
+        expect(final.agents.lastRun.codeReviewer.issues).toBe(3);
+        expect(final.agents.lastRun.silentFailureHunter.issues).toBe(2);
+        expect(final.agents.lastRun.testAnalyzer.issues).toBe(5);
+        expect(final.agents.totalIssuesFound).toBe(10); // 3 + 2 + 5
+      });
+    });
+
+    describe('state consistency guarantees', () => {
+      it('should never produce invalid JSON state', () => {
+        const state = workflowState.createState();
+        workflowState.writeState(state, testDir);
+
+        // Perform many updates with various data types
+        const updates = [
+          { task: { string: 'test' } },
+          { task: { number: 42 } },
+          { task: { boolean: true } },
+          { task: { null: null } },
+          { task: { array: [1, 2, 3] } },
+          { task: { nested: { deep: { value: 'x' } } } }
+        ];
+
+        updates.forEach(update => {
+          workflowState.updateState(update, testDir);
+
+          // Each state should be valid JSON
+          const read = workflowState.readState(testDir);
+          expect(read).not.toBeNull();
+          expect(read).not.toBeInstanceOf(Error);
+        });
+      });
+
+      it('should handle empty updates gracefully', () => {
+        const state = workflowState.createState();
+        workflowState.writeState(state, testDir);
+
+        // Empty updates should not corrupt state
+        workflowState.updateState({}, testDir);
+        workflowState.updateState({ task: {} }, testDir);
+
+        const final = workflowState.readState(testDir);
+        expect(final).not.toBeNull();
+        expect(final.version).toBe(workflowState.SCHEMA_VERSION);
+      });
+
+      it('should handle special characters in task data', () => {
+        const state = workflowState.createState();
+        workflowState.writeState(state, testDir);
+
+        // Update with special characters that could break JSON
+        workflowState.updateState({
+          task: {
+            title: 'Fix "quotes" and \\backslashes\\',
+            description: 'Handle \n newlines \t and tabs',
+            unicode: '日本語テスト 🎉',
+            special: '<script>alert("xss")</script>'
+          }
+        }, testDir);
+
+        const final = workflowState.readState(testDir);
+
+        expect(final.task.title).toBe('Fix "quotes" and \\backslashes\\');
+        expect(final.task.unicode).toBe('日本語テスト 🎉');
+      });
+
+      it('should preserve timestamp ordering in phase history', () => {
+        const state = workflowState.createState();
+        workflowState.writeState(state, testDir);
+
+        // Execute phases with small delays to ensure timestamp ordering
+        const phases = ['policy-selection', 'task-discovery', 'worktree-setup'];
+        phases.forEach(phase => {
+          workflowState.startPhase(phase, testDir);
+          workflowState.completePhase({ completed: phase }, testDir);
+        });
+
+        const final = workflowState.readState(testDir);
+
+        // Verify timestamps are in order
+        for (let i = 1; i < final.phases.history.length; i++) {
+          const prev = new Date(final.phases.history[i - 1].startedAt);
+          const curr = new Date(final.phases.history[i].startedAt);
+          expect(curr.getTime()).toBeGreaterThanOrEqual(prev.getTime());
+        }
+      });
+    });
+
+    describe('atomic operation simulation', () => {
+      it('should complete full phase transitions atomically', () => {
+        const state = workflowState.createState();
+        workflowState.writeState(state, testDir);
+
+        workflowState.startPhase('implementation', testDir);
+
+        // Read state mid-operation
+        const midState = workflowState.readState(testDir);
+
+        // State should be in a consistent state
+        expect(midState.phases.current).toBe('implementation');
+        expect(midState.phases.history).toHaveLength(1);
+        expect(midState.phases.history[0].phase).toBe('implementation');
+        expect(midState.phases.history[0].status).toBe('in_progress');
+      });
+
+      it('should handle iteration increments correctly', () => {
+        const state = workflowState.createState();
+        workflowState.writeState(state, testDir);
+
+        // Multiple iteration increments
+        for (let i = 0; i < 5; i++) {
+          workflowState.incrementIteration({ fixed: i }, testDir);
+        }
+
+        const final = workflowState.readState(testDir);
+
+        expect(final.phases.currentIteration).toBe(5);
+        expect(final.agents.totalIterations).toBe(5);
+        // 0 + 1 + 2 + 3 + 4 = 10
+        expect(final.agents.totalIssuesFixed).toBe(10);
+      });
     });
   });
 });

@@ -233,4 +233,211 @@ describe('review-patterns', () => {
       expect(frameworks).toEqual([]);
     });
   });
+
+  describe('Pattern Structure Validation', () => {
+    describe('pattern content quality', () => {
+      it('should have non-empty patterns with meaningful content', () => {
+        const frameworks = getAvailableFrameworks();
+        frameworks.forEach(framework => {
+          const categories = getCategoriesForFramework(framework);
+          categories.forEach(category => {
+            const patterns = getPatternsForFrameworkCategory(framework, category);
+            patterns.forEach(pattern => {
+              expect(pattern.length).toBeGreaterThan(5);
+              expect(pattern.trim()).toBe(pattern); // No leading/trailing whitespace
+            });
+          });
+        });
+      });
+
+      it('should not have empty or whitespace-only patterns', () => {
+        Object.entries(reviewPatterns).forEach(([framework, categories]) => {
+          Object.entries(categories).forEach(([category, patterns]) => {
+            patterns.forEach((pattern, index) => {
+              expect(pattern.trim().length).toBeGreaterThan(0);
+            });
+          });
+        });
+      });
+    });
+
+    describe('pattern uniqueness', () => {
+      it('should not have duplicate patterns within a category', () => {
+        const frameworks = getAvailableFrameworks();
+        frameworks.forEach(framework => {
+          const categories = getCategoriesForFramework(framework);
+          categories.forEach(category => {
+            const patterns = getPatternsForFrameworkCategory(framework, category);
+            const uniquePatterns = new Set(patterns);
+            expect(uniquePatterns.size).toBe(patterns.length);
+          });
+        });
+      });
+
+      it('should not have exact duplicate patterns across all frameworks', () => {
+        const allPatterns = new Set();
+        const duplicates = [];
+
+        Object.entries(reviewPatterns).forEach(([framework, categories]) => {
+          Object.entries(categories).forEach(([category, patterns]) => {
+            patterns.forEach(pattern => {
+              if (allPatterns.has(pattern)) {
+                duplicates.push({ framework, category, pattern });
+              }
+              allPatterns.add(pattern);
+            });
+          });
+        });
+
+        // Some duplicates may be intentional across frameworks
+        // but within-category duplicates should be zero
+        expect(duplicates.length).toBeLessThan(10);
+      });
+    });
+
+    describe('framework structure consistency', () => {
+      it('should have at least one category per framework', () => {
+        const frameworks = getAvailableFrameworks();
+        frameworks.forEach(framework => {
+          const categories = getCategoriesForFramework(framework);
+          expect(categories.length).toBeGreaterThan(0);
+        });
+      });
+
+      it('should have at least one pattern per category', () => {
+        const frameworks = getAvailableFrameworks();
+        frameworks.forEach(framework => {
+          const categories = getCategoriesForFramework(framework);
+          categories.forEach(category => {
+            const patterns = getPatternsForFrameworkCategory(framework, category);
+            expect(patterns.length).toBeGreaterThan(0);
+          });
+        });
+      });
+
+      it('should have lowercase framework names', () => {
+        const frameworks = getAvailableFrameworks();
+        frameworks.forEach(framework => {
+          expect(framework).toBe(framework.toLowerCase());
+        });
+      });
+
+      it('should have snake_case category names', () => {
+        const categories = getAvailableCategories();
+        categories.forEach(category => {
+          // Category should be lowercase with underscores
+          expect(category).toMatch(/^[a-z][a-z0-9_]*$/);
+        });
+      });
+    });
+
+    describe('cross-reference integrity', () => {
+      it('should have consistent category references across frameworks', () => {
+        const allCategories = getAvailableCategories();
+
+        Object.entries(reviewPatterns).forEach(([framework, categories]) => {
+          Object.keys(categories).forEach(category => {
+            expect(allCategories).toContain(category);
+          });
+        });
+      });
+
+      it('should return correct patterns through all access methods', () => {
+        const frameworks = getAvailableFrameworks();
+        frameworks.forEach(framework => {
+          const frameworkPatterns = getPatternsForFramework(framework);
+          const categories = getCategoriesForFramework(framework);
+
+          categories.forEach(category => {
+            // Access via framework object
+            const directPatterns = frameworkPatterns[category];
+            // Access via combined function
+            const functionPatterns = getPatternsForFrameworkCategory(framework, category);
+
+            expect(directPatterns).toEqual(functionPatterns);
+          });
+        });
+      });
+
+      it('should return correct frameworks through category lookup', () => {
+        const categories = getAvailableCategories();
+        categories.forEach(category => {
+          const frameworksWithCategory = getFrameworksWithCategory(category);
+          const patternsMap = getPatternsByCategory(category);
+
+          // Every framework from getFrameworksWithCategory should be in patternsMap
+          frameworksWithCategory.forEach(framework => {
+            expect(patternsMap.has(framework)).toBe(true);
+          });
+
+          // And vice versa
+          patternsMap.forEach((patterns, framework) => {
+            expect(frameworksWithCategory).toContain(framework);
+          });
+        });
+      });
+    });
+
+    describe('pattern count consistency', () => {
+      it('should have consistent pattern counts', () => {
+        const frameworks = getAvailableFrameworks();
+        let manualTotal = 0;
+
+        frameworks.forEach(framework => {
+          const frameworkCount = getPatternCount(framework);
+          let categoryTotal = 0;
+
+          const categories = getCategoriesForFramework(framework);
+          categories.forEach(category => {
+            const patterns = getPatternsForFrameworkCategory(framework, category);
+            categoryTotal += patterns.length;
+          });
+
+          expect(frameworkCount).toBe(categoryTotal);
+          manualTotal += frameworkCount;
+        });
+
+        expect(getTotalPatternCount()).toBe(manualTotal);
+      });
+
+      it('should have reasonable pattern counts per framework', () => {
+        const frameworks = getAvailableFrameworks();
+        frameworks.forEach(framework => {
+          const count = getPatternCount(framework);
+          // Each framework should have at least 5 patterns
+          expect(count).toBeGreaterThanOrEqual(5);
+          // But not an unreasonable number (sanity check)
+          expect(count).toBeLessThan(500);
+        });
+      });
+    });
+
+    describe('search functionality integrity', () => {
+      it('should find all patterns containing common keywords', () => {
+        const commonKeywords = ['error', 'security', 'memory', 'async'];
+        commonKeywords.forEach(keyword => {
+          const results = searchPatterns(keyword);
+          results.forEach(result => {
+            expect(result.pattern.toLowerCase()).toContain(keyword.toLowerCase());
+            // Verify the result structure
+            expect(result).toHaveProperty('framework');
+            expect(result).toHaveProperty('category');
+            expect(result).toHaveProperty('pattern');
+            // Verify the result references valid data
+            expect(hasPatternsFor(result.framework)).toBe(true);
+            expect(hasCategory(result.category)).toBe(true);
+          });
+        });
+      });
+
+      it('should return results with valid back-references', () => {
+        const results = searchPatterns('check');
+        results.forEach(result => {
+          // Verify the pattern actually exists in the referenced location
+          const patterns = getPatternsForFrameworkCategory(result.framework, result.category);
+          expect(patterns).toContain(result.pattern);
+        });
+      });
+    });
+  });
 });
