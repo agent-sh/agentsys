@@ -35,10 +35,10 @@ Before planning, you should have:
 
 ```javascript
 const workflowState = require('${CLAUDE_PLUGIN_ROOT}/lib/state/workflow-state.js');
-const state = workflowState.readState();
+const state = workflowState.readFlow();
 
 const task = state.task;
-const explorationResults = state.phases.history.find(p => p.phase === 'exploration')?.result;
+const explorationResults = state.exploration;
 
 console.log(`Planning for: #${task.id} - ${task.title}`);
 console.log(`Key files identified: ${explorationResults?.keyFiles?.join(', ')}`);

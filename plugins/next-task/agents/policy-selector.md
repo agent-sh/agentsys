@@ -279,30 +279,27 @@ function mapToPolicy(responses) {
   return {
     taskSource: MAPS.source[responses.taskSource] || 'gh-issues',
     priorityFilter: MAPS.priority[responses.priority] || 'continue',
-    stoppingPoint: MAPS.stop[responses.stopPoint] || 'merged',
-    mergeStrategy: 'squash',
-    autoFix: true,
-    maxReviewIterations: 3
+    stoppingPoint: MAPS.stop[responses.stopPoint] || 'merged'
   };
 }
 ```
 
 ## Phase 6: Initialize State
 
-Create or update workflow state with policy:
+Create flow with policy:
 
 ```javascript
 const workflowState = require('${CLAUDE_PLUGIN_ROOT}/lib/state/workflow-state.js');
 
-// Create new workflow with policy
-const state = workflowState.createState('next-task', policy);
-workflowState.writeState(state);
+// Update flow with policy
+workflowState.updateFlow({
+  policy: policy,
+  phase: 'policy-selection',
+  status: 'in_progress'
+});
 
-// Start policy-selection phase
-workflowState.startPhase('policy-selection');
-
-// Complete policy-selection phase
-workflowState.completePhase({ policySet: true, policy });
+// Complete policy selection
+workflowState.setPhase('task-discovery');
 ```
 
 ## Output
@@ -315,7 +312,6 @@ After policy selection, report:
 **Task Source**: ${policy.taskSource}
 **Priority Filter**: ${policy.priorityFilter}
 **Stopping Point**: ${policy.stoppingPoint}
-**Merge Strategy**: ${policy.mergeStrategy}
 
 Proceeding to task discovery...
 ```

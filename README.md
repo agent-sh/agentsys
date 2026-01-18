@@ -217,67 +217,34 @@ See [docs/CROSS_PLATFORM.md](./docs/CROSS_PLATFORM.md) for details.
 
 ---
 
-## Configuration
-
-Awesome-slash supports flexible configuration via environment variables, configuration files, and package.json.
-
-### Quick Start
-
-Create `.awesomeslashrc.json` in your home directory or project root:
-
-```json
-{
-  "logging": {
-    "level": "debug"
-  },
-  "tasks": {
-    "defaultSource": "linear",
-    "defaultStoppingPoint": "pr-created"
-  },
-  "performance": {
-    "cacheSize": 200,
-    "cacheTTL": 500
-  }
-}
-```
-
-### Environment Variables
-
-Override any setting with `AWESOME_SLASH_*` environment variables:
-
-```bash
-export AWESOME_SLASH_LOG_LEVEL=debug
-export AWESOME_SLASH_TASK_SOURCE=linear
-export AWESOME_SLASH_CACHE_SIZE=200
-```
-
-### Configuration Sources
-
-Configuration is loaded with priority (highest to lowest):
-
-1. Environment variables (`AWESOME_SLASH_*`)
-2. `.awesomeslashrc.json` in current directory
-3. `.awesomeslashrc.json` in home directory
-4. `package.json` "awesomeSlash" field
-5. Built-in defaults
-
-See [lib/config/README.md](./lib/config/README.md) for complete documentation and all available options.
-
----
-
 ## Architecture
 
 ### State Management
 
-Workflows persist state in `.claude/workflow-state.json`:
+Simple state tracking with two files:
 
+**Main project: `.claude/tasks.json`** - Tracks active worktree/task:
 ```json
 {
-  "workflow": { "id": "...", "status": "in_progress" },
-  "policy": { "taskSource": "gh-issues", "stoppingPoint": "merged" },
-  "task": { "id": "142", "title": "Fix auth timeout" },
-  "phases": { "current": "implementation", "history": [...] },
-  "checkpoints": { "canResume": true, "resumeFrom": "implementation" }
+  "active": {
+    "worktree": "../project-task-123",
+    "branch": "feature/123-fix-auth",
+    "taskId": "123",
+    "taskTitle": "Fix auth timeout"
+  }
+}
+```
+
+**Worktree: `.claude/flow.json`** - Tracks workflow progress:
+```json
+{
+  "task": { "id": "123", "title": "Fix auth timeout" },
+  "policy": { "stoppingPoint": "merged" },
+  "phase": "implementation",
+  "status": "in_progress",
+  "exploration": { "keyFiles": [...] },
+  "plan": { "steps": [...] },
+  "pr": { "number": 456, "url": "..." }
 }
 ```
 
