@@ -2,7 +2,7 @@
 name: code-explorer
 description: Deep codebase exploration to understand actual implementation state. Use this agent as part of the reality-check parallel scan to gather code-based context.
 tools: Read, Glob, Grep, Bash(git:*)
-model: sonnet
+model: opus
 ---
 
 # Code Explorer Agent
