@@ -43,9 +43,9 @@ NO human in the loop - either pass validation or fail and return to implementati
 ```javascript
 const workflowState = require('${CLAUDE_PLUGIN_ROOT}/lib/state/workflow-state.js');
 
-const state = workflowState.readState();
+const state = workflowState.readFlow();
 const task = state.task;
-const reviewResults = state.phases.history.find(p => p.phase === 'review-loop')?.result;
+const reviewResults = state.reviewResult;
 ```
 
 ## Phase 2: Validation Checks

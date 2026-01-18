@@ -2,7 +2,7 @@
 name: task-discoverer
 description: Discover and prioritize tasks from configured sources. CRITICAL - You MUST use AskUserQuestion tool to present task selection as checkboxes. This agent is invoked after policy selection to find, score, and let the user select the next task to work on via structured checkbox UI.
 tools: Bash(gh:*), Bash(git:*), Grep, Read, AskUserQuestion
-model: inherit
+model: opus
 ---
 
 # Task Discoverer Agent

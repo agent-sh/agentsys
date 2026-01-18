@@ -45,14 +45,13 @@ Before implementation:
 
 ```javascript
 const workflowState = require('${CLAUDE_PLUGIN_ROOT}/lib/state/workflow-state.js');
-const state = workflowState.readState();
+const state = workflowState.readFlow();
 
-const planPhase = state.phases.history.find(p => p.phase === 'planning');
-if (!planPhase?.result?.planApproved) {
+if (!state.plan?.approved) {
   throw new Error('Plan not approved - cannot proceed with implementation');
 }
 
-const plan = planPhase.result.plan;
+const plan = state.plan;
 console.log(`Implementing: ${plan.title}`);
 console.log(`Steps: ${plan.steps.length}`);
 ```

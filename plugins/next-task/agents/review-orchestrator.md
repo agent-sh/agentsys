@@ -13,75 +13,10 @@ and iterate until all critical and high-severity issues are resolved.
 ## Configuration
 
 ```javascript
-const MAX_ITERATIONS = 3;  // From policy.maxReviewIterations
+// No max iterations - review until approved
 const workflowState = require('${CLAUDE_PLUGIN_ROOT}/lib/state/workflow-state.js');
 ```
 
-## ⚠️ MANDATORY STATE UPDATES
-
-```
-╔══════════════════════════════════════════════════════════════════════════╗
-║              YOU MUST UPDATE STATE AFTER EACH ITERATION                   ║
-╠══════════════════════════════════════════════════════════════════════════╣
-║                                                                          ║
-║  After EACH review iteration, update:                                    ║
-║                                                                          ║
-║  1. .claude/workflow-status.json (in worktree):                          ║
-║     - Current iteration number                                           ║
-║     - Issues found/fixed counts                                          ║
-║     - lastActivityAt timestamp                                           ║
-║                                                                          ║
-║  2. .claude/tasks.json (in main repo):                                   ║
-║     - lastActivityAt timestamp                                           ║
-║     - currentStep: 'review-iteration-N'                                  ║
-║                                                                          ║
-║  FAILURE TO UPDATE = RESUME WILL FAIL                                    ║
-║                                                                          ║
-╚══════════════════════════════════════════════════════════════════════════╝
-```
-
-### State Update After Each Iteration
-
-```javascript
-function updateStateAfterIteration(iteration, findings) {
-  const fs = require('fs');
-
-  // 1. Update worktree status
-  const statusPath = '.claude/workflow-status.json';
-  const status = JSON.parse(fs.readFileSync(statusPath, 'utf8'));
-
-  status.steps.push({
-    step: `review-iteration-${iteration}`,
-    status: 'completed',
-    completedAt: new Date().toISOString(),
-    result: {
-      issuesFound: findings.totals.critical + findings.totals.high,
-      issuesFixed: findings.issuesFixed || 0
-    }
-  });
-
-  status.workflow.lastActivityAt = new Date().toISOString();
-  status.agents.reviewIterations = iteration;
-  status.agents.issuesFound = (status.agents.issuesFound || 0) + findings.totals.critical + findings.totals.high;
-
-  fs.writeFileSync(statusPath, JSON.stringify(status, null, 2));
-  console.log(`✓ Updated workflow-status.json: review-iteration-${iteration}`);
-
-  // 2. Update main repo tasks.json
-  if (status.git?.mainRepoPath) {
-    const mainTasksPath = status.git.mainRepoPath + '/.claude/tasks.json';
-    if (fs.existsSync(mainTasksPath)) {
-      const registry = JSON.parse(fs.readFileSync(mainTasksPath, 'utf8'));
-      const idx = registry.tasks.findIndex(t => t.id === status.task.id);
-      if (idx >= 0) {
-        registry.tasks[idx].lastActivityAt = new Date().toISOString();
-        registry.tasks[idx].currentStep = `review-iteration-${iteration}`;
-        fs.writeFileSync(mainTasksPath, JSON.stringify(registry, null, 2));
-      }
-    }
-  }
-}
-```
 
 ## Phase 1: Get Changed Files
 
@@ -100,10 +35,7 @@ git diff --stat HEAD~1..HEAD 2>/dev/null || git diff --stat
 ## Phase 2: Start Review Phase
 
 ```javascript
-workflowState.startPhase('review-loop');
-workflowState.updateState({
-  phases: { currentIteration: 0 }
-});
+workflowState.setPhase('review-loop');
 ```
 
 ## Phase 3: Launch Review Agents (Parallel)
@@ -224,35 +156,10 @@ function aggregateFindings(results) {
 const findings = aggregateFindings(results);
 ```
 
-## Phase 5: Update Agent Results in State
+## Phase 5: Log Results
 
 ```javascript
-workflowState.updateState({
-  agents: {
-    lastRun: {
-      codeReviewer: {
-        status: 'completed',
-        issues: results[0].summary?.total || 0,
-        critical: results[0].summary?.critical || 0,
-        high: results[0].summary?.high || 0
-      },
-      silentFailureHunter: {
-        status: 'completed',
-        issues: results[1].summary?.total || 0,
-        critical: results[1].summary?.critical || 0,
-        high: results[1].summary?.high || 0
-      },
-      testAnalyzer: {
-        status: 'completed',
-        issues: results[2].summary?.total || 0,
-        critical: results[2].summary?.critical || 0,
-        high: results[2].summary?.high || 0
-      }
-    },
-    totalIssuesFound: findings.totals.critical + findings.totals.high +
-                      findings.totals.medium + findings.totals.low
-  }
-});
+console.log(`Found: ${findings.totals.critical} critical, ${findings.totals.high} high, ${findings.totals.medium} medium, ${findings.totals.low} low`);
 ```
 
 ## Phase 6: Report Findings
@@ -275,13 +182,14 @@ ${criticalIssues.map(i => `- **${i.file}:${i.line}** - ${i.description}`).join('
 ${highIssues.map(i => `- **${i.file}:${i.line}** - ${i.description}`).join('\n')}
 ```
 
-## Phase 7: Iteration Loop
+## Phase 7: Iteration Loop (Until Approved)
 
 ```javascript
 let iteration = 1;
 
-while (iteration <= MAX_ITERATIONS && findings.needsIteration) {
-  console.log(`\n## Review Iteration ${iteration}/${MAX_ITERATIONS}`);
+// Loop until all critical/high issues are resolved - no arbitrary limit
+while (findings.needsIteration) {
+  console.log(`\n## Review Iteration ${iteration}`);
   console.log(`Fixing ${findings.totals.critical} critical and ${findings.totals.high} high issues...`);
 
   // Fix critical issues first
@@ -322,10 +230,8 @@ Do NOT auto-fix - just report for the next iteration.`
   });
   // =========================================================
 
-  // Increment iteration in state
-  workflowState.incrementIteration({
-    fixed: findings.totals.critical + findings.totals.high
-  });
+  // Log iteration progress
+  console.log(`Iteration ${iteration} complete. Fixed ${findings.totals.critical + findings.totals.high} issues.`);
 
   // Re-run review agents on changed files
   const changedInIteration = await exec('git diff --name-only HEAD~1');
@@ -339,30 +245,23 @@ Do NOT auto-fix - just report for the next iteration.`
 ## Phase 8: Final Status
 
 ```javascript
-if (findings.totals.critical === 0 && findings.totals.high === 0) {
-  console.log("\n## ✓ Review Approved");
-  console.log("All critical and high-priority issues resolved.");
-  console.log(`Medium: ${findings.totals.medium}, Low: ${findings.totals.low} (noted in PR)`);
+// When we exit the loop, all critical/high issues are resolved
+console.log("\n## ✓ Review Approved");
+console.log("All critical and high-priority issues resolved.");
+console.log(`Medium: ${findings.totals.medium}, Low: ${findings.totals.low} (noted in PR)`);
+console.log(`Completed after ${iteration - 1} iteration(s).`);
 
-  workflowState.completePhase({
+// Update flow with review result
+workflowState.updateFlow({
+  reviewResult: {
     approved: true,
     iterations: iteration - 1,
     remainingIssues: {
       medium: findings.totals.medium,
       low: findings.totals.low
     }
-  });
-} else {
-  console.log("\n## ✗ Review Failed");
-  console.log(`Unable to resolve all issues after ${MAX_ITERATIONS} iterations.`);
-  console.log(`Remaining: ${findings.totals.critical} critical, ${findings.totals.high} high`);
-
-  workflowState.failPhase("Review iteration limit reached", {
-    remainingCritical: findings.totals.critical,
-    remainingHigh: findings.totals.high,
-    iterations: iteration - 1
-  });
-}
+  }
+});
 ```
 
 ## Fix Issue Helper
