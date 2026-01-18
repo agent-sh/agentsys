@@ -9,7 +9,16 @@
 
 const fs = require('fs').promises;
 const path = require('path');
-const yaml = require('js-yaml');
+
+// Check for js-yaml dependency early
+let yaml;
+try {
+  yaml = require('js-yaml');
+} catch (error) {
+  console.error('Error: js-yaml is not installed');
+  console.error('Run: npm install js-yaml');
+  process.exit(1);
+}
 
 /**
  * Parse YAML frontmatter from markdown file
@@ -174,7 +183,14 @@ async function batchConvert() {
     }
 
     try {
+      // Ensure output directory exists
       await fs.mkdir(outputDir, { recursive: true });
+
+      // Verify directory was created
+      const stats = await fs.stat(outputDir);
+      if (!stats.isDirectory()) {
+        throw new Error(`${outputDir} exists but is not a directory`);
+      }
 
       const files = await fs.readdir(inputDir);
       const mdFiles = files.filter(f => f.endsWith('.md'));
@@ -221,23 +237,15 @@ async function batchConvert() {
   }
 }
 
-async function checkDependencies() {
-  try {
-    require('js-yaml');
-  } catch (error) {
-    console.error('Error: js-yaml is not installed');
-    console.error('Run: npm install js-yaml');
+// No need for checkDependencies as we check at the top
+if (process.argv.includes('--batch')) {
+  batchConvert().catch(error => {
+    console.error(`Fatal error: ${error.message}`);
     process.exit(1);
-  }
+  });
+} else {
+  main().catch(error => {
+    console.error(`Fatal error: ${error.message}`);
+    process.exit(1);
+  });
 }
-
-checkDependencies().then(() => {
-  if (process.argv.includes('--batch')) {
-    batchConvert();
-  } else {
-    main();
-  }
-}).catch(error => {
-  console.error(`Fatal error: ${error.message}`);
-  process.exit(1);
-});

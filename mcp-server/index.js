@@ -237,7 +237,14 @@ const toolHandlers = {
 
   async task_discover({ source, filter, limit }) {
     const taskSource = source || 'gh-issues';
-    const maxTasks = limit || 10;
+    // Validate and sanitize limit to prevent command injection
+    let maxTasks = 10;
+    if (limit !== undefined) {
+      const parsed = parseInt(limit, 10);
+      if (!isNaN(parsed) && parsed > 0 && parsed <= 100) {
+        maxTasks = parsed;
+      }
+    }
 
     try {
       let tasks = [];
@@ -255,9 +262,14 @@ const toolHandlers = {
           };
         }
 
-        const { stdout } = await execAsync(
-          `gh issue list --state open --json number,title,labels,createdAt --limit ${maxTasks}`
-        );
+        // Use array form to prevent command injection
+        const ghArgs = [
+          'issue', 'list',
+          '--state', 'open',
+          '--json', 'number,title,labels,createdAt',
+          '--limit', String(maxTasks)
+        ];
+        const { stdout } = await execAsync(`gh ${ghArgs.join(' ')}`);
 
         const issues = JSON.parse(stdout || '[]');
 
@@ -294,6 +306,8 @@ const toolHandlers = {
             foundFile = file;
             break;
           } catch (e) {
+            // Log error for debugging but continue checking other files
+            console.error(`Could not read ${file}: ${e.message}`);
           }
         }
 
@@ -351,7 +365,7 @@ const toolHandlers = {
       return {
         content: [{
           type: 'text',
-          text: `Error discovering tasks: ${error.message}`
+          text: `Error discovering tasks: ${error.message}\nSource: ${taskSource}\nStack: ${error.stack}`
         }],
         isError: true
       };
@@ -381,7 +395,7 @@ const toolHandlers = {
           return {
             content: [{
               type: 'text',
-              text: `Error getting changed files: ${error.message}. Please specify files explicitly.`
+              text: `Error getting changed files: ${error.message}\nCommand: git diff\nPlease specify files explicitly.`
             }],
             isError: true
           };
@@ -563,4 +577,12 @@ async function main() {
   console.error('awesome-slash MCP server running');
 }
 
-main().catch(console.error);
+// Export for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { toolHandlers };
+}
+
+// Only run main if this is the main module
+if (require.main === module) {
+  main().catch(console.error);
+}
