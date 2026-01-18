@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **OpenCode/Codex Integration** - Complete cross-platform MCP server support
+  - `task_discover` tool now implements real GitHub/Linear/PLAN.md task discovery
+  - `review_code` tool now runs actual multi-agent code review with iteration
+  - Added `convert-agents.js` script for converting Claude Code agents to OpenCode/Codex formats
+  - OpenCode agent format: JSON with instructions, model, capabilities, behavior sections
+  - Codex agent format: YAML with Kubernetes-style spec (apiVersion, kind, metadata, spec)
+  - Supports frontmatter parsing and conversion from Claude Code agent markdown files
+- **MCP Server Tests** - 406 new test lines covering task discovery and code review functionality
+- **js-yaml Dependency** - Added for YAML conversion in agent format converter
+
+### Changed
+- **MCP Server** - Upgraded from placeholder stubs to full implementations (315 lines added)
+  - `task_discover`: Parses GitHub issues, Linear tasks, PLAN.md with priority scoring
+  - `review_code`: Spawns 8 specialized review agents in parallel with iteration support
+- **Documentation** - Updated CROSS_PLATFORM.md to mark OpenCode and Codex as "Supported" (was "Experimental")
+
 ### Deprecated
 - **Synchronous API Functions**: All sync functions now show deprecation warnings
   - `detect()` → use `detectAsync()` instead
@@ -20,7 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `verifyTools()` → use `verifyToolsAsync()` instead
   - Warnings appear once per function with migration guidance
   - **Sync functions will be removed in v3.0.0**
-
 ## [2.4.4] - 2026-01-18
 
 ### Added
