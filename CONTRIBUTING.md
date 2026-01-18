@@ -144,15 +144,18 @@ git commit -m "fix(lib): your change description"
 
 ```javascript
 /**
- * Detects the CI platform by scanning for configuration files
- * @returns {string|null} CI platform name or null if not detected
+ * Detects the CI platform by scanning for configuration files (async)
+ * @returns {Promise<string|null>} CI platform name or null if not detected
  */
-function detectCI() {
-  if (fs.existsSync('.github/workflows')) return 'github-actions';
-  if (fs.existsSync('.gitlab-ci.yml')) return 'gitlab-ci';
+async function detectCIAsync() {
+  if (await existsAsync(".github/workflows")) return "github-actions";
+  if (await existsAsync(".gitlab-ci.yml")) return "gitlab-ci";
   return null;
 }
 ```
+
+> **Note**: Use async versions (`detectCIAsync()`, `detectAsync()`, etc.) for new code.
+> Synchronous functions (`detectCI()`, `detect()`, etc.) are deprecated and will be removed in v3.0.0.
 
 ### Markdown Commands
 

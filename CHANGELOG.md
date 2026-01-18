@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Deprecated
+- **Synchronous API Functions**: All sync functions now show deprecation warnings
+  - `detect()` → use `detectAsync()` instead
+  - `detectCI()` → use `detectCIAsync()` instead
+  - `detectDeployment()` → use `detectDeploymentAsync()` instead
+  - `detectProjectType()` → use `detectProjectTypeAsync()` instead
+  - `detectPackageManager()` → use `detectPackageManagerAsync()` instead
+  - `detectBranchStrategy()` → use `detectBranchStrategyAsync()` instead
+  - `detectMainBranch()` → use `detectMainBranchAsync()` instead
+  - `checkTool()` → use `checkToolAsync()` instead
+  - `verifyTools()` → use `verifyToolsAsync()` instead
+  - Warnings appear once per function with migration guidance
+  - **Sync functions will be removed in v3.0.0**
+
 ## [2.4.2] - 2026-01-18
 
 ### Fixed
