@@ -12,6 +12,10 @@ A cross-platform plugin providing powerful, zero-configuration slash commands fo
 [![Codex CLI](https://img.shields.io/badge/Codex-CLI%20Compatible-green)](https://developers.openai.com/codex/cli)
 [![OpenCode](https://img.shields.io/badge/OpenCode-Compatible-orange)](https://opencode.ai)
 
+> **📋 Disclaimer**: This project originated from personal workflow needs and was made public due to its effective delivery. Usage is entirely at your own responsibility. The maintainers make no guarantees about fitness for any particular purpose. Context/token efficiency has not been formally benchmarked.
+
+> **💡 Model Recommendation**: Using **Opus** as the main agent model produces significantly better results and follows workflow phases more tightly. While Sonnet works for simpler tasks, Opus is recommended for complex multi-step workflows.
+
 ## What's New in v2.4.8
 
 - **Multi-Source Task Discovery** - Support for GitHub, GitLab, local files, custom CLI tools, and ad-hoc sources
