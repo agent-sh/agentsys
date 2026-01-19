@@ -6,7 +6,6 @@
  */
 
 const fs = require('fs');
-const path = require('path');
 const sourceCache = require('../lib/sources/source-cache');
 const customHandler = require('../lib/sources/custom-handler');
 const policyQuestions = require('../lib/sources/policy-questions');

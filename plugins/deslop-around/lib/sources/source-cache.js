@@ -120,7 +120,11 @@ function clearCache() {
   if (fs.existsSync(SOURCES_DIR)) {
     const files = fs.readdirSync(SOURCES_DIR);
     for (const file of files) {
-      fs.unlinkSync(path.join(SOURCES_DIR, file));
+      const filePath = path.join(SOURCES_DIR, file);
+      const stats = fs.statSync(filePath);
+      if (stats.isFile()) {
+        fs.unlinkSync(filePath);
+      }
     }
   }
 }

@@ -370,7 +370,7 @@ if (sources.needsCustomFollowUp(sourceAnswer)) {
   AskUserQuestion(sources.getCustomTypeQuestions());
 
   // Then ask for name/path
-  const typeInternal = customHandler.mapTypeSelection(typeAnswer);
+  const typeInternal = sources.mapTypeSelection(typeAnswer);
   AskUserQuestion(sources.getCustomNameQuestion(typeInternal));
 }
 
