@@ -243,7 +243,7 @@ See [docs/CROSS_PLATFORM.md](./docs/CROSS_PLATFORM.md) for details.
 
 ### State Management
 
-Simple state tracking with two files:
+Simple state tracking with three locations:
 
 **Main project: `.claude/tasks.json`** - Tracks active worktree/task:
 ```json
@@ -267,6 +267,16 @@ Simple state tracking with two files:
   "exploration": { "keyFiles": [...] },
   "plan": { "steps": [...] },
   "pr": { "number": 456, "url": "..." }
+}
+```
+
+**Source Preferences: `.claude/sources/preference.json`** - Caches task source selection:
+```json
+{
+  "source": "custom",
+  "type": "cli",
+  "tool": "tea",
+  "savedAt": "2025-01-19T08:00:00.000Z"
 }
 ```
 
@@ -325,6 +335,7 @@ awesome-slash/
 |-- lib/
 |   |-- config/                # Configuration management
 |   |-- state/                 # Workflow state management
+|   |-- sources/               # Multi-source task discovery
 |   |-- platform/              # Auto-detection
 |   |-- patterns/              # Code analysis patterns
 |   |-- utils/                 # Shell escaping and context optimization
