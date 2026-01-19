@@ -9,6 +9,17 @@ const sourceCache = require('./source-cache');
 const customHandler = require('./custom-handler');
 
 /**
+ * Source label mapping for proper casing
+ */
+const SOURCE_LABELS = {
+  github: 'GitHub',
+  gitlab: 'GitLab',
+  local: 'Local',
+  custom: 'Custom',
+  other: 'Other'
+};
+
+/**
  * Get policy questions with cache-aware options
  * Call this once - returns full question structure ready for AskUserQuestion
  *
@@ -24,7 +35,7 @@ function getPolicyQuestions() {
   if (cached) {
     const cachedLabel = cached.source === 'custom'
       ? `${cached.tool} (${cached.type})`
-      : cached.source.charAt(0).toUpperCase() + cached.source.slice(1);
+      : SOURCE_LABELS[cached.source] || (cached.source.charAt(0).toUpperCase() + cached.source.slice(1));
 
     sourceOptions.push({
       label: `${cachedLabel} (last used)`,
@@ -150,7 +161,9 @@ function mapSource(selection, customDetails) {
   };
 
   if (selection === 'Custom' && customDetails) {
-    const config = customHandler.buildCustomConfig(customDetails.type, customDetails.name);
+    // Normalize type label to internal value (e.g., "CLI Tool" -> "cli")
+    const normalizedType = customHandler.mapTypeSelection(customDetails.type);
+    const config = customHandler.buildCustomConfig(normalizedType, customDetails.name);
     return config;
   }
 

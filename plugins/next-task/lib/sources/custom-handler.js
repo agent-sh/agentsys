@@ -5,8 +5,18 @@
  * @module lib/sources/custom-handler
  */
 
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const sourceCache = require('./source-cache');
+
+/**
+ * Validate tool name to prevent command injection
+ * Only allows alphanumeric, hyphens, and underscores
+ * @param {string} toolName - Tool name to validate
+ * @returns {boolean} True if valid
+ */
+function isValidToolName(toolName) {
+  return /^[a-zA-Z0-9_-]+$/.test(toolName);
+}
 
 /**
  * Source types for custom selection
@@ -81,9 +91,15 @@ function probeCLI(toolName) {
     commands: {}
   };
 
+  // Validate tool name to prevent command injection
+  if (!isValidToolName(toolName)) {
+    console.error(`Invalid tool name: ${toolName}`);
+    return capabilities;
+  }
+
   try {
-    // Check if tool exists
-    execSync(`${toolName} --version`, { encoding: 'utf8', stdio: 'pipe' });
+    // Check if tool exists using execFileSync (prevents command injection)
+    execFileSync(toolName, ['--version'], { encoding: 'utf8', stdio: 'pipe' });
     capabilities.available = true;
   } catch {
     return capabilities;
@@ -178,5 +194,6 @@ module.exports = {
   getCustomNameQuestion,
   mapTypeSelection,
   probeCLI,
-  buildCustomConfig
+  buildCustomConfig,
+  isValidToolName
 };

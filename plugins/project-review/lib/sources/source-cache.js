@@ -12,6 +12,16 @@ const SOURCES_DIR = '.claude/sources';
 const PREFERENCE_FILE = 'preference.json';
 
 /**
+ * Validate tool name to prevent path traversal
+ * @param {string} toolName - Tool name to validate
+ * @returns {boolean} True if valid
+ */
+function isValidToolName(toolName) {
+  // Prevent path traversal and shell metacharacters
+  return /^[a-zA-Z0-9_-]+$/.test(toolName);
+}
+
+/**
  * Ensure sources directory exists
  * @returns {string} Path to sources directory
  */
@@ -36,7 +46,8 @@ function getPreference() {
   }
   try {
     return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  } catch {
+  } catch (err) {
+    console.error(`Failed to read preference file:`, err.message);
     return null;
   }
 }
@@ -64,13 +75,19 @@ function savePreference(preference) {
  * @returns {Object|null} Capabilities object or null
  */
 function getToolCapabilities(toolName) {
+  // Prevent path traversal
+  if (!isValidToolName(toolName)) {
+    console.error(`Invalid tool name: ${toolName}`);
+    return null;
+  }
   const filePath = path.join(SOURCES_DIR, `${toolName}.json`);
   if (!fs.existsSync(filePath)) {
     return null;
   }
   try {
     return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  } catch {
+  } catch (err) {
+    console.error(`Failed to read tool capabilities for ${toolName}:`, err.message);
     return null;
   }
 }
@@ -83,6 +100,11 @@ function getToolCapabilities(toolName) {
  * @param {Object} capabilities.commands - Command mappings
  */
 function saveToolCapabilities(toolName, capabilities) {
+  // Prevent path traversal
+  if (!isValidToolName(toolName)) {
+    console.error(`Invalid tool name: ${toolName}`);
+    return;
+  }
   ensureDir();
   const filePath = path.join(SOURCES_DIR, `${toolName}.json`);
   fs.writeFileSync(filePath, JSON.stringify({

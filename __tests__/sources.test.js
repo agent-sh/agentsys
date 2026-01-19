@@ -11,8 +11,6 @@ const sourceCache = require('../lib/sources/source-cache');
 const customHandler = require('../lib/sources/custom-handler');
 const policyQuestions = require('../lib/sources/policy-questions');
 
-// Test directory for file operations
-const TEST_DIR = path.join(__dirname, '.test-sources');
 const SOURCES_DIR = '.claude/sources';
 
 describe('source-cache', () => {
@@ -336,7 +334,7 @@ describe('policy-questions', () => {
       expect(cachedPreference).not.toBeNull();
       expect(sourceQ.options).toHaveLength(6); // 5 standard + 1 cached
       expect(sourceQ.options[0].label).toContain('last used');
-      expect(sourceQ.options[0].label).toContain('Github');
+      expect(sourceQ.options[0].label).toContain('GitHub');
     });
 
     it('should format custom source in cached option', () => {
@@ -436,7 +434,7 @@ describe('policy-questions', () => {
     it('should handle cached option selection', () => {
       sourceCache.savePreference({ source: 'github' });
       const policy = policyQuestions.parseAndCachePolicy({
-        source: 'Github (last used)',
+        source: 'GitHub (last used)',
         priority: 'All',
         stopPoint: 'Merged'
       });
@@ -562,7 +560,7 @@ describe('integration', () => {
 
     // User selects cached option
     const policy = policyQuestions.parseAndCachePolicy({
-      source: 'Github (last used)',
+      source: 'GitHub (last used)',
       priority: 'Bugs',
       stopPoint: 'PR Created'
     });
@@ -621,5 +619,87 @@ describe('integration', () => {
 
     // Should NOT be cached (ad-hoc)
     expect(sourceCache.getPreference()).toBeNull();
+  });
+});
+
+describe('security', () => {
+  beforeEach(() => {
+    sourceCache.clearCache();
+  });
+
+  afterAll(() => {
+    if (fs.existsSync(SOURCES_DIR)) {
+      fs.rmSync(SOURCES_DIR, { recursive: true });
+    }
+  });
+
+  describe('command injection prevention', () => {
+    it('should reject tool names with shell metacharacters', () => {
+      const caps = customHandler.probeCLI('; ls -la');
+      expect(caps.available).toBe(false);
+      expect(caps.features).toEqual([]);
+    });
+
+    it('should reject tool names with command substitution', () => {
+      const caps = customHandler.probeCLI('$(whoami)');
+      expect(caps.available).toBe(false);
+    });
+
+    it('should reject tool names with pipes', () => {
+      const caps = customHandler.probeCLI('echo test | cat');
+      expect(caps.available).toBe(false);
+    });
+
+    it('should reject tool names with backticks', () => {
+      const caps = customHandler.probeCLI('`whoami`');
+      expect(caps.available).toBe(false);
+    });
+
+    it('should validate tool name format', () => {
+      expect(customHandler.isValidToolName('gh')).toBe(true);
+      expect(customHandler.isValidToolName('tea')).toBe(true);
+      expect(customHandler.isValidToolName('jira-cli')).toBe(true);
+      expect(customHandler.isValidToolName('my_tool')).toBe(true);
+      expect(customHandler.isValidToolName('; rm -rf /')).toBe(false);
+      expect(customHandler.isValidToolName('../../../etc/passwd')).toBe(false);
+      expect(customHandler.isValidToolName('tool;evil')).toBe(false);
+    });
+  });
+
+  describe('path traversal prevention', () => {
+    it('should reject tool names with path traversal in getToolCapabilities', () => {
+      const result = sourceCache.getToolCapabilities('../../etc/passwd');
+      expect(result).toBeNull();
+    });
+
+    it('should reject tool names with forward slashes', () => {
+      const result = sourceCache.getToolCapabilities('some/path/tool');
+      expect(result).toBeNull();
+    });
+
+    it('should reject tool names with backslashes', () => {
+      const result = sourceCache.getToolCapabilities('some\\path\\tool');
+      expect(result).toBeNull();
+    });
+
+    it('should reject tool names with double dots', () => {
+      const result = sourceCache.getToolCapabilities('..foo');
+      expect(result).toBeNull();
+    });
+
+    it('should not save capabilities for invalid tool names', () => {
+      const capabilities = { features: ['test'] };
+      sourceCache.saveToolCapabilities('../malicious', capabilities);
+      // Should not have created file outside sources dir
+      expect(sourceCache.getToolCapabilities('malicious')).toBeNull();
+    });
+
+    it('should allow valid tool names', () => {
+      const capabilities = { features: ['issues'] };
+      sourceCache.saveToolCapabilities('valid-tool', capabilities);
+      const result = sourceCache.getToolCapabilities('valid-tool');
+      expect(result).not.toBeNull();
+      expect(result.features).toEqual(['issues']);
+    });
   });
 });
