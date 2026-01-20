@@ -95,6 +95,13 @@ function cloneRepo(installDir) {
 function installDependencies(installDir) {
   console.log('Installing dependencies...');
   execSync('npm install --production', { cwd: installDir, stdio: 'inherit' });
+
+  // Also install MCP server dependencies
+  const mcpDir = path.join(installDir, 'mcp-server');
+  if (fs.existsSync(path.join(mcpDir, 'package.json'))) {
+    console.log('Installing MCP server dependencies...');
+    execSync('npm install --production', { cwd: mcpDir, stdio: 'inherit' });
+  }
 }
 
 function installForClaude(installDir) {
