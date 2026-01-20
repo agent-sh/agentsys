@@ -53,7 +53,6 @@ claude --add-plugin /path/to/awesome-slash/plugins/ship
 - `docs-updater` - Update docs related to changes
 
 **Operational (Sonnet/Haiku):**
-- `policy-selector` - Configure workflow policy [haiku]
 - `task-discoverer` - Find and prioritize tasks [sonnet]
 - `worktree-manager` - Create isolated worktrees [haiku]
 - `ci-monitor` - Monitor CI status with sleep loops [haiku]
