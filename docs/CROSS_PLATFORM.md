@@ -38,7 +38,7 @@ claude --add-plugin /path/to/awesome-slash/plugins/ship
 - `/next-task` - Master workflow orchestrator
 - `/ship` - Complete PR workflow
 
-### Available Agents (18 Total)
+### Available Agents (14 Total)
 
 **Core Workflow (Opus):**
 - `exploration-agent` - Deep codebase analysis (tools: Read, Grep, Glob, LSP, Task)
@@ -60,11 +60,10 @@ claude --add-plugin /path/to/awesome-slash/plugins/ship
 - `ci-fixer` - Fix CI failures and PR comments [sonnet]
 - `simple-fixer` - Execute pre-defined code fixes [haiku]
 
-**Reality Check (Sonnet/Opus):**
-- `issue-scanner` - Analyze GitHub issues, PRs, milestones [sonnet]
-- `doc-analyzer` - Examine documentation for plans [sonnet]
-- `code-explorer` - Deep codebase structure analysis [sonnet]
-- `plan-synthesizer` - Combine findings into prioritized plan [opus]
+**Reality Check (Opus):**
+- `plan-synthesizer` - Deep semantic analysis with full context [opus]
+
+*Data collection handled by JavaScript collectors (lib/reality-check/collectors.js)*
 
 ## OpenCode Integration
 
