@@ -788,11 +788,13 @@ function func${i}() {
 
       it('should not count private functions', () => {
         const content = 'def _private():\n    pass\ndef __dunder__():\n    pass';
-        // __dunder__ starts with underscore but matches [a-z_]
-        // Actually _private matches too since it starts with _
-        // The pattern is /^def\s+[a-z_]\w*/ which matches both
-        // This is a limitation - could be refined
-        expect(countExportsInContent(content, 'python')).toBeGreaterThanOrEqual(0);
+        // Now correctly excludes functions starting with underscore
+        expect(countExportsInContent(content, 'python')).toBe(0);
+      });
+
+      it('should count public functions with various names', () => {
+        const content = 'def public_func():\n    pass\ndef PublicClass():\n    pass';
+        expect(countExportsInContent(content, 'python')).toBe(2);
       });
     });
   });
