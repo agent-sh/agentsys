@@ -993,9 +993,14 @@ describe('slop-patterns', () => {
       describe('pass-only functions', () => {
         const pattern = () => slopPatterns.placeholder_pass_only_py.pattern;
 
-        it('should detect def with only pass', () => {
+        it('should detect def with only pass (multi-line)', () => {
           expect(pattern().test('def foo():\n    pass')).toBe(true);
           expect(pattern().test('def bar(x, y):\n  pass')).toBe(true);
+        });
+
+        it('should detect def with only pass (single-line)', () => {
+          expect(pattern().test('def foo(): pass')).toBe(true);
+          expect(pattern().test('def bar(x, y): pass')).toBe(true);
         });
 
         it('should not match functions with more content', () => {
@@ -1006,9 +1011,14 @@ describe('slop-patterns', () => {
       describe('ellipsis-only functions', () => {
         const pattern = () => slopPatterns.placeholder_ellipsis_py.pattern;
 
-        it('should detect def with only ellipsis', () => {
+        it('should detect def with only ellipsis (multi-line)', () => {
           expect(pattern().test('def foo():\n    ...')).toBe(true);
           expect(pattern().test('def bar(x):\n  ...')).toBe(true);
+        });
+
+        it('should detect def with only ellipsis (single-line)', () => {
+          expect(pattern().test('def foo(): ...')).toBe(true);
+          expect(pattern().test('def bar(x): ...')).toBe(true);
         });
       });
     });
