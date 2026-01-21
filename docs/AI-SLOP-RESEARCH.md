@@ -83,7 +83,7 @@ Additionally, several purpose-built tools were discovered:
 3. **Claims without evidence** - Documentation that doesn't match reality
 4. **Structure without function** - Frameworks and patterns used incorrectly
 
-The key insight is that AI slop is **not** about syntax errors or style violations (which traditional linters catch), but about **semantic problems** - code that is technically correct but fundamentally misguided.
+The key insight is that AI slop is **not** about syntax errors, type mismatches, or style violations (which eslint/tsc/clippy already catch). It's about **semantic problems** - code that compiles and passes linters but is fundamentally misguided, wasteful, or misleading.
 
 ---
 
@@ -128,45 +128,26 @@ After (human cleanup target):
 
 ---
 
-### Category 2: Hallucinations & Lies
+### Category 2: Phantom References
 
-**Code that references things that don't exist.**
+**Comments and docs referencing things that don't exist.**
 
-#### Types of Hallucinations
+> **Note**: Hallucinated imports and fake API calls are caught by TypeScript/rustc/eslint/clippy. This category focuses on what linters miss.
 
-1. **Hallucinated Imports**
-   ```typescript
-   // AI might generate:
-   import { magicFunction } from 'nonexistent-package';
-   import { thing } from '@/utils/helpers/deep/nested/thing'; // Path doesn't exist
-   ```
-   ```rust
-   // Or in Rust:
-   use nonexistent_crate::magic_function;
-   use crate::utils::helpers::deep::nested::thing; // Module doesn't exist
-   ```
+#### What Linters Miss
 
-2. **Phantom References**
-   ```javascript
-   // Comments referencing non-existent issues:
-   // Fixed in #395 (issue doesn't exist)
-   // See PR #667 for context (PR doesn't exist)
-   // As discussed in ARCHITECTURE.md (file doesn't exist)
-   ```
-
-3. **Fake API Usage**
-   ```typescript
-   // Using API methods that don't exist:
-   response.getDataSafely();  // Method doesn't exist
-   config.deepMerge(other);   // Not a real method
-   await fs.readFileAsync();  // fs.promises.readFile, not this
-   ```
+```javascript
+// Comments referencing non-existent issues:
+// Fixed in #395 (issue doesn't exist)
+// See PR #667 for context (PR doesn't exist)
+// As discussed in ARCHITECTURE.md (file doesn't exist)
+// Per the design doc in docs/auth-flow.md (file doesn't exist)
+```
 
 #### Detection Approach
 
-- Static analysis of import statements against installed packages
-- Link/reference validation for issue/PR numbers
-- API method verification against type definitions
+- Validate issue/PR numbers against GitHub API
+- Check file path references in comments actually exist
 
 ---
 
@@ -633,10 +614,10 @@ let validated_email = normalize_email(&raw_input);
 3. **Soul** - Over-engineering, poor structure
 4. **Structure** - Language anti-patterns
 
-**Transferable Concepts for TS/Rust**:
-- Hallucinated imports (non-existent packages/crates)
-- Empty catch/match blocks
-- Placeholder functions with `todo!()` or `throw`
+**Transferable Concepts for TS/Rust** (beyond what linters catch):
+- Placeholder functions that compile but do nothing useful
+- Over-engineering detection
+- Comment/doc quality analysis
 
 ### Tool 2: AI-SLOP-Detector
 
@@ -700,19 +681,20 @@ let validated_email = normalize_email(&raw_input);
 | Disabled linters | ✅ Detected | Low |
 | Placeholder text | ✅ Detected | Low |
 
-### Missing High-Impact Detection
+### Missing High-Impact Detection (What Linters Miss)
 
 | Pattern | Status | Impact | Difficulty |
 |---------|--------|--------|------------|
 | Over-engineering metrics | ❌ Missing | **Critical** | Medium |
-| Hallucinated imports | ❌ Missing | **High** | Medium |
-| Placeholder functions | ❌ Missing | **High** | Easy |
+| Placeholder functions (compilable stubs) | ❌ Missing | **High** | Easy |
 | Buzzword inflation | ❌ Missing | **High** | Hard |
 | Doc/code ratio | ❌ Missing | **Medium** | Easy |
 | Unnecessary abstraction | ❌ Missing | **Medium** | Hard |
 | Generic naming | ❌ Missing | **Medium** | Medium |
-| Phantom references | ❌ Missing | **Medium** | Easy |
+| Phantom references in comments | ❌ Missing | **Medium** | Easy |
 | Verbosity detection | ❌ Missing | **Medium** | Medium |
+
+> **Note**: Hallucinated imports, fake API calls, type errors are already caught by eslint/tsc/clippy.
 
 ---
 
@@ -735,27 +717,23 @@ let validated_email = normalize_email(&raw_input);
 
 ### Priority 2: Medium Effort (Medium, High Impact)
 
-4. **Import Validation**
-   - Check imports resolve
-   - Flag unused imports by category
-
-5. **Generic Naming Detection**
+4. **Generic Naming Detection**
    - Flag excessive use of: data, result, item, temp, value, output
    - Suggest more specific names
 
-6. **Verbosity Detection**
+5. **Verbosity Detection**
    - Comment-to-code ratio per function
    - Flag comments that restate obvious code
    - Detect bombastic phrasing patterns
 
 ### Priority 3: Advanced (Hard, Critical Impact)
 
-7. **Over-Engineering Metrics**
+6. **Over-Engineering Metrics**
    - Lines per feature ratio
    - File count analysis
    - Abstraction depth measurement
 
-8. **Buzzword Inflation**
+7. **Buzzword Inflation**
    - Claim extraction from docs
    - Evidence search in code
    - Gap reporting
