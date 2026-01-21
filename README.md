@@ -165,6 +165,7 @@ Remove debugging code, old TODOs, and AI slop from your codebase.
 - Old TODOs and commented code
 - Placeholder text, magic numbers
 - Empty catch blocks, disabled linters
+- Placeholder functions (`return 0`, `todo!()`, `raise NotImplementedError`)
 
 ---
 

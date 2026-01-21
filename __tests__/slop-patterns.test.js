@@ -831,4 +831,341 @@ describe('slop-patterns', () => {
       });
     });
   });
+
+  // ============================================================================
+  // Placeholder Function Detection Tests (#98)
+  // ============================================================================
+  describe('Placeholder Function Detection (#98)', () => {
+    describe('pattern definitions', () => {
+      const placeholderPatterns = [
+        'placeholder_stub_returns_js',
+        'placeholder_not_implemented_js',
+        'placeholder_empty_function_js',
+        'placeholder_todo_rust',
+        'placeholder_panic_todo_rust',
+        'placeholder_not_implemented_py',
+        'placeholder_pass_only_py',
+        'placeholder_ellipsis_py',
+        'placeholder_panic_go',
+        'placeholder_unsupported_java'
+      ];
+
+      placeholderPatterns.forEach(name => {
+        it(`should have ${name} pattern defined`, () => {
+          expect(slopPatterns).toHaveProperty(name);
+          expect(slopPatterns[name].pattern).toBeInstanceOf(RegExp);
+          expect(slopPatterns[name].severity).toBe('high');
+          expect(slopPatterns[name].autoFix).toBe('flag');
+          expect(slopPatterns[name].description).toBeDefined();
+        });
+      });
+    });
+
+    describe('JavaScript/TypeScript placeholder detection', () => {
+      describe('stub returns', () => {
+        const pattern = () => slopPatterns.placeholder_stub_returns_js.pattern;
+
+        it('should detect return 0', () => {
+          expect(pattern().test('return 0;')).toBe(true);
+          expect(pattern().test('return 0')).toBe(true);
+          expect(pattern().test('  return 0;')).toBe(true);
+        });
+
+        it('should detect return true/false', () => {
+          expect(pattern().test('return true;')).toBe(true);
+          expect(pattern().test('return false;')).toBe(true);
+          expect(pattern().test('return true')).toBe(true);
+        });
+
+        it('should detect return null/undefined', () => {
+          expect(pattern().test('return null;')).toBe(true);
+          expect(pattern().test('return undefined;')).toBe(true);
+          expect(pattern().test('return null')).toBe(true);
+        });
+
+        it('should detect return empty array/object', () => {
+          expect(pattern().test('return [];')).toBe(true);
+          expect(pattern().test('return {};')).toBe(true);
+        });
+
+        it('should not match non-stub returns', () => {
+          expect(pattern().test('return result;')).toBe(false);
+          expect(pattern().test('return data.value;')).toBe(false);
+          expect(pattern().test('return 42;')).toBe(false);
+          expect(pattern().test('return "hello";')).toBe(false);
+        });
+      });
+
+      describe('not implemented errors', () => {
+        const pattern = () => slopPatterns.placeholder_not_implemented_js.pattern;
+
+        it('should detect throw new Error with TODO', () => {
+          expect(pattern().test('throw new Error("TODO: implement this")')).toBe(true);
+          expect(pattern().test("throw new Error('TODO')")).toBe(true);
+          expect(pattern().test('throw new Error(`TODO: implement`)')).toBe(true);
+        });
+
+        it('should detect throw new Error with implement', () => {
+          expect(pattern().test('throw new Error("not implemented")')).toBe(true);
+          expect(pattern().test('throw new Error("Not Implemented")')).toBe(true);
+          expect(pattern().test('throw new Error("implement this")')).toBe(true);
+        });
+
+        it('should not match regular errors', () => {
+          expect(pattern().test('throw new Error("Invalid input")')).toBe(false);
+          expect(pattern().test('throw new Error("Connection failed")')).toBe(false);
+        });
+      });
+
+      describe('empty functions', () => {
+        const pattern = () => slopPatterns.placeholder_empty_function_js.pattern;
+
+        it('should detect empty named functions', () => {
+          expect(pattern().test('function foo() {}')).toBe(true);
+          expect(pattern().test('function bar(a, b) {}')).toBe(true);
+          expect(pattern().test('function process() { }')).toBe(true);
+        });
+
+        it('should detect empty arrow functions', () => {
+          expect(pattern().test('=> {}')).toBe(true);
+          expect(pattern().test('=> { }')).toBe(true);
+        });
+
+        it('should not match functions with content', () => {
+          expect(pattern().test('function foo() { return 1; }')).toBe(false);
+          expect(pattern().test('function bar() {\n  console.log("hi");\n}')).toBe(false);
+        });
+      });
+    });
+
+    describe('Rust placeholder detection', () => {
+      describe('todo/unimplemented macros', () => {
+        const pattern = () => slopPatterns.placeholder_todo_rust.pattern;
+
+        it('should detect todo!()', () => {
+          expect(pattern().test('todo!()')).toBe(true);
+          expect(pattern().test('todo!("implement later")')).toBe(true);
+          expect(pattern().test('  todo!()')).toBe(true);
+        });
+
+        it('should detect unimplemented!()', () => {
+          expect(pattern().test('unimplemented!()')).toBe(true);
+          expect(pattern().test('unimplemented!("not yet")')).toBe(true);
+        });
+
+        it('should not match similar names that are not macros', () => {
+          expect(pattern().test('let todo = true;')).toBe(false);
+          expect(pattern().test('// todo: fix this')).toBe(false);
+        });
+      });
+
+      describe('panic TODO', () => {
+        const pattern = () => slopPatterns.placeholder_panic_todo_rust.pattern;
+
+        it('should detect panic with TODO', () => {
+          expect(pattern().test('panic!("TODO: implement")')).toBe(true);
+          expect(pattern().test("panic!('TODO')")).toBe(true);
+        });
+
+        it('should detect panic with implement', () => {
+          expect(pattern().test('panic!("implement this")')).toBe(true);
+        });
+
+        it('should not match regular panics', () => {
+          expect(pattern().test('panic!("unexpected state")')).toBe(false);
+          expect(pattern().test('panic!("index out of bounds")')).toBe(false);
+        });
+      });
+    });
+
+    describe('Python placeholder detection', () => {
+      describe('NotImplementedError', () => {
+        const pattern = () => slopPatterns.placeholder_not_implemented_py.pattern;
+
+        it('should detect raise NotImplementedError', () => {
+          expect(pattern().test('raise NotImplementedError')).toBe(true);
+          expect(pattern().test('raise NotImplementedError()')).toBe(true);
+          expect(pattern().test('raise NotImplementedError("TODO")')).toBe(true);
+          expect(pattern().test('    raise NotImplementedError')).toBe(true);
+        });
+      });
+
+      describe('pass-only functions', () => {
+        const pattern = () => slopPatterns.placeholder_pass_only_py.pattern;
+
+        it('should detect def with only pass', () => {
+          expect(pattern().test('def foo():\n    pass')).toBe(true);
+          expect(pattern().test('def bar(x, y):\n  pass')).toBe(true);
+        });
+
+        it('should not match functions with more content', () => {
+          expect(pattern().test('def foo():\n    x = 1\n    pass')).toBe(false);
+        });
+      });
+
+      describe('ellipsis-only functions', () => {
+        const pattern = () => slopPatterns.placeholder_ellipsis_py.pattern;
+
+        it('should detect def with only ellipsis', () => {
+          expect(pattern().test('def foo():\n    ...')).toBe(true);
+          expect(pattern().test('def bar(x):\n  ...')).toBe(true);
+        });
+      });
+    });
+
+    describe('Go placeholder detection', () => {
+      const pattern = () => slopPatterns.placeholder_panic_go.pattern;
+
+      it('should detect panic with TODO', () => {
+        expect(pattern().test('panic("TODO: implement")')).toBe(true);
+        expect(pattern().test("panic('TODO')")).toBe(true);
+      });
+
+      it('should detect panic with implement', () => {
+        expect(pattern().test('panic("not implemented")')).toBe(true);
+        expect(pattern().test('panic("implement this")')).toBe(true);
+      });
+
+      it('should not match regular panics', () => {
+        expect(pattern().test('panic("unexpected error")')).toBe(false);
+        expect(pattern().test('panic("nil pointer")')).toBe(false);
+      });
+    });
+
+    describe('Java placeholder detection', () => {
+      const pattern = () => slopPatterns.placeholder_unsupported_java.pattern;
+
+      it('should detect throw new UnsupportedOperationException', () => {
+        expect(pattern().test('throw new UnsupportedOperationException()')).toBe(true);
+        expect(pattern().test('throw new UnsupportedOperationException("TODO")')).toBe(true);
+        expect(pattern().test('    throw new UnsupportedOperationException();')).toBe(true);
+      });
+
+      it('should not match other exceptions', () => {
+        expect(pattern().test('throw new IllegalArgumentException()')).toBe(false);
+        expect(pattern().test('throw new RuntimeException()')).toBe(false);
+      });
+    });
+
+    describe('language filtering', () => {
+      it('should include JS placeholders in javascript patterns', () => {
+        const patterns = getPatternsForLanguage('javascript');
+        expect(patterns).toHaveProperty('placeholder_stub_returns_js');
+        expect(patterns).toHaveProperty('placeholder_not_implemented_js');
+        expect(patterns).toHaveProperty('placeholder_empty_function_js');
+      });
+
+      it('should include Rust placeholders in rust patterns', () => {
+        const patterns = getPatternsForLanguage('rust');
+        expect(patterns).toHaveProperty('placeholder_todo_rust');
+        expect(patterns).toHaveProperty('placeholder_panic_todo_rust');
+      });
+
+      it('should include Python placeholders in python patterns', () => {
+        const patterns = getPatternsForLanguage('python');
+        expect(patterns).toHaveProperty('placeholder_not_implemented_py');
+        expect(patterns).toHaveProperty('placeholder_pass_only_py');
+        expect(patterns).toHaveProperty('placeholder_ellipsis_py');
+      });
+
+      it('should include Go placeholders in go patterns', () => {
+        const patterns = getPatternsForLanguage('go');
+        expect(patterns).toHaveProperty('placeholder_panic_go');
+      });
+
+      it('should include Java placeholders in java patterns', () => {
+        const patterns = getPatternsForLanguage('java');
+        expect(patterns).toHaveProperty('placeholder_unsupported_java');
+      });
+
+      it('should not include JS placeholders in python patterns', () => {
+        const patterns = getPatternsForLanguageOnly('python');
+        expect(patterns).not.toHaveProperty('placeholder_stub_returns_js');
+        expect(patterns).not.toHaveProperty('placeholder_not_implemented_js');
+      });
+    });
+
+    describe('file exclusion', () => {
+      it('should exclude test files for JS patterns', () => {
+        const excludes = slopPatterns.placeholder_stub_returns_js.exclude;
+        expect(isFileExcluded('utils.test.js', excludes)).toBe(true);
+        expect(isFileExcluded('helper.spec.ts', excludes)).toBe(true);
+        expect(isFileExcluded('utils.js', excludes)).toBe(false);
+      });
+
+      it('should exclude test files for Rust patterns', () => {
+        const excludes = slopPatterns.placeholder_todo_rust.exclude;
+        expect(isFileExcluded('lib_test.rs', excludes)).toBe(true);
+        expect(isFileExcluded('lib_tests.rs', excludes)).toBe(true);
+        expect(isFileExcluded('lib.rs', excludes)).toBe(false);
+      });
+
+      it('should exclude test files for Python patterns', () => {
+        const excludes = slopPatterns.placeholder_not_implemented_py.exclude;
+        expect(isFileExcluded('test_utils.py', excludes)).toBe(true);
+        expect(isFileExcluded('utils_test.py', excludes)).toBe(true);
+        expect(isFileExcluded('conftest.py', excludes)).toBe(true);
+        expect(isFileExcluded('utils.py', excludes)).toBe(false);
+      });
+
+      it('should exclude .pyi stub files for Python ellipsis', () => {
+        const excludes = slopPatterns.placeholder_ellipsis_py.exclude;
+        expect(isFileExcluded('typing.pyi', excludes)).toBe(true);
+        expect(isFileExcluded('types.pyi', excludes)).toBe(true);
+      });
+
+      it('should exclude .d.ts files for empty function detection', () => {
+        const excludes = slopPatterns.placeholder_empty_function_js.exclude;
+        expect(isFileExcluded('types.d.ts', excludes)).toBe(true);
+        expect(isFileExcluded('utils.ts', excludes)).toBe(false);
+      });
+    });
+
+    describe('severity and autoFix consistency', () => {
+      const placeholderPatterns = Object.entries(slopPatterns).filter(([name]) =>
+        name.startsWith('placeholder_') && name !== 'placeholder_text'
+      );
+
+      it('all placeholder patterns should have high severity', () => {
+        placeholderPatterns.forEach(([name, pattern]) => {
+          expect(pattern.severity).toBe('high');
+        });
+      });
+
+      it('all placeholder patterns should have flag autoFix', () => {
+        placeholderPatterns.forEach(([name, pattern]) => {
+          expect(pattern.autoFix).toBe('flag');
+        });
+      });
+    });
+
+    describe('ReDoS safety', () => {
+      const MAX_SAFE_TIME = 100; // ms
+
+      it('placeholder patterns should resist ReDoS attacks', () => {
+        const placeholderPatterns = Object.entries(slopPatterns).filter(([name]) =>
+          name.startsWith('placeholder_') && name !== 'placeholder_text'
+        );
+
+        const attackInputs = [
+          'return '.repeat(1000) + '0;',
+          'throw new Error("' + 'TODO'.repeat(1000) + '")',
+          'function ' + 'a'.repeat(1000) + '() {}',
+          'todo!' + '('.repeat(100),
+          'panic!("' + 'implement'.repeat(500) + '")',
+          'raise NotImplementedError' + '()'.repeat(500),
+          'def ' + 'f'.repeat(1000) + '():\n    pass'
+        ];
+
+        placeholderPatterns.forEach(([name, patternDef]) => {
+          attackInputs.forEach(input => {
+            const start = Date.now();
+            patternDef.pattern.test(input);
+            const duration = Date.now() - start;
+            expect(duration).toBeLessThan(MAX_SAFE_TIME);
+          });
+        });
+      });
+    });
+  });
 });

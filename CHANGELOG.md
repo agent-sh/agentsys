@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Placeholder Function Detection** - New patterns for `/deslop-around` command (#98)
+  - JavaScript/TypeScript: stub returns (0, true, false, null, [], {}), empty functions, throw Error("TODO")
+  - Rust: todo!(), unimplemented!(), panic!("TODO")
+  - Python: raise NotImplementedError, pass-only functions, ellipsis bodies
+  - Go: panic("TODO") placeholders
+  - Java: throw UnsupportedOperationException()
+  - All patterns have severity `high` and autoFix `flag` (requires manual review)
+  - Test files are excluded to prevent false positives
+
 ### Fixed
 - **Reality Check Output Size** - Condensed collector output to ~700 lines/~4.5k tokens (was thousands of lines)
   - Issue/PR bodies replaced with 200-char snippets (full context not needed)
