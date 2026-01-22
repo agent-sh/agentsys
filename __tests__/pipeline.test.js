@@ -13,6 +13,7 @@ const {
   runMultiPassAnalyzers,
   buildSummary,
   formatHandoffPrompt,
+  formatCompactPrompt,
   CERTAINTY,
   THOROUGHNESS
 } = require('../lib/patterns/pipeline');
@@ -373,6 +374,142 @@ function process(data) {
       const prompt = formatHandoffPrompt(findings, 'report');
 
       expect(prompt).not.toContain('[flag]');
+    });
+
+    it('should use compact format when option is set', () => {
+      const findings = [
+        { file: 'a.js', line: 1, certainty: 'HIGH', patternName: 'console_debugging', autoFix: 'remove', severity: 'high' },
+        { file: 'b.js', line: 2, certainty: 'MEDIUM', patternName: 'old_todos', autoFix: 'flag', severity: 'medium' }
+      ];
+
+      const prompt = formatHandoffPrompt(findings, 'report', { compact: true });
+
+      // Compact format uses table structure
+      expect(prompt).toContain('|File|L|Pattern|Cert|Fix|');
+      expect(prompt).toContain('|---|---|---|---|---|');
+      // Should use abbreviated certainty
+      expect(prompt).toContain('|H|');
+      expect(prompt).toContain('|M|');
+    });
+  });
+
+  describe('formatCompactPrompt', () => {
+    it('should format findings in table structure', () => {
+      const findings = [
+        { file: 'app.js', line: 42, certainty: 'HIGH', patternName: 'console_debugging', autoFix: 'remove' }
+      ];
+
+      const prompt = formatCompactPrompt(findings, 'report', 50);
+
+      expect(prompt).toContain('|File|L|Pattern|Cert|Fix|');
+      expect(prompt).toContain('|---|---|---|---|---|');
+      expect(prompt).toContain('|app.js|42|console_debugging|H|remove|');
+    });
+
+    it('should show certainty counts in header', () => {
+      const findings = [
+        { file: 'a.js', line: 1, certainty: 'HIGH', patternName: 'console_debugging', autoFix: 'remove' },
+        { file: 'b.js', line: 2, certainty: 'HIGH', patternName: 'debug_import', autoFix: 'remove' },
+        { file: 'c.js', line: 3, certainty: 'MEDIUM', patternName: 'old_todos', autoFix: 'flag' },
+        { file: 'd.js', line: 4, certainty: 'LOW', patternName: 'magic_numbers', autoFix: 'flag' }
+      ];
+
+      const prompt = formatCompactPrompt(findings, 'apply', 50);
+
+      expect(prompt).toContain('## Slop: apply|H:2|M:1|L:1');
+    });
+
+    it('should abbreviate certainty levels', () => {
+      const findings = [
+        { file: 'a.js', line: 1, certainty: 'HIGH', patternName: 'test', autoFix: 'remove' },
+        { file: 'b.js', line: 2, certainty: 'MEDIUM', patternName: 'test', autoFix: 'flag' },
+        { file: 'c.js', line: 3, certainty: 'LOW', patternName: 'test', autoFix: 'none' }
+      ];
+
+      const prompt = formatCompactPrompt(findings, 'report', 50);
+
+      // Should use H, M, L abbreviations in the Cert column
+      expect(prompt).toMatch(/\|a\.js\|1\|test\|H\|/);
+      expect(prompt).toMatch(/\|b\.js\|2\|test\|M\|/);
+      expect(prompt).toMatch(/\|c\.js\|3\|test\|L\|/);
+    });
+
+    it('should show dash for non-fixable patterns', () => {
+      const findings = [
+        { file: 'a.js', line: 1, certainty: 'HIGH', patternName: 'test', autoFix: 'flag' },
+        { file: 'b.js', line: 2, certainty: 'MEDIUM', patternName: 'test', autoFix: 'none' },
+        { file: 'c.js', line: 3, certainty: 'LOW', patternName: 'test', autoFix: null }
+      ];
+
+      const prompt = formatCompactPrompt(findings, 'report', 50);
+
+      // Non-fixable should show '-' in Fix column
+      expect(prompt).toContain('|a.js|1|test|H|-|');
+      expect(prompt).toContain('|b.js|2|test|M|-|');
+      expect(prompt).toContain('|c.js|3|test|L|-|');
+    });
+
+    it('should truncate findings when exceeding maxFindings', () => {
+      const findings = [];
+      for (let i = 1; i <= 10; i++) {
+        findings.push({
+          file: `file${i}.js`,
+          line: i,
+          certainty: 'HIGH',
+          patternName: 'console_debugging',
+          autoFix: 'remove'
+        });
+      }
+
+      const prompt = formatCompactPrompt(findings, 'report', 5);
+
+      // Should only have 5 rows plus truncation message
+      expect(prompt).toContain('file1.js');
+      expect(prompt).toContain('file5.js');
+      expect(prompt).not.toContain('file6.js');
+      expect(prompt).toContain('+5 more findings (truncated)');
+    });
+
+    it('should include auto-fixable summary', () => {
+      const findings = [
+        { file: 'a.js', line: 1, certainty: 'HIGH', patternName: 'console_debugging', autoFix: 'remove' },
+        { file: 'b.js', line: 2, certainty: 'HIGH', patternName: 'debug_import', autoFix: 'remove' },
+        { file: 'c.js', line: 3, certainty: 'MEDIUM', patternName: 'old_todos', autoFix: 'flag' }
+      ];
+
+      const prompt = formatCompactPrompt(findings, 'report', 50);
+
+      expect(prompt).toContain('**Auto-fixable: 2**');
+      expect(prompt).toContain('Manual: 1');
+    });
+
+    it('should handle empty findings', () => {
+      const prompt = formatCompactPrompt([], 'report', 50);
+
+      expect(prompt).toContain('## Slop: report|H:0|M:0|L:0');
+      expect(prompt).toContain('**Auto-fixable: 0**');
+    });
+
+    it('should not show truncation message when under limit', () => {
+      const findings = [
+        { file: 'a.js', line: 1, certainty: 'HIGH', patternName: 'test', autoFix: 'remove' }
+      ];
+
+      const prompt = formatCompactPrompt(findings, 'report', 50);
+
+      expect(prompt).not.toContain('truncated');
+    });
+
+    it('should include mode in header', () => {
+      const findings = [
+        { file: 'a.js', line: 1, certainty: 'HIGH', patternName: 'test', autoFix: 'remove' }
+      ];
+
+      const reportPrompt = formatCompactPrompt(findings, 'report', 50);
+      const applyPrompt = formatCompactPrompt(findings, 'apply', 50);
+
+      expect(reportPrompt).toContain('## Slop: report|');
+      expect(applyPrompt).toContain('## Slop: apply|');
     });
   });
 
