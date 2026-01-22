@@ -33,6 +33,7 @@ Thumbs.db
 # Documentation (keep essential only)
 docs/
 agent-docs/
+checklists/
 CONTRIBUTING.md
 
 # Legacy adapters (CLI handles installation now)
