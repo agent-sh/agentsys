@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Slop Detection Pipeline Architecture** - 3-phase detection pipeline with certainty-tagged findings (#107)
+  - **Phase 1** (always runs): Built-in regex patterns + multi-pass analyzers
+  - **Phase 2** (optional): CLI tool integration (jscpd, madge, escomplex) - if available
+  - **Phase 3**: LLM handoff with structured findings
+  - Certainty levels: HIGH (regex), MEDIUM (multi-pass), LOW (CLI tools)
+  - Thoroughness levels: quick (regex only), normal (+multi-pass), deep (+CLI)
+  - Mode inheritance from deslop-around: report (analyze only) vs apply (fix issues)
+  - New `runPipeline()` function in lib/patterns/pipeline.js
+  - New lib/patterns/cli-enhancers.js for optional tool detection
+  - deslop-work.md agent updated to use pipeline orchestrator
+  - Graceful degradation when CLI tools not installed
+
 - **Buzzword Inflation Detection** - New project-level analyzer for `/deslop-around` command (#113)
   - Detects quality claims in documentation without supporting code evidence
   - 6 buzzword categories: production, enterprise, security, scale, reliability, completeness
