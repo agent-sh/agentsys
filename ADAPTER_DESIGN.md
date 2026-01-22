@@ -1,210 +1,265 @@
-# Multi-Tool Adapter Design
+# Multi-Platform Architecture
 
-> **Status:** Design Document - Implementation In Progress
+> **Status:** Implemented
 >
-> This is an architectural design document for internal reference. MCP server integration is complete and functional. Platform-specific installation scripts are available.
+> Cross-platform support is complete with unified CLI installer, MCP server, and shared library.
 
 ## Overview
 
-This document describes the adapter layer for supporting awesome-slash commands across multiple AI coding tools.
-
-## Supported Tools
+awesome-slash supports three AI coding assistants through a unified architecture:
 
 1. **Claude Code** - Anthropic's official CLI (primary target)
-2. **Codex CLI** - OpenAI's Codex command-line interface
-3. **OpenCode** - Open-source alternative AI coding assistant
+2. **OpenCode** - Multi-model AI coding assistant
+3. **Codex CLI** - OpenAI's command-line interface
 
-## Key Finding
+## Quick Install
 
-All three tools support **markdown-based slash commands** with similar syntax:
-- Commands defined in `.md` files
-- Support `$ARGUMENTS` placeholder for dynamic input
-- Similar command structure and flow
+```bash
+npm install -g awesome-slash
+awesome-slash
+# Select platforms: 1,2,3 for all
+```
 
 ## Architecture
 
-### No Format Translation Needed ✓
-
-Since all tools use markdown, we don't need format converters. Instead, we provide:
-1. **Installation scripts** per tool
-2. **Tool-specific configuration**
-3. **Compatibility notes** for tool-specific features
-
-### Directory Structure
+### Core Components
 
 ```
 awesome-slash/
-├── plugins/                      # Claude Code plugins (current)
-│   ├── deslop-around/
+├── lib/                          # Shared library
+│   ├── cross-platform/           # Platform utilities
+│   │   ├── index.js              # Platform detection, MCP helpers
+│   │   └── RESEARCH.md           # Research documentation
+│   ├── patterns/                 # Code analysis
+│   │   ├── pipeline.js           # 3-phase slop detection
+│   │   ├── slop-patterns.js      # Pattern definitions
+│   │   └── slop-analyzers.js     # Multi-pass analyzers
+│   ├── state/                    # Workflow state
+│   └── sources/                  # Task source discovery
+├── mcp-server/                   # Cross-platform MCP server
+│   └── index.js                  # Exposes tools to all platforms
+├── plugins/                      # Claude Code plugins
 │   ├── next-task/
+│   ├── ship/
+│   ├── deslop-around/
 │   ├── project-review/
-│   └── ship/
-├── adapters/                     # NEW: Tool-specific adapters
-│   ├── codex/
-│   │   ├── install.sh           # Codex CLI installation script
-│   │   ├── README.md            # Codex-specific docs
-│   │   └── prompts/             # Symlinks to commands
-│   ├── opencode/
-│   │   ├── install.sh           # OpenCode installation script
-│   │   ├── README.md            # OpenCode-specific docs
-│   │   └── commands/            # Symlinks to commands
-│   └── README.md                # Adapter overview
-└── lib/                          # Shared utilities (unchanged)
+│   └── reality-check/
+├── bin/                          # CLI installer
+│   └── cli.js                    # Interactive installer
+├── scripts/install/              # Platform-specific installers
+│   ├── claude.sh
+│   ├── opencode.sh
+│   └── codex.sh
+└── docs/                         # Knowledge base
+    ├── CROSS_PLATFORM.md
+    ├── INSTALLATION.md
+    └── *-REFERENCE.md            # Research documents
 ```
 
-## Installation Strategies
+### Cross-Platform Library (`lib/cross-platform/`)
 
-### Claude Code (Current - No Changes)
+Provides unified utilities for all platforms:
+
+```javascript
+const { xplat } = require('awesome-slash/lib');
+
+// Platform detection
+xplat.detectPlatform();  // 'claude-code' | 'opencode' | 'codex-cli'
+xplat.getStateDir();     // '.claude' | '.opencode' | '.codex'
+
+// MCP response helpers
+xplat.successResponse({ data: 'result' });
+xplat.errorResponse('Something failed', { details: '...' });
+
+// Tool schema creation
+xplat.createToolDefinition('my_tool', 'Description', { param: { type: 'string' } });
+
+// Prompt formatting (cross-model compatible)
+xplat.formatBlock('context', 'XML tags for Claude');
+xplat.formatSection('Title', 'Markdown for GPT-4');
+```
+
+### State Directory by Platform
+
+| Platform | State Directory | Override |
+|----------|-----------------|----------|
+| Claude Code | `.claude/` | `AI_STATE_DIR=.claude` |
+| OpenCode | `.opencode/` | `AI_STATE_DIR=.opencode` |
+| Codex CLI | `.codex/` | `AI_STATE_DIR=.codex` |
+
+State files:
+- `{state-dir}/tasks.json` - Active task registry
+- `{state-dir}/flow.json` - Workflow progress (in worktree)
+- `{state-dir}/sources/preference.json` - Cached task source
+
+### MCP Server Tools
+
+The MCP server (`mcp-server/index.js`) exposes tools to all platforms:
+
+| Tool | Description |
+|------|-------------|
+| `workflow_status` | Get current workflow state |
+| `workflow_start` | Start a new workflow with policy |
+| `workflow_resume` | Resume from checkpoint |
+| `workflow_abort` | Cancel and cleanup |
+| `task_discover` | Find tasks from configured sources |
+| `review_code` | Run pipeline-based code review |
+| `slop_detect` | Detect AI slop with certainty levels |
+
+**slop_detect** uses the full 3-phase pipeline:
+- Phase 1: Regex patterns (HIGH certainty)
+- Phase 2: Multi-pass analyzers (MEDIUM certainty)
+- Phase 3: CLI tools (LOW certainty, optional)
+
+## Platform Installation Details
+
+### Claude Code
 
 ```bash
-claude plugin marketplace add avifenesh/awesome-slash
-claude plugin install deslop-around@awesome-slash
+# Via marketplace (recommended)
+/plugin marketplace add avifenesh/awesome-slash
+/plugin install next-task@awesome-slash
+
+# Via CLI installer
+awesome-slash  # Select option 1
 ```
 
-### Codex CLI (NEW)
+**Location:** `~/.claude/plugins/awesome-slash/`
+
+**Commands:** `/next-task`, `/ship`, `/deslop-around`, `/project-review`, `/reality-check:scan`
+
+### OpenCode
 
 ```bash
-# Clone repository
-git clone https://github.com/avifenesh/awesome-slash.git
-cd awesome-slash
-
-# Run Codex installer
-./adapters/codex/install.sh
-
-# Commands become available as:
-# /ship, /deslop-around, /next-task, /project-review
+awesome-slash  # Select option 2
 ```
 
-### OpenCode (NEW)
+**Locations:**
+- Config: `~/.config/opencode/opencode.json`
+- Commands: `~/.opencode/commands/awesome-slash/`
+
+**Commands:** `/next-task`, `/ship`, `/deslop-around`, `/project-review`, `/reality-check-scan`
+
+**MCP Config Added:**
+```json
+{
+  "mcp": {
+    "awesome-slash": {
+      "type": "local",
+      "command": ["node", "~/.awesome-slash/mcp-server/index.js"],
+      "environment": {
+        "PLUGIN_ROOT": "~/.awesome-slash",
+        "AI_STATE_DIR": ".opencode"
+      }
+    }
+  }
+}
+```
+
+### Codex CLI
 
 ```bash
-# Clone repository
-git clone https://github.com/avifenesh/awesome-slash.git
-cd awesome-slash
-
-# Run OpenCode installer
-./adapters/opencode/install.sh
-
-# Commands become available as:
-# /ship, /deslop-around, /next-task, /project-review
+awesome-slash  # Select option 3
 ```
 
-## Tool-Specific Differences
+**Locations:**
+- Config: `~/.codex/config.toml`
+- Skills: `~/.codex/skills/`
 
-### Codex CLI Specifics
+**Skills:** `$next-task`, `$ship`, `$deslop-around`, `$project-review`, `$reality-check-scan`
 
-**Path References:**
-- Update `${CLAUDE_PLUGIN_ROOT}` → `${CODEX_PROMPTS_DIR}`
-- Node.js script paths need absolute paths
+Note: Codex uses `$` prefix instead of `/`.
 
-**Platform Detection:**
-- Works as-is (uses standalone Node.js scripts)
+**SKILL.md Format:**
+```yaml
+---
+name: next-task
+description: Master workflow orchestrator for task-to-production automation
+---
+[skill content]
+```
 
-**Limitations:**
-- May not support Claude-specific subagents
-- Task tool not available (use alternative approaches)
+**MCP Config Added:**
+```toml
+[mcp_servers.awesome-slash]
+command = "node"
+args = ["~/.awesome-slash/mcp-server/index.js"]
+env = { PLUGIN_ROOT = "~/.awesome-slash", AI_STATE_DIR = ".codex" }
+enabled = true
+```
 
-### OpenCode Specifics
+## Command Compatibility
 
-**Path References:**
-- Update `${CLAUDE_PLUGIN_ROOT}` → `${OPENCODE_COMMANDS_DIR}`
-- Bash scripts work natively
+| Command | Claude Code | OpenCode | Codex CLI | Notes |
+|---------|-------------|----------|-----------|-------|
+| `/next-task` | ✅ Full | ✅ Full | ✅ Full | MCP tools available |
+| `/ship` | ✅ Full | ✅ Full | ✅ Full | Requires `gh` CLI |
+| `/deslop-around` | ✅ Full | ✅ Full | ✅ Full | Uses pipeline.js |
+| `/project-review` | ✅ Full | ✅ Full | ✅ Full | Multi-agent review |
+| `/reality-check:scan` | ✅ Full | ✅ Full | ✅ Full | JS collectors + Opus |
 
-**Platform Detection:**
-- Works as-is (uses standalone Node.js scripts)
+## Knowledge Base
 
-**Special Features:**
-- Can use `@filename` for file includes
-- Can use `!command` for bash command output injection
+Research documents informing the implementation:
 
-**Limitations:**
-- May have different agent/plugin ecosystem
-- Task tool may not be available
-
-## Command Compatibility Matrix
-
-| Command | Claude Code | Codex CLI | OpenCode | Notes |
-|---------|-------------|-----------|----------|-------|
-| `/deslop-around` | ✅ Full | ✅ Full | ✅ Full | Pure bash, fully compatible |
-| `/next-task` | ✅ Full | ⚠️ Partial | ⚠️ Partial | Needs `gh` CLI, code validation works |
-| `/project-review` | ✅ Full | ⚠️ Partial | ⚠️ Partial | Multi-agent may differ per tool |
-| `/ship` | ✅ Full | ⚠️ Partial | ⚠️ Partial | CI/CD detection works, subagents may differ |
-
-**Legend:**
-- ✅ Full: Complete feature parity
-- ⚠️ Partial: Core features work, some advanced features may differ
-- ❌ Limited: Significant limitations
+| Document | Topic |
+|----------|-------|
+| `docs/CONTEXT-OPTIMIZATION-REFERENCE.md` | Token efficiency strategies |
+| `docs/PROMPT-ENGINEERING-REFERENCE.md` | Cross-model prompt design |
+| `docs/FUNCTION-CALLING-TOOL-USE-REFERENCE.md` | MCP and tool patterns |
+| `docs/MULTI-AGENT-SYSTEMS-REFERENCE.md` | Agent orchestration |
+| `docs/LLM-INSTRUCTION-FOLLOWING-RELIABILITY.md` | Instruction adherence |
+| `docs/CLAUDE-CODE-REFERENCE.md` | Claude Code specifics |
+| `docs/AI-AGENT-ARCHITECTURE-RESEARCH.md` | Agent design patterns |
+| `lib/cross-platform/RESEARCH.md` | Platform comparison |
 
 ## Implementation Status
 
-### Phase 1: Adapter Architecture ✅
-- [x] Research Codex CLI
-- [x] Research OpenCode
-- [x] Design adapter architecture
-- [x] MCP server implementation complete
+### Core Infrastructure ✅
+- [x] CLI installer (`bin/cli.js`)
+- [x] MCP server with pipeline integration
+- [x] Cross-platform library (`lib/cross-platform/`)
+- [x] Platform-aware state directories
+- [x] Knowledge base documentation
 
-### Phase 2: Installation Scripts ✅
-- [x] Write `scripts/install/claude.sh`
-- [x] Write `scripts/install/codex.sh`
-- [x] Write `scripts/install/opencode.sh`
+### Platform Support ✅
+- [x] Claude Code (marketplace + CLI)
+- [x] OpenCode (MCP + commands)
+- [x] Codex CLI (MCP + skills)
 
-### Phase 3: Integration Strategy 🚧
-- [x] MCP server for cross-platform tools
-- [x] Platform detection working
-- [ ] Full testing on Codex CLI
-- [ ] Full testing on OpenCode
+### Testing ✅
+- [x] All 1036 tests passing
+- [x] npm pack creates valid package (338 KB)
+- [x] Interactive installer works for all platforms
 
-### Phase 4: Documentation ✅
-- [x] CROSS_PLATFORM.md complete
-- [x] Update main README with multi-tool support
-- [x] Installation guides for all platforms
+## Maintenance
 
-### Phase 5: Testing 🚧
-- [x] Test all commands on Claude Code
-- [ ] Complete testing on Codex CLI
-- [ ] Complete testing on OpenCode
-- [x] Add troubleshooting guides
+**Update workflow:**
+1. Edit files in `lib/` (canonical source)
+2. Run `./scripts/sync-lib.sh` to copy to plugins
+3. Commit both source and copies
+4. Publish: `npm version patch && npm publish`
 
-## Path Variable Strategy
-
-Commands reference paths like:
+**User update:**
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/lib/platform/detect-platform.js
+npm update -g awesome-slash
+awesome-slash  # Re-run installer
 ```
 
-**Solution**: Environment variable substitution in install scripts
+## Design Decisions
 
-```bash
-# Codex install.sh
-export CODEX_PROMPTS_DIR="$HOME/.codex/prompts/awesome-slash"
-sed "s|\${CLAUDE_PLUGIN_ROOT}|$CODEX_PROMPTS_DIR|g" ...
+### Why MCP Server?
 
-# OpenCode install.sh
-export OPENCODE_COMMANDS_DIR="$HOME/.opencode/commands/awesome-slash"
-sed "s|\${CLAUDE_PLUGIN_ROOT}|$OPENCODE_COMMANDS_DIR|g" ...
-```
+MCP (Model Context Protocol) provides:
+- Standardized tool interface across platforms
+- No format translation needed
+- Single implementation, multiple consumers
+- Platform-specific env vars for state isolation
 
-## Maintenance Strategy
+### Why Shared Library?
 
-**Single Source of Truth**: Commands live in `plugins/*/commands/*.md`
+Each plugin needs its own `lib/` copy because Claude Code installs plugins separately. The `sync-lib.sh` script maintains consistency.
 
-**Adapters**: Installers create symlinks + path adjustments
+### Why Research Docs?
 
-**Updates**: Update command files once, run installer again to sync
-
-## Success Criteria
-
-- [ ] All 4 commands installable on Codex CLI
-- [ ] All 4 commands installable on OpenCode
-- [ ] Platform detection works on all tools
-- [ ] Clear documentation per tool
-- [ ] Automated installation (one command)
-- [ ] Easy to update (re-run installer)
-
-## Future Enhancements
-
-- CI/CD testing on all 3 tools
-- Version compatibility matrix
-- Tool feature detection
-- Graceful degradation per tool
-- Auto-updater scripts
+The knowledge base documents best practices from official sources, ensuring the implementation follows recommended patterns for each platform.
