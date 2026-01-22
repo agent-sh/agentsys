@@ -169,6 +169,7 @@ Remove debugging code, old TODOs, and AI slop from your codebase.
 - Excessive documentation (JSDoc >3x function body)
 - Phantom references (issue/PR mentions, file path references in comments)
 - Infrastructure components configured but never used (unused DB clients, caches, API clients)
+- Code smells: boolean blindness, message chains, mutable globals, dead code, shotgun surgery
 
 ---
 
