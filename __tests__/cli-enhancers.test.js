@@ -76,7 +76,7 @@ describe('cli-enhancers', () => {
     });
 
     it('each tool should have required fields', () => {
-      for (const [name, tool] of Object.entries(CLI_TOOLS)) {
+      for (const tool of Object.values(CLI_TOOLS)) {
         expect(tool.name).toBeDefined();
         expect(tool.description).toBeDefined();
         expect(tool.checkCommand).toBeDefined();
@@ -309,14 +309,15 @@ describe('cli-enhancers', () => {
 
     it('should refresh cache when forceRefresh is true', () => {
       fs.writeFileSync(path.join(tempDir, 'package.json'), '{}');
-      const result1 = getToolAvailabilityForRepo(tempDir);
+      getToolAvailabilityForRepo(tempDir); // Initial cache
       // Add Python
       fs.writeFileSync(path.join(tempDir, 'requirements.txt'), 'flask\n');
-      // Without force refresh, should still show only JS
-      const result2 = getToolAvailabilityForRepo(tempDir);
+      // Without force refresh, should still show only JS (cached)
+      const cachedResult = getToolAvailabilityForRepo(tempDir);
+      expect(cachedResult.languages).not.toContain('python');
       // With force refresh, should detect Python too
-      const result3 = getToolAvailabilityForRepo(tempDir, { forceRefresh: true });
-      expect(result3.languages).toContain('python');
+      const refreshedResult = getToolAvailabilityForRepo(tempDir, { forceRefresh: true });
+      expect(refreshedResult.languages).toContain('python');
     });
   });
 

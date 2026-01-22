@@ -446,10 +446,9 @@ function foo() {
         targetFiles: ['test.js']
       });
 
-      // Normal mode includes multi-pass analyzers
-      const multiPassFindings = result.findings.filter(f => f.certainty === CERTAINTY.MEDIUM);
-      // May or may not have findings depending on thresholds
+      // Normal mode includes multi-pass analyzers (may or may not have findings depending on thresholds)
       expect(result.findings).toBeDefined();
+      expect(result.metadata.thoroughness).toBe('normal');
     });
 
     it('should track missing tools in deep mode', () => {
@@ -609,10 +608,10 @@ function foo() {
         targetFiles: ['test.js']
       });
 
-      // Should have MEDIUM certainty findings from multi-pass
-      const mediumFindings = result.findings.filter(f => f.certainty === CERTAINTY.MEDIUM);
-      // The doc_code_ratio should detect the excessive JSDoc
-      expect(result.findings.length).toBeGreaterThanOrEqual(0);
+      // Should run multi-pass analyzers which may produce MEDIUM certainty findings
+      // The doc_code_ratio analyzer may detect the excessive JSDoc if it meets thresholds
+      expect(result.findings).toBeDefined();
+      expect(result.metadata.thoroughness).toBe('normal');
     });
 
     it('deep mode should track missing CLI tools', () => {
