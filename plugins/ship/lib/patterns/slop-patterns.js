@@ -825,7 +825,7 @@ const slopPatterns = {
    * Threshold: 4+ consecutive method calls
    */
   message_chains_methods: {
-    pattern: /\w+(?:\.\w+\([^)]*\)){4,}/,
+    pattern: /\b[a-zA-Z_]\w{0,99}(?:\.[a-zA-Z_]\w{0,99}\([^)]{0,200}\)){4,8}/,
     exclude: ['*.test.*', '*.spec.*', '*.config.*', '**/tests/**'],
     severity: 'low',
     autoFix: 'flag',
@@ -839,7 +839,7 @@ const slopPatterns = {
    * Threshold: 5+ consecutive property accesses
    */
   message_chains_properties: {
-    pattern: /\w+(?:\.[a-zA-Z_]\w*){5,}(?!\s*\()/,
+    pattern: /\b[a-zA-Z_]\w{0,99}(?:\.[a-zA-Z_]\w{0,99}){5,10}(?!\s*\()/,
     exclude: ['*.test.*', '*.spec.*', '*.config.*', '**/tests/**', 'package.json', 'package-lock.json'],
     severity: 'low',
     autoFix: 'flag',
