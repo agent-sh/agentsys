@@ -46,10 +46,9 @@ awesome-slash/
 │   └── reality-check/
 ├── bin/                          # CLI installer
 │   └── cli.js                    # Interactive installer
-├── scripts/install/              # Platform-specific installers
-│   ├── claude.sh
-│   ├── opencode.sh
-│   └── codex.sh
+├── scripts/
+│   ├── setup-hooks.js            # Git hooks installer (npm prepare)
+│   └── sync-lib.sh               # Dev: sync lib/ to plugins/
 ├── docs/                         # User documentation
 │   ├── CROSS_PLATFORM.md
 │   ├── INSTALLATION.md
