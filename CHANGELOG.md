@@ -5,9 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.7.0] - 2026-01-22
 
 ### Added
+- **GitHub Issue Progress Comments** - Workflow now documents decisions and progress in issue comments (#95)
+  - Task discoverer posts "Workflow Started" comment when selecting a GitHub issue
+  - Planning agent posts plan summary to issue for documentation
+  - /ship posts completion comment and auto-closes issue on successful merge
+  - All comments include relevant context (policy config, plan summary, PR link, merge SHA)
+  - Auto-close uses `--reason completed` flag
+
 - **Slop Detection Pipeline Architecture** - 3-phase detection pipeline with certainty-tagged findings (#107, #116)
   - **Phase 1** (always runs): Built-in regex patterns + multi-pass analyzers
   - **Phase 2** (optional): CLI tool integration (jscpd, madge, escomplex) - if available

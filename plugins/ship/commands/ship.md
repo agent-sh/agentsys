@@ -304,6 +304,39 @@ git worktree list --porcelain | grep "worktree" | grep -v "$(git rev-parse --sho
 done
 ```
 
+### Close GitHub Issue (if applicable)
+
+If the task came from a GitHub issue, close it with a completion comment:
+
+```bash
+if [ -n "$TASK_ID" ] && [ "$TASK_SOURCE" = "github" ]; then
+  # Post completion comment
+  gh issue comment "$TASK_ID" --body "$(cat <<'EOF'
+✅ **Task Completed Successfully**
+
+**PR**: #${PR_NUMBER}
+**Status**: Merged to ${MAIN_BRANCH}
+**Commit**: ${MERGE_SHA}
+
+### Summary
+- Implementation completed as planned
+- All review comments addressed
+- CI checks passed
+- Merged successfully
+
+---
+_This issue was automatically processed by awesome-slash /next-task workflow._
+_Closing issue as the work has been completed and merged._
+EOF
+)"
+
+  # Close the issue
+  gh issue close "$TASK_ID" --reason completed
+
+  echo "✓ Closed issue #$TASK_ID with completion comment"
+fi
+```
+
 ### Remove Task from Registry
 
 ```javascript
