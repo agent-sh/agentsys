@@ -30,6 +30,7 @@ awesome-slash/
 │   ├── cross-platform/           # Platform utilities
 │   │   ├── index.js              # Platform detection, MCP helpers
 │   │   └── RESEARCH.md           # Research documentation
+│   ├── enhance/                  # Quality analyzers (agent, plugin, docs)
 │   ├── patterns/                 # Code analysis
 │   │   ├── pipeline.js           # 3-phase slop detection
 │   │   ├── slop-patterns.js      # Pattern definitions
@@ -43,6 +44,7 @@ awesome-slash/
 │   ├── ship/
 │   ├── deslop-around/
 │   ├── project-review/
+│   ├── enhance/                  # Code quality analyzers
 │   └── reality-check/
 ├── bin/                          # CLI installer
 │   └── cli.js                    # Interactive installer

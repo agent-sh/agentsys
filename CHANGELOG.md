@@ -35,6 +35,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Auto-fix capability for HIGH certainty issues
   - New lib/enhance/ module with pattern matching, reporter, fixer
   - Comprehensive test suite (21 tests)
+
+- **Documentation Enhancement Analyzer** - New `/enhance:docs` command (#123)
+  - Analyzes documentation for readability and RAG optimization
+  - Two modes: `--ai` (AI-only, aggressive optimization) and `--both` (default, balanced)
+  - 14 documentation optimization patterns: links, structure, efficiency, RAG
+  - Categories: link validation, structure, token efficiency, RAG optimization, balance suggestions
+  - HIGH/MEDIUM/LOW certainty levels for findings
+  - Auto-fix capability for 2 HIGH certainty issues (inconsistent headings, verbose explanations)
+  - New lib/enhance/docs-analyzer.js and docs-patterns.js modules
+  - New plugins/enhance/agents/docs-enhancer.md agent (opus model)
+  - Comprehensive test suite
 ## [2.7.1] - 2026-01-22
 
 ### Security
