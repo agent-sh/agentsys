@@ -69,6 +69,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - New lib/enhance/docs-analyzer.js and docs-patterns.js modules
   - New plugins/enhance/agents/docs-enhancer.md agent (opus model)
   - Comprehensive test suite
+
+- **General Prompt Analyzer** - New `/enhance:prompt` command (#122)
+  - Analyzes general prompts for prompt engineering best practices
+  - Differentiates from `/enhance:agent` (prompt quality vs agent config)
+  - 17 detection patterns across 6 categories: clarity, structure, examples, context, output, anti-patterns
+  - Clarity patterns: vague instructions, negative-only constraints, aggressive emphasis
+  - Structure patterns: missing XML structure, inconsistent sections, critical info buried
+  - Example patterns: missing examples, suboptimal count, lack of good/bad contrast
+  - Context patterns: missing WHY explanations, missing instruction priority
+  - Output patterns: missing format specification, JSON without schema
+  - Anti-patterns: redundant CoT, overly prescriptive, prompt bloat
+  - HIGH/MEDIUM/LOW certainty levels for findings
+  - Auto-fix capability for 1 HIGH certainty issue (aggressive emphasis)
+  - New lib/enhance/prompt-analyzer.js and prompt-patterns.js modules
+  - New plugins/enhance/agents/prompt-enhancer.md agent (opus model)
+  - Comprehensive test suite (30+ tests)
+  - Extended reporter.js with generatePromptReport() and generatePromptSummaryReport()
 ## [2.7.1] - 2026-01-22
 
 ### Security
