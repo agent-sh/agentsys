@@ -10,6 +10,7 @@
   "files": [
     ".claude-plugin/",
     ".mcp.json",
+    "adapters/",
     "bin/",
     "lib/",
     "mcp-server/index.js",
