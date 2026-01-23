@@ -222,7 +222,7 @@ For HIGH certainty issues with available fixes:
 |-------|-------|---------|
 | HIGH | 5 | Definite issues (2 auto-fixable) |
 | MEDIUM | 6 | Likely improvements |
-| LOW | 2 | Advisory suggestions |
+| LOW | 3 | Advisory suggestions |
 
 ## Mode-Specific Patterns
 

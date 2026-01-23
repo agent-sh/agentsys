@@ -442,17 +442,14 @@ if (applyFixes) {
 
 # Verbose output (includes LOW certainty)
 /enhance:docs --verbose
-
-# Dry run fixes
-/enhance:docs --fix --dry-run
 ```
 
 ## Pattern Statistics
 
 - Total patterns: 14
 - HIGH certainty: 5 (2 auto-fixable)
-- MEDIUM certainty: 7
-- LOW certainty: 2
+- MEDIUM certainty: 6
+- LOW certainty: 3
 
 ## Success Criteria
 
