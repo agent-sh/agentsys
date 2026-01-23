@@ -262,6 +262,111 @@ Deep repository analysis to identify where documented plans diverge from actual 
 - **Single Opus call** - Deep semantic analysis with full context
 - **~77% token reduction** - Efficient compared to multi-agent approach
 
+
+### `/enhance:plugin` - Plugin Structure Analyzer
+
+Analyze plugin structures, MCP tools, and security patterns against best practices.
+
+```bash
+/enhance:plugin                   # Analyze all plugins
+/enhance:plugin next-task         # Analyze specific plugin
+/enhance:plugin --fix             # Apply HIGH certainty auto-fixes
+/enhance:plugin --verbose         # Show all issues
+```
+
+**Checks:**
+- plugin.json structure and version consistency
+- MCP tool definitions
+- Security patterns
+- Tool over-exposure
+
+---
+
+### `/enhance:agent` - Agent Prompt Optimizer
+
+Analyze agent prompt files for prompt engineering best practices.
+
+```bash
+/enhance:agent                    # Analyze all agents
+/enhance:agent exploration-agent  # Analyze specific agent
+/enhance:agent --fix              # Apply auto-fixes
+/enhance:agent --verbose          # Show all issues
+```
+
+**Detects:**
+- Missing frontmatter (name, description, tools, model)
+- Unrestricted tool access
+- Chain-of-thought appropriateness
+- Anti-patterns and prompt bloat
+
+---
+
+### `/enhance:docs` - Documentation Optimizer
+
+Analyze documentation for readability and RAG optimization.
+
+```bash
+/enhance:docs                     # Default mode (balanced)
+/enhance:docs --ai                # AI-only mode (aggressive RAG optimization)
+/enhance:docs docs/ --fix         # Apply fixes to docs directory
+/enhance:docs --verbose           # Show all issues
+```
+
+**Modes:**
+- `--both` (default) - Balance readability with AI-friendliness
+- `--ai` - Aggressive RAG optimization for agent-docs
+
+**Checks:**
+- Broken links and inconsistent headings
+- RAG chunking (AI mode)
+- Token efficiency (AI mode)
+- Structure and organization
+
+---
+
+### `/enhance:claudemd` - Project Memory Optimizer
+
+Analyze CLAUDE.md/AGENTS.md for optimization opportunities.
+
+```bash
+/enhance:claudemd                 # Analyze current project
+/enhance:claudemd /path/to/proj   # Analyze specific project
+/enhance:claudemd --verbose       # Show all issues
+```
+
+**Checks:**
+- Critical rules, architecture, key commands sections
+- File and command reference validation
+- Token efficiency and README duplication
+- Cross-platform compatibility
+- WHY explanations for rules
+
+---
+
+### `/enhance:prompt` - Prompt Quality Analyzer
+
+Analyze general prompts for prompt engineering best practices.
+
+```bash
+/enhance:prompt                   # Analyze prompts in current directory
+/enhance:prompt my-prompt.md      # Analyze specific prompt
+/enhance:prompt prompts/ --fix    # Apply fixes to prompts directory
+/enhance:prompt --verbose         # Show all issues
+```
+
+**Differentiation:**
+- Use `/enhance:prompt` for general prompts, system prompts, templates
+- Use `/enhance:agent` for agent files with YAML frontmatter
+
+**Detects:**
+- Vague instructions and negative-only constraints
+- Missing XML structure and examples
+- Context gaps (WHY explanations, priority order)
+- Output format issues
+- Anti-patterns (redundant CoT, prompt bloat)
+
+---
+
 ---
 
 ## Cross-Platform Integration

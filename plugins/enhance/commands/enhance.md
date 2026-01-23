@@ -1,5 +1,5 @@
 ---
-description: Analyze plugin structures, MCP tools, agent prompts, documentation, and security patterns
+description: Analyze plugin structures, MCP tools, agent prompts, general prompts, documentation, and security patterns
 argument-hint: "[target-name] [--fix] [--verbose] [--ai]"
 ---
 
@@ -643,3 +643,190 @@ Searches for project memory files in this order:
 - Token efficiency measured
 - Cross-platform compatibility checked
 - Clear, actionable report generated
+
+---
+
+# /enhance:prompt - Prompt Quality Analyzer
+
+Analyze prompt files for prompt engineering best practices and optimization opportunities.
+
+## Differentiation from /enhance:agent
+
+| Analyzer | Focus | Use When |
+|----------|-------|----------|
+| `/enhance:prompt` | Prompt quality (clarity, structure, examples) | General prompts, system prompts, templates |
+| `/enhance:agent` | Agent config (frontmatter, tools, model selection) | Agent files with YAML frontmatter |
+
+## Arguments
+
+Parse from $ARGUMENTS:
+- **prompt**: Specific prompt file or directory (default: prompts/, agents/, commands/)
+- **--fix**: Apply auto-fixes for HIGH certainty issues
+- **--verbose**: Show all issues including LOW certainty
+- **--dry-run**: Preview fixes without applying
+
+## Workflow
+
+1. **Discover prompts** - Find all .md and .txt files in target
+2. **Classify** - Detect prompt type from path/content
+3. **Load patterns** - Import from `${CLAUDE_PLUGIN_ROOT}/lib/enhance/prompt-patterns`
+4. **Analyze each prompt**:
+   - Check clarity (vague language, negative-only constraints)
+   - Validate structure (XML tags, heading hierarchy)
+   - Evaluate examples (few-shot patterns)
+   - Assess context (WHY explanations, priority order)
+   - Check output format specification
+   - Detect anti-patterns (redundant CoT, bloat)
+5. **Generate report** - Markdown table grouped by category
+6. **Apply fixes** - If --fix flag, apply HIGH certainty auto-fixes
+
+## Detection Categories
+
+### HIGH Certainty (7 patterns)
+
+| Pattern | Description | Auto-Fix |
+|---------|-------------|----------|
+| vague_instructions | "usually", "sometimes", "try to" | No |
+| negative_only_constraints | "don't" without positive alternatives | No |
+| missing_output_format | No format specification in substantial prompt | No |
+| aggressive_emphasis | Excessive CAPS, !!, CRITICAL | Yes |
+| missing_xml_structure | Complex prompt without XML tags | No |
+| missing_examples | Complex prompt without few-shot examples | No |
+| redundant_cot | "Think step by step" with modern models | No |
+
+### MEDIUM Certainty (8 patterns)
+
+| Pattern | Description |
+|---------|-------------|
+| inconsistent_sections | Mixed heading styles, skipped levels |
+| critical_info_buried | Important instructions in middle (lost-in-the-middle) |
+| suboptimal_example_count | Not 2-5 examples (too few or too many) |
+| examples_without_contrast | No good/bad labeling |
+| missing_context_why | Rules without explanations |
+| missing_instruction_priority | No conflict resolution order |
+| overly_prescriptive | Too many numbered steps, micro-managing |
+| json_without_schema | Requests JSON but no schema/example |
+
+### LOW Certainty (advisory)
+
+| Pattern | Description |
+|---------|-------------|
+| prompt_bloat | Over 2500 tokens |
+
+## Output Format
+
+```markdown
+## Prompt Analysis: {prompt-name}
+
+**File**: {path}
+**Type**: {agent|command|skill|prompt|markdown}
+**Token Count**: ~{tokens}
+**Analyzed**: {timestamp}
+
+### Summary
+- HIGH: {count} issues
+- MEDIUM: {count} issues
+- LOW: {count} issues (verbose only)
+
+### Clarity Issues ({n})
+| Issue | Fix | Certainty |
+|-------|-----|-----------|
+| Found 6 vague terms | Replace with specific instructions | HIGH |
+
+### Structure Issues ({n})
+| Issue | Fix | Certainty |
+|-------|-----|-----------|
+| Complex prompt without XML structure | Use XML tags | HIGH |
+
+### Example Issues ({n})
+| Issue | Fix | Certainty |
+|-------|-----|-----------|
+| Only 1 example (optimal: 2-5) | Add more examples | MEDIUM |
+
+### Context Issues ({n})
+| Issue | Fix | Certainty |
+|-------|-----|-----------|
+| 12 rules but few explanations | Add WHY context | MEDIUM |
+
+### Output Format Issues ({n})
+| Issue | Fix | Certainty |
+|-------|-----|-----------|
+| Requests JSON but no schema | Add JSON schema/example | MEDIUM |
+
+### Anti-Pattern Issues ({n})
+| Issue | Fix | Certainty |
+|-------|-----|-----------|
+| 3 "step-by-step" instructions | Remove redundant CoT | HIGH |
+```
+
+## Implementation
+
+```javascript
+const { promptAnalyzer } = require('${CLAUDE_PLUGIN_ROOT}/lib/enhance');
+
+// Parse arguments
+const args = '$ARGUMENTS'.split(' ').filter(Boolean);
+const promptPath = args.find(a => !a.startsWith('--'));
+const applyFixes = args.includes('--fix');
+const verbose = args.includes('--verbose');
+const dryRun = args.includes('--dry-run');
+
+// Run analysis
+const results = await promptAnalyzer.analyze({
+  prompt: promptPath,
+  verbose
+});
+
+// Generate report
+const report = promptAnalyzer.generateReport(results);
+console.log(report);
+
+// Apply fixes if requested
+if (applyFixes) {
+  const fixed = await promptAnalyzer.applyFixes(results, { dryRun });
+  console.log(`\nApplied ${fixed.applied.length} fixes`);
+  if (fixed.errors.length > 0) {
+    console.log(`Errors: ${fixed.errors.length}`);
+  }
+}
+```
+
+## Example Usage
+
+```bash
+# Analyze prompts in current directory
+/enhance:prompt
+
+# Analyze specific prompt file
+/enhance:prompt my-prompt.md
+
+# Analyze prompts directory
+/enhance:prompt prompts/
+
+# Apply auto-fixes (HIGH certainty only)
+/enhance:prompt --fix
+
+# Verbose output (includes LOW certainty)
+/enhance:prompt --verbose
+
+# Dry run fixes
+/enhance:prompt --fix --dry-run
+```
+
+## Pattern Statistics
+
+- Total patterns: 16
+- HIGH certainty: 7 (1 auto-fixable)
+- MEDIUM certainty: 8
+- LOW certainty: 1
+
+## Success Criteria
+
+- All prompt files analyzed
+- Clarity issues detected and reported
+- Structure validated
+- Examples assessed for few-shot effectiveness
+- Context/motivation gaps identified
+- Anti-patterns flagged
+- Clear, actionable report
+- Auto-fix available for HIGH certainty issues
