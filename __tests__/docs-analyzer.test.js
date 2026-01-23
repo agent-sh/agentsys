@@ -12,9 +12,6 @@ const {
 } = require('../lib/enhance/docs-patterns');
 
 const {
-  analyzeDoc,
-  analyzeAllDocs,
-  analyze,
   fixInconsistentHeadings,
   fixVerboseExplanations
 } = require('../lib/enhance/docs-analyzer');

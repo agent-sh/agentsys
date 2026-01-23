@@ -449,9 +449,9 @@ if (applyFixes) {
 
 ## Pattern Statistics
 
-- Total patterns: 13
+- Total patterns: 14
 - HIGH certainty: 5 (2 auto-fixable)
-- MEDIUM certainty: 6
+- MEDIUM certainty: 7
 - LOW certainty: 2
 
 ## Success Criteria

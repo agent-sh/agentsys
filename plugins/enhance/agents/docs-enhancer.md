@@ -213,7 +213,8 @@ For HIGH certainty issues with available fixes:
 | Efficiency | 2 | ai | 1 |
 | RAG | 3 | ai | 0 |
 | Balance | 4 | both | 0 |
-| **Total** | **13** | - | **2** |
+| Code | 1 | shared | 0 |
+| **Total** | **14** | - | **2** |
 
 ### Certainty Distribution
 
