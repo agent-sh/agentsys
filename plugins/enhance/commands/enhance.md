@@ -1,6 +1,115 @@
 ---
 description: Analyze plugin structures, MCP tools, agent prompts, general prompts, documentation, and security patterns
-argument-hint: "[target-name] [--fix] [--verbose] [--ai]"
+argument-hint: "[target-path] [--apply] [--focus=TYPE] [--verbose]"
+---
+
+# /enhance - Master Enhancement Orchestrator
+
+Run all enhancement analyzers in parallel and generate a unified report.
+
+## Overview
+
+The master `/enhance` command orchestrates all 5 specialized enhancers:
+- **plugin** - Plugin structures, MCP tools, security patterns
+- **agent** - Agent prompts, frontmatter, tool restrictions
+- **claudemd** - CLAUDE.md/AGENTS.md project memory files
+- **docs** - Documentation structure and RAG optimization
+- **prompt** - General prompt quality and clarity
+
+## Arguments
+
+Parse from $ARGUMENTS:
+- **target-path**: Directory or file to analyze (default: current directory)
+- **--apply**: Apply auto-fixes for HIGH certainty issues after report
+- **--focus=TYPE**: Run only specified enhancer(s): plugin, agent, claudemd, docs, prompt
+- **--verbose**: Include LOW certainty issues in report
+
+## Workflow
+
+1. **Discovery** - Detect what content types exist in target path
+2. **Launch** - Start all relevant enhancers in parallel via Task()
+3. **Aggregate** - Collect and deduplicate findings from all enhancers
+4. **Report** - Generate unified report via enhancement-reporter agent
+5. **Fix** - Apply auto-fixes if --apply flag is present
+
+## Implementation
+
+This command invokes the `enhancement-orchestrator` agent:
+
+```javascript
+// Invoke orchestrator agent with arguments
+await Task({
+  subagent_type: "enhance:enhancement-orchestrator",
+  prompt: `Run enhancement analysis.
+
+Target: ${targetPath || '.'}
+Options:
+- apply: ${args.includes('--apply')}
+- focus: ${focusType || 'all'}
+- verbose: ${args.includes('--verbose')}
+
+Discover content, launch enhancers in parallel, aggregate results, and generate report.`
+});
+```
+
+## Output Format
+
+```markdown
+# Enhancement Analysis Report
+
+**Target**: {targetPath}
+**Date**: {timestamp}
+**Enhancers Run**: plugin, agent, docs
+
+## Executive Summary
+
+| Enhancer | HIGH | MEDIUM | LOW | Auto-Fixable |
+|----------|------|--------|-----|--------------|
+| plugin | 2 | 3 | 1 | 1 |
+| agent | 1 | 2 | 0 | 1 |
+| docs | 0 | 4 | 2 | 0 |
+| **Total** | **3** | **9** | **3** | **2** |
+
+## HIGH Certainty Issues (3)
+
+[Grouped by enhancer, sorted by file]
+
+## MEDIUM Certainty Issues (9)
+
+[...]
+
+## Auto-Fix Summary
+
+2 issues can be automatically fixed with `--apply` flag.
+```
+
+## Example Usage
+
+```bash
+# Full analysis of current directory
+/enhance
+
+# Focus on specific enhancer type
+/enhance --focus=agent
+
+# Apply auto-fixes for HIGH certainty issues
+/enhance --apply
+
+# Analyze specific path with verbose output
+/enhance plugins/next-task --verbose
+
+# Combined flags
+/enhance --focus=plugin --apply --verbose
+```
+
+## Success Criteria
+
+- All relevant enhancers run in parallel
+- Findings deduplicated and sorted by certainty
+- Clear executive summary with counts
+- Auto-fixable issues highlighted
+- Fixes applied only with explicit --apply flag
+
 ---
 
 # /enhance:plugin - Plugin Structure Analyzer
