@@ -2576,8 +2576,8 @@ function test() {
         const violations = analyzeDeadCode(code, { filePath: 'test.js' });
 
         expect(violations.length).toBe(1);
-        expect(violations[0].deadCode).toContain('console.log');
-        expect(violations[0].terminatedBy).toContain('return');
+        expect(violations[0].content).toContain('console.log');
+        expect(violations[0].terminationType).toContain('return');
       });
 
       it('should detect dead code after throw statement', () => {
@@ -2589,8 +2589,8 @@ function test() {
         const violations = analyzeDeadCode(code, { filePath: 'test.js' });
 
         expect(violations.length).toBe(1);
-        expect(violations[0].deadCode).toContain('doSomething');
-        expect(violations[0].terminatedBy).toContain('throw');
+        expect(violations[0].content).toContain('doSomething');
+        expect(violations[0].terminationType).toContain('throw');
       });
 
       it('should detect dead code after break in switch', () => {
@@ -2603,7 +2603,7 @@ switch (x) {
         const violations = analyzeDeadCode(code, { filePath: 'test.js' });
 
         expect(violations.length).toBe(1);
-        expect(violations[0].terminatedBy).toContain('break');
+        expect(violations[0].terminationType).toContain('break');
       });
 
       it('should detect dead code after continue in loop', () => {
@@ -2615,7 +2615,7 @@ for (let i = 0; i < 10; i++) {
         const violations = analyzeDeadCode(code, { filePath: 'test.js' });
 
         expect(violations.length).toBe(1);
-        expect(violations[0].terminatedBy).toContain('continue');
+        expect(violations[0].terminationType).toContain('continue');
       });
 
       it('should NOT detect false positives in if/else branches', () => {
@@ -2684,7 +2684,7 @@ def test():
         const violations = analyzeDeadCode(code, { filePath: 'test.py' });
 
         expect(violations.length).toBe(1);
-        expect(violations[0].terminatedBy).toContain('return');
+        expect(violations[0].terminationType).toContain('return');
       });
 
       it('should detect dead code after raise in Python', () => {
@@ -2695,7 +2695,7 @@ def test():
         const violations = analyzeDeadCode(code, { filePath: 'test.py' });
 
         expect(violations.length).toBe(1);
-        expect(violations[0].terminatedBy).toContain('raise');
+        expect(violations[0].terminationType).toContain('raise');
       });
 
       it('should NOT flag except clauses', () => {
@@ -2734,7 +2734,7 @@ func test() int {
         const violations = analyzeDeadCode(code, { filePath: 'test.go' });
 
         expect(violations.length).toBe(1);
-        expect(violations[0].terminatedBy).toContain('return');
+        expect(violations[0].terminationType).toContain('return');
       });
 
       it('should detect dead code after panic in Go', () => {
@@ -2746,7 +2746,7 @@ func test() {
         const violations = analyzeDeadCode(code, { filePath: 'test.go' });
 
         expect(violations.length).toBe(1);
-        expect(violations[0].terminatedBy).toContain('panic');
+        expect(violations[0].terminationType).toContain('panic');
       });
     });
 
@@ -2760,7 +2760,7 @@ fn test() -> i32 {
         const violations = analyzeDeadCode(code, { filePath: 'test.rs' });
 
         expect(violations.length).toBe(1);
-        expect(violations[0].terminatedBy).toContain('return');
+        expect(violations[0].terminationType).toContain('return');
       });
 
       it('should detect dead code after panic! in Rust', () => {
@@ -2772,7 +2772,7 @@ fn test() {
         const violations = analyzeDeadCode(code, { filePath: 'test.rs' });
 
         expect(violations.length).toBe(1);
-        expect(violations[0].terminatedBy).toContain('panic');
+        expect(violations[0].terminationType).toContain('panic');
       });
     });
 
@@ -2818,7 +2818,7 @@ function outer() {
         const violations = analyzeDeadCode(code, { filePath: 'test.js' });
 
         expect(violations.length).toBe(1);
-        expect(violations[0].deadCode).toContain('inner dead');
+        expect(violations[0].content).toContain('inner dead');
       });
 
       it('should skip comments correctly', () => {
@@ -2831,7 +2831,7 @@ function test() {
         const violations = analyzeDeadCode(code, { filePath: 'test.js' });
 
         expect(violations.length).toBe(1);
-        expect(violations[0].deadCode).toContain('console.log');
+        expect(violations[0].content).toContain('console.log');
       });
     });
 
