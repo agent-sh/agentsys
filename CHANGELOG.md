@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.10.0] - 2025-01-24
+
+### Added
+- **OpenCode Native Plugin** - Full native integration with auto-thinking and workflow hooks
+  - Auto-thinking model selection based on task complexity
+  - Workflow enforcement via SubagentStop hooks
+  - Session compaction on compact events
+  - 21 agents installed to `~/.opencode/agents/`
+
+- **Codex CLI Integration** - Complete skill-based integration
+  - 8 skills with proper trigger-phrase descriptions
+  - MCP server configuration in `~/.codex/config.toml`
+  - Skills follow Codex best practices ("Use when user asks to...")
+
+- **Cross-Platform Compatibility Master Checklist** - Comprehensive guide for multi-platform support
+  - Platform-specific requirements (Claude Code, OpenCode, Codex)
+  - Environment variable guidelines (PLUGIN_ROOT, AI_STATE_DIR)
+  - Label length limits (30 chars for OpenCode)
+
+- **Searchable Code Markers** - Documentation stability improvements
+  - MCP_TOOLS_ARRAY, MCP_SERVER_VERSION in mcp-server/index.js
+  - PLUGINS_ARRAY, OPENCODE_COMMAND_MAPPINGS, CODEX_SKILL_MAPPINGS in bin/cli.js
+  - Checklists now reference markers instead of line numbers
+
+### Changed
+- **Checklists Updated** - All checklists now include cross-platform requirements
+  - new-command.md, new-agent.md, release.md, update-mcp.md, new-lib-module.md
+  - Added quality validation steps (/enhance)
+  - Added platform-specific verification steps
+
+- **Frontmatter Transformation** - Automatic conversion for OpenCode compatibility
+  - CLAUDE_PLUGIN_ROOT → PLUGIN_ROOT
+  - .claude/ → .opencode/ in paths
+  - tools → permissions format
+
+### Fixed
+- **30-char Label Limit** - AskUserQuestion labels truncated for OpenCode compatibility
+- **State Directory Creation** - Proper handling across platforms
+- **Cached Source Labels** - Truncated to fit OpenCode limits
+- **Skill Descriptions** - Added trigger phrases for Codex discoverability
+
 ## [2.9.1] - 2025-01-23
 
 ### Changed

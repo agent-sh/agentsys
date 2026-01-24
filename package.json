@@ -1,6 +1,6 @@
 {
   "name": "awesome-slash",
-  "version": "2.9.1",
+  "version": "2.10.0",
   "description": "6 specialized plugins for AI workflow automation - works with Claude Code, OpenCode, and Codex CLI",
   "main": "lib/platform/detect-platform.js",
   "type": "commonjs",
