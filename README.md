@@ -14,16 +14,6 @@
 
 ---
 
-## What's New in v2.10.0
-
-- **Full OpenCode Support** - Native plugin with auto-thinking, 21 agents, workflow enforcement
-- **Full Codex CLI Support** - 8 skills with trigger phrases, MCP tools
-- **Cross-Platform Installer** - `npm install -g awesome-slash && awesome-slash`
-
-See [CHANGELOG.md](./CHANGELOG.md) for details.
-
----
-
 ## Try It Now (30 seconds)
 
 ```bash
