@@ -67,6 +67,7 @@ AI models can write code. The bottleneck is everything else—picking tasks, man
 | `/project-review` | Multi-agent code review |
 | `/reality-check:scan` | Compare docs to actual code |
 | `/enhance` | Analyze prompts, plugins, docs |
+| `/update-docs-around` | Sync docs with code changes |
 
 ### State Files
 

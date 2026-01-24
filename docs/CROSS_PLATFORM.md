@@ -68,6 +68,8 @@ claude --plugin-dir /path/to/awesome-slash/plugins/next-task
 - `/deslop-around` - AI slop cleanup
 - `/project-review` - Multi-agent code review
 - `/reality-check:scan` - Plan drift detection
+- `/enhance` - Enhancement analyzer suite
+- `/update-docs-around` - Documentation sync
 
 ### Available Agents (29 Total)
 
@@ -120,7 +122,7 @@ awesome-slash  # Select option 2 for OpenCode
 
 This installs:
 - MCP server for tools (`workflow_status`, `slop_detect`, etc.)
-- Slash commands (`/next-task`, `/ship`, `/deslop-around`, `/project-review`)
+- Slash commands (`/next-task`, `/ship`, `/deslop-around`, `/project-review`, `/update-docs-around`)
 - **Native OpenCode plugin** with advanced features:
 
 ### Native Plugin Features
@@ -218,7 +220,7 @@ npm install -g awesome-slash@latest
 awesome-slash  # Select option 3 for Codex CLI
 ```
 
-This installs MCP server config in `~/.codex/config.toml` and skills (`$next-task`, `$ship`, `$deslop-around`, `$project-review`).
+This installs MCP server config in `~/.codex/config.toml` and skills (`$next-task`, `$ship`, `$deslop-around`, `$project-review`, `$update-docs-around`).
 
 ### Option 2: Manual MCP Config
 

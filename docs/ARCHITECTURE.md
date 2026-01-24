@@ -59,7 +59,8 @@ awesome-slash/
 │   ├── deslop-around/
 │   ├── project-review/
 │   ├── enhance/                  # Code quality analyzers
-│   └── reality-check/
+│   ├── reality-check/
+│   └── update-docs-around/       # Documentation sync
 ├── bin/                          # CLI installer
 │   └── cli.js                    # Interactive installer
 ├── scripts/
@@ -145,7 +146,7 @@ awesome-slash  # Select option 1
 
 **Location:** `~/.claude/plugins/awesome-slash/`
 
-**Commands:** `/next-task`, `/ship`, `/deslop-around`, `/project-review`, `/reality-check:scan`, `/enhance`
+**Commands:** `/next-task`, `/ship`, `/deslop-around`, `/project-review`, `/reality-check:scan`, `/enhance`, `/update-docs-around`
 
 ### OpenCode
 
@@ -157,7 +158,7 @@ awesome-slash  # Select option 2
 - Config: `~/.config/opencode/opencode.json`
 - Commands: `~/.opencode/commands/awesome-slash/`
 
-**Commands:** `/next-task`, `/ship`, `/deslop-around`, `/project-review`, `/reality-check-scan`, `/enhance`
+**Commands:** `/next-task`, `/ship`, `/deslop-around`, `/project-review`, `/reality-check-scan`, `/enhance`, `/update-docs-around`
 
 **MCP Config Added:**
 ```json
@@ -185,7 +186,7 @@ awesome-slash  # Select option 3
 - Config: `~/.codex/config.toml`
 - Skills: `~/.codex/skills/`
 
-**Skills:** `$next-task`, `$ship`, `$deslop-around`, `$project-review`, `$reality-check-scan`, `$enhance`
+**Skills:** `$next-task`, `$ship`, `$deslop-around`, `$project-review`, `$reality-check-scan`, `$enhance`, `$update-docs-around`
 
 Note: Codex uses `$` prefix instead of `/`.
 
@@ -217,6 +218,7 @@ enabled = true
 | `/project-review` | ✅ Full | ✅ Full | ✅ Full | Multi-agent review |
 | `/reality-check:scan` | ✅ Full | ✅ Full | ✅ Full | JS collectors + Opus |
 | `/enhance` | ✅ Full | ✅ Full | ✅ Full | Orchestrates all enhancers |
+| `/update-docs-around` | ✅ Full | ✅ Full | ✅ Full | Documentation sync |
 
 ## Knowledge Base
 
