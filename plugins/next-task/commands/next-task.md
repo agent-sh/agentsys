@@ -22,6 +22,35 @@ Discover what to work on next and execute the complete implementation workflow.
 
 **CRITICAL**: The workflow NEVER auto-resumes existing tasks. It ALWAYS asks first.
 
+## ⚠️ QUESTION LABEL LIMIT (OpenCode Compatibility)
+
+**All AskUserQuestion option labels MUST be ≤30 characters.** This is enforced by OpenCode.
+
+When asking about existing tasks, use these short labels:
+
+```javascript
+// CORRECT - Labels under 30 chars
+AskUserQuestion({
+  questions: [{
+    header: "Existing Task",
+    question: `Task #${taskId} is at ${phase}. What to do?`,
+    options: [
+      { label: "Start new task", description: "Leave existing task, start fresh" },
+      { label: "Resume task", description: `Continue #${taskId} from ${phase}` },
+      { label: "Abort task", description: "Cancel existing and start new" },
+      { label: "View status only", description: "Just show current state" }
+    ],
+    multiSelect: false
+  }]
+});
+
+// WRONG - Labels too long (will error in OpenCode)
+// { label: "Resume and ship #220 (ProfileScreen)", ... }  // 38 chars - TOO LONG
+// { label: "Start a completely new task", ... }           // 28 chars - OK but borderline
+```
+
+Put details in the `description` field, not the `label`.
+
 ## Workflow Overview
 
 ```
