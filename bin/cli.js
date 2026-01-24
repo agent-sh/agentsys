@@ -518,9 +518,13 @@ AI_STATE_DIR = ".codex"
         content = `---\nname: ${skillName}\ndescription: ${yamlDescription}\n---\n\n${content}`;
       }
 
-      // Transform CLAUDE_PLUGIN_ROOT -> PLUGIN_ROOT for Codex
-      content = content.replace(/\$\{CLAUDE_PLUGIN_ROOT\}/g, '${PLUGIN_ROOT}');
-      content = content.replace(/\$CLAUDE_PLUGIN_ROOT/g, '$PLUGIN_ROOT');
+      // Transform PLUGIN_ROOT to actual installed path for Codex
+      // Codex doesn't set PLUGIN_ROOT, so use absolute path to installed plugin
+      const pluginInstallPath = path.join(installDir, 'plugins', plugin);
+      content = content.replace(/\$\{CLAUDE_PLUGIN_ROOT\}/g, pluginInstallPath);
+      content = content.replace(/\$CLAUDE_PLUGIN_ROOT/g, pluginInstallPath);
+      content = content.replace(/\$\{PLUGIN_ROOT\}/g, pluginInstallPath);
+      content = content.replace(/\$PLUGIN_ROOT/g, pluginInstallPath);
 
       fs.writeFileSync(destPath, content);
       console.log(`  ✓ Installed skill: ${skillName}`);
