@@ -1,6 +1,6 @@
 {
   "name": "enhance",
-  "version": "2.10.0",
+  "version": "2.10.1",
   "description": "Plugin structure and tool use analyzer - validates plugin.json, MCP tools, and security patterns",
   "author": {
     "name": "Avi Fenesh",
