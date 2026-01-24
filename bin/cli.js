@@ -257,6 +257,34 @@ function installForOpenCode(installDir) {
     return content;
   }
 
+  // Helper function to transform command frontmatter for OpenCode
+  function transformCommandFrontmatter(content) {
+    return content.replace(
+      /^---\n([\s\S]*?)^---/m,
+      (match, frontmatter) => {
+        // Parse existing frontmatter
+        const lines = frontmatter.trim().split('\n');
+        const parsed = {};
+        for (const line of lines) {
+          const colonIdx = line.indexOf(':');
+          if (colonIdx > 0) {
+            const key = line.substring(0, colonIdx).trim();
+            const value = line.substring(colonIdx + 1).trim();
+            parsed[key] = value;
+          }
+        }
+
+        // Build OpenCode command frontmatter
+        let opencodeFrontmatter = '---\n';
+        if (parsed.description) opencodeFrontmatter += `description: ${parsed.description}\n`;
+        opencodeFrontmatter += 'agent: general\n';
+        // Don't include argument-hint or allowed-tools (not supported)
+        opencodeFrontmatter += '---';
+        return opencodeFrontmatter;
+      }
+    );
+  }
+
   // Transform and copy command files
   for (const [target, plugin, source] of commandMappings) {
     const srcPath = path.join(installDir, 'plugins', plugin, 'commands', source);
@@ -264,6 +292,7 @@ function installForOpenCode(installDir) {
     if (fs.existsSync(srcPath)) {
       let content = fs.readFileSync(srcPath, 'utf8');
       content = transformForOpenCode(content);
+      content = transformCommandFrontmatter(content);
       fs.writeFileSync(destPath, content);
     }
   }
