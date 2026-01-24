@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.1] - 2025-01-24
+
+### Fixed
+- **Windows Path Handling** - Fixed `require()` statements breaking on Windows due to unescaped backslashes in `CLAUDE_PLUGIN_ROOT` paths
+  - All 21 require() calls now normalize paths with `.replace(/\\/g, '/')`
+  - Added `normalizePathForRequire()` helper to lib/cross-platform/
+  - Updated checklists with Windows-safe require() pattern
+
+- **Slop Detection False Positives** - Reduced false positive rate from 95% to <10%
+  - `placeholder_text`: Only matches actual placeholder content in comments/strings
+  - `magic_numbers`: Focus on 2-3 digit business logic, extensive file exclusions
+  - `console_debugging`: Excludes scripts/, e2e/, seeds, test infrastructure
+  - `hardcoded_secrets`: Excludes test/mock prefixes and fixture files
+  - `process_exit`: Excludes scripts/, prisma/, migrations, seeds
+  - `disabled_linter`: Lowered severity (many are justified)
+
+### Removed
+- **feature_envy pattern** - 100% false positive rate, requires AST analysis. Use `eslint-plugin-clean-code` instead.
+- **message_chains_methods pattern** - Flags idiomatic fluent APIs (Zod, query builders). Use `eslint-plugin-smells` instead.
+- **message_chains_properties pattern** - Same issue with deep config/object access.
+
 ## [3.0.0] - 2025-01-24
 
 ### Breaking Changes - Command Renames

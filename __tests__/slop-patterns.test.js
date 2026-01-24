@@ -1990,59 +1990,6 @@ describe('slop-patterns', () => {
       });
     });
 
-    describe('message_chains_methods pattern', () => {
-      const pattern = () => slopPatterns.message_chains_methods.pattern;
-
-      it('should have pattern defined with correct metadata', () => {
-        expect(slopPatterns.message_chains_methods).toBeDefined();
-        expect(slopPatterns.message_chains_methods.severity).toBe('low');
-        expect(slopPatterns.message_chains_methods.autoFix).toBe('flag');
-      });
-
-      it('should detect 4+ consecutive method calls', () => {
-        expect(pattern().test('a.getB().getC().getD().doThing()')).toBe(true);
-        expect(pattern().test('obj.foo().bar().baz().qux().quux()')).toBe(true);
-        expect(pattern().test('builder.setA().setB().setC().setD()')).toBe(true);
-      });
-
-      it('should NOT detect 3 or fewer method calls', () => {
-        expect(pattern().test('a.b().c()')).toBe(false);
-        expect(pattern().test('obj.foo().bar().baz()')).toBe(false);
-        expect(pattern().test('x.y()')).toBe(false);
-      });
-
-      it('should exclude config files', () => {
-        const excludes = slopPatterns.message_chains_methods.exclude;
-        expect(isFileExcluded('webpack.config.js', excludes)).toBe(true);
-        expect(isFileExcluded('jest.config.ts', excludes)).toBe(true);
-      });
-    });
-
-    describe('message_chains_properties pattern', () => {
-      const pattern = () => slopPatterns.message_chains_properties.pattern;
-
-      it('should have pattern defined with correct metadata', () => {
-        expect(slopPatterns.message_chains_properties).toBeDefined();
-        expect(slopPatterns.message_chains_properties.severity).toBe('low');
-      });
-
-      it('should detect 5+ consecutive property accesses', () => {
-        expect(pattern().test('obj.a.b.c.d.e')).toBe(true);
-        expect(pattern().test('this.state.user.profile.settings.theme')).toBe(true);
-        expect(pattern().test('config.app.db.host.port.timeout')).toBe(true);
-      });
-
-      it('should NOT detect 4 or fewer property accesses', () => {
-        expect(pattern().test('obj.a.b.c')).toBe(false);
-        expect(pattern().test('obj.a.b.c.d')).toBe(false);
-        expect(pattern().test('this.state.user')).toBe(false);
-      });
-
-      it('should NOT detect method calls (those are message_chains_methods)', () => {
-        expect(pattern().test('obj.a().b().c().d().e()')).toBe(false);
-      });
-    });
-
     describe('mutable_globals_js pattern', () => {
       const pattern = () => slopPatterns.mutable_globals_js.pattern;
 
@@ -2148,26 +2095,6 @@ describe('slop-patterns', () => {
       });
     });
 
-    describe('feature_envy pattern', () => {
-      const pattern = () => slopPatterns.feature_envy.pattern;
-
-      it('should have pattern defined with correct metadata', () => {
-        expect(slopPatterns.feature_envy).toBeDefined();
-        expect(slopPatterns.feature_envy.severity).toBe('low');
-        expect(slopPatterns.feature_envy.autoFix).toBe('flag');
-      });
-
-      it('should detect repeated access to same object', () => {
-        expect(pattern().test('obj.name + obj.price + obj.tax')).toBe(true);
-        expect(pattern().test('user.id user.email user.name')).toBe(true);
-      });
-
-      it('should NOT detect access to different objects', () => {
-        expect(pattern().test('this.x + other.y + another.z')).toBe(false);
-        expect(pattern().test('a.foo + b.bar + c.baz')).toBe(false);
-      });
-    });
-
     describe('speculative_generality_unused_params pattern', () => {
       const pattern = () => slopPatterns.speculative_generality_unused_params.pattern;
 
@@ -2237,23 +2164,6 @@ describe('slop-patterns', () => {
         });
       });
 
-      it('message_chains patterns should resist ReDoS', () => {
-        const methodPattern = slopPatterns.message_chains_methods.pattern;
-        const propPattern = slopPatterns.message_chains_properties.pattern;
-        const inputs = [
-          'obj' + '.method()'.repeat(1000),
-          'obj' + '.prop'.repeat(1000),
-          'a'.repeat(10000) + '.b().c().d().e()'
-        ];
-
-        inputs.forEach(input => {
-          const start = Date.now();
-          methodPattern.test(input);
-          propPattern.test(input);
-          expect(Date.now() - start).toBeLessThan(MAX_SAFE_TIME);
-        });
-      });
-
       it('mutable_globals patterns should resist ReDoS', () => {
         const jsPattern = slopPatterns.mutable_globals_js.pattern;
         const pyPattern = slopPatterns.mutable_globals_py.pattern;
@@ -2278,14 +2188,7 @@ describe('slop-patterns', () => {
         const pyPatterns = getPatternsForLanguage('python');
 
         expect(jsPatterns).toHaveProperty('boolean_blindness');
-        expect(jsPatterns).toHaveProperty('message_chains_methods');
-        expect(jsPatterns).toHaveProperty('message_chains_properties');
-        expect(jsPatterns).toHaveProperty('feature_envy');
-
         expect(pyPatterns).toHaveProperty('boolean_blindness');
-        expect(pyPatterns).toHaveProperty('message_chains_methods');
-        expect(pyPatterns).toHaveProperty('message_chains_properties');
-        expect(pyPatterns).toHaveProperty('feature_envy');
       });
 
       it('should include JS-specific patterns only in javascript', () => {
