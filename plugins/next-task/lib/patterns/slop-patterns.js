@@ -118,14 +118,23 @@ function createSecretPattern(pattern, description, additionalExcludes = []) {
 const slopPatterns = {
   /**
    * Console debugging in JavaScript/TypeScript
+   * IMPROVED: Excludes scripts, E2E infrastructure, seed files, CLI tools
    */
   console_debugging: {
     pattern: /console\.(log|debug|info|warn)\(/,
-    exclude: ['*.test.*', '*.spec.*', '*.config.*', 'bin/**', '**/bin/**', 'cli.js', '**/cli.js'],
+    exclude: [
+      '*.test.*', '*.spec.*', '*.config.*',
+      'bin/**', '**/bin/**', 'scripts/**', '**/scripts/**',
+      'cli.js', '**/cli.js', '**/cli/**',
+      '**/e2e/**', '**/test/**', '**/tests/**',  // E2E infrastructure
+      '**/seed*.{js,ts}', '**/fixtures/**', '**/mocks/**',  // Seed and fixture files
+      'globalSetup.*', 'globalTeardown.*',  // Test setup files
+      '**/*-manager.{js,ts}', '**/*Manager.{js,ts}'  // Test helper managers
+    ],
     severity: 'medium',
     autoFix: 'remove',
     language: 'javascript',
-    description: 'Console.log statements left in production code'
+    description: 'Console.log statements left in production code (excludes scripts, E2E, seeds)'
   },
 
   /**
@@ -181,14 +190,16 @@ const slopPatterns = {
 
   /**
    * Placeholder text
+   * IMPROVED: Only matches actual placeholder content, not legitimate uses of the word "placeholder"
+   * Now requires context: comments or string literals with multiple placeholder indicators
    */
   placeholder_text: {
-    pattern: /(lorem ipsum|test test test|asdf|foo bar baz|placeholder|replace this|todo: implement)/i,
-    exclude: ['*.test.*', '*.spec.*', 'README.*', '*.md', '**/slop-patterns.js', '**/slop-analyzers.js'],
+    pattern: /(?:\/\/|\/\*|#|["'`]).*?\b(lorem ipsum|test test test|asdf asdf|foo bar baz|replace (?:this|me)|todo:?\s+implement|this is a placeholder)/i,
+    exclude: ['*.test.*', '*.spec.*', 'README.*', '*.md', '**/slop-patterns.js', '**/slop-analyzers.js', '**/fixtures/**', '**/mocks/**'],
     severity: 'high',
     autoFix: 'flag',
     language: null,
-    description: 'Placeholder text that should be replaced'
+    description: 'Placeholder text in comments/strings that should be replaced (excludes props like placeholder="...")'
   },
 
   // ============================================================================
@@ -348,27 +359,64 @@ const slopPatterns = {
   },
 
   /**
-   * Magic numbers (large hardcoded numbers)
+   * Magic numbers in business logic
+   * IMPROVED: Focuses on real magic numbers (2-3 digits) in business logic files
+   * Excludes styling, config, constants, and common safe patterns (HTTP codes, ports, percentages)
+   * Strategy: File-based exclusions > pattern matching for precision
    */
   magic_numbers: {
-    pattern: /(?<![a-zA-Z_\d])[0-9]{4,}(?![a-zA-Z_\d])/,
-    exclude: ['*.test.*', '*.spec.*', '*.config.*', 'package.json', 'package-lock.json'],
+    // Match 2-3 digit numbers, excluding common safe values
+    // Excludes: 0, 1, -1 (boolean-like), and common HTTP status codes
+    pattern: /(?<![a-zA-Z_\d#$])\b(?!0\b|1\b|-1\b|200\b|201\b|204\b|400\b|401\b|403\b|404\b|500\b|502\b|503\b)[2-9]\d{1,2}\b(?![a-zA-Z_\d])/,
+    exclude: [
+      // Test files
+      '*.test.*', '*.spec.*', '**/test/**', '**/tests/**', '**/e2e/**', '**/__tests__/**',
+
+      // Config and data files
+      '*.json', '*.yaml', '*.yml', '*.toml', '*.lock', '*.config.*', '**/config/**',
+      '**/.env*', '**/package.json', '**/tsconfig.json',
+
+      // Styling files (CSS, design systems)
+      '*.css', '*.scss', '*.sass', '*.less', '*.styl',
+      '**/*style*', '**/*Style*', '**/*styles*', '**/*Styles*',
+      '**/*theme*', '**/*Theme*', '**/*colors*', '**/*Colors*',
+      '**/*design*', '**/*spacing*', '**/*layout*',
+
+      // Constants and configuration modules
+      '**/*constants*', '**/*Constants*', '**/*const.{js,ts}',
+      '**/*enums*', '**/*Enums*', '**/constants/**',
+
+      // Database and migrations
+      '**/migrations/**', '**/prisma/**', '**/db/**',
+      '**/*migration*', '**/*seed*', '**/*fixture*',
+
+      // Mock data
+      '**/fixtures/**', '**/mocks/**', '**/*mock*', '**/*Mock*',
+
+      // HTML templates (inline styles)
+      '*.html', '*.ejs', '*.pug', '*.hbs',
+
+      // Build artifacts
+      'dist/**', 'build/**', '.next/**', 'out/**'
+    ],
     severity: 'low',
     autoFix: 'flag',
     language: null,
-    description: 'Magic numbers that should be constants'
+    description: 'Magic numbers (2-3 digits) in business logic that should be named constants (excludes styling, configs, HTTP codes)'
   },
 
   /**
    * Disabled linter rules
+   * IMPROVED: Lower severity - many disables have legitimate explanatory comments
+   * Flag for review but not aggressive auto-fix
    */
   disabled_linter: {
     pattern: /(eslint-disable|pylint: disable|#\s*noqa|@SuppressWarnings|#\[allow\()/,
-    exclude: [],
-    severity: 'medium',
+    exclude: ['*.test.*', '*.spec.*', '**/tests/**', '**/test/**'],
+    severity: 'low',  // Reduced from medium - many disables are justified
     autoFix: 'flag',
     language: null,
-    description: 'Disabled linter rules that may hide issues'
+    description: 'Disabled linter rules (review if justified with explanatory comment)'
   },
 
   /**
@@ -434,17 +482,23 @@ const slopPatterns = {
 
   /**
    * Hardcoded credentials patterns (expanded for comprehensive detection)
+   * IMPROVED: Better test fixture detection
    * Excludes common false positives:
    * - Template placeholders: ${VAR}, {{VAR}}, <VAR>
    * - Masked/example values: xxxxxxxx, ********
+   * - Test values: TestPassword, test-csrf-token, mock credentials
    */
   hardcoded_secrets: {
-    pattern: /(password|secret|api[_-]?key|token|credential|auth)[_-]?(key|token|secret|pass)?\s*[:=]\s*["'`](?!\$\{)(?!\{\{)(?!<[A-Z_])(?![x*#]{8,})(?![X*#]{8,})[^"'`\s]{8,}["'`]/i,
-    exclude: ['*.test.*', '*.spec.*', '*.example.*', '*.sample.*', 'README.*', '*.md'],
+    pattern: /(password|secret|api[_-]?key|token|credential|auth)[_-]?(key|token|secret|pass)?\s*[:=]\s*["'`](?!\$\{)(?!\{\{)(?!<[A-Z_])(?![x*#]{8,})(?![X*#]{8,})(?!test)(?!Test)(?!MOCK)(?!mock)(?!dummy)(?!Dummy)[^"'`\s]{8,}["'`]/i,
+    exclude: [
+      '*.test.*', '*.spec.*', '*.example.*', '*.sample.*', 'README.*', '*.md',
+      '**/fixtures/**', '**/mocks/**', '**/test/**', '**/tests/**', '**/e2e/**',
+      '**/*fixture*.{js,ts}', '**/*mock*.{js,ts}'
+    ],
     severity: 'critical',
     autoFix: 'flag',
     language: null,
-    description: 'Potential hardcoded credentials'
+    description: 'Potential hardcoded credentials (excludes test/mock/example values)'
   },
 
   /**
@@ -560,14 +614,22 @@ const slopPatterns = {
 
   /**
    * Process.exit in libraries
+   * IMPROVED: Excludes scripts/, prisma/, and all legitimate script locations
    */
   process_exit: {
     pattern: /process\.exit\(/,
-    exclude: ['*.test.*', 'cli.js', 'index.js', 'bin/**', '**/bin/**', '**/slop-patterns.js'],
+    exclude: [
+      '*.test.*', 'cli.js', 'index.js',
+      'bin/**', '**/bin/**', 'scripts/**', '**/scripts/**',
+      'prisma/**', '**/prisma/**',  // Database seed scripts
+      '**/seed*.{js,ts}', '**/migration*.{js,ts}', '**/backfill*.{js,ts}',  // Data scripts
+      '**/cli/**', '**/*.cli.{js,ts}',
+      '**/slop-patterns.js'
+    ],
     severity: 'high',
     autoFix: 'flag',
     language: 'javascript',
-    description: 'process.exit() should not be in library code'
+    description: 'process.exit() should not be in library code (excludes scripts, seeds, migrations)'
   },
 
   /**
@@ -778,33 +840,14 @@ const slopPatterns = {
     description: 'Function call with 3+ boolean parameters (unclear meaning - use named params or options object)'
   },
 
-  /**
-   * Message Chains (Law of Demeter violation)
-   * Detects long method chains like a.getB().getC().getD().doThing()
-   * Threshold: 4+ consecutive method calls
-   */
-  message_chains_methods: {
-    pattern: /\b[a-zA-Z_]\w{0,99}(?:\.[a-zA-Z_]\w{0,99}\([^)]{0,200}\)){4,8}/,
-    exclude: ['*.test.*', '*.spec.*', '*.config.*', '**/tests/**'],
-    severity: 'low',
-    autoFix: 'flag',
-    language: null,
-    description: 'Long method chain (4+ calls) - may violate Law of Demeter'
-  },
+  // REMOVED: message_chains_methods
+  // Reason: 100% false positive rate - can't distinguish fluent APIs (Zod, query builders)
+  // from actual Law of Demeter violations. Requires semantic analysis.
+  // Alternative: Use eslint-plugin-smells no-complex-chaining rule.
 
-  /**
-   * Message Chains - Property access chains
-   * Detects deep property access like obj.a.b.c.d.e
-   * Threshold: 5+ consecutive property accesses
-   */
-  message_chains_properties: {
-    pattern: /\b[a-zA-Z_]\w{0,99}(?:\.[a-zA-Z_]\w{0,99}){5,10}(?!\s*\()/,
-    exclude: ['*.test.*', '*.spec.*', '*.config.*', '**/tests/**', 'package.json', 'package-lock.json'],
-    severity: 'low',
-    autoFix: 'flag',
-    language: null,
-    description: 'Deep property chain (5+ levels) - consider intermediate variables'
-  },
+  // REMOVED: message_chains_properties
+  // Reason: Same issue as message_chains_methods - flags config access, nested object
+  // destructuring, and other legitimate deep property patterns.
 
   /**
    * Mutable Globals - JavaScript/TypeScript
@@ -867,20 +910,9 @@ const slopPatterns = {
     clusterThreshold: 5      // Flag clusters with 5+ files changing together
   },
 
-  /**
-   * Feature Envy (heuristic)
-   * Flags methods that access another object's data 3+ times
-   * May indicate the method belongs in the other class
-   * Note: High false positive rate - requires human judgment
-   */
-  feature_envy: {
-    pattern: /(\b[a-zA-Z_]\w*)\.\w+[^.]*\1\.\w+[^.]*\1\.\w+/,
-    exclude: ['*.test.*', '*.spec.*', '**/tests/**'],
-    severity: 'low',
-    autoFix: 'flag',
-    language: null,
-    description: 'Method uses another object 3+ times (heuristic - may belong in that class)'
-  },
+  // REMOVED: feature_envy
+  // Reason: 100% false positive rate with regex. Requires AST analysis.
+  // Alternative: Use eslint-plugin-clean-code for proper feature envy detection.
 
   /**
    * Speculative Generality - Unused parameters (heuristic)
