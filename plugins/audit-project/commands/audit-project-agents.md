@@ -49,6 +49,15 @@ function findLatestQueue(dirPath) {
   return files[0]?.fullPath || null;
 }
 
+function safeReadJson(filePath) {
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch (error) {
+    console.warn(`Review queue unreadable: ${filePath}. Starting fresh.`);
+    return null;
+  }
+}
+
 const resumeRequested = typeof RESUME_MODE !== 'undefined' && RESUME_MODE === 'true';
 let reviewQueuePath = resumeRequested ? findLatestQueue(stateDirPath) : null;
 
@@ -67,7 +76,14 @@ if (!fs.existsSync(reviewQueuePath)) {
   };
   fs.writeFileSync(reviewQueuePath, JSON.stringify(reviewQueue, null, 2), 'utf8');
 } else if (resumeRequested) {
-  const reviewQueue = JSON.parse(fs.readFileSync(reviewQueuePath, 'utf8'));
+  const reviewQueue = safeReadJson(reviewQueuePath) || {
+    status: 'open',
+    scope: { type: 'audit', value: SCOPE },
+    passes: [],
+    items: [],
+    iteration: 0,
+    updatedAt: new Date().toISOString()
+  };
   reviewQueue.status = 'open';
   reviewQueue.resumedAt = new Date().toISOString();
   reviewQueue.updatedAt = new Date().toISOString();
@@ -261,10 +277,21 @@ function consolidateFindings(agentResults) {
 
   // Sort by severity
   const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-  deduped.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
+  deduped.sort((a, b) => {
+    const aRank = severityOrder[a.severity] ?? 99;
+    const bRank = severityOrder[b.severity] ?? 99;
+    return aRank - bRank;
+  });
 
   // Update queue file
-  const queueState = JSON.parse(fs.readFileSync(reviewQueuePath, 'utf8'));
+  const queueState = safeReadJson(reviewQueuePath) || {
+    status: 'open',
+    scope: { type: 'audit', value: SCOPE },
+    passes: [],
+    items: [],
+    iteration: 0,
+    updatedAt: new Date().toISOString()
+  };
   queueState.items = deduped;
   queueState.passes = Array.from(new Set(deduped.map(item => item.pass)));
   queueState.updatedAt = new Date().toISOString();
@@ -295,10 +322,21 @@ function consolidateFindings(agentResults) {
 After fixes and re-review, remove the queue file if no open issues remain:
 
 ```javascript
-const queueState = JSON.parse(fs.readFileSync(reviewQueuePath, 'utf8'));
+const queueState = safeReadJson(reviewQueuePath);
+if (!queueState) {
+  return;
+}
 const openCount = queueState.items.filter(item => !item.falsePositive).length;
 if (openCount === 0) {
-  fs.unlinkSync(reviewQueuePath);
+  if (fs.existsSync(reviewQueuePath)) {
+    try {
+      fs.unlinkSync(reviewQueuePath);
+    } catch (error) {
+      if (error.code !== 'ENOENT') {
+        throw error;
+      }
+    }
+  }
 }
 ```
 

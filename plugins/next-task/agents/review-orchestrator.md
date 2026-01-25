@@ -73,6 +73,15 @@ function findLatestQueue(dirPath) {
   return files[0]?.fullPath || null;
 }
 
+function safeReadJson(filePath) {
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch (error) {
+    console.warn(`Review queue unreadable: ${filePath}. Starting fresh.`);
+    return null;
+  }
+}
+
 let reviewQueuePath = null;
 if (resumeRequested) {
   const flow = workflowState.readFlow();
@@ -84,26 +93,31 @@ if (resumeRequested) {
   }
 }
 
-const isNewQueue = !reviewQueuePath;
+let isNewQueue = !reviewQueuePath;
 if (!reviewQueuePath) {
   reviewQueuePath = path.join(stateDirPath, `review-queue-${Date.now()}.json`);
 }
 
 if (!isNewQueue && fs.existsSync(reviewQueuePath)) {
-  const existingQueue = JSON.parse(fs.readFileSync(reviewQueuePath, 'utf8'));
-  if (Array.isArray(existingQueue.scope?.files) && existingQueue.scope.files.length > 0) {
-    changedFiles = existingQueue.scope.files;
-    changedFilesList = changedFiles.join(', ');
+  const existingQueue = safeReadJson(reviewQueuePath);
+  if (existingQueue) {
+    if (Array.isArray(existingQueue.scope?.files) && existingQueue.scope.files.length > 0) {
+      changedFiles = existingQueue.scope.files;
+      changedFilesList = changedFiles.join(', ');
+    }
+  } else {
+    isNewQueue = true;
   }
 }
 
+const normalizedFiles = changedFiles.map(file => file.replace(/\\/g, '/'));
 const signals = {
-  hasDb: changedFiles.some(f => /(db|database|migrations?|schema|prisma|sequelize|typeorm|knex|sql)/i.test(f)),
-  hasApi: changedFiles.some(f => /(api|routes?|controllers?|handlers?|server|express|fastify|nestjs|koa|hapi)/i.test(f)),
-  hasFrontend: changedFiles.some(f => /\.(tsx|jsx|vue|svelte)$/.test(f)) || changedFiles.some(f => /(components?|pages|frontend|ui)/i.test(f)),
-  hasBackend: changedFiles.some(f => /(server|backend|services?|controllers?|domain|use-?cases?)/i.test(f)),
-  hasDevops: changedFiles.some(f => /(^|\/)(\.github\/workflows|\.circleci|\.gitlab-ci|Dockerfile|docker\/|k8s|helm|terraform)/i.test(f)),
-  needsArchitecture: changedFiles.length > 20
+  hasDb: normalizedFiles.some(f => /(db|database|migrations?|schema|prisma|sequelize|typeorm|knex|sql)/i.test(f)),
+  hasApi: normalizedFiles.some(f => /(api|routes?|controllers?|handlers?|server|express|fastify|nestjs|koa|hapi)/i.test(f)),
+  hasFrontend: normalizedFiles.some(f => /\.(tsx|jsx|vue|svelte)$/.test(f)) || normalizedFiles.some(f => /(components?|pages|frontend|ui)/i.test(f)),
+  hasBackend: normalizedFiles.some(f => /(server|backend|services?|controllers?|domain|use-?cases?)/i.test(f)),
+  hasDevops: normalizedFiles.some(f => /(^|\/)(\.github\/workflows|\.circleci|\.gitlab-ci|Jenkinsfile|\.travis\.yml|azure-pipelines\.yml|bitbucket-pipelines\.yml|Dockerfile|docker\/|k8s|helm|terraform)/i.test(f)),
+  needsArchitecture: normalizedFiles.length > 20
 };
 
 if (isNewQueue) {
@@ -118,7 +132,15 @@ if (isNewQueue) {
   };
   fs.writeFileSync(reviewQueuePath, JSON.stringify(reviewQueue, null, 2), 'utf8');
 } else {
-  const reviewQueue = JSON.parse(fs.readFileSync(reviewQueuePath, 'utf8'));
+  const reviewQueue = safeReadJson(reviewQueuePath) || {
+    status: 'open',
+    scope: { type: 'diff', files: changedFiles },
+    passes: [],
+    items: [],
+    iteration: 0,
+    stallCount: 0,
+    updatedAt: new Date().toISOString()
+  };
   reviewQueue.status = 'open';
   reviewQueue.updatedAt = new Date().toISOString();
   reviewQueue.resumedAt = new Date().toISOString();
@@ -265,7 +287,7 @@ Return JSON ONLY in this format:
 }`
 }));
 
-const results = await Promise.all(reviewPromises);
+let results = await Promise.all(reviewPromises);
 ```
 
 ## Phase 5: Aggregate Results + Update Queue
@@ -273,15 +295,18 @@ const results = await Promise.all(reviewPromises);
 ```javascript
 function aggregateFindings(results) {
   const items = [];
+  const validSeverities = new Set(['critical', 'high', 'medium', 'low']);
 
   for (const result of results) {
     const pass = result.pass || 'unknown';
     const findings = Array.isArray(result.findings) ? result.findings : [];
     for (const finding of findings) {
+      const severity = validSeverities.has(finding.severity) ? finding.severity : 'low';
       items.push({
         id: `${pass}:${finding.file}:${finding.line}:${finding.description}`,
         pass,
         ...finding,
+        severity,
         status: finding.falsePositive ? 'false-positive' : 'open'
       });
     }
@@ -298,7 +323,8 @@ function aggregateFindings(results) {
   const bySeverity = { critical: [], high: [], medium: [], low: [] };
   for (const item of deduped) {
     if (!item.falsePositive) {
-      bySeverity[item.severity].push(item);
+      const bucket = bySeverity[item.severity] ? item.severity : 'low';
+      bySeverity[bucket].push(item);
     }
   }
 
@@ -317,13 +343,44 @@ function aggregateFindings(results) {
   };
 }
 
-const findings = aggregateFindings(results);
+let findings = aggregateFindings(results);
 
-const reviewQueueState = JSON.parse(fs.readFileSync(reviewQueuePath, 'utf8'));
+const reviewQueueState = safeReadJson(reviewQueuePath) || {
+  status: 'open',
+  scope: { type: 'diff', files: changedFiles },
+  passes: [],
+  items: [],
+  iteration: 0,
+  stallCount: 0,
+  updatedAt: new Date().toISOString()
+};
 reviewQueueState.passes = reviewPasses.map(pass => pass.id);
 reviewQueueState.items = findings.items;
 reviewQueueState.updatedAt = new Date().toISOString();
 fs.writeFileSync(reviewQueuePath, JSON.stringify(reviewQueueState, null, 2), 'utf8');
+
+if (findings.openCount === 0) {
+  const resolvedQueue = safeReadJson(reviewQueuePath) || reviewQueueState;
+  resolvedQueue.status = 'resolved';
+  resolvedQueue.updatedAt = new Date().toISOString();
+  fs.writeFileSync(reviewQueuePath, JSON.stringify(resolvedQueue, null, 2), 'utf8');
+  if (fs.existsSync(reviewQueuePath)) {
+    try {
+      fs.unlinkSync(reviewQueuePath);
+    } catch (error) {
+      if (error.code !== 'ENOENT') {
+        throw error;
+      }
+    }
+  }
+  workflowState.updateFlow({
+    reviewQueue: {
+      path: reviewQueuePath,
+      status: 'resolved',
+      updatedAt: new Date().toISOString()
+    }
+  });
+}
 ```
 
 ## Phase 6: Log Results
@@ -333,6 +390,10 @@ console.log(`Found: ${findings.openCount} open issues (${findings.totals.critica
 ```
 
 ## Phase 7: Report Findings
+
+```javascript
+let iteration = 1;
+```
 
 ```markdown
 ## Review Results - Iteration ${iteration}
@@ -359,7 +420,6 @@ ${findings.bySeverity.low.map(i => `- **${i.file}:${i.line}** - ${i.description}
 ## Phase 8: Iteration Loop (Until Approved)
 
 ```javascript
-let iteration = 1;
 const MAX_ITERATIONS = Number(process.env.REVIEW_MAX_ITERATIONS || 5);
 const MAX_STALLS = Number(process.env.REVIEW_MAX_STALLS || 2);
 let lastHash = null;
@@ -438,7 +498,15 @@ Do NOT auto-fix - just report for the next iteration.`
   lastHash = currentHash;
 
   // Refresh review queue file
-  const refreshedQueue = JSON.parse(fs.readFileSync(reviewQueuePath, 'utf8'));
+  const refreshedQueue = safeReadJson(reviewQueuePath) || {
+    status: 'open',
+    scope: { type: 'diff', files: changedFiles },
+    passes: reviewPasses.map(pass => pass.id),
+    items: [],
+    iteration: 0,
+    stallCount: 0,
+    updatedAt: new Date().toISOString()
+  };
   refreshedQueue.items = findings.items;
   refreshedQueue.passes = reviewPasses.map(pass => pass.id);
   refreshedQueue.iteration = iteration;
@@ -446,7 +514,15 @@ Do NOT auto-fix - just report for the next iteration.`
   refreshedQueue.updatedAt = new Date().toISOString();
 
   if (findings.openCount === 0) {
-    fs.unlinkSync(reviewQueuePath);
+    if (fs.existsSync(reviewQueuePath)) {
+      try {
+        fs.unlinkSync(reviewQueuePath);
+      } catch (error) {
+        if (error.code !== 'ENOENT') {
+          throw error;
+        }
+      }
+    }
     workflowState.updateFlow({
       reviewQueue: {
         path: reviewQueuePath,
@@ -527,8 +603,9 @@ workflowState.updateFlow({
 
 ```javascript
 async function fixIssue(issue) {
+  const fs = require('fs');
   // Read the file
-  const content = await readFile(issue.file);
+  const content = fs.readFileSync(issue.file, 'utf8');
   const lines = content.split('\n');
 
   // Apply fix based on category

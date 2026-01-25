@@ -238,7 +238,7 @@ reviewPasses.map(pass => Task({
 }));
 ```
 
-Iterate until no non-false-positive issues remain (max 3 iterations if running standalone).
+Iterate until no open (non-false-positive) issues remain (max 3 iterations if running standalone).
 
 ## Phase 6: Merge PR
 

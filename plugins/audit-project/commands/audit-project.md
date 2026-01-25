@@ -67,7 +67,12 @@ HAS_DB=$(grep -rq -E "(Sequelize|Prisma|TypeORM)" . 2>/dev/null && echo "true" |
 HAS_API=$(grep -rq -E "(express|fastify|@nestjs)" . 2>/dev/null && echo "true" || echo "false")
 HAS_FRONTEND=$( [ "$(git ls-files | grep -E '\.(tsx|jsx|vue|svelte)$' | wc -l)" -gt 0 ] && echo "true" || echo "false" )
 HAS_BACKEND=$(grep -rq -E "(express|fastify|@nestjs|koa|hapi)" . 2>/dev/null && echo "true" || echo "false")
-HAS_CICD=$([ -d ".github/workflows" ] && echo "true" || echo "false")
+HAS_CICD=$(
+  [ -d ".github/workflows" ] || [ -f ".gitlab-ci.yml" ] || [ -f ".circleci/config.yml" ] || \
+  [ -f "Jenkinsfile" ] || [ -f ".travis.yml" ] || [ -f "azure-pipelines.yml" ] || \
+  [ -f "bitbucket-pipelines.yml" ]
+  && echo "true" || echo "false"
+)
 ```
 
 ### Agent Selection

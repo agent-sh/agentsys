@@ -72,7 +72,7 @@ Every finding is tagged with a certainty level:
 
 This means you can run `/deslop apply` and trust that it won't break things.
 
-### 2. Review Loops Without Limits
+### 2. Review Loops With Safeguards
 
 The review-orchestrator agent runs core review passes (code quality, security, performance, test coverage) plus conditional specialists until there are no open issues. Then it runs deslop-work on its own fixes to catch any AI artifacts it introduced.
 

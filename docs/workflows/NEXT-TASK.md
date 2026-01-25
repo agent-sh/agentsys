@@ -199,7 +199,7 @@ The agent:
 7. Repeats until no open issues remain
 8. Stops early if iteration limit or stall detected; control returns to /next-task for decision
 
-**No iteration limit.** The loop continues until clean.
+The loop continues until clean, but stops early if iteration limits or stall detection trigger.
 
 **Restrictions enforced:**
 - MUST NOT create PR

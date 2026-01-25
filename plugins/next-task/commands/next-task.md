@@ -109,16 +109,25 @@ Implementation → Pre-Review Gates → Review Loop → Delivery Validation
 
 If `review-orchestrator` exits with `reviewResult.blocked: true`, the /next-task orchestrator MUST decide the next action (no user prompt).
 
+Use the review queue file (`flow.reviewQueue.path`) to inspect open items and their `pass` values.
+
 Decision rules:
-1. **If remaining issues are critical/high or security/performance/devops** → re-run review-orchestrator with `--resume`.
-2. **If remaining issues are low risk or likely false positives** → delete the queue file, update flow with an override, and continue to delivery-validator.
+1. **If any open issue is critical/high OR any open issue is from security/performance/devops/database/api/backend/architecture** → re-run review-orchestrator with `--resume`.
+2. **If all open issues are medium/low and only code-quality/test-coverage** → you may override and continue if the issues are non-blocking.
+3. **If unclear** → re-run with `--resume`.
 
 When overriding, update flow:
 ```javascript
 const fs = require('fs');
 
 if (flow.reviewQueue?.path && fs.existsSync(flow.reviewQueue.path)) {
-  fs.unlinkSync(flow.reviewQueue.path);
+  try {
+    fs.unlinkSync(flow.reviewQueue.path);
+  } catch (error) {
+    if (error.code !== 'ENOENT') {
+      throw error;
+    }
+  }
 }
 
 workflowState.updateFlow({
