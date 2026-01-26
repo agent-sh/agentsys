@@ -2,7 +2,7 @@
 
 Complete reference for all agents in awesome-slash.
 
-**TL;DR:** 31 agents across 4 plugins. opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 31 -->
+**TL;DR:** 32 agents across 5 plugins. opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 32 -->
 
 ---
 
@@ -14,6 +14,7 @@ Complete reference for all agents in awesome-slash.
 | audit-project | 10 | [code-quality-reviewer](#code-quality-reviewer), [security-expert](#security-expert), [performance-engineer](#performance-engineer), [test-quality-guardian](#test-quality-guardian), [architecture-reviewer](#architecture-reviewer), [database-specialist](#database-specialist), [api-designer](#api-designer), [frontend-specialist](#frontend-specialist), [backend-specialist](#backend-specialist), [devops-reviewer](#devops-reviewer) |
 | enhance | 7 | [enhancement-orchestrator](#enhancement-orchestrator), [plugin-enhancer](#plugin-enhancer), [agent-enhancer](#agent-enhancer), [claudemd-enhancer](#claudemd-enhancer), [docs-enhancer](#docs-enhancer), [prompt-enhancer](#prompt-enhancer), [enhancement-reporter](#enhancement-reporter) |
 | drift-detect | 1 | [plan-synthesizer](#plan-synthesizer) |
+| repo-map | 1 | [map-validator](#map-validator) |
 
 **Design principle:** Each agent has a single responsibility. Complex work is decomposed into specialized agents that do one thing extremely well, then orchestrated together.
 
@@ -25,7 +26,7 @@ Complete reference for all agents in awesome-slash.
 
 ## Overview
 
-awesome-slash uses 31 specialized agents across 4 plugins. Each agent is optimized for a specific task and assigned a model based on complexity:
+awesome-slash uses 32 specialized agents across 5 plugins. Each agent is optimized for a specific task and assigned a model based on complexity:
 
 | Model | Use Case | Cost |
 |-------|----------|------|
@@ -34,7 +35,7 @@ awesome-slash uses 31 specialized agents across 4 plugins. Each agent is optimiz
 | haiku | Mechanical execution, no judgment | Low |
 
 **Agent types:**
-- **File-based agents** (21) - Defined in `plugins/*/agents/*.md` with frontmatter <!-- AGENT_COUNT_FILE_BASED: 21 -->
+- **File-based agents** (22) - Defined in `plugins/*/agents/*.md` with frontmatter <!-- AGENT_COUNT_FILE_BASED: 22 -->
 - **Role-based agents** (10) - Defined inline via Task tool with specialized prompts <!-- AGENT_COUNT_ROLE_BASED: 10 -->
 
 ---
@@ -488,6 +489,26 @@ awesome-slash uses 31 specialized agents across 4 plugins. Each agent is optimiz
 - Read, Write
 
 **Why opus:** Semantic matching requires deep understanding. "user authentication" must match `auth/`, `login.js`, `session.ts`. Opus handles this.
+
+---
+
+## repo-map Plugin Agent
+
+### map-validator
+
+**Model:** haiku
+**Purpose:** Validate repo-map output for obvious errors.
+
+**What it does:**
+1. Verifies map isn't empty
+2. Flags suspiciously small symbol counts
+3. Checks for missing language detection
+4. Returns single-line status
+
+**Tools available:**
+- Read
+
+**Why haiku:** Validation is deterministic and lightweight.
 
 ---
 

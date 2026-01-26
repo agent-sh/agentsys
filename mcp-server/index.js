@@ -28,6 +28,7 @@ const workflowState = require('../lib/state/workflow-state.js');
 const { runPipeline, formatHandoffPrompt, CERTAINTY, THOROUGHNESS } = require('../lib/patterns/pipeline.js');
 const crossPlatform = require('../lib/cross-platform/index.js');
 const enhance = require('../lib/enhance/index.js');
+const repoMap = require('../lib/repo-map');
 
 // Plugin root for relative paths
 const PLUGIN_ROOT = process.env.PLUGIN_ROOT || path.join(__dirname, '..');
@@ -259,6 +260,42 @@ const TOOLS = [
         compact: {
           type: 'boolean',
           description: 'Use compact output format (default: true)'
+        }
+      },
+      required: []
+    }
+  },
+  {
+    name: 'repo_map',
+    description: 'Generate or update cached AST repo map',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        action: {
+          type: 'string',
+          enum: ['init', 'update', 'status', 'rebuild'],
+          description: 'Action to perform (default: status)'
+        },
+        includeDocs: {
+          type: 'boolean',
+          description: 'Include documentation analysis (default: true)'
+        },
+        docsDepth: {
+          type: 'string',
+          enum: ['quick', 'thorough'],
+          description: 'Docs analysis depth (default: thorough)'
+        },
+        full: {
+          type: 'boolean',
+          description: 'Force full rebuild on update'
+        },
+        force: {
+          type: 'boolean',
+          description: 'Force rebuild on init'
+        },
+        cwd: {
+          type: 'string',
+          description: 'Repository root (default: current directory)'
         }
       },
       required: []
@@ -921,6 +958,49 @@ const toolHandlers = {
     } catch (error) {
       console.error('Error during enhance analysis:', error);
       return crossPlatform.errorResponse('Enhance analysis failed. Check server logs.');
+    }
+  },
+
+  async repo_map({ action, includeDocs, docsDepth, full, force, cwd }) {
+    try {
+      const basePath = cwd || process.cwd();
+      const act = (action || 'status').toLowerCase();
+
+      let result;
+      if (act === 'init' || act === 'rebuild') {
+        result = await repoMap.init(basePath, {
+          force: act === 'rebuild' || force === true,
+          includeDocs: includeDocs !== false,
+          docsDepth: docsDepth || 'thorough'
+        });
+      } else if (act === 'update') {
+        result = await repoMap.update(basePath, { full: full === true });
+      } else if (act === 'status') {
+        result = repoMap.status(basePath);
+      } else {
+        return crossPlatform.errorResponse('Invalid action. Use init, update, status, or rebuild.');
+      }
+
+      if (result?.success === false) {
+        return crossPlatform.errorResponse(result.error || 'repo-map failed', {
+          hint: result.installSuggestion
+        });
+      }
+
+      if (act === 'status' && result.exists === false) {
+        return crossPlatform.successResponse({
+          exists: false,
+          message: 'No repo-map found. Run repo_map action=init to generate one.'
+        });
+      }
+
+      return crossPlatform.successResponse({
+        action: act,
+        result
+      });
+    } catch (error) {
+      console.error('Error during repo-map:', error);
+      return crossPlatform.errorResponse('Repo-map failed. Check server logs.');
     }
   }
 };

@@ -1,6 +1,6 @@
 {
   "name": "awesome-slash",
-  "description": "7 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, and documentation sync",
+  "description": "8 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, and repo mapping",
   "version": "3.1.0",
   "owner": {
     "name": "Avi Fenesh",
@@ -57,12 +57,19 @@
       "description": "Standalone documentation sync: find outdated refs, update CHANGELOG, flag stale examples based on code changes",
       "version": "3.1.0",
       "category": "development"
+    },
+    {
+      "name": "repo-map",
+      "source": "./plugins/repo-map",
+      "description": "AST-based repository map generation using ast-grep with incremental updates for faster drift analysis",
+      "version": "3.1.0",
+      "category": "development"
     }
   ],
   "mcpServer": {
     "name": "awesome-slash",
     "source": "./mcp-server",
     "description": "Cross-platform MCP server with 3-phase slop detection pipeline and enhance analyzers",
-    "tools": ["workflow_status", "workflow_start", "workflow_resume", "workflow_abort", "task_discover", "review_code", "slop_detect", "enhance_analyze"]
+    "tools": ["workflow_status", "workflow_start", "workflow_resume", "workflow_abort", "task_discover", "review_code", "slop_detect", "enhance_analyze", "repo_map"]
   }
 }

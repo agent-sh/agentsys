@@ -1,0 +1,166 @@
+/**
+ * ast-grep installation detection and helpers
+ * 
+ * @module lib/repo-map/installer
+ */
+
+'use strict';
+
+const { execSync, exec } = require('child_process');
+const { promisify } = require('util');
+
+const execAsync = promisify(exec);
+
+// Commands to try (sg is the common alias)
+const AST_GREP_COMMANDS = ['sg', 'ast-grep'];
+
+/**
+ * Check if ast-grep is installed
+ * @returns {Promise<{found: boolean, version?: string, path?: string, command?: string}>}
+ */
+async function checkInstalled() {
+  for (const cmd of AST_GREP_COMMANDS) {
+    try {
+      // Try to get version
+      const { stdout } = await execAsync(`${cmd} --version`, {
+        timeout: 5000,
+        windowsHide: true
+      });
+      
+      const version = stdout.trim().replace(/^ast-grep\s*/i, '');
+      
+      // Try to get path
+      let cmdPath = null;
+      try {
+        const whereCmd = process.platform === 'win32' ? 'where' : 'which';
+        const { stdout: pathOut } = await execAsync(`${whereCmd} ${cmd}`, {
+          timeout: 5000,
+          windowsHide: true
+        });
+        cmdPath = pathOut.trim().split('\n')[0];
+      } catch {
+        // Path lookup failed, but command works
+      }
+      
+      return {
+        found: true,
+        version,
+        path: cmdPath,
+        command: cmd
+      };
+    } catch {
+      // This command not found, try next
+      continue;
+    }
+  }
+  
+  return { found: false };
+}
+
+/**
+ * Check if ast-grep is installed (sync version)
+ * @returns {{found: boolean, version?: string, command?: string}}
+ */
+function checkInstalledSync() {
+  for (const cmd of AST_GREP_COMMANDS) {
+    try {
+      const stdout = execSync(`${cmd} --version`, {
+        timeout: 5000,
+        windowsHide: true,
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe']
+      });
+      
+      const version = stdout.trim().replace(/^ast-grep\s*/i, '');
+      return { found: true, version, command: cmd };
+    } catch {
+      continue;
+    }
+  }
+  
+  return { found: false };
+}
+
+/**
+ * Get the working ast-grep command
+ * @returns {string|null}
+ */
+function getCommand() {
+  const result = checkInstalledSync();
+  return result.found ? result.command : null;
+}
+
+/**
+ * Get installation instructions for ast-grep
+ * @returns {string}
+ */
+function getInstallInstructions() {
+  return `ast-grep (sg) is required for repo-map functionality.
+
+Install using one of these methods:
+
+  npm:      npm install -g @ast-grep/cli
+  pip:      pip install ast-grep-cli
+  brew:     brew install ast-grep
+  cargo:    cargo install ast-grep --locked
+  scoop:    scoop install main/ast-grep
+
+After installation, verify with: sg --version
+
+Documentation: https://ast-grep.github.io/`;
+}
+
+/**
+ * Get a short install suggestion (one line)
+ * @returns {string}
+ */
+function getShortInstallSuggestion() {
+  if (process.platform === 'win32') {
+    return 'Install ast-grep: npm i -g @ast-grep/cli (or scoop install ast-grep)';
+  } else if (process.platform === 'darwin') {
+    return 'Install ast-grep: brew install ast-grep (or npm i -g @ast-grep/cli)';
+  } else {
+    return 'Install ast-grep: npm i -g @ast-grep/cli (or pip install ast-grep-cli)';
+  }
+}
+
+/**
+ * Get minimum required version
+ * @returns {string}
+ */
+function getMinimumVersion() {
+  return '0.20.0'; // Require at least this version for JSON output support
+}
+
+/**
+ * Check if installed version meets minimum requirements
+ * @param {string} version - Installed version
+ * @returns {boolean}
+ */
+function meetsMinimumVersion(version) {
+  if (!version) return false;
+  
+  // Parse version (e.g., "0.25.0" or "0.25.0-beta.1")
+  const match = version.match(/^(\d+)\.(\d+)\.(\d+)/);
+  if (!match) return false;
+  
+  const [, major, minor, patch] = match.map(Number);
+  const [reqMajor, reqMinor, reqPatch] = getMinimumVersion().split('.').map(Number);
+  
+  if (major > reqMajor) return true;
+  if (major < reqMajor) return false;
+  if (minor > reqMinor) return true;
+  if (minor < reqMinor) return false;
+  return patch >= reqPatch;
+}
+
+module.exports = {
+  checkInstalled,
+  checkInstalledSync,
+  getCommand,
+  getInstallInstructions,
+  getShortInstallSuggestion,
+  getMinimumVersion,
+  meetsMinimumVersion,
+  AST_GREP_COMMANDS
+};

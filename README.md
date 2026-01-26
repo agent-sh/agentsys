@@ -14,7 +14,7 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 
 | Section | What's there |
 |---------|--------------|
-| [Commands](#commands) | All 7 commands with jump links |
+| [Commands](#commands) | All 8 commands with jump links |
 | [What This Does](#what-this-project-does) | The problem and how this solves it |
 | [What's Different](#what-makes-this-different) | Why this isn't just another AI tool |
 | [Design Philosophy](#design-philosophy) | The thinking behind the architecture |
@@ -33,6 +33,7 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 | [`/deslop`](#deslop) | Finds and removes debug code, TODOs, AI artifacts | [→](#deslop) |
 | [`/audit-project`](#audit-project) | Multi-agent code review until issues resolved | [→](#audit-project) |
 | [`/drift-detect`](#drift-detect) | Compares your docs to actual code state | [→](#drift-detect) |
+| [`/repo-map`](#repo-map) | Builds a cached AST repo map for fast analysis | [→](#repo-map) |
 | [`/enhance`](#enhance) | Analyzes prompts, plugins, docs for improvements | [→](#enhance) |
 | [`/sync-docs`](#sync-docs) | Syncs documentation with code changes | [→](#sync-docs) |
 
@@ -420,6 +421,32 @@ Multi-agent collection wastes tokens on coordination. JavaScript collectors are 
 /drift-detect              # Full analysis
 /drift-detect --depth quick  # Quick scan
 ```
+
+---
+
+### /repo-map
+
+**Purpose:** Builds an AST-based map of symbols and imports for fast repo analysis.
+
+**What it generates:**
+
+- Cached file→symbols map (exports, functions, classes)
+- Import graph for dependency hints
+- Optional docs analysis (features, checkboxes)
+
+**Why it matters:**
+
+Tools like `/drift-detect` and planners can use the map instead of re-scanning the repo every time.
+
+**Usage:**
+
+```bash
+/repo-map init        # First-time map generation
+/repo-map update      # Incremental update
+/repo-map status      # Check freshness
+```
+
+**Prerequisite:** Install ast-grep (`sg`) when prompted.
 
 ---
 

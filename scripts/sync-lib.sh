@@ -41,6 +41,7 @@ PLUGINS=(
   "next-task"
   "ship"
   "sync-docs"
+  "repo-map"
 )
 
 for plugin in "${PLUGINS[@]}"; do

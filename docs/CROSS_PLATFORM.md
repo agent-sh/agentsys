@@ -68,10 +68,11 @@ claude --plugin-dir /path/to/awesome-slash/plugins/next-task
 - `/deslop` - AI slop cleanup
 - `/audit-project` - Multi-agent code review
 - `/drift-detect` - Plan drift detection
+- `/repo-map` - AST repo map generation
 - `/enhance` - Enhancement analyzer suite
 - `/sync-docs` - Documentation sync
 
-### Available Agents (29 Total)
+### Available Agents (22 Total)
 
 **next-task: Core Workflow (13 agents)**
 
@@ -111,6 +112,12 @@ claude --plugin-dir /path/to/awesome-slash/plugins/next-task
 
 *Data collection uses JavaScript collectors (77% token reduction vs multi-agent)*
 
+**repo-map: Repo Mapping (1 agent)**
+
+| Agent | Model | Purpose |
+|-------|-------|---------|
+| map-validator | haiku | Validate repo-map output |
+
 ## OpenCode Integration
 
 ### Option 1: npm Global Install (Recommended)
@@ -122,7 +129,7 @@ awesome-slash  # Select option 2 for OpenCode
 
 This installs:
 - MCP server for tools (`workflow_status`, `slop_detect`, etc.)
-- Slash commands (`/next-task`, `/ship`, `/deslop`, `/audit-project`, `/sync-docs`)
+- Slash commands (`/next-task`, `/ship`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-map`, `/sync-docs`)
 - **Native OpenCode plugin** with advanced features:
 
 ### Native Plugin Features
@@ -220,7 +227,7 @@ npm install -g awesome-slash@latest
 awesome-slash  # Select option 3 for Codex CLI
 ```
 
-This installs MCP server config in `~/.codex/config.toml` and skills (`$next-task`, `$ship`, `$deslop`, `$audit-project`, `$sync-docs`).
+This installs MCP server config in `~/.codex/config.toml` and skills (`$next-task`, `$ship`, `$deslop`, `$audit-project`, `$repo-map`, `$sync-docs`).
 
 ### Option 2: Manual MCP Config
 
@@ -266,6 +273,7 @@ When using the MCP server integration, these tools become available:
 | `review_code` | Run pattern-based code review on changed files |
 | `slop_detect` | Detect AI slop with certainty levels (HIGH/MEDIUM/LOW) |
 | `enhance_analyze` | Analyze plugins, agents, docs, prompts for improvements |
+| `repo_map` | Generate or update cached AST repo map |
 
 ## Shared Libraries
 
@@ -282,6 +290,7 @@ lib/
 │   └── slop-analyzers.js      # Multi-pass analyzers (MEDIUM)
 ├── platform/                  # Project type detection
 ├── drift-detect/             # Drift detection collectors
+├── repo-map/                 # AST repo map generation
 ├── schemas/                   # JSON schemas for validation
 ├── sources/                   # Task source discovery
 ├── state/                     # Workflow state management

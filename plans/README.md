@@ -33,6 +33,12 @@
 **Architecture Principle:**  
 Commands stay as explicit orchestrators (scripts). Skills provide loadable knowledge that agents consume. Skills don't replace executables.
 
+### Repo Map (`repo-map/`)
+
+**Status**: Active  
+**Goal**: AST-based repo map plugin  
+**Start Here**: `repo-map/OVERVIEW.md`
+
 ---
 
 ## Directory Structure

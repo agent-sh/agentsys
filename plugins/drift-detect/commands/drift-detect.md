@@ -29,6 +29,15 @@ Parse from $ARGUMENTS:
 ```javascript
 const pluginPath = '${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/');
 const collectors = require(`${pluginPath}/lib/drift-detect/collectors.js`);
+const repoMap = require(`${pluginPath}/lib/repo-map`);
+
+// Suggest repo-map if missing or stale
+const mapStatus = repoMap.status(process.cwd());
+if (!mapStatus.exists) {
+  console.log('Repo map not found. For faster, more accurate drift detection, run: /repo-map init');
+} else if (mapStatus.status?.staleness?.isStale) {
+  console.log(`Repo map is stale (${mapStatus.status.staleness.reason}). Consider: /repo-map update`);
+}
 
 const args = '$ARGUMENTS'.split(' ').filter(Boolean);
 const options = {

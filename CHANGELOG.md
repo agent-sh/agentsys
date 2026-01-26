@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Repo Map Plugin** - AST-based repository map generation using ast-grep with incremental updates and cached symbol/import maps
+- **/repo-map Command** - Initialize, update, and check status of repo maps (with optional docs analysis)
+- **repo_map MCP Tool** - Cross-platform repo-map generation via MCP
+- **map-validator Agent** - Lightweight validation of repo-map output
+
+### Changed
+- **/ship** - Automatically updates repo-map after merge when a map exists
+- **/drift-detect** - Suggests repo-map init/update when missing or stale
+- **Workflow Agents** - Exploration, planning, and implementation agents check for repo-map if available
+
 ## [3.1.0] - 2026-01-26
 
 ### Added
@@ -32,7 +43,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **Review Passes** - Integrated security/performance/test coverage passes and conditional specialists for audit/review workflows
-
 ## [3.0.2] - 2025-01-24
 
 ### Fixed

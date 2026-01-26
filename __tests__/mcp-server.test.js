@@ -15,7 +15,14 @@ jest.mock('fs', () => ({
     writeFile: jest.fn(),
     mkdir: jest.fn(),
     readdir: jest.fn(),
-  }
+    access: jest.fn()
+  },
+  existsSync: jest.fn(() => false),
+  readFileSync: jest.fn(),
+  writeFileSync: jest.fn(),
+  mkdirSync: jest.fn(),
+  unlinkSync: jest.fn(),
+  rmSync: jest.fn()
 }));
 
 // Import after mocks are set up
@@ -280,6 +287,20 @@ function test() {
     expect(parsed.filesReviewed).toBe(2);
     expect(parsed.totalIssues).toBe(2);
     expect(parsed.findings).toHaveLength(2);
+  });
+});
+
+describe('MCP Server - repo_map', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('should return exists false when no repo-map present', async () => {
+    const result = await toolHandlers.repo_map({ action: 'status' });
+    const parsed = JSON.parse(result.content[0].text);
+
+    expect(parsed.exists).toBe(false);
+    expect(parsed.message).toContain('No repo-map found');
   });
 });
 

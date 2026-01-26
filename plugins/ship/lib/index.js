@@ -25,6 +25,7 @@ const customHandler = require('./sources/custom-handler');
 const policyQuestions = require('./sources/policy-questions');
 const crossPlatform = require('./cross-platform');
 const enhance = require('./enhance');
+const repoMap = require('./repo-map');
 
 /**
  * Platform detection and verification utilities
@@ -226,6 +227,7 @@ module.exports = {
   sources,
   xplat,
   enhance,
+  repoMap,
 
   // Direct module access for backward compatibility
   detectPlatform,

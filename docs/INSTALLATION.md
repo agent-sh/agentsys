@@ -28,6 +28,7 @@ Add the marketplace and install plugins directly in Claude Code:
 /plugin install deslop@awesome-slash
 /plugin install audit-project@awesome-slash
 /plugin install drift-detect@awesome-slash
+/plugin install repo-map@awesome-slash
 /plugin install enhance@awesome-slash
 /plugin install sync-docs@awesome-slash
 ```
@@ -118,6 +119,7 @@ You should see commands:
 - `/deslop` - AI slop cleanup
 - `/audit-project` - Multi-agent code review
 - `/drift-detect` - Plan drift detection
+- `/repo-map` - AST repo map generation
 - `/enhance` - Enhancement analyzer suite
 - `/sync-docs` - Documentation sync
 
@@ -138,6 +140,10 @@ Type the command name and it should be recognized:
   ```
 
 - **Node.js 18+** - For library functions
+
+### Optional
+
+- **ast-grep (`sg`)** - Required for `/repo-map` (install when prompted)
   ```bash
   node --version
   ```
