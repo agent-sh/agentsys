@@ -1,0 +1,22 @@
+{
+  "name": "repo-map",
+  "version": "3.1.0",
+  "description": "AST-based repository map generator using ast-grep for symbol and import extraction with incremental updates",
+  "author": {
+    "name": "Avi Fenesh",
+    "email": "[email protected]",
+    "url": "https://github.com/avifenesh"
+  },
+  "homepage": "https://github.com/avifenesh/awesome-slash#repo-map",
+  "repository": "https://github.com/avifenesh/awesome-slash",
+  "license": "MIT",
+  "keywords": [
+    "repo-map",
+    "ast",
+    "symbols",
+    "drift-detect",
+    "dependency-graph",
+    "documentation",
+    "analysis"
+  ]
+}

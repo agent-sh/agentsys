@@ -28,6 +28,7 @@ You shouldn't have to repeat the same requests every session. These commands han
 | `/deslop` | Clean up debugging code, TODOs | Fast codebase scan |
 | `/audit-project` | Multi-agent code review | Thorough analysis |
 | `/drift-detect` | Compare docs to actual code | Plan drift detection |
+| `/repo-map` | Build cached AST repo map | Faster analysis & symbol lookup |
 | `/enhance` | Analyze prompts, plugins, docs | Quality improvement |
 | `/sync-docs` | Sync docs with code changes | Documentation sync |
 

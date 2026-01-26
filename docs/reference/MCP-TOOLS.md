@@ -2,7 +2,7 @@
 
 Complete reference for MCP (Model Context Protocol) tools exposed by awesome-slash.
 
-**TL;DR:** 8 tools that work on Claude Code, OpenCode, and Codex CLI. Same API, different state directories.
+**TL;DR:** 9 tools that work on Claude Code, OpenCode, and Codex CLI. Same API, different state directories.
 
 ---
 
@@ -18,6 +18,7 @@ Complete reference for MCP (Model Context Protocol) tools exposed by awesome-sla
 | [review_code](#review_code) | [→](#review_code) | Pattern-based review |
 | [slop_detect](#slop_detect) | [→](#slop_detect) | Find AI artifacts |
 | [enhance_analyze](#enhance_analyze) | [→](#enhance_analyze) | Improve prompts/plugins |
+| [repo_map](#repo_map) | [→](#repo_map) | Build AST repo map |
 
 **Design principle:** MCP provides a standard interface. One implementation serves all platforms. Tools return structured data; agents decide what to do with it.
 
@@ -30,7 +31,7 @@ Complete reference for MCP (Model Context Protocol) tools exposed by awesome-sla
 
 ## Overview
 
-The MCP server (`mcp-server/index.js`) exposes 8 tools that work across all supported platforms:
+The MCP server (`mcp-server/index.js`) exposes 9 tools that work across all supported platforms:
 - Claude Code
 - OpenCode
 - Codex CLI
@@ -285,6 +286,37 @@ Analyze plugins, agents, docs, or prompts for enhancement opportunities.
 ```
 
 **Use case:** Improve prompt and plugin quality.
+
+---
+
+### repo_map
+
+Generate or update a cached AST repo map for symbol and import lookups.
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| action | string | No | `init`, `update`, `status`, `rebuild` (default: status) |
+| includeDocs | boolean | No | Include docs analysis (default: true) |
+| docsDepth | string | No | `quick` or `thorough` (default: thorough) |
+| full | boolean | No | Force full rebuild on update |
+| force | boolean | No | Force rebuild on init |
+| cwd | string | No | Repository root (default: current directory) |
+
+**Returns:**
+
+```json
+{
+  "action": "init",
+  "result": {
+    "success": true,
+    "summary": { "files": 142, "symbols": 847, "languages": ["typescript"] }
+  }
+}
+```
+
+**Use case:** Provide fast, accurate context for drift detection and planning.
 
 ---
 

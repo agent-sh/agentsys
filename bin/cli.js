@@ -135,7 +135,7 @@ function installForClaude() {
     }
 
     // PLUGINS_ARRAY - Install or update plugins
-    const plugins = ['next-task', 'ship', 'deslop', 'audit-project', 'drift-detect', 'enhance', 'sync-docs'];
+    const plugins = ['next-task', 'ship', 'deslop', 'audit-project', 'drift-detect', 'enhance', 'sync-docs', 'repo-map'];
     for (const plugin of plugins) {
       console.log(`  Installing ${plugin}...`);
       try {
@@ -241,7 +241,8 @@ function installForOpenCode(installDir) {
     ['sync-docs.md', 'sync-docs', 'sync-docs.md'],
     ['audit-project.md', 'audit-project', 'audit-project.md'],
     ['ship.md', 'ship', 'ship.md'],
-    ['drift-detect.md', 'drift-detect', 'drift-detect.md']
+    ['drift-detect.md', 'drift-detect', 'drift-detect.md'],
+    ['repo-map.md', 'repo-map', 'repo-map.md']
   ];
 
   // Helper function to transform content for OpenCode
@@ -303,7 +304,7 @@ function installForOpenCode(installDir) {
   fs.mkdirSync(agentsDir, { recursive: true });
 
   console.log('  Installing agents for OpenCode...');
-  const pluginDirs = ['next-task', 'enhance', 'audit-project', 'drift-detect', 'ship', 'deslop'];
+  const pluginDirs = ['next-task', 'enhance', 'audit-project', 'drift-detect', 'ship', 'deslop', 'repo-map'];
   let agentCount = 0;
 
   for (const pluginName of pluginDirs) {
@@ -381,7 +382,7 @@ function installForOpenCode(installDir) {
   console.log(`   Agents: ${agentsDir}`);
   console.log(`   Plugin: ${pluginDir}`);
   console.log('   Access via: /next-task, /ship, /deslop, /audit-project, /drift-detect, /enhance, /sync-docs');
-  console.log('   MCP tools: workflow_status, workflow_start, workflow_resume, task_discover, review_code, slop_detect, enhance_analyze');
+  console.log('   MCP tools: workflow_status, workflow_start, workflow_resume, task_discover, review_code, slop_detect, enhance_analyze, repo_map');
   console.log('   Native features: Auto-thinking selection, workflow enforcement, session compaction\n');
   return true;
 }
@@ -485,6 +486,8 @@ AI_STATE_DIR = ".codex"
       'Use when user asks to "review my code", "check for issues", "run code review", "analyze PR quality". Multi-agent iterative review that loops until all critical/high issues are resolved.'],
     ['drift-detect', 'drift-detect', 'drift-detect.md',
       'Use when user asks to "check plan drift", "compare docs to code", "verify roadmap", "scan for reality gaps". Analyzes documentation vs actual code to detect drift and outdated plans.'],
+    ['repo-map', 'repo-map', 'repo-map.md',
+      'Use when user asks to "create repo map", "generate repo map", "update repo map", "repo map status", "map symbols". Builds and updates AST-based repo map using ast-grep.'],
     ['delivery-approval', 'next-task', 'delivery-approval.md',
       'Use when user asks to "validate delivery", "approve for shipping", "check if ready to ship", "verify task completion". Autonomous validation that tests pass, build succeeds, and requirements are met.'],
     ['sync-docs', 'sync-docs', 'sync-docs.md',
@@ -536,7 +539,7 @@ AI_STATE_DIR = ".codex"
   console.log(`   Config: ${configPath}`);
   console.log(`   Skills: ${skillsDir}`);
   console.log('   Access via: $next-task, $ship, $deslop, etc.');
-  console.log('   MCP tools: workflow_status, workflow_start, workflow_resume, task_discover, review_code, slop_detect, enhance_analyze\n');
+  console.log('   MCP tools: workflow_status, workflow_start, workflow_resume, task_discover, review_code, slop_detect, enhance_analyze, repo_map\n');
   return true;
 }
 

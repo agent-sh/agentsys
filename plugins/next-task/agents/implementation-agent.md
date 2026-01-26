@@ -56,6 +56,19 @@ console.log(`Implementing: ${plan.title}`);
 console.log(`Steps: ${plan.steps.length}`);
 ```
 
+## Phase 1.5: Use Repo Map for Symbol Locations (If Available)
+
+```javascript
+const repoMap = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/repo-map');
+const map = repoMap.load(process.cwd());
+
+if (map) {
+  console.log(`Repo map loaded: ${map.stats.totalSymbols} symbols`);
+} else {
+  console.log('Repo map not found. Consider /repo-map init for faster lookups.');
+}
+```
+
 ## Phase 2: Pre-Implementation Setup
 
 Ensure clean state before starting:

@@ -21,6 +21,21 @@ console.log(`Exploring for: #${task.id} - ${task.title}`);
 console.log(`Description: ${task.description}`);
 ```
 
+## Phase 1.5: Load Repo Map (If Available)
+
+Use the cached repo-map for faster symbol discovery and dependency hints:
+
+```javascript
+const repoMap = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/repo-map');
+const map = repoMap.load(process.cwd());
+
+if (!map) {
+  console.log('Repo map not found. Consider: /repo-map init');
+} else {
+  console.log(`Repo map loaded: ${Object.keys(map.files).length} files, ${map.stats.totalSymbols} symbols`);
+}
+```
+
 ## Phase 2: Extract Keywords
 
 Identify key terms from the task:

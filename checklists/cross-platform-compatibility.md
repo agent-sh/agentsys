@@ -265,14 +265,14 @@ Plugin loaded via marketplace
 ```
 ~/.awesome-slash/                      # Package copy
 ~/.opencode/commands/awesome-slash/    # Transformed commands
-~/.opencode/agents/                    # Transformed agents (21 files)
+~/.opencode/agents/                    # Transformed agents (22 files)
 ~/.config/opencode/opencode.json       # MCP config added
 ```
 
 ### Codex CLI
 ```
 ~/.awesome-slash/           # Package copy
-~/.codex/skills/            # Transformed skills (8 directories)
+~/.codex/skills/            # Transformed skills (9 directories)
 ~/.codex/config.toml        # MCP config added
 ```
 

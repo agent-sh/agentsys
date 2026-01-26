@@ -19,6 +19,7 @@ Action-specific checklists to ensure consistency across the codebase.
 | [new-lib-module.md](./new-lib-module.md) | Adding a new library module |
 | [update-mcp.md](./update-mcp.md) | Adding/updating MCP server tools |
 | [update-opencode-plugin.md](./update-opencode-plugin.md) | Updating native OpenCode plugin |
+| [repo-map.md](./repo-map.md) | Repo-map plugin changes |
 
 ## Every Checklist Includes
 

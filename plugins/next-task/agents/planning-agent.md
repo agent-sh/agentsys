@@ -44,6 +44,19 @@ console.log(`Planning for: #${task.id} - ${task.title}`);
 console.log(`Key files identified: ${explorationResults?.keyFiles?.join(', ')}`);
 ```
 
+## Phase 1.5: Check Repo Map (If Available)
+
+Use repo-map to identify dependencies and exports before writing the plan:
+
+```javascript
+const repoMap = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/repo-map');
+const map = repoMap.load(process.cwd());
+
+if (!map) {
+  console.log('Repo map missing. Suggest /repo-map init if needed.');
+}
+```
+
 ## Phase 2: Analyze Requirements
 
 Deeply understand what needs to be done:

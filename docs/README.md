@@ -42,7 +42,7 @@ AI models can write code. The bottleneck is everything else—picking tasks, man
 
 | Document | Description |
 |----------|-------------|
-| [reference/AGENTS.md](./reference/AGENTS.md) | All 31 agents: purpose, model, tools, restrictions. <!-- AGENT_COUNT_TOTAL: 31 --> |
+| [reference/AGENTS.md](./reference/AGENTS.md) | All 32 agents: purpose, model, tools, restrictions. <!-- AGENT_COUNT_TOTAL: 32 --> |
 | [reference/SLOP-PATTERNS.md](./reference/SLOP-PATTERNS.md) | All detection patterns by language, severity, auto-fix. |
 | [reference/MCP-TOOLS.md](./reference/MCP-TOOLS.md) | MCP server tools: parameters, returns, platform config. |
 
@@ -66,6 +66,7 @@ AI models can write code. The bottleneck is everything else—picking tasks, man
 | `/deslop` | 3-phase slop detection and cleanup |
 | `/audit-project` | Multi-agent code review |
 | `/drift-detect` | Compare docs to actual code |
+| `/repo-map` | Build cached AST repo map |
 | `/enhance` | Analyze prompts, plugins, docs |
 | `/sync-docs` | Sync docs with code changes |
 
@@ -76,6 +77,7 @@ AI models can write code. The bottleneck is everything else—picking tasks, man
 | `tasks.json` | `{state-dir}/` | Which task is active |
 | `flow.json` | `{state-dir}/` (worktree) | Which phase you're in |
 | `preference.json` | `{state-dir}/sources/` | Cached task source preference |
+| `repo-map.json` | `{state-dir}/` | Cached AST repo map |
 
 State directories by platform:
 - Claude Code: `.claude/`
