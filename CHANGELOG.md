@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.3-rc.1] - 2026-01-26
+
+### Added
+- **Queue-Based Review Loop** - Multi-pass review with resume support, stall detection, and decision gate overrides in /next-task and /audit-project
+- **CI Consistency Validation** - New repository validator for version/mapping/agent-count alignment in `npm run validate`
+- **Pre-Release Channels** - `rc`/`beta` tag support for npm dist-tags and GitHub prereleases
+
+### Changed
+- **Review Passes** - Integrated security/performance/test coverage passes and conditional specialists for audit/review workflows
+
 ## [3.0.2] - 2025-01-24
 
 ### Fixed
@@ -1021,4 +1031,3 @@ Initial release with full feature set.
 - MIT License
 - Security policy
 - Contributing guidelines
-
