@@ -205,7 +205,7 @@ awesome-slash uses 31 specialized agents across 4 plugins. Each agent is optimiz
 **Purpose:** Coordinate multi-agent review until clean.
 
 **What it does:**
-1. Launches core review passes in parallel:
+1. Launches core review passes (parallel when nested subagents are supported; otherwise runs in-agent passes in series on Claude Code):
    - Code quality (includes error handling)
    - Security
    - Performance
@@ -214,12 +214,12 @@ awesome-slash uses 31 specialized agents across 4 plugins. Each agent is optimiz
 3. Aggregates findings by severity
 4. Writes a review queue file in the platform state dir
 5. Fixes all non-false-positive issues
-6. Runs deslop-work after each iteration
+6. Runs a deslop pass after each iteration (deslop-work when nested subagents are supported; inline slop scan on Claude Code)
 7. Loops until no open issues remain
 8. Stops early on iteration limit or stall and returns control for decision
 
 **Tools available:**
-- Task (for sub-agents)
+- Task (only when nested subagents are supported)
 - Bash (git)
 - Read, Write, Edit
 

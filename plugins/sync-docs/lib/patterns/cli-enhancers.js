@@ -470,16 +470,12 @@ function runComplexityAnalysis(repoPath, targetFiles, options = {}) {
   }
 
   const results = [];
-  const maxFiles = options.maxFiles || 200;
-  const jsFiles = targetFiles.filter(file => file.match(/\.[jt]sx?$/));
-  if (jsFiles.length === 0) {
-    return null;
-  }
-  const filesToAnalyze = jsFiles.slice(0, maxFiles);
 
   // escomplex works on individual files
-  for (const file of filesToAnalyze) {
-    
+  for (const file of targetFiles) {
+    // Only analyze JS/TS files
+    if (!file.match(/\.[jt]sx?$/)) continue;
+
     const filePath = path.isAbsolute(file) ? file : path.join(repoPath, file);
 
     try {

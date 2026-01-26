@@ -1132,8 +1132,11 @@ function hasLanguage(language) {
 function isFileExcluded(filePath, excludePatterns) {
   if (!excludePatterns || excludePatterns.length === 0) return false;
 
+  // Normalize Windows backslashes to forward slashes for consistent pattern matching
+  const normalizedPath = filePath.replace(/\\/g, '/');
+
   // Create cache key using JSON.stringify for collision-resistant format
-  const cacheKey = JSON.stringify([filePath, excludePatterns]);
+  const cacheKey = JSON.stringify([normalizedPath, excludePatterns]);
 
   // Check cache first (O(1) lookup)
   const cached = _excludeResultCache.get(cacheKey);
@@ -1142,7 +1145,7 @@ function isFileExcluded(filePath, excludePatterns) {
   // Compute result
   const result = excludePatterns.some(pattern => {
     const regex = getCompiledPattern(pattern);
-    return regex.test(filePath);
+    return regex.test(normalizedPath);
   });
 
   // Store in cache with FIFO eviction

@@ -657,7 +657,8 @@ await Task({
   prompt: `Orchestrate deep review. Fix all non-false-positive issues. Max ${policy.maxReviewIterations || 5} iterations.`
 });
 
-// Runs deslop-work after each iteration to clean fixes
+// Runs a deslop pass after each iteration to clean fixes.
+// On Claude Code (no nested subagents), review-orchestrator performs inline passes.
 // → SubagentStop hook triggers delivery validation when approved (or returns control if blocked)
 ```
 

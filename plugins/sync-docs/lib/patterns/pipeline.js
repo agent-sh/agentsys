@@ -42,47 +42,6 @@ const THOROUGHNESS = {
   DEEP: 'deep'
 };
 
-function createFileAccess(repoPath) {
-  const contentCache = new Map();
-  const linesCache = new Map();
-
-  function getFilePath(file) {
-    return path.isAbsolute(file) ? file : path.join(repoPath, file);
-  }
-
-  function getContent(file) {
-    const filePath = getFilePath(file);
-    if (contentCache.has(filePath)) {
-      return contentCache.get(filePath);
-    }
-    try {
-      const content = fs.readFileSync(filePath, 'utf8');
-      contentCache.set(filePath, content);
-      return content;
-    } catch {
-      contentCache.set(filePath, null);
-      return null;
-    }
-  }
-
-  function getLines(file) {
-    const filePath = getFilePath(file);
-    if (linesCache.has(filePath)) {
-      return linesCache.get(filePath);
-    }
-    const content = getContent(file);
-    if (!content) {
-      linesCache.set(filePath, null);
-      return null;
-    }
-    const lines = content.split('\n');
-    linesCache.set(filePath, lines);
-    return lines;
-  }
-
-  return { getContent, getLines };
-}
-
 /**
  * Run the slop detection pipeline
  *
@@ -114,15 +73,13 @@ function runPipeline(repoPath, options = {}) {
     targetFiles = result.files;
   }
 
-  const fileAccess = createFileAccess(repoPath);
-
   // Phase 1: Built-in regex patterns (always runs)
-  const phase1Results = runPhase1(repoPath, targetFiles, language, fileAccess);
+  const phase1Results = runPhase1(repoPath, targetFiles, language);
   findings.push(...phase1Results);
 
   // Phase 1b: Multi-pass analyzers (if normal or deep)
   if (thoroughness !== THOROUGHNESS.QUICK) {
-    const multiPassResults = runMultiPassAnalyzers(repoPath, targetFiles, fileAccess);
+    const multiPassResults = runMultiPassAnalyzers(repoPath, targetFiles);
     findings.push(...multiPassResults);
   }
 
@@ -183,7 +140,7 @@ function runPipeline(repoPath, options = {}) {
  * @param {string|null} language - Optional language filter
  * @returns {Array} Findings with HIGH certainty
  */
-function runPhase1(repoPath, targetFiles, language, fileAccess) {
+function runPhase1(repoPath, targetFiles, language) {
   const findings = [];
 
   // Get patterns (filtered by language if specified)
@@ -202,10 +159,16 @@ function runPhase1(repoPath, targetFiles, language, fileAccess) {
       if (fileLanguage !== language && !isJsFamily) continue;
     }
 
-    const lines = fileAccess.getLines(file);
-    if (!lines) {
+    const filePath = path.isAbsolute(file) ? file : path.join(repoPath, file);
+
+    let content;
+    try {
+      content = fs.readFileSync(filePath, 'utf8');
+    } catch {
       continue; // Skip unreadable files
     }
+
+    const lines = content.split('\n');
 
     for (const [patternName, pattern] of Object.entries(patterns)) {
       // Skip multi-pass patterns (handled separately)
@@ -298,7 +261,7 @@ function runPhase1(repoPath, targetFiles, language, fileAccess) {
  * @param {string[]} targetFiles - Files to analyze
  * @returns {Array} Findings with MEDIUM certainty
  */
-function runMultiPassAnalyzers(repoPath, targetFiles, fileAccess) {
+function runMultiPassAnalyzers(repoPath, targetFiles) {
   const findings = [];
 
   // Get multi-pass pattern definitions for thresholds
@@ -311,8 +274,12 @@ function runMultiPassAnalyzers(repoPath, targetFiles, fileAccess) {
     if (!file.match(docCodeLangs)) continue;
     if (analyzers.isTestFile(file)) continue;
 
-    const content = fileAccess.getContent(file);
-    if (!content) {
+    const filePath = path.isAbsolute(file) ? file : path.join(repoPath, file);
+
+    let content;
+    try {
+      content = fs.readFileSync(filePath, 'utf8');
+    } catch {
       continue;
     }
 
@@ -443,8 +410,11 @@ function runMultiPassAnalyzers(repoPath, targetFiles, fileAccess) {
       // Skip test files
       if (analyzers.isTestFile(file)) continue;
 
-      const content = fileAccess.getContent(file);
-      if (!content) {
+      const filePath = path.isAbsolute(file) ? file : path.join(repoPath, file);
+      let content;
+      try {
+        content = fs.readFileSync(filePath, 'utf8');
+      } catch {
         continue;
       }
 
@@ -479,8 +449,11 @@ function runMultiPassAnalyzers(repoPath, targetFiles, fileAccess) {
       // Honor pattern exclude globs (e.g., *.config.*)
       if (slopPatterns.isFileExcluded(file, stubPattern.exclude)) continue;
 
-      const content = fileAccess.getContent(file);
-      if (!content) {
+      const filePath = path.isAbsolute(file) ? file : path.join(repoPath, file);
+      let content;
+      try {
+        content = fs.readFileSync(filePath, 'utf8');
+      } catch {
         continue;
       }
 
@@ -590,9 +563,7 @@ function runPhase2(repoPath, cliTools, targetFiles) {
 
   // Complexity analysis with escomplex
   if (cliTools.escomplex) {
-    const complexityResults = cliEnhancers.runComplexityAnalysis(repoPath, targetFiles, {
-      maxFiles: 200
-    });
+    const complexityResults = cliEnhancers.runComplexityAnalysis(repoPath, targetFiles);
     if (complexityResults) {
       for (const result of complexityResults) {
         if (result.complexity > 10) { // High cyclomatic complexity threshold

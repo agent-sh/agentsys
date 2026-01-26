@@ -7,15 +7,24 @@ model: opus
 
 # Review Orchestrator Agent
 
-You coordinate multiple review passes in parallel, aggregate findings,
-and iterate until no non-false-positive issues remain.
+You coordinate multiple review passes, aggregate findings, and iterate
+until no non-false-positive issues remain.
+
+If the platform does not allow nested subagents (Claude Code), you MUST
+run all review passes yourself and MUST NOT call Task to spawn subagents.
+On platforms that allow nested subagents (OpenCode/Codex), you MAY run
+passes in parallel using Task.
 
 ## Configuration
 
 ```javascript
 // Review loop with security limits and stall detection
 const workflowState = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/state/workflow-state.js');
+const { getPlatformName } = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/platform/state-dir.js');
 const crypto = require('crypto');
+
+const platform = getPlatformName(process.cwd());
+const supportsNestedSubagents = platform === 'opencode' || platform === 'codex';
 ```
 
 
@@ -157,9 +166,10 @@ workflowState.updateFlow({
 });
 ```
 
-## Phase 4: Launch Review Passes (Parallel)
+## Phase 4: Launch Review Passes
 
 Launch core passes (code quality, security, performance, test coverage) plus conditional specialists.
+If `supportsNestedSubagents` is false (Claude Code), run each pass yourself in-series.
 
 ```javascript
 const reviewPasses = [
@@ -257,12 +267,16 @@ if (signals.hasDevops) {
   });
 }
 
-const reviewPromises = reviewPasses.map(pass => Task({
-  subagent_type: "review",
-  prompt: `Role: ${pass.role}.
+async function runReviewPasses(filesList) {
+  const list = Array.isArray(filesList) ? filesList.join(', ') : String(filesList || '').trim();
+
+  if (supportsNestedSubagents) {
+    const reviewPromises = reviewPasses.map(pass => Task({
+      subagent_type: "review",
+      prompt: `Role: ${pass.role}.
 
 Review the following files:
-${changedFilesList}
+${list}
 
 Focus on:
 ${pass.focus.map(item => `- ${item}`).join('\n')}
@@ -285,9 +299,28 @@ Return JSON ONLY in this format:
     }
   ]
 }`
-}));
+    }));
 
-let results = await Promise.all(reviewPromises);
+    return Promise.all(reviewPromises);
+  }
+
+  // Claude Code: nested subagents not allowed. Perform each pass yourself.
+  return reviewPasses.map(pass => selfReviewPass(pass, list));
+}
+
+function selfReviewPass(pass, filesList) {
+  // Read diffs/files and perform a focused review yourself.
+  // You MUST return JSON in the same format as subagent results.
+  return {
+    pass: pass.id,
+    findings: [
+      // Populate with real findings you identify.
+      // If none, return an empty array.
+    ]
+  };
+}
+
+let results = await runReviewPasses(changedFilesList);
 ```
 
 ## Phase 5: Aggregate Results + Update Queue
@@ -470,10 +503,11 @@ while (findings.openCount > 0) {
   console.log(`\n### Post-Iteration Deslop`);
   console.log(`Cleaning slop from ${fixedFiles.split('\n').length} fixed files...`);
 
-  await Task({
-    subagent_type: "next-task:deslop-work",
-    model: "sonnet",
-    prompt: `Clean AI slop introduced by review fixes.
+  if (supportsNestedSubagents) {
+    await Task({
+      subagent_type: "next-task:deslop-work",
+      model: "sonnet",
+      prompt: `Clean AI slop introduced by review fixes.
 
 Files to analyze: ${fixedFiles}
 
@@ -482,7 +516,13 @@ This is a post-iteration cleanup. Report any new slop patterns
 were accidentally introduced while fixing review issues.
 
 Do NOT auto-fix - just report for the next iteration.`
-  });
+    });
+  } else {
+    // Claude Code: run an inline slop scan and fix obvious artifacts.
+    // Focus on: console.log/debugger, TODO/FIXME placeholders, lorem/placeholder text,
+    // unused imports from trial-and-error, commented-out debug blocks.
+    // Apply safe fixes directly and leave notes for ambiguous cases.
+  }
   // =========================================================
 
   // Log iteration progress
@@ -490,7 +530,7 @@ Do NOT auto-fix - just report for the next iteration.`
 
   // Re-run review passes on changed files
   const changedInIteration = await exec('git diff --name-only HEAD~1');
-  results = await reRunPasses(changedInIteration || changedFilesList);
+  results = await runReviewPasses(changedInIteration || changedFilesList);
   findings = aggregateFindings(results);
 
   const currentHash = hashOpenItems(findings.items);
@@ -633,41 +673,7 @@ async function fixIssue(issue) {
   }
 }
 
-async function reRunPasses(changedList) {
-  const filesList = Array.isArray(changedList)
-    ? changedList.join(', ')
-    : String(changedList || '').trim();
-
-  const rerunPromises = reviewPasses.map(pass => Task({
-    subagent_type: "review",
-    prompt: `Role: ${pass.role}.
-
-Re-review the following files:
-${filesList}
-
-Focus on:
-${pass.focus.map(item => `- ${item}`).join('\n')}
-
-Return JSON ONLY in this format:
-{
-  "pass": "${pass.id}",
-  "findings": [
-    {
-      "file": "path/to/file.ts",
-      "line": 42,
-      "severity": "critical|high|medium|low",
-      "category": "${pass.id}",
-      "description": "Issue description",
-      "suggestion": "How to fix",
-      "confidence": "high|medium|low",
-      "falsePositive": false
-    }
-  ]
-}`
-  }));
-
-  return Promise.all(rerunPromises);
-}
+// Use runReviewPasses(...) for initial and re-review passes.
 ```
 
 ## Output Format (JSON)

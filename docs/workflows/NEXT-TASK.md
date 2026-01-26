@@ -186,7 +186,7 @@ Both agents run in parallel:
 **Human interaction: No**
 
 The agent:
-1. Launches core review passes in parallel:
+1. Launches core review passes (parallel when nested subagents are supported; otherwise runs in-agent passes in series on Claude Code):
    - Code quality (includes error handling)
    - Security
    - Performance
@@ -195,7 +195,7 @@ The agent:
 3. Aggregates findings by severity (critical/high/medium/low)
 4. Fixes all non-false-positive issues
 5. Writes a review queue file in the platform state dir
-6. **Runs deslop-work after EACH iteration** (catches AI slop from fixes)
+6. **Runs a deslop pass after EACH iteration** (uses deslop-work where nested subagents are supported; inline slop scan on Claude Code)
 7. Repeats until no open issues remain
 8. Stops early if iteration limit or stall detected; control returns to /next-task for decision
 
