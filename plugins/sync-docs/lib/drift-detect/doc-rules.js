@@ -49,9 +49,13 @@ const DOC_POINTER_EXT = /\.(md|mdx|rst|adoc|asciidoc)$/i;
 const DOC_NAME_ALLOW_REGEX = /(readme|index|overview|introduction|intro|get-started|getting-started|quickstart|features?|capabilities?|doc|tutorial|guide|howto|how-to|blueprints?|cli|async|deploy|patterns?|extensions?)/;
 const DOC_STEM_SKIP_REGEX = /^(api|reference|ref|changes?|changelog|release|breaking|migration|deprecated|deprecation|security)$/;
 const DOC_PATH_ALLOW_REGEX = /^(docs\/(charts|axes|plugins|elements|markdown|guides|guide|howto|how-to|config|changes|concepts|api)\/)/;
+const DOC_ROOT_NAMES = new Set(['docs', 'documentation', 'antora']);
 
 const SKIP_PATH_REGEXES = [
   /^docs\/[a-z-]{2}\//,
+  /(^|\/)partials\//,
+  /(^|\/)nav[^/]*\.adoc$/i,
+  /(^|\/)local-nav\.adoc$/i,
   /(^|\/)api\//,
   /(^|\/)reference\//,
   /(^|\/)spec\//,
@@ -111,12 +115,15 @@ function shouldSkipFeatureDocPath(filePath) {
   if (DOC_STEM_SKIP_REGEX.test(baseStem)) return true;
 
   const parts = normalized.split('/');
-  const docsIndex = parts.indexOf('docs');
+  const docsIndex = parts.findIndex(part => DOC_ROOT_NAMES.has(part));
   if (docsIndex >= 0) {
     const depthAfterDocs = parts.length - docsIndex - 1;
     const allowDocNames = DOC_NAME_ALLOW_REGEX.test(baseStem);
-    const allowDocPath = DOC_PATH_ALLOW_REGEX.test(normalized) || normalized.startsWith('docs/en/docs/');
-    if (depthAfterDocs >= 2 && !allowDocPath) return true;
+    const allowDocPath = DOC_PATH_ALLOW_REGEX.test(normalized)
+      || normalized.startsWith('docs/en/docs/')
+      || normalized.includes('/documentation/')
+      || normalized.includes('/antora/');
+    if (depthAfterDocs >= 2 && !allowDocPath && !allowDocNames) return true;
     if (!allowDocNames && !allowDocPath) return true;
   }
 

@@ -218,7 +218,21 @@ function extractFeaturesFromContent(content, filePath, options) {
     if (inFeatureContext) {
       const listMatch = line.match(/^\s*(?:[-*+]|\d+\.)\s+(?:\[[xX\s]\]\s*)?(.*)$/);
       if (listMatch) {
-        if (isGoalListContext(lines, i)) continue;
+        if (isGoalListContext(lines, i)) {
+          const parenthetical = extractParentheticalFeatureList(listMatch[1]);
+          if (parenthetical) {
+            for (const item of parenthetical) {
+              const record = buildFeatureRecord(item, filePath, i + 1, line, options);
+              if (record) {
+                if (isPlanDoc && planContext.active) {
+                  record.plan = buildPlanMeta(line, planContext);
+                }
+                features.push(record);
+              }
+            }
+          }
+          continue;
+        }
         if (isLinkOnlyItem(line)) continue;
         if (isCodeOptionItem(listMatch[1])) continue;
         const labeled = extractLabeledFeature(listMatch[1]);
@@ -298,7 +312,21 @@ function extractFeaturesFromContent(content, filePath, options) {
       }
       const listMatch = line.match(/^\s*(?:[-*+]|\d+\.)\s+(?:\[[xX\s]\]\s*)?(.*)$/);
       if (listMatch) {
-        if (isGoalListContext(lines, i)) continue;
+        if (isGoalListContext(lines, i)) {
+          const parenthetical = extractParentheticalFeatureList(listMatch[1]);
+          if (parenthetical) {
+            for (const item of parenthetical) {
+              const record = buildFeatureRecord(item, filePath, i + 1, line, options);
+              if (record) {
+                if (isPlanDoc && planContext.active) {
+                  record.plan = buildPlanMeta(line, planContext);
+                }
+                features.push(record);
+              }
+            }
+          }
+          continue;
+        }
         if (isLinkOnlyItem(line)) continue;
         if (isCodeOptionItem(listMatch[1])) continue;
         const labeled = extractLabeledFeature(listMatch[1]);
@@ -424,7 +452,7 @@ function isNonFeatureLabel(label) {
 function extractInlineFeature(line) {
   const trimmed = String(line || '').trim();
   if (/^if\b/i.test(trimmed)) return null;
-  const verbMatch = line.match(/\b(?:supports|provides|includes|enables|allows|adds|introduces)\s+(.+)/i);
+  const verbMatch = line.match(/\b(?:supports|provides|provide|includes|enables|allows|adds|introduces)\s+(.+)/i);
   if (verbMatch) {
     let candidate = cleanupFeatureText(verbMatch[1]);
     candidate = candidate.replace(/^(?:an?|the)\s+/i, '');
@@ -758,7 +786,8 @@ function buildFeatureRecord(name, filePath, lineNumber, contextLine, options) {
     }
   }
   if (sourceType !== 'release' && tokens.length < 2) {
-    if (!isAllowedSingleToken(trimmedName) && !isFeatureDocPath(filePath)) return null;
+    const allowSingleInContext = contextLine && /\bfeatures?\b/i.test(contextLine);
+    if (!allowSingleInContext && !isAllowedSingleToken(trimmedName) && !isFeatureDocPath(filePath)) return null;
   }
   if (sourceType !== 'release' && isLowSignalText(normalized)) return null;
   if (tokens.length === 0) return null;
@@ -998,7 +1027,7 @@ function looksLikeInstructionContext(contextLine) {
 }
 
 function isGoalListContext(lines, index) {
-  for (let back = 1; back <= 2; back += 1) {
+  for (let back = 1; back <= 4; back += 1) {
     const prior = lines[index - back];
     if (!prior) continue;
     const normalized = normalizeText(prior);
@@ -1065,6 +1094,19 @@ function splitCommaFeatures(text) {
     if (/\b(and|or)\b/i.test(part) && parts.length <= 3) return null;
   }
   return parts;
+}
+
+function extractParentheticalFeatureList(text) {
+  const value = String(text || '').trim();
+  if (!value) return null;
+  const lower = value.toLowerCase();
+  if (!/(for example|for instance|e\.g\.|such as)/.test(lower)) return null;
+  const match = value.match(/\(([^)]+)\)/);
+  if (!match) return null;
+  let inside = cleanupFeatureText(match[1]);
+  inside = inside.replace(/^(for example|for instance|e\.g\.)\s*,?\s*/i, '');
+  if (!inside || inside.length < 6) return null;
+  return splitCommaFeatures(inside);
 }
 
 function parsePlanHeading(title) {

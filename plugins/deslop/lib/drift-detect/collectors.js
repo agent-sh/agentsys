@@ -763,6 +763,8 @@ function analyzeDocumentation(options = {}) {
 
     const extraDirs = [
       { dir: 'docs', limit: extraLimits.docs },
+      { dir: 'documentation', limit: Math.max(6, Math.floor(extraLimits.docs / 2)) },
+      { dir: 'antora', limit: Math.max(6, Math.floor(extraLimits.docs / 2)) },
       { dir: 'examples', limit: extraLimits.docs },
       { dir: 'extensions', limit: extraLimits.docs },
       { dir: 'plans', limit: extraLimits.plans },
@@ -804,6 +806,19 @@ function analyzeDocumentation(options = {}) {
 
     const featureCandidates = findFeatureDocCandidates(basePath, 6);
     for (const filePath of featureCandidates) {
+      if (docFiles.includes(filePath)) continue;
+      if (seenFiles.has(filePath)) continue;
+      const content = safeReadFile(filePath, basePath);
+      if (content) {
+        addDoc(filePath, content);
+      }
+    }
+
+    const docIndexCandidates = [
+      ...findIndexDocCandidates(basePath, 'documentation', 6),
+      ...findIndexDocCandidates(basePath, 'antora', 6)
+    ];
+    for (const filePath of docIndexCandidates) {
       if (docFiles.includes(filePath)) continue;
       if (seenFiles.has(filePath)) continue;
       const content = safeReadFile(filePath, basePath);
@@ -1716,6 +1731,48 @@ function findFeatureDocCandidates(basePath, limit) {
   if (!fs.existsSync(root)) return results;
 
   const targets = new Set(['features.md', 'feature.md']);
+  const walk = (dir) => {
+    if (results.length >= limit) return;
+    let entries;
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (results.length >= limit) break;
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name.startsWith('.')) continue;
+        walk(fullPath);
+      } else if (entry.isFile() && targets.has(entry.name.toLowerCase())) {
+        const relPath = path.relative(basePath, fullPath).replace(/\\/g, '/');
+        results.push(relPath);
+      }
+    }
+  };
+
+  walk(root);
+  return results.slice(0, limit);
+}
+
+function findIndexDocCandidates(basePath, relativeDir, limit) {
+  const results = [];
+  const root = path.join(basePath, relativeDir);
+  if (!fs.existsSync(root)) return results;
+
+  const targets = new Set([
+    'index.md',
+    'index.mdx',
+    'index.rst',
+    'index.adoc',
+    'index.asciidoc',
+    'overview.md',
+    'overview.rst',
+    'overview.adoc',
+    'overview.asciidoc'
+  ]);
+
   const walk = (dir) => {
     if (results.length >= limit) return;
     let entries;

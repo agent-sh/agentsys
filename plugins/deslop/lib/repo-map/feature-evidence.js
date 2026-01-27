@@ -24,7 +24,8 @@ const DEFAULT_OPTIONS = {
   maxDefsPerFeature: 6,
   maxRefsPerFeature: 6,
   maxFilesScannedPerDef: 8,
-  snippetLines: 2
+  snippetLines: 2,
+  maxFallbackFiles: 6000
 };
 
 function findFeatureEvidence(basePath, features = [], options = {}) {
@@ -43,6 +44,7 @@ function findFeatureEvidence(basePath, features = [], options = {}) {
   const reverseDeps = buildReverseDependencies(map, fileSet);
   const referenceIndex = buildReferenceIndex(map);
   const symbolIndex = buildSymbolIndex(map);
+  let fallbackFileIndex = null;
 
   const results = [];
   const unmatched = [];
@@ -68,7 +70,13 @@ function findFeatureEvidence(basePath, features = [], options = {}) {
     }
     const matches = matchFeatureToSymbols(feature, symbolIndex, opts.maxDefsPerFeature);
     if (matches.length === 0) {
-      const fileMatches = matchFeatureToFiles(feature, map, opts.maxDefsPerFeature);
+      let fileMatches = matchFeatureToFiles(feature, map, opts.maxDefsPerFeature);
+      if (fileMatches.length === 0) {
+        if (!fallbackFileIndex) {
+          fallbackFileIndex = buildFilePathIndex(basePath, opts.maxFallbackFiles);
+        }
+        fileMatches = matchFeatureToFileList(feature, fallbackFileIndex, opts.maxDefsPerFeature);
+      }
       if (fileMatches.length === 0) {
         unmatched.push(feature.original);
         results.push({
@@ -427,6 +435,80 @@ function matchFeatureToFiles(feature, map, limit) {
   });
 
   return matches.slice(0, limit);
+}
+
+function matchFeatureToFileList(feature, files, limit) {
+  const tokens = feature?.tokens || [];
+  if (tokens.length === 0) return [];
+  const nonGeneric = tokens.filter(token => !GENERIC_TOKENS.has(token));
+  const matches = [];
+
+  for (const file of files) {
+    if (isTestFile(file)) continue;
+    const fileLower = String(file).toLowerCase();
+    const matched = new Set();
+    for (const token of tokens) {
+      if (token.length < 4 && !PATH_TOKEN_WHITELIST.has(token)) continue;
+      if (fileLower.includes(token)) matched.add(token);
+    }
+    if (matched.size === 0) continue;
+    if (nonGeneric.length > 0) {
+      const nonGenericMatched = nonGeneric.some(token => matched.has(token));
+      if (!nonGenericMatched && matched.size < 2) continue;
+    }
+    const score = matched.size + (nonGeneric.length > 0 ? 1 : 0);
+    matches.push({
+      file,
+      name: path.posix.basename(file),
+      kind: 'file',
+      score
+    });
+  }
+
+  matches.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    return a.file.localeCompare(b.file);
+  });
+
+  return matches.slice(0, limit);
+}
+
+function buildFilePathIndex(basePath, limit) {
+  const results = [];
+  const stack = [basePath];
+  const excludedDirs = new Set([
+    '.git', '.github', '.claude', '.codex', '.opencode', '.idea',
+    'node_modules', 'dist', 'build', 'out', 'coverage', 'tmp', 'temp',
+    'vendor', 'target', 'examples', 'docs', 'documentation'
+  ]);
+
+  while (stack.length > 0 && results.length < limit) {
+    const current = stack.pop();
+    let entries;
+    try {
+      entries = fs.readdirSync(current, { withFileTypes: true });
+    } catch {
+      continue;
+    }
+    for (const entry of entries) {
+      if (results.length >= limit) break;
+      const fullPath = path.join(current, entry.name);
+      const relativePath = path.relative(basePath, fullPath).replace(/\\/g, '/');
+      if (entry.isDirectory()) {
+        if (entry.name.startsWith('.')) continue;
+        if (excludedDirs.has(entry.name)) continue;
+        stack.push(fullPath);
+      } else if (entry.isFile()) {
+        if (isTestFile(relativePath)) continue;
+        const ext = path.extname(entry.name).toLowerCase();
+        if (EXTENSIONS.includes(ext)) {
+          results.push(relativePath);
+        }
+      }
+    }
+  }
+
+  return results;
 }
 
 function resolveImportSource(fromFile, source, fileSet) {

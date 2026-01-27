@@ -24,7 +24,8 @@ const GENERIC_TOKENS = new Set([
   'security', 'management', 'data', 'system', 'platform',
   'request', 'response', 'route', 'router', 'routing', 'handler', 'middleware',
   'method', 'http', 'json', 'xml', 'body', 'file', 'files', 'error', 'result',
-  'default', 'auto', 'automatic'
+  'default', 'auto', 'automatic',
+  'check', 'checks', 'servers', 'externalized'
 ]);
 
 const GENERIC_SYMBOL_NAMES = new Set([
@@ -42,6 +43,7 @@ const TOKEN_ALIASES = {
   routes: ['route', 'router'],
   router: ['route'],
   federation: ['federate', 'federation'],
+  externalized: ['configurationproperties', 'configuration-properties', 'configproperties', 'config-properties'],
   authentication: ['auth'],
   authorization: ['auth'],
   authn: ['auth'],

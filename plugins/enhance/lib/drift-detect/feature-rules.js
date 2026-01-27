@@ -54,6 +54,7 @@ const LOW_SIGNAL_PREFIXES = [
   'vite ',
   'node.js',
   'please note',
+  'please ',
   '--',
   '-',
   'want to',
