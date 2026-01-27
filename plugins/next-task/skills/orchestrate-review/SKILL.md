@@ -2,7 +2,6 @@
 name: orchestrate-review
 description: "Use when user asks to \"deep review the code\", \"thorough code review\", \"multi-pass review\", or when orchestrating Phase 9 review loop. Provides review pass definitions (code quality, security, performance, test coverage, specialists), signal detection patterns, and iteration algorithms."
 user-invocable: false
-disable-model-invocation: true
 metadata:
   short-description: "Multi-pass code review orchestration"
 ---
@@ -80,7 +79,18 @@ Return JSON:
   }]
 }
 
-Be thorough. Report EVERY issue.
+Example finding:
+{
+  "file": "src/auth/login.ts",
+  "line": 89,
+  "severity": "high",
+  "description": "Password comparison uses timing-vulnerable string equality",
+  "suggestion": "Use crypto.timingSafeEqual() instead of === for password comparison",
+  "confidence": "high",
+  "falsePositive": false
+}
+
+Report every issue found. Empty findings array if code is clean.
 ```
 
 ## Aggregation
