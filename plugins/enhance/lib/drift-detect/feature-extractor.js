@@ -122,6 +122,14 @@ function extractFeaturesFromContent(content, filePath, options) {
     if (match) {
       const value = match[1].trim();
       if (value) {
+        if (/^(?:[-*+]|\d+\.)\s+/.test(value)) {
+          if (quoteBuffer) {
+            lines.push(quoteBuffer);
+            quoteBuffer = null;
+          }
+          lines.push(value);
+          continue;
+        }
         quoteBuffer = quoteBuffer ? `${quoteBuffer} ${value}` : value;
       }
       continue;
@@ -224,7 +232,6 @@ function extractFeaturesFromContent(content, filePath, options) {
       const listMatch = line.match(/^\s*(?:[-*+]|\d+\.)\s+(?:\[[xX\s]\]\s*)?(.*)$/);
       if (listMatch) {
         if (isGoalListContext(lines, i)) continue;
-        if (isUseCaseListContext(lines, i)) continue;
         if (isLinkOnlyItem(line)) continue;
         if (isCodeOptionItem(listMatch[1])) continue;
         const labeled = extractLabeledFeature(listMatch[1]);
@@ -232,7 +239,10 @@ function extractFeaturesFromContent(content, filePath, options) {
         const candidate = (labeled && sourceType === 'release')
           ? cleanupFeatureText(removeLeadingLabel(listMatch[1], labeled))
           : (labeled || cleanupFeatureText(listMatch[1]));
-        if (isUseCaseItem(candidate)) continue;
+        const inUseCaseContext = isUseCaseListContext(lines, i);
+        const useCaseAllowed = inUseCaseContext && shouldAllowUseCaseItem(filePath, candidate);
+        if (inUseCaseContext && !useCaseAllowed) continue;
+        if (isUseCaseItem(candidate, filePath)) continue;
         if (isCodePathCandidate(candidate)) continue;
         if (isExampleLine(line, candidate)) continue;
         if (isSupportPlanLine(candidate, line)) continue;
@@ -304,7 +314,6 @@ function extractFeaturesFromContent(content, filePath, options) {
       const listMatch = line.match(/^\s*(?:[-*+]|\d+\.)\s+(?:\[[xX\s]\]\s*)?(.*)$/);
       if (listMatch) {
         if (isGoalListContext(lines, i)) continue;
-        if (isUseCaseListContext(lines, i)) continue;
         if (isLinkOnlyItem(line)) continue;
         if (isCodeOptionItem(listMatch[1])) continue;
         const labeled = extractLabeledFeature(listMatch[1]);
@@ -312,7 +321,10 @@ function extractFeaturesFromContent(content, filePath, options) {
         const candidate = (labeled && sourceType === 'release')
           ? cleanupFeatureText(removeLeadingLabel(listMatch[1], labeled))
           : (labeled || cleanupFeatureText(listMatch[1]));
-        if (isUseCaseItem(candidate)) continue;
+        const inUseCaseContext = isUseCaseListContext(lines, i);
+        const useCaseAllowed = inUseCaseContext && shouldAllowUseCaseItem(filePath, candidate);
+        if (inUseCaseContext && !useCaseAllowed) continue;
+        if (isUseCaseItem(candidate, filePath)) continue;
         if (isCodePathCandidate(candidate)) continue;
         if (isExampleLine(line, candidate)) continue;
         if (isSupportPlanLine(candidate, line)) continue;
@@ -347,11 +359,9 @@ function extractFeaturesFromContent(content, filePath, options) {
             }
           }
         } else {
-          const labeledFeature = labeled
-            ? (looksLikeFeatureItem(labeled) || looksLikeFeatureItem(candidate))
-            : false;
+          const labeledFeature = Boolean(labeled);
           const planAllowed = isPlanDoc && planContext.active;
-          if (labeledFeature || looksLikeFeatureItem(candidate) || (isChecked && sourceType === 'readme') || planAllowed) {
+          if (labeledFeature || looksLikeFeatureItem(candidate) || useCaseAllowed || (isChecked && sourceType === 'readme') || planAllowed) {
             const split = splitCommaFeatures(candidate);
             if (split) {
               for (const item of split) {
@@ -567,6 +577,8 @@ function isProductTagline(candidate) {
 
 function cleanupFeatureText(text) {
   let cleaned = String(text || '')
+    .replace(/https?:\/\/[^\s]+\[([^\]]+)\]/gi, '$1')
+    .replace(/link:https?:\/\/[^\s]+\[([^\]]+)\]/gi, '$1')
     .replace(/\[(.+?)\]\((.+?)\)/g, '$1')
     .replace(/\[([^\]]+)\]/g, '$1')
     .replace(/`([^`]+)`/g, '$1')
@@ -760,7 +772,8 @@ function isGenericLabel(text) {
     'name', 'type', 'default', 'options', 'windows', 'mac', 'linux', 'twitter',
     'e-mail', 'email', 'renderer', 'addons', 'architecture', 'forums', 'github issues',
     'slack', 'newsletter', 'facebook page', 'resources', 'communication', 'documentation',
-    'source code', 'docs', 'dependency', 'prerequisites', 'installation', 'requirements', 'module'
+    'source code', 'docs', 'dependency', 'prerequisites', 'installation', 'requirements', 'module',
+    'username', 'password', 'endpoint', 'host', 'port', 'token', 'api key', 'apikey', 'client id', 'client secret'
   ].includes(normalized);
 }
 
@@ -789,7 +802,7 @@ function buildFeatureRecord(name, filePath, lineNumber, contextLine, options) {
   if (sourceType !== 'release' && tokens.length < 2) {
     if (!isAllowedSingleToken(trimmedName) && !isFeatureDocPath(filePath)) return null;
   }
-  if (sourceType !== 'release' && isLowSignalText(normalized)) return null;
+  if (sourceType !== 'release' && isLowSignalText(normalized, contextLine)) return null;
   if (tokens.length === 0) return null;
 
   return {
@@ -815,7 +828,11 @@ function tokenize(text) {
   return String(text || '')
     .split(/\s+/)
     .map(token => token.trim())
-    .filter(token => token.length >= 3 && !STOPWORDS.has(token));
+    .filter(token => (token.length >= 3 || isShortCodeToken(token)) && !STOPWORDS.has(token));
+}
+
+function isShortCodeToken(token) {
+  return /^[a-z]\d$/i.test(token) || /^\d[a-z]$/i.test(token);
 }
 
 function looksLikeFeatureItem(text) {
@@ -975,7 +992,7 @@ function isReleaseNoise(text) {
   return false;
 }
 
-function isLowSignalText(normalized) {
+function isLowSignalText(normalized, raw) {
   if (!normalized) return true;
   if (['windows', 'twitter', 'email', 'e-mail', 'architecture'].includes(normalized)) return true;
   if (['experimental', 'example', 'related'].includes(normalized)) return true;
@@ -1002,15 +1019,21 @@ function isLowSignalText(normalized) {
   if (normalized.includes('optional dependency') || normalized.includes('optional dependencies')) return true;
   if (normalized.includes('no longer') || normalized.includes('migrated') || normalized.includes('deprecated')) return true;
   if (normalized.includes('version') && /\d/.test(normalized)) return true;
-  if (normalized.includes('http') || normalized.includes('https')) return true;
+  if (raw && /https?:\/\//i.test(raw)) {
+    const wordCount = normalized.split(' ').length;
+    if (wordCount > 4 || normalized.length > 40) return true;
+  }
   if (normalized.startsWith('please note')) return true;
   if (normalized.includes('build matrix')) return true;
+  if (raw && /\[[^\]]+\]/.test(raw) && normalized.split(' ').length <= 1) return true;
+  if (/^(is this|are these|is the|are the)\b/.test(normalized)) return true;
   if (/^(element|elements)\b/.test(normalized) && /(visible|enabled|considered)/.test(normalized)) return true;
   if (/^(users to|add \w+ todos)\b/.test(normalized)) return true;
   if (normalized.startsWith('--') || normalized.startsWith('-')) return true;
   if (/^(get|post|put|delete|patch|options|head)$/.test(normalized)) return true;
   if (normalized.includes('and much more')) return true;
   if (normalized.includes('support the project')) return true;
+  if (/(enterprise|enterprise-grade|commercial|subscription|pricing|license|licensing|sla|slo|support plan|support policy)/.test(normalized)) return true;
   if (normalized.includes('donat') || normalized.includes('donation') || normalized.includes('donating')) return true;
   if (normalized.includes('cup of coffee') || normalized.includes('buy me a coffee')) return true;
   if (normalized.includes('popular packages')) return true;
@@ -1044,7 +1067,7 @@ function isLowSignalText(normalized) {
 function isInstructionalText(normalized) {
   if (!normalized) return false;
   const cleaned = normalized.replace(/^(optional|optionally|or|then)\s+/, '');
-  return /^(create|add|copy|update|remove|delete|install|configure|setup|set up|run|download|clone|check|verify|use|open|start|stop|build|compile|generate|train|fine tune|fine-tune|evaluate|export|edit|write|grab|join|get|visit|read|learn|see|follow|try)\b/.test(cleaned);
+  return /^(create|add|copy|update|remove|delete|install|configure|setup|set up|run|download|clone|check|verify|use|open|start|stop|build|compile|generate|train|fine tune|fine-tune|evaluate|export|edit|write|grab|join|get|visit|read|learn|see|follow|try|ensure|should|must|need to|you should)\b/.test(cleaned);
 }
 
 function isPlanInstruction(normalized) {
@@ -1075,7 +1098,7 @@ function isGoalListContext(lines, index) {
 }
 
 function isUseCaseListContext(lines, index) {
-  for (let back = 1; back <= 2; back += 1) {
+  for (let back = 1; back <= 6; back += 1) {
     const prior = lines[index - back];
     if (!prior) continue;
     const normalized = normalizeText(prior);
@@ -1090,9 +1113,10 @@ function isUseCaseListContext(lines, index) {
   return false;
 }
 
-function isUseCaseItem(text) {
+function isUseCaseItem(text, filePath) {
   const normalized = normalizeText(text);
   if (!normalized) return false;
+  if (shouldAllowUseCaseItem(filePath, text)) return false;
   if (/\b(support|supports|supporting|enable|enables|allow|allows|provide|provides|includes|including|built)\b/.test(normalized)) {
     return false;
   }
@@ -1102,10 +1126,26 @@ function isUseCaseItem(text) {
   return false;
 }
 
+function shouldAllowUseCaseItem(filePath, text) {
+  if (!filePath) return false;
+  const normalizedPath = String(filePath || '').replace(/\\/g, '/').toLowerCase();
+  if (!/\/?readme\.(md|mdx|rst|txt|adoc|asciidoc)$/.test(normalizedPath)) return false;
+  const normalized = normalizeText(text);
+  if (!normalized) return false;
+  const wordCount = normalized.split(' ').length;
+  if (wordCount > 4) return false;
+  if (/(sites?|blogs?|portfolios?|landing pages?|resumes?|cvs?|project sites?)$/.test(normalized)) return false;
+  if (isLowSignalText(normalized, text)) return false;
+  if (isProductTagline(text)) return false;
+  return true;
+}
+
 function isAllowedSingleToken(text) {
   const trimmed = String(text || '').trim();
   if (!trimmed) return false;
   if (trimmed.includes('-')) return true;
+  if (/^[A-Z]{2,5}$/.test(trimmed)) return true;
+  if (/^[A-Z][a-z]{2,}$/.test(trimmed)) return true;
   return /^[A-Z][A-Za-z0-9]{5,}$/.test(trimmed);
 }
 
@@ -1148,6 +1188,8 @@ function splitCommaFeatures(text) {
   if (!value || !value.includes(',')) return null;
   if (/[.:;]/.test(value)) return null;
   if (/\b(including|includes|provides|supports|ensures|allows|designed|based)\b/i.test(value)) return null;
+  if (/\betc\b/i.test(value)) return null;
+  if (/[()]/.test(value)) return null;
   if (/\bfor\b/i.test(value)) return null;
   if (value.length > 140) return null;
   const parts = value.split(',').map(part => part.trim()).filter(Boolean);

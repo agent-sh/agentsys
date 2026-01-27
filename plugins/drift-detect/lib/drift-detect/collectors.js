@@ -834,7 +834,7 @@ function analyzeDocumentation(options = {}) {
       }
     }
 
-    const featureDocs = documents.filter(doc => !shouldSkipFeatureDoc(doc.path) && !shouldSkipFeatureDocPath(doc.path));
+    const featureDocs = documents.filter(doc => !shouldSkipFeatureDoc(doc.path) && !shouldSkipFeatureDocPath(doc.path, doc.content));
     const featureData = featureExtractor.extractFeaturesFromDocs(featureDocs, opts.docFeatures);
     result.features = featureData.features || [];
     result.featureDetails = featureData.details || [];
@@ -873,22 +873,24 @@ function shouldSkipFeatureDoc(filePath) {
   ].includes(name);
 }
 
-function shouldSkipFeatureDocPath(filePath) {
+function shouldSkipFeatureDocPath(filePath, content) {
   const normalized = String(filePath || '').replace(/\\/g, '/').toLowerCase();
+  const hasSignal = hasFeatureSignal(content);
   if (/^docs\/[a-z-]{2}\//.test(normalized) && !/^docs\/en\//.test(normalized)) return true;
   const baseName = normalized.split('/').pop() || '';
   const baseStem = baseName.replace(/\.[^.]+$/, '');
   const allowDocNames = /(readme|index|overview|introduction|intro|get-started|getting-started|quickstart|features?|capabilities?|doc|tutorial|guide|howto|how-to|blueprints?|cli|async|deploy|patterns?|extensions?)/.test(baseStem);
   if (/^(api|reference|ref|changes?|changelog|release|breaking|migration|deprecated|deprecation|security)$/.test(baseStem)) return true;
-  if (normalized.startsWith('docs/en/docs/') && !allowDocNames && !normalized.includes('/features')) return true;
+  if (normalized.startsWith('docs/en/docs/') && !allowDocNames && !normalized.includes('/features') && !hasSignal) return true;
   const parts = normalized.split('/');
   const docsIndex = parts.indexOf('docs');
   if (docsIndex >= 0) {
     const depthAfterDocs = parts.length - docsIndex - 1;
-    const allowDocPath = /^(docs\/(charts|axes|plugins|elements|markdown|guides|guide|howto|how-to|config|changes|concepts|api|intro|topics|faq|tutorial|tutorials)\/)/.test(normalized)
+    const allowDocPath = /^(docs\/(charts|axes|plugins|elements|markdown|guides|guide|howto|how-to|config|changes|concepts|api|intro|topics|faq|tutorial|tutorials|java-rest|internal|extend|community-clients)\/)/.test(normalized)
       || /^docs\/en\/docs\//.test(normalized);
-    if (depthAfterDocs >= 2 && !allowDocPath) return true;
-    if (!allowDocNames && !allowDocPath) return true;
+    if (depthAfterDocs >= 2 && !allowDocPath && !hasSignal) return true;
+    if (!allowDocNames && !allowDocPath && !hasSignal) return true;
+    if (!hasSignal && /(docs\/(extend|community-clients|internal|java-rest)\/)/.test(normalized)) return true;
   }
   if (normalized.endsWith('supportedsites.md')) return true;
   if (normalized.includes('docs/source/') && !normalized.endsWith('docs/source/index.md')) return true;
@@ -907,6 +909,15 @@ function shouldSkipFeatureDocPath(filePath) {
   if (/(^|\/)releases?\.md$/.test(normalized)) return true;
   if (normalized.includes('release-notes') || normalized.includes('release_notes')) return true;
   if (normalized.includes('deprecations') || normalized.includes('deprecated')) return true;
+  return false;
+}
+
+function hasFeatureSignal(content) {
+  if (!content) return false;
+  const text = String(content);
+  if (/\b(features include|key features|supported features|core features|feature highlights)\b/i.test(text)) return true;
+  if (/^#{1,6}\s+.*features?\b/im.test(text)) return true;
+  if (/^=+\s+.*features?\b/im.test(text)) return true;
   return false;
 }
 

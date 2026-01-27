@@ -71,7 +71,9 @@ const TOKEN_ALIASES = {
   bundling: ['bundle', 'bundler', 'bundles'],
   bundler: ['bundle', 'bundling', 'bundles'],
   tailwind: ['tailwindcss'],
-  sass: ['scss', 'sass']
+  sass: ['scss', 'sass'],
+  commonjs: ['cjs'],
+  cjs: ['commonjs']
 };
 
 module.exports = {

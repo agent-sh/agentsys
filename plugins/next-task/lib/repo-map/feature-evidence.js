@@ -219,7 +219,7 @@ function tokenize(text) {
   return String(text || '')
     .split(/\s+/)
     .map(token => token.trim())
-    .filter(token => token.length >= 3 && !STOPWORDS.has(token));
+    .filter(token => (token.length >= 3 || isShortCodeToken(token)) && !STOPWORDS.has(token));
 }
 
 function expandTokens(tokens) {
@@ -227,7 +227,7 @@ function expandTokens(tokens) {
   const seen = new Set();
   const addToken = (token) => {
     const value = String(token || '').trim();
-    if (!value || value.length < 3) return;
+    if (!value || (value.length < 3 && !isShortCodeToken(value))) return;
     if (STOPWORDS.has(value)) return;
     if (seen.has(value)) return;
     seen.add(value);
@@ -254,9 +254,16 @@ function expandTokens(tokens) {
 function singularizeToken(token) {
   const value = String(token || '').trim();
   if (!value) return value;
+  if (isShortCodeToken(value)) return value;
+  if (/\d/.test(value)) return value;
+  if (value.endsWith('js') || value.endsWith('css')) return value;
   if (value.endsWith('ies') && value.length > 4) return `${value.slice(0, -3)}y`;
   if (value.endsWith('s') && value.length > 3 && !value.endsWith('ss')) return value.slice(0, -1);
   return value;
+}
+
+function isShortCodeToken(token) {
+  return /^[a-z]\d$/i.test(token) || /^\d[a-z]$/i.test(token);
 }
 
 function buildSymbolIndex(map) {

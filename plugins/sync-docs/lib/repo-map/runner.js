@@ -48,6 +48,31 @@ const TEST_PATH_PATTERNS = [
   '.test.'
 ];
 
+const PRIORITY_DIRS = [
+  '/src/',
+  '/server/',
+  '/lib/',
+  '/packages/',
+  '/cmd/',
+  '/core/',
+  '/modules/',
+  '/pkg/',
+  '/app/'
+];
+
+const DEPRIORITY_DIRS = [
+  '/test/',
+  '/tests/',
+  '/__tests__/',
+  '/spec/',
+  '/fixtures/',
+  '/examples/',
+  '/example/',
+  '/benchmarks/',
+  '/benchmark/',
+  '/docs/'
+];
+
 /**
  * Detect languages in a repository
  * @param {string} basePath - Repository root
@@ -184,6 +209,25 @@ function hasNonTestExtension(basePath, extensions) {
   return found;
 }
 
+function prioritizeFiles(files, maxFiles) {
+  if (!Number.isFinite(maxFiles)) return files;
+  const sorted = files.slice();
+  sorted.sort((a, b) => {
+    const scoreA = filePriority(a);
+    const scoreB = filePriority(b);
+    if (scoreA !== scoreB) return scoreA - scoreB;
+    return a.localeCompare(b);
+  });
+  return sorted;
+}
+
+function filePriority(filePath) {
+  const normalized = String(filePath || '').replace(/\\/g, '/').toLowerCase();
+  if (PRIORITY_DIRS.some(dir => normalized.includes(dir))) return 0;
+  if (DEPRIORITY_DIRS.some(dir => normalized.includes(dir))) return 2;
+  return 1;
+}
+
 /**
  * Run a full scan of the repository
  * @param {string} basePath - Repository root
@@ -223,6 +267,7 @@ async function fullScan(basePath, languages, options = {}) {
     if (!langQueries) continue;
 
     let files = findFilesForLanguage(basePath, lang);
+    files = prioritizeFiles(files, options.maxFilesPerLanguage);
     if (Number.isFinite(options.maxFilesPerLanguage)) {
       files = files.slice(0, Math.max(0, Number(options.maxFilesPerLanguage)));
     }
