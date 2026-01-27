@@ -51,6 +51,7 @@ const LOW_SIGNAL_EXACT = new Set([
   'stability', 'fault tolerance', 'stability and fault tolerance',
   'community and open source',
   'backed and supported by aws and gcp',
+  'normalization of node inconsistencies',
   'backed and supported'
 ]);
 

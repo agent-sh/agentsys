@@ -319,9 +319,12 @@ function extractFeaturesFromContent(content, filePath, options) {
       } else {
         const inline = extractInlineFeature(line);
         if (inline) {
-          const record = buildFeatureRecord(inline, filePath, i + 1, line, options);
-          if (record) {
-            features.push(record);
+          const inlineItems = Array.isArray(inline) ? inline : [inline];
+          for (const item of inlineItems) {
+            const record = buildFeatureRecord(item, filePath, i + 1, line, options);
+            if (record) {
+              features.push(record);
+            }
           }
         }
       }
@@ -366,9 +369,12 @@ function extractFeaturesFromContent(content, filePath, options) {
         if (allowInline) {
           const inline = extractInlineFeature(line);
           if (inline) {
-            const record = buildFeatureRecord(inline, filePath, i + 1, line, options);
-            if (record) {
-              features.push(record);
+            const inlineItems = Array.isArray(inline) ? inline : [inline];
+            for (const item of inlineItems) {
+              const record = buildFeatureRecord(item, filePath, i + 1, line, options);
+              if (record) {
+                features.push(record);
+              }
             }
           }
         }
@@ -549,6 +555,8 @@ function extractInlineFeature(line) {
     }
     if (candidate.length < 10) return null;
     if (!looksLikeFeatureSentence(line)) return null;
+    const inlineList = splitInlineFeatureList(candidate);
+    if (inlineList) return inlineList;
     return candidate;
   }
 
@@ -586,6 +594,26 @@ function extractInlineFeature(line) {
   }
 
   return null;
+}
+
+function splitInlineFeatureList(candidate) {
+  const raw = String(candidate || '').trim();
+  if (!raw) return null;
+  const markerMatch = raw.match(/\b(things like|such as|including)\b/i);
+  if (!markerMatch || typeof markerMatch.index !== 'number') return null;
+  let tail = raw.slice(markerMatch.index + markerMatch[0].length).trim();
+  if (!tail) return null;
+  tail = tail.replace(/^[:\-\s]+/, '');
+  tail = tail.replace(/\b(and a few others|and others|and more|and so on)\b/i, '').trim();
+  tail = tail.replace(/\betc\.?$/i, '').trim();
+  if (!tail || tail.length < 4) return null;
+  const parts = tail.split(',').map(part => part.trim()).filter(Boolean);
+  if (parts.length < 2) return null;
+  const cleaned = parts
+    .map(part => part.replace(/^(and|or)\s+/i, '').trim())
+    .filter(part => part && part.length >= 3);
+  if (cleaned.length < 2) return null;
+  return cleaned;
 }
 
 function extractModeFeatureFromLine(line) {
@@ -634,7 +662,7 @@ function shouldMergeLines(previous, current) {
 function looksLikeFeatureSentence(line) {
   const normalized = normalizeText(line);
   if (!normalized) return false;
-  return /\b(build|create|develop|render|deploy|generate|optimize|accelerate|improve|add|adds|introduce|introduces|support|supports|provide|provides)\b/.test(normalized);
+  return /\b(build|create|develop|render|deploy|generate|optimize|accelerate|improve|add|adds|introduce|introduces|support|supports|provide|provides|include|includes|enable|enables|allow|allows)\b/.test(normalized);
 }
 
 function isBuildArtifactLine(candidate, line) {
@@ -945,7 +973,10 @@ function buildFeatureRecord(name, filePath, lineNumber, contextLine, options) {
   }
   if (sourceType !== 'release' && tokens.length < 2) {
     const allowSingleInContext = contextLine && /\bfeatures?\b/i.test(contextLine);
-    if (!allowSingleInContext && !isAllowedSingleToken(trimmedName) && !isFeatureDocPath(filePath)) return null;
+    const allowInlineList = contextLine && /\b(things like|such as|including)\b/i.test(contextLine);
+    if (!allowSingleInContext && !allowInlineList && !isAllowedSingleToken(trimmedName) && !isFeatureDocPath(filePath)) {
+      return null;
+    }
   }
   if (sourceType !== 'release' && isLowSignalText(normalized)) return null;
   if (tokens.length === 0) return null;

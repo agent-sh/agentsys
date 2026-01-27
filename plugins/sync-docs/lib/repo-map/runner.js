@@ -855,7 +855,14 @@ function extractNamesFromMatch(match, patternDef) {
   }
 
   const name = extractNameFromMatch(match, def.nameVar);
-  if (name) return [name];
+  if (name) {
+    if (typeof name === 'string' && name.trim().startsWith('{')) {
+      const objectNames = extractNamesFromObjectLiteral(name);
+      if (objectNames.length > 0) return objectNames;
+      return [];
+    }
+    return [name];
+  }
   if (def.fallbackName) return [def.fallbackName];
   return [];
 }
@@ -960,19 +967,116 @@ function extractNamesFromExportList(text) {
  * @returns {string[]}
  */
 function extractNamesFromObjectLiteral(text) {
-  const match = text.match(/\{([\s\S]*?)\}/);
-  if (!match) return [];
+  const start = text.indexOf('{');
+  if (start === -1) return [];
 
-  const body = match[1];
   const names = new Set();
+  const keywords = new Set([
+    'if', 'for', 'while', 'switch', 'case', 'break', 'continue', 'return', 'throw',
+    'try', 'catch', 'finally', 'do', 'else', 'new', 'class', 'function', 'const',
+    'let', 'var', 'async', 'await', 'get', 'set', 'yield', 'default'
+  ]);
 
-  // Match shorthand properties and key: value pairs
-  const propRegex = /\b([A-Za-z_$][\w$]*)\b\s*(?=,|\}|:)/g;
-  let propMatch;
-  while ((propMatch = propRegex.exec(body)) !== null) {
-    const name = propMatch[1];
-    if (isValidIdentifier(name)) names.add(name);
+  let depth = 0;
+  let segment = '';
+  let inString = null;
+  let escape = false;
+  let inLineComment = false;
+  let inBlockComment = false;
+
+  const flushSegment = () => {
+    const cleaned = segment
+      .replace(/\/\*[\s\S]*?\*\//g, ' ')
+      .replace(/\/\/.*$/g, ' ')
+      .trim();
+    segment = '';
+    if (!cleaned) return;
+    const methodMatch = cleaned.match(/^(?:async\s+)?(?:get\s+|set\s+)?([A-Za-z_$][\w$]*)\s*\(/);
+    if (methodMatch) {
+      const name = methodMatch[1];
+      if (!keywords.has(name) && isValidIdentifier(name)) names.add(name);
+      return;
+    }
+    const keyMatch = cleaned.match(/^([A-Za-z_$][\w$]*)\s*:/);
+    if (keyMatch) {
+      const name = keyMatch[1];
+      if (!keywords.has(name) && isValidIdentifier(name)) names.add(name);
+      return;
+    }
+    const shorthandMatch = cleaned.match(/^([A-Za-z_$][\w$]*)$/);
+    if (shorthandMatch) {
+      const name = shorthandMatch[1];
+      if (!keywords.has(name) && isValidIdentifier(name)) names.add(name);
+    }
+  };
+
+  for (let i = start + 1; i < text.length; i += 1) {
+    const char = text[i];
+    const next = text[i + 1];
+
+    if (inLineComment) {
+      if (char === '\n') inLineComment = false;
+      continue;
+    }
+    if (inBlockComment) {
+      if (char === '*' && next === '/') {
+        inBlockComment = false;
+        i += 1;
+      }
+      continue;
+    }
+
+    if (inString) {
+      if (escape) {
+        escape = false;
+      } else if (char === '\\') {
+        escape = true;
+      } else if (char === inString) {
+        inString = null;
+      }
+      segment += char;
+      continue;
+    }
+
+    if (char === '/' && next === '/') {
+      inLineComment = true;
+      i += 1;
+      continue;
+    }
+    if (char === '/' && next === '*') {
+      inBlockComment = true;
+      i += 1;
+      continue;
+    }
+    if (char === '\'' || char === '"' || char === '`') {
+      inString = char;
+      segment += char;
+      continue;
+    }
+
+    if (char === '{') {
+      depth += 1;
+      segment += char;
+      continue;
+    }
+    if (char === '}') {
+      if (depth === 0) {
+        flushSegment();
+        break;
+      }
+      depth -= 1;
+      segment += char;
+      continue;
+    }
+    if (char === ',' && depth === 0) {
+      flushSegment();
+      continue;
+    }
+
+    segment += char;
   }
+
+  flushSegment();
 
   return Array.from(names);
 }

@@ -64,6 +64,8 @@ const TOKEN_ALIASES = {
   logger: ['log'],
   templating: ['template', 'renderer', 'render'],
   rendering: ['render', 'renderer', 'template'],
+  negotiation: ['accept', 'accepts', 'acceptsencodings', 'acceptscharsets', 'acceptslanguages', 'negotiator'],
+  redirection: ['redirect', 'redirects', 'redirected', 'redirecting'],
   database: ['db'],
   databases: ['db'],
   postgres: ['postgresql', 'pg'],
