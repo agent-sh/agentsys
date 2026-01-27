@@ -47,30 +47,50 @@ const TEST_PATH_PATTERNS = [
   '.spec.',
   '.test.'
 ];
-
-const PRIORITY_DIRS = [
+const PRIORITY_DIR_HINTS = [
   '/src/',
-  '/server/',
   '/lib/',
-  '/packages/',
-  '/cmd/',
+  '/app/',
+  '/server/',
   '/core/',
-  '/modules/',
   '/pkg/',
-  '/app/'
+  '/internal/',
+  '/cmd/',
+  '/module/',
+  '/starter/',
+  '/starter-',
+  '/loader/',
+  '/configuration/',
+  '/web/',
+  '/api/',
+  '/handlers/',
+  '/controllers/',
+  '/routes/'
 ];
-
-const DEPRIORITY_DIRS = [
-  '/test/',
-  '/tests/',
-  '/__tests__/',
-  '/spec/',
-  '/fixtures/',
-  '/examples/',
+const SECONDARY_DIR_HINTS = [
+  '/service/',
+  '/services/',
+  '/client/',
+  '/ui/',
+  '/frontend/',
+  '/backend/',
+  '/domain/'
+];
+const DEPRIORITY_DIR_HINTS = [
   '/example/',
-  '/benchmarks/',
-  '/benchmark/',
-  '/docs/'
+  '/examples/',
+  '/docs/',
+  '/doc/',
+  '/bench',
+  '/benchmark',
+  '/scripts/',
+  '/tool/',
+  '/tools/',
+  '/build/',
+  '/dist/',
+  '/generated/',
+  '/gen/',
+  '/fixtures/'
 ];
 
 /**
@@ -168,6 +188,24 @@ function isTestPath(relativePath) {
   return TEST_PATH_PATTERNS.some(pattern => normalized.includes(pattern));
 }
 
+function scoreFilePath(relativePath) {
+  const normalized = `/${String(relativePath || '').replace(/\\/g, '/').toLowerCase()}`;
+  let score = 0;
+  for (const hint of PRIORITY_DIR_HINTS) {
+    if (normalized.includes(hint)) score += 2;
+  }
+  for (const hint of SECONDARY_DIR_HINTS) {
+    if (normalized.includes(hint)) score += 1;
+  }
+  for (const hint of DEPRIORITY_DIR_HINTS) {
+    if (normalized.includes(hint)) score -= 2;
+  }
+  const depth = normalized.split('/').length - 1;
+  if (depth > 6) score -= 1;
+  if (depth > 10) score -= 1;
+  return score;
+}
+
 function hasNonTestExtension(basePath, extensions) {
   if (!Array.isArray(extensions) || extensions.length === 0) return false;
   const exts = new Set(extensions.map(ext => ext.toLowerCase()));
@@ -209,25 +247,6 @@ function hasNonTestExtension(basePath, extensions) {
   return found;
 }
 
-function prioritizeFiles(files, maxFiles) {
-  if (!Number.isFinite(maxFiles)) return files;
-  const sorted = files.slice();
-  sorted.sort((a, b) => {
-    const scoreA = filePriority(a);
-    const scoreB = filePriority(b);
-    if (scoreA !== scoreB) return scoreA - scoreB;
-    return a.localeCompare(b);
-  });
-  return sorted;
-}
-
-function filePriority(filePath) {
-  const normalized = String(filePath || '').replace(/\\/g, '/').toLowerCase();
-  if (PRIORITY_DIRS.some(dir => normalized.includes(dir))) return 0;
-  if (DEPRIORITY_DIRS.some(dir => normalized.includes(dir))) return 2;
-  return 1;
-}
-
 /**
  * Run a full scan of the repository
  * @param {string} basePath - Repository root
@@ -267,7 +286,6 @@ async function fullScan(basePath, languages, options = {}) {
     if (!langQueries) continue;
 
     let files = findFilesForLanguage(basePath, lang);
-    files = prioritizeFiles(files, options.maxFilesPerLanguage);
     if (Number.isFinite(options.maxFilesPerLanguage)) {
       files = files.slice(0, Math.max(0, Number(options.maxFilesPerLanguage)));
     }
@@ -478,9 +496,14 @@ function findFilesForLanguage(basePath, language) {
           const relativePath = path.relative(basePath, fullPath);
           if (slopAnalyzers.shouldExclude(relativePath, EXCLUDE_DIRS)) continue;
           if (isIgnored && isIgnored(relativePath, false)) continue;
+          if (isTestPath(relativePath)) continue;
           const ext = path.extname(entry.name).toLowerCase();
           if (extensions.includes(ext)) {
-            files.push(fullPath);
+            files.push({
+              file: fullPath,
+              relativePath: relativePath.replace(/\\/g, '/'),
+              score: scoreFilePath(relativePath)
+            });
           }
         }
       }
@@ -490,7 +513,14 @@ function findFilesForLanguage(basePath, language) {
   }
   
   scan(basePath);
-  return files;
+  files.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    if (a.relativePath.length !== b.relativePath.length) {
+      return a.relativePath.length - b.relativePath.length;
+    }
+    return a.relativePath.localeCompare(b.relativePath);
+  });
+  return files.map(entry => entry.file);
 }
 
 function createSymbolMaps() {
