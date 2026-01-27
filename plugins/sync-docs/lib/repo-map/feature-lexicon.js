@@ -35,7 +35,8 @@ const GENERIC_SYMBOL_NAMES = new Set([
 ]);
 
 const PATH_TOKEN_WHITELIST = new Set([
-  'tls', 'ssl', 'jwt', 'grpc', 'ssh', 'oauth', 'oidc', 'cli', 'gui'
+  'tls', 'ssl', 'jwt', 'grpc', 'ssh', 'oauth', 'oidc', 'cli', 'gui',
+  'cjs', 'mjs', 'ffi'
 ]);
 
 const TOKEN_ALIASES = {

@@ -31,6 +31,15 @@ const DEFAULT_OPTIONS = {
   maxLength: 120
 };
 
+const ALLOWED_SINGLE_TOKENS = new Set([
+  'API', 'SDK', 'CLI', 'TLS', 'SSL', 'JWT', 'OIDC', 'SAML', 'SSO', 'MFA',
+  'HTTP', 'HTTPS', 'GRPC', 'REST', 'GRAPHQL', 'UI', 'UX', 'SQL', 'S3'
+]);
+
+const SHORT_TOKENS = new Set([
+  'az', 'js', 'ts', 'ui', 'ux', 'ai', 'ml', 'db', 'io'
+]);
+
 function extractFeaturesFromDocs(documents = [], options = {}) {
   const opts = { ...DEFAULT_OPTIONS, ...options };
   const results = [];
@@ -563,6 +572,9 @@ function cleanupFeatureText(text) {
   if (cleaned.includes(' - ')) {
     cleaned = cleaned.split(' - ')[0].trim();
   }
+  if (cleaned.includes(' – ')) {
+    cleaned = cleaned.split(' – ')[0].trim();
+  }
   if (cleaned.includes(' — ')) {
     cleaned = cleaned.split(' — ')[0].trim();
   }
@@ -653,13 +665,21 @@ function isFormulaLine(line, candidate) {
   const normalized = normalizeText(text);
   if (!normalized) return false;
   if (normalized.includes('equivalent to') || normalized.includes('is equivalent')) return true;
-  const hasDigits = /\d/.test(raw);
-  const hasOps = /[+\-/*%^]/.test(raw);
-  const hasParen = /[()]/.test(raw);
-  const opCount = (raw.match(/[+\-/*%^]/g) || []).length;
-  if (hasOps && hasParen && (hasDigits || opCount >= 1)) return true;
-  if (/\b(step\(\)|sum\(|rate\(|min\(|max\(|avg\(|count\(|quantile\(|sumovertime\()\b/i.test(raw)) return true;
-  if (/\/\s*:\s*/.test(raw)) return true;
+  const cleanedRaw = raw
+    .replace(/\[[^\]]+\]\([^)]+\)/g, '')
+    .replace(/^\s*(?:[-*+]|\d+\.)\s+/, '');
+  const hasDigits = /\d/.test(cleanedRaw);
+  const letterCount = (cleanedRaw.match(/[A-Za-z]/g) || []).length;
+  const opCount = (cleanedRaw.match(/[+\-/*%^]/g) || []).length;
+  const mathCount = (cleanedRaw.match(/[0-9+\-/*%^=]/g) || []).length;
+  if (letterCount > 12 && mathCount < 4) return false;
+  if (letterCount > mathCount * 2) return false;
+  const hasOps = opCount > 0;
+  const hasParen = /[()]/.test(cleanedRaw);
+  if (hasDigits && hasOps && hasParen) return true;
+  if (hasDigits && opCount >= 2) return true;
+  if (/\b(step\(\)|sum\(|rate\(|min\(|max\(|avg\(|count\(|quantile\(|sumovertime\()\b/i.test(cleanedRaw)) return true;
+  if (/\/\s*:\s*/.test(cleanedRaw)) return true;
   return false;
 }
 
@@ -667,11 +687,12 @@ function isConfigKeyLine(candidate, line) {
   const trimmed = String(candidate || '').trim();
   if (!trimmed) return false;
   const full = String(line || '');
+  const cleanedLine = full.replace(/\[[^\]]+\]\([^)]+\)/g, '');
   const firstToken = trimmed.split(/\s+/)[0] || trimmed;
   if (/^--/.test(firstToken)) return true;
   if (!/^[a-z0-9_.-]+$/i.test(firstToken)) return false;
   if (firstToken.length < 4 || firstToken.length > 40) return false;
-  if (full.includes('#') || full.includes('=')) return true;
+  if (cleanedLine.includes('#') || cleanedLine.includes('=')) return true;
   if (/(enable|disable|flag|option|setting)/i.test(firstToken) && firstToken.length <= 30) return true;
   return false;
 }
@@ -765,6 +786,7 @@ function buildFeatureRecord(name, filePath, lineNumber, contextLine, options) {
   if (trimmedName.startsWith('@')) return null;
   if (trimmedName.length < options.minLength || trimmedName.length > options.maxLength) return null;
   if (isGenericLabel(trimmedName)) return null;
+  if (isEnvVarListing(trimmedName, contextLine)) return null;
 
   const sourceType = detectSourceType(filePath);
   if (sourceType === 'release' && (isReleaseHeading(trimmedName) || isReleaseNoise(trimmedName))) return null;
@@ -815,7 +837,11 @@ function tokenize(text) {
   return String(text || '')
     .split(/\s+/)
     .map(token => token.trim())
-    .filter(token => token.length >= 3 && !STOPWORDS.has(token));
+    .filter(token => {
+      if (!token || STOPWORDS.has(token)) return false;
+      if (token.length >= 3) return true;
+      return token.length === 2 && SHORT_TOKENS.has(token);
+    });
 }
 
 function looksLikeFeatureItem(text) {
@@ -1042,8 +1068,33 @@ function isGoalListContext(lines, index) {
 function isAllowedSingleToken(text) {
   const trimmed = String(text || '').trim();
   if (!trimmed) return false;
-  if (trimmed.includes('-')) return true;
-  return /^[A-Z][A-Za-z0-9]{5,}$/.test(trimmed);
+  const upper = trimmed.toUpperCase();
+  if (ALLOWED_SINGLE_TOKENS.has(upper)) return true;
+  if (trimmed.includes('-')) {
+    if (/^[A-Z0-9_-]+$/.test(trimmed)) return false;
+    return true;
+  }
+  if (/^[A-Z0-9_]+$/.test(trimmed)) return false;
+  return /^[A-Z][A-Za-z0-9]{4,}$/.test(trimmed);
+}
+
+function isEnvVarListing(text, contextLine) {
+  const raw = String(text || '').trim();
+  if (!raw) return false;
+  const tokens = raw.match(/\b[A-Z][A-Z0-9_]{2,}\b/g) || [];
+  if (tokens.length === 0) return false;
+  const longTokens = tokens.filter(token => token.includes('_') || /\d/.test(token) || token.length >= 10);
+  if (longTokens.length === 0) return false;
+  if (tokens.length >= 2) return true;
+  const token = tokens[0];
+  if (raw === token) return true;
+  if (raw.startsWith(token)) {
+    const rest = raw.slice(token.length).trim();
+    if (/^(?:-|–|—|:)/.test(rest)) return true;
+    if (/(defaults?|default|env|environment|config|for\b|set\b|value\b)/i.test(rest)) return true;
+  }
+  if (contextLine && /(env var|environment variable|configuration|config)/i.test(contextLine)) return true;
+  return false;
 }
 
 function isFeatureDocPath(filePath) {
