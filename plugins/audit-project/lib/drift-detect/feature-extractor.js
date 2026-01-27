@@ -21,6 +21,17 @@ const DEFAULT_OPTIONS = {
   maxLength: 120
 };
 
+const ENUMERATION_PREFIXES = new Map([
+  ['scale', 'Scales'],
+  ['axis', 'Axes'],
+  ['axes', 'Axes'],
+  ['chart type', 'Chart types'],
+  ['plugin', 'Plugins'],
+  ['element', 'Elements'],
+  ['adapter', 'Adapters']
+]);
+const ENUMERATION_MIN_COUNT = 3;
+
 function extractFeaturesFromDocs(documents = [], options = {}) {
   const opts = { ...DEFAULT_OPTIONS, ...options };
   const results = [];
@@ -45,11 +56,13 @@ function extractFeaturesFromDocs(documents = [], options = {}) {
   }
 
   const deduped = dedupeFeatures(results);
-  const names = deduped.map(item => item.name);
+  const collapsed = collapseEnumeratedFeatures(deduped);
+  const finalFeatures = dedupeFeatures(collapsed);
+  const names = finalFeatures.map(item => item.name);
 
   return {
     features: names,
-    details: deduped
+    details: finalFeatures
   };
 }
 
@@ -870,6 +883,63 @@ function dedupeFeatures(features) {
     if (seen.has(feature.normalized)) continue;
     seen.add(feature.normalized);
     output.push(feature);
+  }
+
+  return output;
+}
+
+function collapseEnumeratedFeatures(features) {
+  const groups = new Map();
+  const output = [];
+
+  for (const feature of features) {
+    if (!feature || !feature.name) continue;
+    const name = String(feature.name);
+    if (!name.includes(':')) {
+      output.push(feature);
+      continue;
+    }
+    const [rawPrefix, ...rest] = name.split(':');
+    const prefix = rawPrefix.trim();
+    const value = rest.join(':').trim();
+    if (!prefix || !value) {
+      output.push(feature);
+      continue;
+    }
+    const normalizedPrefix = normalizeText(prefix);
+    const parentName = ENUMERATION_PREFIXES.get(normalizedPrefix);
+    if (!parentName) {
+      output.push(feature);
+      continue;
+    }
+    if (!groups.has(normalizedPrefix)) {
+      groups.set(normalizedPrefix, {
+        parentName,
+        prefix,
+        items: [],
+        records: []
+      });
+    }
+    const group = groups.get(normalizedPrefix);
+    group.items.push(value);
+    group.records.push(feature);
+  }
+
+  for (const group of groups.values()) {
+    if (group.records.length < ENUMERATION_MIN_COUNT) {
+      output.push(...group.records);
+      continue;
+    }
+    const base = group.records[0];
+    const normalized = normalizeText(group.parentName);
+    const tokens = tokenize(normalized);
+    output.push({
+      ...base,
+      name: group.parentName,
+      normalized,
+      tokens,
+      context: `Collapsed ${group.prefix} list (${group.items.length} items).`
+    });
   }
 
   return output;

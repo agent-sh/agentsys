@@ -277,6 +277,9 @@ function singularizeToken(token) {
   if (isShortCodeToken(value)) return value;
   if (/\d/.test(value)) return value;
   if (value.endsWith('js') || value.endsWith('css')) return value;
+  if (value.endsWith('axes') && value.length > 4) return `${value.slice(0, -2)}is`;
+  if (value.endsWith('axis')) return value;
+  if (/(is|us)$/.test(value)) return value;
   if (value.endsWith('ies') && value.length > 4) return `${value.slice(0, -3)}y`;
   if (value.endsWith('s') && value.length > 3 && !value.endsWith('ss')) return value.slice(0, -1);
   return value;
