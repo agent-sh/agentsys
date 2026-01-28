@@ -587,6 +587,24 @@ function extractInlineFeature(line) {
   if (/\b(?:does not|doesn't|do not|don't|not)\s+(?:supports?|provides?|include|includes|enables?|allows?|adds?|introduces?)\b/i.test(trimmed)) {
     return null;
   }
+  const subjectMatch = line.match(/\b(?:the|this)\s+(?:program|tool|cli|library|package|adapter|app|application)\s+(?:can\s+)?(.+)/i);
+  if (subjectMatch) {
+    let candidate = cleanupFeatureText(subjectMatch[1]);
+    candidate = candidate.replace(/^(?:will|can|to)\s+/i, '');
+    if (candidate.includes(' by ')) {
+      candidate = candidate.split(' by ')[0].trim();
+    }
+    const list = splitConjunctionFeatures(candidate);
+    if (list) return list;
+    if (candidate.length > 160) {
+      candidate = candidate.split('.')[0].trim();
+    }
+    if (candidate.length > 160) {
+      candidate = candidate.slice(0, 160).trim();
+    }
+    if (candidate.length < 10) return null;
+    return candidate;
+  }
   const verbMatch = line.match(/\b(?:supports|provides|provide|includes|enables|allows|adds|introduces)\s+(.+)/i);
   if (verbMatch) {
     let candidate = cleanupFeatureText(verbMatch[1]);
@@ -933,14 +951,21 @@ function cleanupFeatureText(text) {
 
   cleaned = cleaned.replace(/^[^A-Za-z0-9]+/g, '').replace(/[^A-Za-z0-9)]+$/g, '').trim();
 
-  if (cleaned.includes(' - ')) {
-    cleaned = cleaned.split(' - ')[0].trim();
-  }
-  if (cleaned.includes(' – ')) {
-    cleaned = cleaned.split(' – ')[0].trim();
-  }
-  if (cleaned.includes(' — ')) {
-    cleaned = cleaned.split(' — ')[0].trim();
+  const dashSplitters = [' - ', ' – ', ' — '];
+  for (const splitter of dashSplitters) {
+    if (!cleaned.includes(splitter)) continue;
+    const parts = cleaned.split(splitter);
+    const left = (parts.shift() || '').trim();
+    const right = parts.join(splitter).trim();
+    const leftTokens = normalizeText(left).split(' ').filter(Boolean);
+    if (leftTokens.length >= 2 && left.length >= 6) {
+      cleaned = left;
+    } else if (right) {
+      cleaned = `${left} ${right}`.trim();
+    } else {
+      cleaned = left;
+    }
+    break;
   }
   if (cleaned.includes(' e.g.')) {
     cleaned = cleaned.split(' e.g.')[0].trim();
