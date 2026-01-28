@@ -715,7 +715,15 @@ function matchFeatureToTextContent(basePath, map, feature, options) {
       }
       if (matched.length === 0) continue;
       const strongHit = matched.some(token => token.length >= 7);
-      if (!strongHit && matched.length < 2) continue;
+      if (!strongHit && matched.length < 2) {
+        const single = matched[0];
+        if (feature?.tokens?.length >= 2 && single && single.length >= 6) {
+          const count = countOccurrences(lower, single);
+          if (count < 2) continue;
+        } else {
+          continue;
+        }
+      }
       const entry = {
         file,
         name: matched[0],
@@ -750,6 +758,19 @@ function matchFeatureToTextContent(basePath, map, feature, options) {
 
   if (matches.length > 0) return matches.slice(0, limit);
   return testMatches.slice(0, limit).map(entry => ({ ...entry, testOnly: true }));
+}
+
+function countOccurrences(text, token) {
+  if (!text || !token) return 0;
+  let count = 0;
+  let index = 0;
+  while (true) {
+    const next = text.indexOf(token, index);
+    if (next === -1) break;
+    count += 1;
+    index = next + token.length;
+  }
+  return count;
 }
 
 function matchFeatureToFlagStrings(basePath, map, feature, options) {
