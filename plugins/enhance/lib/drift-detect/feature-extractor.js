@@ -43,6 +43,7 @@ const SHORT_TOKENS = new Set([
 function extractFeaturesFromDocs(documents = [], options = {}) {
   const opts = { ...DEFAULT_OPTIONS, ...options };
   const results = [];
+  const collectLimit = Math.max(opts.maxTotal, opts.maxTotal * 3);
 
   for (const doc of documents) {
     if (!doc || !doc.content || !doc.path) continue;
@@ -51,19 +52,19 @@ function extractFeaturesFromDocs(documents = [], options = {}) {
       const record = buildFeatureRecord(feature, doc.path, 1, `path:${doc.path}`, opts);
       if (record) {
         results.push(record);
-        if (results.length >= opts.maxTotal) break;
+        if (results.length >= collectLimit) break;
       }
     }
-    if (results.length >= opts.maxTotal) break;
+    if (results.length >= collectLimit) break;
     const extracted = extractFeaturesFromContent(doc.content, doc.path, opts);
     for (const item of extracted) {
       results.push(item);
-      if (results.length >= opts.maxTotal) break;
+      if (results.length >= collectLimit) break;
     }
-    if (results.length >= opts.maxTotal) break;
+    if (results.length >= collectLimit) break;
   }
 
-  const deduped = dedupeFeatures(results);
+  const deduped = dedupeFeatures(results, opts.maxTotal);
   const names = deduped.map(item => item.name);
 
   return {
@@ -1268,6 +1269,21 @@ function isGenericLabel(text) {
   return GENERIC_LABELS.has(normalized);
 }
 
+function getDocSourceWeight(filePath, sourceType, contextLine) {
+  const normalized = String(filePath || '').replace(/\\/g, '/').toLowerCase();
+  let weight = 0.7;
+  if (sourceType === 'readme') weight = 1.0;
+  else if (sourceType === 'release') weight = 0.9;
+  else if (sourceType === 'plan') weight = 0.5;
+  else if (sourceType === 'docs' || sourceType === 'doc') weight = 0.85;
+
+  if (/\/(archive|archived|legacy|old|drafts?)\//.test(normalized)) weight *= 0.5;
+  if (/\/examples?\//.test(normalized)) weight *= 0.7;
+  if (contextLine && String(contextLine).startsWith('path:')) weight *= 0.7;
+
+  return Math.max(0.1, Math.min(1, weight));
+}
+
 function buildFeatureRecord(name, filePath, lineNumber, contextLine, options) {
   if (!name) return null;
   let trimmedName = name;
@@ -1280,6 +1296,7 @@ function buildFeatureRecord(name, filePath, lineNumber, contextLine, options) {
   if (isEnvVarListing(trimmedName, contextLine)) return null;
 
   const sourceType = detectSourceType(filePath);
+  const sourceWeight = getDocSourceWeight(filePath, sourceType, contextLine);
   if (sourceType === 'release' && (isReleaseHeading(trimmedName) || isReleaseNoise(trimmedName))) return null;
 
   const normalized = normalizeText(trimmedName);
@@ -1318,6 +1335,7 @@ function buildFeatureRecord(name, filePath, lineNumber, contextLine, options) {
     tokens,
     sourceFile: filePath,
     sourceType: sourceType,
+    sourceWeight,
     sourceLine: lineNumber,
     context: contextLine.trim().slice(0, 200)
   };
@@ -1368,18 +1386,68 @@ function looksLikeFeatureItem(text) {
   return Boolean(verbMatch);
 }
 
-function dedupeFeatures(features) {
-  const seen = new Set();
-  const output = [];
+function dedupeFeatures(features, maxTotal) {
+  const merged = new Map();
 
   for (const feature of features) {
     if (!feature || !feature.normalized) continue;
-    if (seen.has(feature.normalized)) continue;
-    seen.add(feature.normalized);
-    output.push(feature);
+    const key = feature.normalized;
+    const weight = Number.isFinite(feature.sourceWeight) ? feature.sourceWeight : 0.6;
+    const sourceMeta = buildSourceMeta(feature);
+    if (!merged.has(key)) {
+      merged.set(key, {
+        ...feature,
+        occurrences: 1,
+        totalWeight: weight,
+        maxWeight: weight,
+        sources: sourceMeta ? [sourceMeta] : []
+      });
+      continue;
+    }
+    const entry = merged.get(key);
+    const prevMax = entry.maxWeight;
+    entry.occurrences += 1;
+    entry.totalWeight += weight;
+    entry.maxWeight = Math.max(entry.maxWeight, weight);
+    if (sourceMeta && !entry.sources.some(source => source.file === sourceMeta.file && source.type === sourceMeta.type)) {
+      entry.sources.push(sourceMeta);
+    }
+    if (weight > prevMax || (weight === prevMax && feature.name && feature.name.length < entry.name.length)) {
+      entry.name = feature.name;
+      entry.tokens = feature.tokens;
+      entry.sourceFile = feature.sourceFile;
+      entry.sourceType = feature.sourceType;
+      entry.sourceWeight = feature.sourceWeight;
+      entry.sourceLine = feature.sourceLine;
+      entry.context = feature.context;
+    }
   }
 
+  const output = Array.from(merged.values());
+  for (const item of output) {
+    const bonus = Math.min(0.3, Math.log1p(item.occurrences) * 0.1);
+    item.confidence = Math.min(1, (item.maxWeight || 0) + bonus);
+  }
+  output.sort((a, b) => {
+    if ((b.totalWeight || 0) !== (a.totalWeight || 0)) return (b.totalWeight || 0) - (a.totalWeight || 0);
+    if ((b.occurrences || 0) !== (a.occurrences || 0)) return (b.occurrences || 0) - (a.occurrences || 0);
+    return a.name.localeCompare(b.name);
+  });
+
+  if (Number.isFinite(maxTotal)) {
+    return output.slice(0, Math.max(0, maxTotal));
+  }
   return output;
+}
+
+function buildSourceMeta(feature) {
+  if (!feature) return null;
+  if (!feature.sourceFile && !feature.sourceType) return null;
+  return {
+    file: feature.sourceFile || null,
+    type: feature.sourceType || null,
+    weight: Number.isFinite(feature.sourceWeight) ? feature.sourceWeight : null
+  };
 }
 
 function trimFeatureName(text, maxLength) {
