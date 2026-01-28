@@ -70,6 +70,14 @@ Output SPECIFIC actions, not generic advice:
 - "Reopen: Phase C (missing: X, Y, Z)"
 - "Block release until: tests added for auth/, issue #78 fixed"
 - "Update PLAN.md: Phase B is NOT complete"
+
+### 5. Evidence Per Claim (Required)
+
+For every drift claim, include BOTH:
+- **Docs evidence**: file + line number (from `docs.featureDetails` or `drift.featureEvidence.items[].doc`)
+- **Code evidence**: file + line or symbol (from `code.repoMap.featureEvidence` or `drift.featureEvidence.items[].code`)
+
+If evidence is missing, explicitly say: "No code evidence found" or "No doc source found".
 </critical-analysis-requirements>
 
 ## Architecture

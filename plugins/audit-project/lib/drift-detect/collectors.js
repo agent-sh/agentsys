@@ -747,7 +747,7 @@ function scanLocalTasks(options = {}) {
     if (!content) continue;
     result.available = true;
     result.files.push(filePath);
-    extractCheckboxes(result, content);
+    extractCheckboxes(result, content, filePath);
     extractPlans(result, content);
   }
 
@@ -800,7 +800,7 @@ function scanCustomState(options = {}) {
     result.files = [custom.tool];
     result.checkboxes = { total: 0, checked: 0, unchecked: 0, items: [] };
     result.plans = [];
-    extractCheckboxes(result, content);
+    extractCheckboxes(result, content, custom.tool);
     extractPlans(result, content);
     if (result.checkboxes.items.length > 0) {
       result.issues = result.checkboxes.items.map((item, index) => ({
@@ -1030,7 +1030,7 @@ function analyzeDocumentation(options = {}) {
       const analysis = analyzeMarkdownFile(content, filePath);
       result.files[filePath] = analysis;
       result.summary.totalWords += analysis.wordCount;
-      extractCheckboxes(result, content);
+      extractCheckboxes(result, content, filePath);
       extractPlans(result, content);
 
       const pointer = resolveDocPointer(content);
@@ -1198,6 +1198,22 @@ function shouldSkipFeatureDocPath(filePath, content) {
   return false;
 }
 
+function shouldSkipCheckboxPath(filePath) {
+  const normalized = String(filePath || '').replace(/\\/g, '/').toLowerCase();
+  if (!normalized) return false;
+  if (normalized.includes('/checklists/')) return true;
+  if (normalized.includes('/agent-docs/')) return true;
+  if (normalized.includes('/references/')) return true;
+  if (normalized.includes('/research/')) return true;
+  if (normalized.includes('/docs/reference/')) return true;
+  if (normalized.includes('/docs/references/')) return true;
+  if (normalized.includes('/docs/internal/')) return true;
+  if (normalized.includes('/docs/specs/')) return true;
+  if (normalized.includes('/docs/drafts/')) return true;
+  if (normalized.includes('/docs/guide') || normalized.includes('/docs/guides/')) return true;
+  return false;
+}
+
 function hasFeatureSignal(content) {
   if (!content) return false;
   const text = String(content);
@@ -1245,7 +1261,7 @@ function analyzeMarkdownFile(content, filePath) {
  * Extract checkboxes from content
  * Supports: - [x], * [x], + [x], 1. [x], and indented versions
  */
-function extractCheckboxes(result, content) {
+function extractCheckboxes(result, content, filePath = null) {
   // Match all checkbox formats
   const checkedPattern = /^[\s]*(?:[-*+]|\d+\.)\s*\[x\]/gim;
   const uncheckedPattern = /^[\s]*(?:[-*+]|\d+\.)\s*\[\s\]/gim;
@@ -1264,7 +1280,8 @@ function extractCheckboxes(result, content) {
   while ((match = itemPattern.exec(content)) !== null && result.checkboxes.items.length < 100) {
     result.checkboxes.items.push({
       checked: match[1].toLowerCase() === 'x',
-      text: match[2].trim().slice(0, 150)  // Truncate long items
+      text: match[2].trim().slice(0, 150),  // Truncate long items
+      file: filePath
     });
   }
 }
@@ -1974,7 +1991,105 @@ function buildDriftSummary(docs, code, opts) {
   const summary = {};
   summary.features = summarizeFeatureDrift(docs, code);
   summary.plans = summarizePlanDrift(docs, code, opts);
+  summary.featureEvidence = buildFeatureEvidence(docs, code, opts);
   return summary;
+}
+
+function buildFeatureEvidence(docs, code, opts) {
+  const detailFeatures = Array.isArray(docs?.featureDetails) ? docs.featureDetails : [];
+  if (detailFeatures.length === 0) {
+    return { available: false, total: 0, items: [] };
+  }
+
+  const evidence = code?.repoMap?.featureEvidence?.features;
+  const evidenceMap = new Map();
+  if (Array.isArray(evidence)) {
+    for (const item of evidence) {
+      if (!item) continue;
+      const key = item.normalized || featureExtractor.normalizeText(item.feature);
+      if (!key) continue;
+      evidenceMap.set(key, item);
+    }
+  }
+
+  const limit = Math.min(detailFeatures.length, opts?.docFeatures?.maxTotal || 60);
+  const items = [];
+
+  for (const feature of detailFeatures.slice(0, limit)) {
+    if (!feature) continue;
+    const normalized = feature.normalized || featureExtractor.normalizeText(feature.name || feature.feature || '');
+    if (!normalized) continue;
+
+    const evidenceItem = evidenceMap.get(normalized);
+    const docSources = Array.isArray(feature.sources)
+      ? feature.sources.map(source => source.file).filter(Boolean)
+      : [];
+
+    const doc = {
+      file: feature.sourceFile || null,
+      line: feature.sourceLine || null,
+      context: feature.context || null,
+      sources: docSources.length > 0 ? Array.from(new Set(docSources)).slice(0, 5) : []
+    };
+
+    const codeEvidence = evidenceItem
+      ? summarizeCodeEvidence(evidenceItem, opts?.repoMap)
+      : { status: 'missing', defs: [], refs: [], snippets: [] };
+
+    items.push({
+      feature: feature.name || feature.feature,
+      normalized,
+      doc,
+      code: codeEvidence
+    });
+  }
+
+  return {
+    available: true,
+    total: items.length,
+    items
+  };
+}
+
+function summarizeCodeEvidence(item, repoMapOptions = {}) {
+  const dedupe = (list) => {
+    const seen = new Set();
+    return list.filter(entry => {
+      const key = `${entry.file}:${entry.line}:${entry.name || entry.text || ''}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  };
+
+  const maxDefs = repoMapOptions?.maxDefsPerFeature || 3;
+  const maxRefs = repoMapOptions?.maxRefsPerFeature || 3;
+  const maxSnippets = repoMapOptions?.snippetLines ? 3 : 2;
+
+  const defs = dedupe(Array.isArray(item.defs) ? item.defs : []).slice(0, maxDefs).map(def => ({
+    file: def.file,
+    line: def.line,
+    name: def.name,
+    kind: def.kind
+  }));
+  const refs = dedupe(Array.isArray(item.refs) ? item.refs : []).slice(0, maxRefs).map(ref => ({
+    file: ref.file,
+    line: ref.line,
+    name: ref.name,
+    kind: ref.kind
+  }));
+  const snippets = dedupe(Array.isArray(item.snippets) ? item.snippets : []).slice(0, maxSnippets).map(snippet => ({
+    file: snippet.file,
+    line: snippet.line,
+    text: snippet.text
+  }));
+
+  return {
+    status: item.status || 'missing',
+    defs,
+    refs,
+    snippets
+  };
 }
 
 function summarizeFeatureDrift(docs, code) {
@@ -2059,6 +2174,7 @@ function summarizePlanDrift(docs, code, opts) {
 
   for (const item of checkboxItems) {
     if (!item?.text) continue;
+    if (shouldSkipCheckboxPath(item.file)) continue;
     if (!shouldIncludePlanItem(item.text)) continue;
     items.push({ text: item.text, checked: item.checked === true });
   }
@@ -2240,6 +2356,23 @@ function shouldIncludePlanItem(text) {
   if (normalized.length < 6) return false;
   if (normalized.split(' ').length < 2) return false;
   if (/^(todo|fixme|note|notes|misc|chore|refactor)\b/.test(normalized)) return false;
+  if (/\btests?\s+(pass|passing|green)\b/.test(normalized)) return false;
+  if (/\b(changelog|release notes|release note|version bump|readme|read me)\b/.test(normalized)) return false;
+  if (/\b(review|reviews|reviewer|comment|comments|comment threads|changes requested)\b/.test(normalized)) return false;
+  if (/\bchecklist\b/.test(normalized)) return false;
+  if (/\b(line count|line counts|lines? under)\b/.test(normalized)) return false;
+  if (/\b(description includes|additional details|no unnecessary complexity)\b/.test(normalized)) return false;
+  if (/\b(diagram|overview|table|definitions?|documentation|docs?)\b/.test(normalized)) return false;
+  if (/\bunder\s+\d+\s+lines\b/.test(normalized)) return false;
+  if (/^no\s+time-sensitive\b/.test(normalized)) return false;
+  if (/^consistent\s+terminology\b/.test(normalized)) return false;
+  if (/^examples?\s+are\b/.test(normalized)) return false;
+  if (/^file\s+references?\b/.test(normalized)) return false;
+  if (/^scripts?\s+handle\b/.test(normalized)) return false;
+  if (/^required\s+packages?\b/.test(normalized)) return false;
+  if (/^tested\s+with\b/.test(normalized)) return false;
+  if (/^no\s+windows-style\b/.test(normalized)) return false;
+  if (/^no\s+magic\b/.test(normalized)) return false;
   return true;
 }
 

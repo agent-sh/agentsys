@@ -57,6 +57,10 @@ Compare docs to implementation using semantic matching:
 
 Prefer `code.repoMap.evidence` when available for concrete file/symbol matches.
 
+For every drift claim, include explicit doc + code evidence:
+- Docs: `docs.featureDetails` or `drift.featureEvidence.items[].doc` (file:line)
+- Code: `code.repoMap.featureEvidence` or `drift.featureEvidence.items[].code` (file:line or symbol)
+
 Categorize: Documented-not-implemented, Implemented-not-documented, Partial, Aligned
 
 ### Step 3: Identify Drift

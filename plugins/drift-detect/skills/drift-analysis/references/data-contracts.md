@@ -317,6 +317,76 @@ interface CodeAnalysis {
 
 ---
 
+## 4. Drift Summary (`collectedData.drift`)
+
+```typescript
+interface DriftSummary {
+  features: {
+    available: boolean;
+    total: number;
+    implemented: number;
+    partial: number;
+    missing: number;
+    weightedCoverage: number;
+    topMissing: Array<{name: string; normalized: string;}>;
+  };
+  plans: {
+    available: boolean;
+    total: number;
+    checked: number;
+    unchecked: number;
+    implemented: number;
+    missing: number;
+    mismatches: {
+      checkedMissing: string[];
+      uncheckedImplemented: string[];
+      plannedImplemented: string[];
+    };
+    planFeatures: {
+      available: boolean;
+      total: number;
+      implemented: number;
+      missing: number;
+      mismatches: {
+        plannedImplemented: string[];
+        doneMissing: string[];
+        inProgressMissing: string[];
+      };
+    };
+  };
+  featureEvidence: {
+    available: boolean;
+    total: number;
+    items: Array<{
+      feature: string;
+      normalized: string;
+      doc: {
+        file: string | null;
+        line: number | null;
+        context: string | null;
+        sources: string[];
+      };
+      code: {
+        status: 'implemented' | 'partial' | 'missing';
+        defs: Array<{file: string; line: number | null; name?: string; kind?: string;}>;
+        refs: Array<{file: string; line: number | null; name?: string; kind?: string;}>;
+        snippets: Array<{file: string; line: number | null; text: string;}>;
+      };
+    }>;
+  };
+}
+```
+
+### Agent Actions for Drift Summary
+
+| Data Point | Agent Should |
+|------------|--------------|
+| `featureEvidence.items` | Use for evidence per claim: docs file+line and code file+line |
+| `plans.mismatches` | Treat as drift signals, but confirm with code evidence |
+| `plans.planFeatures` | Separate doc-only plan items from code-backed features |
+
+---
+
 ## Cross-Reference Algorithm
 
 The agent should perform this mental model:
