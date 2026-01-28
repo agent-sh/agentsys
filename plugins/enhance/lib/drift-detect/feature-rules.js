@@ -38,7 +38,7 @@ const GENERIC_LABELS = new Set([
   'e-mail', 'email', 'renderer', 'addons', 'architecture', 'forums', 'github issues',
   'slack', 'newsletter', 'facebook page', 'resources', 'communication', 'documentation',
   'source code', 'docs', 'dependency', 'prerequisites', 'installation', 'requirements', 'module',
-  'note', 'notes', 'reason', 'rationale'
+  'note', 'notes', 'reason', 'rationale', 'keybindings'
 ]);
 
 const LOW_SIGNAL_EXACT = new Set([
@@ -100,6 +100,10 @@ const LOW_SIGNAL_CONTAINS = [
   'suit your preferences',
   'on your device',
   'ensuring your privacy',
+  'built for ai',
+  'built for automation',
+  'automation-first',
+  'automation first',
   'production-ready',
   'open source',
   'open-source',
