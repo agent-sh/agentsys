@@ -212,8 +212,8 @@ ${JSON.stringify(collectedData.drift, null, 2)}
 Generate a Reality Check Report. Be brutally specific with issue numbers, file paths, and actionable recommendations.
 
 Evidence requirement: for every drift claim include:
-- Docs evidence (file + line from drift.featureEvidence.items[].doc or docs.featureDetails)
-- Code evidence (file + line/symbol from drift.featureEvidence.items[].code or code.repoMap.featureEvidence)
+- Docs evidence (file + line from drift.featureEvidence.items[].doc or drift.planEvidence.items[].doc or docs.featureDetails)
+- Code evidence (file + line/symbol from drift.featureEvidence.items[].code or drift.planEvidence.items[].code or code.repoMap.featureEvidence)
 If evidence is missing, state it explicitly.`,
   description: "Analyze project reality"
 });

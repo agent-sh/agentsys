@@ -374,6 +374,26 @@ interface DriftSummary {
       };
     }>;
   };
+  planEvidence: {
+    available: boolean;
+    total: number;
+    items: Array<{
+      feature: string;
+      normalized: string;
+      doc: {
+        file: string | null;
+        line: number | null;
+        context: string | null;
+        sources: string[];
+      };
+      code: {
+        status: 'implemented' | 'partial' | 'missing';
+        defs: Array<{file: string; line: number | null; name?: string; kind?: string;}>;
+        refs: Array<{file: string; line: number | null; name?: string; kind?: string;}>;
+        snippets: Array<{file: string; line: number | null; text: string;}>;
+      };
+    }>;
+  };
 }
 ```
 
@@ -382,6 +402,7 @@ interface DriftSummary {
 | Data Point | Agent Should |
 |------------|--------------|
 | `featureEvidence.items` | Use for evidence per claim: docs file+line and code file+line |
+| `planEvidence.items` | Use for plan/checklist evidence per claim |
 | `plans.mismatches` | Treat as drift signals, but confirm with code evidence |
 | `plans.planFeatures` | Separate doc-only plan items from code-backed features |
 

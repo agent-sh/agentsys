@@ -58,8 +58,8 @@ Compare docs to implementation using semantic matching:
 Prefer `code.repoMap.evidence` when available for concrete file/symbol matches.
 
 For every drift claim, include explicit doc + code evidence:
-- Docs: `docs.featureDetails` or `drift.featureEvidence.items[].doc` (file:line)
-- Code: `code.repoMap.featureEvidence` or `drift.featureEvidence.items[].code` (file:line or symbol)
+- Docs: `docs.featureDetails` or `drift.featureEvidence.items[].doc` or `drift.planEvidence.items[].doc` (file:line)
+- Code: `code.repoMap.featureEvidence` or `drift.featureEvidence.items[].code` or `drift.planEvidence.items[].code` (file:line or symbol)
 
 Categorize: Documented-not-implemented, Implemented-not-documented, Partial, Aligned
 

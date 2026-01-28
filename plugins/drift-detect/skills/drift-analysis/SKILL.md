@@ -74,8 +74,8 @@ Output SPECIFIC actions, not generic advice:
 ### 5. Evidence Per Claim (Required)
 
 For every drift claim, include BOTH:
-- **Docs evidence**: file + line number (from `docs.featureDetails` or `drift.featureEvidence.items[].doc`)
-- **Code evidence**: file + line or symbol (from `code.repoMap.featureEvidence` or `drift.featureEvidence.items[].code`)
+- **Docs evidence**: file + line number (from `docs.featureDetails`, `drift.featureEvidence.items[].doc`, or `drift.planEvidence.items[].doc`)
+- **Code evidence**: file + line or symbol (from `code.repoMap.featureEvidence`, `drift.featureEvidence.items[].code`, or `drift.planEvidence.items[].code`)
 
 If evidence is missing, explicitly say: "No code evidence found" or "No doc source found".
 </critical-analysis-requirements>
