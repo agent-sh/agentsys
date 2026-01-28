@@ -470,6 +470,7 @@ function extractFeaturesFromContent(content, filePath, options) {
         if (isNegativeConstraint(candidate)) continue;
         if (isPlanDoc && isPlanNoiseLine(candidate)) continue;
         const isChecked = /\[[xX]\]/.test(line);
+        const isNumberedList = /^\s*\d+\./.test(line);
         if (currentCategory) {
           if (isConfigPath(candidate) || isGenericLabel(candidate)) {
             continue;
@@ -501,7 +502,8 @@ function extractFeaturesFromContent(content, filePath, options) {
             ? (looksLikeFeatureItem(labeled) || looksLikeFeatureItem(candidate))
             : false;
           const planAllowed = isPlanDoc && planContext.active;
-          if (labeledFeature || looksLikeFeatureItem(candidate) || (isChecked && sourceType === 'readme') || planAllowed) {
+          const allowFeatureContext = inFeatureContext && !isNumberedList && candidate && candidate.length >= options.minLength;
+          if (labeledFeature || looksLikeFeatureItem(candidate) || allowFeatureContext || (isChecked && sourceType === 'readme') || planAllowed) {
             const split = splitCommaFeatures(candidate);
             if (split) {
               for (const item of split) {
@@ -602,6 +604,9 @@ function extractInlineFeature(line) {
   if (subjectMatch) {
     let candidate = cleanupFeatureText(subjectMatch[1]);
     candidate = candidate.replace(/^(?:will|can|to)\s+/i, '');
+    if (/^(on|in|into|to|from|for|with|within)\s+(?:your|the)\b/i.test(candidate)) {
+      return null;
+    }
     if (candidate.includes(' by ')) {
       candidate = candidate.split(' by ')[0].trim();
     }
@@ -891,6 +896,9 @@ function shouldPreferLabelDescription(label, description, line) {
   const labelWords = labelNorm.split(' ').filter(Boolean);
   const descNorm = normalizeText(description);
   const descWords = descNorm.split(' ').filter(Boolean);
+  if (/\b(you|your)\b/.test(descNorm) && !isLowSignalText(labelNorm, label)) {
+    return false;
+  }
   if (isInstructionalText(descNorm) && !isLowSignalText(labelNorm, label) && labelWords.length <= 4) {
     return false;
   }
@@ -1547,7 +1555,7 @@ function isInstructionalText(normalized) {
   if (/^read\b/.test(cleaned)) {
     return /\bread\s+(the|more|about|docs|documentation)\b/.test(cleaned);
   }
-  return /^(create|add|copy|update|remove|delete|install|configure|setup|set up|run|download|clone|check|verify|use|open|start|stop|build|compile|generate|train|fine tune|fine-tune|evaluate|export|edit|write|grab|join|get|visit|see|follow|try|ensure|should|must|need to|you should)\b/.test(cleaned);
+  return /^(create|add|copy|update|remove|delete|install|configure|setup|set up|run|download|clone|check|verify|use|open|start|stop|build|compile|generate|train|fine tune|fine-tune|evaluate|export|edit|write|grab|join|get|visit|see|follow|try|ensure|view|save|share|should|must|need to|you should)\b/.test(cleaned);
 }
 
 function isPlanInstruction(normalized) {
@@ -1635,6 +1643,9 @@ function isFeatureLeadLine(line) {
   if (normalized.endsWith('features:')) return true;
   if (normalized.includes('with the following features')) return true;
   if (normalized.includes('features include') || normalized.includes('features including')) return true;
+  if (normalized.includes('including') && /\b(report|results?|insights?|summary|stats|statistics|output|trends)\b/.test(normalized)) {
+    return true;
+  }
   if (normalized.includes('main features')) return true;
   if (normalized.includes('features of')) return true;
   if (normalized.includes('features are')) return true;

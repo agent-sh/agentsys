@@ -18,6 +18,7 @@ const STOPWORDS = new Set([
   'using', 'with', 'without',
   'include', 'includes', 'including',
   'configuration', 'config',
+  'format', 'formats',
   'auto', 'automatic', 'default', 'content', 'type',
   'via',
   'data', 'system', 'platform',
