@@ -373,6 +373,7 @@ function singularizeToken(token) {
   if (isShortCodeToken(value)) return value;
   if (/\d/.test(value)) return value;
   if (value.endsWith('js') || value.endsWith('css')) return value;
+  if (value.endsWith('news')) return value;
   if (value.endsWith('indices')) return 'index';
   if (value.endsWith('axes') && value.length > 4) return `${value.slice(0, -2)}is`;
   if (value.endsWith('axis')) return value;
@@ -585,13 +586,14 @@ function isTestFile(filePath) {
 function isDocLikePath(filePath) {
   if (!filePath) return false;
   const normalized = String(filePath).replace(/\\/g, '/').toLowerCase();
+  const javaExamplePath = /\/(com|org|net|io|co|dev|app|edu)\/example\//.test(normalized);
   if (normalized.includes('/docs/')) return true;
   if (normalized.includes('/documentation/')) return true;
   if (normalized.includes('/doc/')) return true;
   if (normalized.includes('/examples/')) return true;
-  if (normalized.includes('/example/')) return true;
+  if (normalized.includes('/example/') && !javaExamplePath) return true;
   if (normalized.includes('/samples/')) return true;
-  if (normalized.includes('/sample/')) return true;
+  if (normalized.includes('/sample/') && !javaExamplePath) return true;
   if (normalized.includes('/demos/') || normalized.startsWith('demos/')) return true;
   if (normalized.includes('/demo/') || normalized.startsWith('demo/')) return true;
   if (normalized.includes('/guides/')) return true;

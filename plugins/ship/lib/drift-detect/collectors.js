@@ -882,6 +882,11 @@ function shouldSkipFeatureDocPath(filePath, content) {
   const hasSignal = hasFeatureSignal(content);
   if (normalized.startsWith('docs/internal/') || normalized.includes('/docs/internal/')) return true;
   if (normalized.startsWith('docs/specs/') || normalized.includes('/docs/specs/')) return true;
+  if (normalized.startsWith('docs/archive/') || normalized.includes('/docs/archive/')) return true;
+  if (normalized.startsWith('docs/archived/') || normalized.includes('/docs/archived/')) return true;
+  if (normalized.startsWith('docs/legacy/') || normalized.includes('/docs/legacy/')) return true;
+  if (normalized.startsWith('docs/old/') || normalized.includes('/docs/old/')) return true;
+  if (normalized.startsWith('docs/drafts/') || normalized.includes('/docs/drafts/')) return true;
   if (normalized.startsWith('scripts/') || normalized.includes('/scripts/')) return true;
   if (/^docs\/[a-z-]{2}\//.test(normalized) && !/^docs\/en\//.test(normalized)) return true;
   const baseName = normalized.split('/').pop() || '';

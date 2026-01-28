@@ -100,6 +100,7 @@ const TOKEN_ALIASES = {
   optimizations: ['optimization', 'optimize', 'optimise'],
   offline: ['service-worker', 'serviceworker', 'service_worker'],
   image: ['images'],
+  summarization: ['summary', 'summarize', 'summarizer', 'summarised', 'summarized', 'summaries'],
   menus: ['menu'],
   compression: ['compress', 'compressor'],
   compressing: ['compress'],
