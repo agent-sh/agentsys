@@ -1641,6 +1641,10 @@ function collectAllData(options = {}) {
     }
   }
 
+  if (data.code && data.docs) {
+    data.drift = buildDriftSummary(data.docs, data.code, opts);
+  }
+
   if (data.code && data.docs && opts.depth === 'thorough') {
     const evidenceTerms = extractRepoMapTerms(data.docs);
     const evidence = getRepoMap().findEvidence(opts.cwd, evidenceTerms, {
@@ -1670,6 +1674,187 @@ function collectAllData(options = {}) {
   }
 
   return data;
+}
+
+function buildDriftSummary(docs, code, opts) {
+  const summary = {};
+  summary.features = summarizeFeatureDrift(docs, code);
+  summary.plans = summarizePlanDrift(docs, code, opts);
+  return summary;
+}
+
+function summarizeFeatureDrift(docs, code) {
+  const evidence = code?.repoMap?.featureEvidence?.features;
+  if (!Array.isArray(evidence)) {
+    return { available: false };
+  }
+
+  const evidenceMap = new Map();
+  for (const item of evidence) {
+    if (!item) continue;
+    const key = item.normalized || featureExtractor.normalizeText(item.feature);
+    if (!key) continue;
+    evidenceMap.set(key, item.status || 'missing');
+  }
+
+  const features = Array.isArray(docs?.featureDetails) && docs.featureDetails.length > 0
+    ? docs.featureDetails
+    : (docs?.features || []).map(name => ({ name, normalized: featureExtractor.normalizeText(name) }));
+
+  let totalWeight = 0;
+  let implementedWeight = 0;
+  let partialWeight = 0;
+  let implemented = 0;
+  let partial = 0;
+  let missing = 0;
+  const missingItems = [];
+
+  for (const feature of features) {
+    if (!feature) continue;
+    const normalized = feature.normalized || featureExtractor.normalizeText(feature.name || feature.feature || '');
+    if (!normalized) continue;
+    const status = evidenceMap.get(normalized) || 'missing';
+    const weightBase = Number.isFinite(feature.totalWeight) ? feature.totalWeight
+      : (Number.isFinite(feature.sourceWeight) ? feature.sourceWeight : 0.7);
+    const weight = weightBase * (Number.isFinite(feature.confidence) ? feature.confidence : 1);
+    totalWeight += weight;
+    if (status === 'implemented') {
+      implemented += 1;
+      implementedWeight += weight;
+    } else if (status === 'partial') {
+      partial += 1;
+      partialWeight += weight;
+    } else {
+      missing += 1;
+      if (missingItems.length < 12) {
+        missingItems.push({ name: feature.name, weight, normalized });
+      }
+    }
+  }
+
+  missingItems.sort((a, b) => b.weight - a.weight);
+
+  const weightedCoverage = totalWeight > 0
+    ? (implementedWeight + partialWeight * 0.5) / totalWeight
+    : 0;
+
+  return {
+    available: true,
+    total: implemented + partial + missing,
+    implemented,
+    partial,
+    missing,
+    weightedCoverage,
+    weightedTotal: totalWeight,
+    weightedImplemented: implementedWeight,
+    weightedPartial: partialWeight,
+    topMissing: missingItems
+  };
+}
+
+function summarizePlanDrift(docs, code, opts) {
+  const repoMap = code?.repoMap;
+  if (!repoMap?.available) {
+    return { available: false };
+  }
+
+  const checkboxItems = docs?.checkboxes?.items || [];
+  const planItems = Array.isArray(docs?.plans) ? docs.plans.map(text => ({ text, checked: null })) : [];
+  const items = [];
+
+  for (const item of checkboxItems) {
+    if (!item?.text) continue;
+    if (!shouldIncludePlanItem(item.text)) continue;
+    items.push({ text: item.text, checked: item.checked === true });
+  }
+  for (const item of planItems) {
+    if (!item?.text) continue;
+    if (!shouldIncludePlanItem(item.text)) continue;
+    items.push({ text: item.text, checked: null });
+  }
+
+  const seen = new Set();
+  const unique = [];
+  for (const item of items) {
+    const normalized = featureExtractor.normalizeText(item.text);
+    if (!normalized) continue;
+    if (seen.has(normalized)) continue;
+    seen.add(normalized);
+    unique.push({ ...item, normalized });
+  }
+
+  if (unique.length === 0) {
+    return { available: true, total: 0 };
+  }
+
+  const limit = Math.min(unique.length, opts?.repoMap?.maxFeatures || 30);
+  const slice = unique.slice(0, limit);
+  const evidence = getRepoMap().findFeatureEvidence(opts.cwd, slice.map(item => item.text), {
+    maxFeatures: limit,
+    maxDefsPerFeature: opts.repoMap?.maxDefsPerFeature,
+    maxRefsPerFeature: opts.repoMap?.maxRefsPerFeature,
+    maxFilesScannedPerDef: opts.repoMap?.maxFilesScannedPerDef,
+    snippetLines: opts.repoMap?.snippetLines
+  });
+
+  const evidenceMap = new Map();
+  if (Array.isArray(evidence?.features)) {
+    for (const item of evidence.features) {
+      const key = item.normalized || featureExtractor.normalizeText(item.feature);
+      if (!key) continue;
+      evidenceMap.set(key, item.status || 'missing');
+    }
+  }
+
+  let checked = 0;
+  let unchecked = 0;
+  let implemented = 0;
+  let partial = 0;
+  let missing = 0;
+  const mismatches = {
+    checkedMissing: [],
+    uncheckedImplemented: [],
+    plannedImplemented: []
+  };
+
+  for (const item of slice) {
+    if (item.checked === true) checked += 1;
+    if (item.checked === false) unchecked += 1;
+    const status = evidenceMap.get(item.normalized) || 'missing';
+    if (status === 'implemented') implemented += 1;
+    else if (status === 'partial') partial += 1;
+    else missing += 1;
+
+    if (item.checked === true && status === 'missing' && mismatches.checkedMissing.length < 10) {
+      mismatches.checkedMissing.push(item.text);
+    }
+    if (item.checked === false && status === 'implemented' && mismatches.uncheckedImplemented.length < 10) {
+      mismatches.uncheckedImplemented.push(item.text);
+    }
+    if (item.checked === null && status === 'implemented' && mismatches.plannedImplemented.length < 10) {
+      mismatches.plannedImplemented.push(item.text);
+    }
+  }
+
+  return {
+    available: true,
+    total: slice.length,
+    checked,
+    unchecked,
+    implemented,
+    partial,
+    missing,
+    mismatches
+  };
+}
+
+function shouldIncludePlanItem(text) {
+  const normalized = featureExtractor.normalizeText(text);
+  if (!normalized) return false;
+  if (normalized.length < 6) return false;
+  if (normalized.split(' ').length < 2) return false;
+  if (/^(todo|fixme|note|notes|misc|chore|refactor)\b/.test(normalized)) return false;
+  return true;
 }
 
 function extractRepoMapTerms(docs) {
