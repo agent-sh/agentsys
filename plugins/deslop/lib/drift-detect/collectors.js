@@ -15,11 +15,13 @@ const path = require('path');
 /**
  * Default options for data collection
  */
+const DEFAULT_PR_LIMIT = 50;
+
 const DEFAULT_OPTIONS = {
   sources: ['github', 'docs', 'code'],
   depth: 'thorough', // quick | thorough
   issueLimit: 100,
-  prLimit: 50,
+  prLimit: DEFAULT_PR_LIMIT,
   timeout: 10000, // 10s
   cwd: process.cwd()
 };
