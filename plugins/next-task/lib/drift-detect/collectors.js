@@ -882,6 +882,7 @@ function shouldSkipFeatureDocPath(filePath, content) {
   const hasSignal = hasFeatureSignal(content);
   if (normalized.startsWith('docs/internal/') || normalized.includes('/docs/internal/')) return true;
   if (normalized.startsWith('docs/specs/') || normalized.includes('/docs/specs/')) return true;
+  if (normalized.startsWith('scripts/') || normalized.includes('/scripts/')) return true;
   if (/^docs\/[a-z-]{2}\//.test(normalized) && !/^docs\/en\//.test(normalized)) return true;
   const baseName = normalized.split('/').pop() || '';
   const baseStem = baseName.replace(/\.[^.]+$/, '');
@@ -1773,6 +1774,10 @@ function extractCargoFeatures(basePath, limit) {
   const files = listCargoFiles(basePath, 6);
   const results = [];
   for (const filePath of files) {
+    const normalizedPath = String(filePath || '').replace(/\\/g, '/').toLowerCase();
+    if (normalizedPath.includes('/perf-tests/') || normalizedPath.includes('/perf_test/') || normalizedPath.includes('/dummy')) {
+      continue;
+    }
     let content;
     try {
       content = fs.readFileSync(path.join(basePath, filePath), 'utf8');

@@ -306,6 +306,7 @@ function extractFeaturesFromContent(content, filePath, options) {
         }
         if (isLinkOnlyItem(line)) continue;
         if (isCodeOptionItem(listMatch[1])) continue;
+        if (isMethodListLine(line)) continue;
         const labeled = extractLabeledFeature(listMatch[1]);
         if (labeled && isGenericLabel(labeled)) continue;
         const labeledDesc = labeled ? cleanupFeatureText(removeLeadingLabel(listMatch[1], labeled)) : null;
@@ -399,7 +400,7 @@ function extractFeaturesFromContent(content, filePath, options) {
             features.push(record);
           }
         }
-        const allowInline = sourceType !== 'readme' || headingCount <= 1 || i < 40;
+        const allowInline = sourceType !== 'readme' || headingCount <= 1 || i < 40 || hasStrongVerb(line);
         if (allowInline) {
           const inline = extractInlineFeature(line);
           if (inline) {
@@ -445,6 +446,7 @@ function extractFeaturesFromContent(content, filePath, options) {
         }
         if (isLinkOnlyItem(line)) continue;
         if (isCodeOptionItem(listMatch[1])) continue;
+        if (isMethodListLine(line)) continue;
         const labeled = extractLabeledFeature(listMatch[1]);
         if (labeled && isGenericLabel(labeled)) continue;
         const labeledDesc = labeled ? cleanupFeatureText(removeLeadingLabel(listMatch[1], labeled)) : null;
@@ -590,6 +592,7 @@ function isNonFeatureLabel(label) {
 
 function extractInlineFeature(line) {
   const trimmed = String(line || '').trim();
+  if (/third[-\s]?party/i.test(trimmed)) return null;
   if (/^if\b/i.test(trimmed)) return null;
   if (/\b(?:does not|doesn't|do not|don't|will not|won't|cannot|can't)\b/i.test(trimmed)) return null;
   if (/\b(?:does not|doesn't|do not|don't|not)\s+(?:supports?|provides?|include|includes|enables?|allows?|adds?|introduces?)\b/i.test(trimmed)) {
@@ -613,7 +616,7 @@ function extractInlineFeature(line) {
     if (candidate.length < 10) return null;
     return candidate;
   }
-  const verbMatch = line.match(/\b(?:supports|provides|provide|includes|enables|allows|adds|introduces)\s+(.+)/i);
+  const verbMatch = line.match(/\b(?:supports|provides|provide|includes|enables|allows|adds|introduces|visualize|visualizes|visualizing)\s+(.+)/i);
   if (verbMatch) {
     let candidate = cleanupFeatureText(verbMatch[1]);
     candidate = candidate.replace(/^(?:an?|the)\s+/i, '');
@@ -940,7 +943,13 @@ function shouldMergeLines(previous, current) {
 function looksLikeFeatureSentence(line) {
   const normalized = normalizeText(line);
   if (!normalized) return false;
-  return /\b(build|create|develop|render|deploy|generate|optimize|accelerate|improve|add|adds|introduce|introduces|support|supports|provide|provides|include|includes|enable|enables|allow|allows)\b/.test(normalized);
+  return /\b(build|create|develop|render|deploy|generate|optimize|accelerate|improve|add|adds|introduce|introduces|support|supports|provide|provides|include|includes|enable|enables|allow|allows|visualize|visualizes|visualizing)\b/.test(normalized);
+}
+
+function hasStrongVerb(line) {
+  const normalized = normalizeText(line);
+  if (!normalized) return false;
+  return /\b(visualize|visualizes|visualizing|support|supports|provide|provides|offer|offers|include|includes|enable|enables|allow|allows)\b/.test(normalized);
 }
 
 function isBuildArtifactLine(candidate, line) {
@@ -1094,6 +1103,15 @@ function isCodeOptionItem(text) {
   if (colonIdx !== -1 && colonIdx < 40) return true;
   if (/^`[^`]+`$/.test(trimmed)) return true;
   return false;
+}
+
+function isMethodListLine(line) {
+  const raw = String(line || '');
+  const codeMatches = raw.match(/`[^`]+`/g) || [];
+  if (codeMatches.length < 3) return false;
+  const normalized = normalizeText(raw);
+  if (!normalized.includes('method')) return false;
+  return true;
 }
 
 function isNegativeConstraint(text) {

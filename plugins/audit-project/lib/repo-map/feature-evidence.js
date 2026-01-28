@@ -37,6 +37,10 @@ const FEATURE_DIR_HINTS = [
   '/features/',
   '/feature/'
 ];
+const FILE_STRONG_TOKENS = new Set([
+  'mongo', 'mongodb', 'mysql', 'postgres', 'postgresql', 'redis', 'memcached',
+  'etcd', 'sqlite', 'dynamo', 'dynamodb', 's3', 'kafka', 'rabbitmq'
+]);
 
 function isImplementedByFileMatches(fileMatches, feature) {
   if (!Array.isArray(fileMatches) || fileMatches.length === 0) return false;
@@ -115,6 +119,11 @@ function findFeatureEvidence(basePath, features = [], options = {}) {
         const textMatches = matchFeatureToTextContent(basePath, map, feature, opts);
         if (textMatches.length > 0) {
           fileMatches = textMatches;
+        }
+      } else {
+        const textMatches = matchFeatureToTextContent(basePath, map, feature, opts);
+        if (textMatches.length > 0) {
+          fileMatches = mergeMatches(fileMatches, textMatches);
         }
       }
       if (fileMatches.length === 0 && opts.enablePathFallback) {
@@ -218,6 +227,20 @@ function findFeatureEvidence(basePath, features = [], options = {}) {
   }
 
   return { available: true, features: results, unmatched };
+}
+
+function mergeMatches(primary, secondary) {
+  const output = [];
+  const seen = new Set();
+  const add = (entry) => {
+    const key = `${entry.file}:${entry.kind || 'file'}:${entry.name || ''}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    output.push(entry);
+  };
+  for (const entry of primary || []) add(entry);
+  for (const entry of secondary || []) add(entry);
+  return output;
 }
 
 function normalizeFeatures(features, maxFeatures) {
@@ -628,7 +651,8 @@ function matchFeatureToFiles(feature, map, limit) {
       const nonGenericMatched = nonGeneric.some(token => matched.has(token));
       if (!nonGenericMatched && matched.size < 2) continue;
     }
-    const score = matched.size + (nonGeneric.length > 0 ? 1 : 0);
+    const strongMatched = Array.from(matched).some(token => FILE_STRONG_TOKENS.has(token));
+    const score = matched.size + (nonGeneric.length > 0 ? 1 : 0) + (strongMatched ? 1 : 0);
     const entry = {
       file,
       name: path.posix.basename(file),
