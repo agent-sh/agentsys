@@ -64,7 +64,8 @@ async function init(basePath, options = {}) {
   const startTime = Date.now();
   const map = await runner.fullScan(basePath, languages, {
     includeDocs: options.includeDocs,
-    docsDepth: options.docsDepth
+    docsDepth: options.docsDepth,
+    fileLimit: options.fileLimit
   });
   map.stats.scanDurationMs = Date.now() - startTime;
 

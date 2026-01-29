@@ -393,7 +393,7 @@ function appendDecisionLog(input, basePath = process.cwd()) {
     throw new Error('appendDecisionLog requires an input object');
   }
 
-  const { id, userQuote, verdict, rationale, date } = input;
+  const { id, userQuote, verdict, rationale, date, resultsCount } = input;
 
   if (!id || typeof id !== 'string') {
     throw new Error('appendDecisionLog requires a valid investigation id');
@@ -409,6 +409,7 @@ function appendDecisionLog(input, basePath = process.cwd()) {
   }
 
   const logDate = date || new Date().toISOString().slice(0, 10);
+  const resultCountText = typeof resultsCount === 'number' ? String(resultsCount) : 'n/a';
 
   const entry = [
     `## Decision - ${logDate}`,
@@ -418,6 +419,9 @@ function appendDecisionLog(input, basePath = process.cwd()) {
     '**Summary**',
     `- Verdict: ${verdict}`,
     `- Rationale: ${rationale}`,
+    '',
+    '**Evidence**',
+    `- Results count: ${resultCountText}`,
     ''
   ].join('\n');
 
@@ -468,6 +472,10 @@ function appendSetupLog(input, basePath = process.cwd()) {
     `- Scenario: ${scenario}`,
     `- Command: \`${command}\``,
     `- Version: ${version}`,
+    '',
+    '**Evidence**',
+    `- Command: \`${command}\``,
+    `- Version: ${version}`,
     ''
   ].join('\n');
 
@@ -490,7 +498,7 @@ function appendBreakingPointLog(input, basePath = process.cwd()) {
   if (!input || typeof input !== 'object') {
     throw new Error('appendBreakingPointLog requires an input object');
   }
-  const { id, userQuote, paramEnv, min, max, breakingPoint, date } = input;
+  const { id, userQuote, paramEnv, min, max, breakingPoint, history, date } = input;
 
   if (!id || typeof id !== 'string') {
     throw new Error('appendBreakingPointLog requires a valid investigation id');
@@ -506,6 +514,7 @@ function appendBreakingPointLog(input, basePath = process.cwd()) {
   }
 
   const logDate = date || new Date().toISOString().slice(0, 10);
+  const historyText = Array.isArray(history) ? JSON.stringify(history) : 'n/a';
   const entry = [
     `## Breaking Point - ${logDate}`,
     '',
@@ -515,6 +524,9 @@ function appendBreakingPointLog(input, basePath = process.cwd()) {
     `- Param env: ${paramEnv}`,
     `- Range: ${min}..${max}`,
     `- Breaking point: ${breakingPoint ?? 'n/a'}`,
+    '',
+    '**Evidence**',
+    `- History: ${historyText}`,
     ''
   ].join('\n');
 
@@ -581,7 +593,7 @@ function appendHypothesesLog(input, basePath = process.cwd()) {
   if (!input || typeof input !== 'object') {
     throw new Error('appendHypothesesLog requires an input object');
   }
-  const { id, userQuote, hypotheses, date } = input;
+  const { id, userQuote, hypotheses, date, gitHistory, hypothesesFile } = input;
 
   if (!id || typeof id !== 'string') {
     throw new Error('appendHypothesesLog requires a valid investigation id');
@@ -609,6 +621,10 @@ function appendHypothesesLog(input, basePath = process.cwd()) {
     '',
     '**Summary**',
     lines.length > 0 ? lines.join('\n') : '- n/a',
+    '',
+    '**Evidence**',
+    `- Git history: ${Array.isArray(gitHistory) && gitHistory.length ? gitHistory.join(' | ') : 'n/a'}`,
+    hypothesesFile ? `- Hypotheses file: ${hypothesesFile}` : null,
     ''
   ].join('\n');
 
@@ -629,7 +645,7 @@ function appendCodePathsLog(input, basePath = process.cwd()) {
   if (!input || typeof input !== 'object') {
     throw new Error('appendCodePathsLog requires an input object');
   }
-  const { id, userQuote, keywords, paths, date } = input;
+  const { id, userQuote, keywords, paths, date, repoMapStatus } = input;
 
   if (!id || typeof id !== 'string') {
     throw new Error('appendCodePathsLog requires a valid investigation id');
@@ -660,6 +676,10 @@ function appendCodePathsLog(input, basePath = process.cwd()) {
     '**Summary**',
     `- Keywords: ${keywordText}`,
     pathLines.length > 0 ? pathLines.join('\n') : '- n/a',
+    '',
+    '**Evidence**',
+    `- Repo map: ${repoMapStatus || 'n/a'}`,
+    `- Paths count: ${pathLines.length}`,
     ''
   ].join('\n');
 
@@ -681,7 +701,7 @@ function appendOptimizationLog(input, basePath = process.cwd()) {
   if (!input || typeof input !== 'object') {
     throw new Error('appendOptimizationLog requires an input object');
   }
-  const { id, userQuote, change, delta, verdict, date } = input;
+  const { id, userQuote, change, delta, verdict, date, gitHistory } = input;
 
   if (!id || typeof id !== 'string') {
     throw new Error('appendOptimizationLog requires a valid investigation id');
@@ -700,6 +720,9 @@ function appendOptimizationLog(input, basePath = process.cwd()) {
   }
 
   const logDate = date || new Date().toISOString().slice(0, 10);
+  const gitHistoryText = Array.isArray(gitHistory) && gitHistory.length
+    ? gitHistory.join(' | ')
+    : 'n/a';
   const entry = [
     `## Optimization - ${logDate}`,
     '',
@@ -711,6 +734,7 @@ function appendOptimizationLog(input, basePath = process.cwd()) {
     '',
     '**Evidence**',
     `- Delta: ${JSON.stringify(delta.metrics || {})}`,
+    `- Git history: ${gitHistoryText}`,
     ''
   ].join('\n');
 
@@ -755,6 +779,9 @@ function appendConsolidationLog(input, basePath = process.cwd()) {
     '',
     '**Summary**',
     `- Version: ${version}`,
+    `- Baseline file: ${path}`,
+    '',
+    '**Evidence**',
     `- Baseline file: ${path}`,
     ''
   ].join('\n');
