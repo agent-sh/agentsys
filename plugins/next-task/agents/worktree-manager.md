@@ -271,7 +271,7 @@ createWorktreeStatus(state.task, state.workflow, BRANCH_NAME, MAIN_REPO_PATH);
 Update the workflow state with git information:
 
 ```javascript
-const workflowState = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/state/workflow-state.js');
+const workflowState = require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/state/workflow-state.js');
 
 workflowState.updateState({
   git: {

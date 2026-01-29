@@ -181,7 +181,7 @@ Parse from $ARGUMENTS:
 ## Implementation
 
 ```javascript
-const { pluginAnalyzer } = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/enhance');
+const { pluginAnalyzer } = require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/enhance');
 
 // Parse arguments
 const args = '$ARGUMENTS'.split(' ').filter(Boolean);
@@ -319,7 +319,7 @@ Parse from $ARGUMENTS:
 ## Implementation
 
 ```javascript
-const { agentAnalyzer } = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/enhance');
+const { agentAnalyzer } = require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/enhance');
 
 // Parse arguments
 const args = '$ARGUMENTS'.split(' ').filter(Boolean);
@@ -500,7 +500,7 @@ For user-facing documentation:
 ## Implementation
 
 ```javascript
-const { docsAnalyzer } = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/enhance');
+const { docsAnalyzer } = require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/enhance');
 
 // Parse arguments
 const args = '$ARGUMENTS'.split(' ').filter(Boolean);
@@ -695,7 +695,7 @@ Note: Reference validation (file paths, npm commands) is always enabled.
 ## Implementation
 
 ```javascript
-const { projectmemoryAnalyzer } = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/enhance');
+const { projectmemoryAnalyzer } = require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/enhance');
 
 // Parse arguments
 const args = '$ARGUMENTS'.split(' ').filter(Boolean);
@@ -871,7 +871,7 @@ Parse from $ARGUMENTS:
 ## Implementation
 
 ```javascript
-const { promptAnalyzer } = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/enhance');
+const { promptAnalyzer } = require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/enhance');
 
 // Parse arguments
 const args = '$ARGUMENTS'.split(' ').filter(Boolean);

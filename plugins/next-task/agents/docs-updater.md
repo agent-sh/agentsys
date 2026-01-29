@@ -25,7 +25,7 @@ on documentation related to the files modified in the current workflow.
 ## Phase 1: Get Context
 
 ```javascript
-const workflowState = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/state/workflow-state.js');
+const workflowState = require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/state/workflow-state.js');
 
 const state = workflowState.readState();
 const task = state.task;

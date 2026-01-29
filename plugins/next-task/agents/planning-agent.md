@@ -34,7 +34,7 @@ Before planning, you should have:
 ## Phase 1: Load Context
 
 ```javascript
-const workflowState = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/state/workflow-state.js');
+const workflowState = require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/state/workflow-state.js');
 const state = workflowState.readFlow();
 
 const task = state.task;
@@ -49,7 +49,7 @@ console.log(`Key files identified: ${explorationResults?.keyFiles?.join(', ')}`)
 Use repo-map to identify dependencies and exports before writing the plan:
 
 ```javascript
-const repoMap = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/repo-map');
+const repoMap = require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/repo-map');
 const map = repoMap.load(process.cwd());
 
 if (!map) {

@@ -311,7 +311,7 @@ Parse from $ARGUMENTS:
 ## Pre-flight: Handle Arguments
 
 ```javascript
-const workflowState = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/state/workflow-state.js');
+const workflowState = require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/state/workflow-state.js');
 const args = '$ARGUMENTS'.split(' ').filter(Boolean);
 
 // ⛔ CRITICAL CHECK: If no flags provided, DO NOT check for existing tasks here
@@ -425,7 +425,7 @@ function mapStepToPhase(step) {
 No agent needed - call `sources.getPolicyQuestions()` and use AskUserQuestion.
 
 ```javascript
-const { sources } = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib');
+const { sources } = require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib');
 
 // Get questions with cache-aware options (cached preference shown first if exists)
 const { questions, cachedPreference } = sources.getPolicyQuestions();

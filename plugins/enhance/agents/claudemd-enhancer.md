@@ -195,7 +195,7 @@ Generate a structured markdown report:
 ## Implementation
 
 ```javascript
-const { projectmemoryAnalyzer } = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/enhance');
+const { projectmemoryAnalyzer } = require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/enhance');
 
 // Find and analyze project memory
 const results = await projectmemoryAnalyzer.analyze(projectPath, {

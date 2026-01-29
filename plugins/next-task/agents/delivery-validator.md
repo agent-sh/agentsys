@@ -41,7 +41,7 @@ NO human in the loop - either pass validation or fail and return to implementati
 ## Phase 1: Get Task Context
 
 ```javascript
-const workflowState = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/state/workflow-state.js');
+const workflowState = require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/state/workflow-state.js');
 
 const state = workflowState.readFlow();
 const task = state.task;

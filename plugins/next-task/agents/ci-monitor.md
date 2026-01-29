@@ -42,7 +42,7 @@ const SUBSEQUENT_WAIT = 120000;  // 2 min between checks
 const MAX_WAIT_TIME = 1800000;   // 30 min max
 const MAX_FIX_ITERATIONS = 5;
 
-const workflowState = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/state/workflow-state.js');
+const workflowState = require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/state/workflow-state.js');
 const PR_NUMBER = workflowState.readState().pr.number;
 ```
 

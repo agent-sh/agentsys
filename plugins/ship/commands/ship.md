@@ -46,7 +46,7 @@ Parse from $ARGUMENTS:
 ```javascript
 const args = '$ARGUMENTS'.split(' ');
 const stateIdx = args.indexOf('--state-file');
-const workflowState = stateIdx >= 0 ? require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/state/workflow-state.js') : null;
+const workflowState = stateIdx >= 0 ? require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/state/workflow-state.js') : null;
 
 function updatePhase(phase, result) {
   if (!workflowState) return;
@@ -59,8 +59,10 @@ function updatePhase(phase, result) {
 
 ```bash
 # Detect platform and project configuration
-PLATFORM=$(node ${CLAUDE_PLUGIN_ROOT}/lib/platform/detect-platform.js)
-TOOLS=$(node ${CLAUDE_PLUGIN_ROOT}/lib/platform/verify-tools.js)
+PLUGIN_PATH="${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}"
+if [ -z "$PLUGIN_PATH" ]; then echo "Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set"; exit 1; fi
+PLATFORM=$(node "$PLUGIN_PATH/lib/platform/detect-platform.js")
+TOOLS=$(node "$PLUGIN_PATH/lib/platform/verify-tools.js")
 
 # Extract critical info
 CI_PLATFORM=$(echo $PLATFORM | jq -r '.ci')
@@ -287,7 +289,7 @@ git checkout $MAIN_BRANCH
 git pull origin $MAIN_BRANCH
 
 # Update repo-map if it exists (non-blocking)
-node -e "const pluginPath = '${CLAUDE_PLUGIN_ROOT}'.replace(/\\\\/g, '/'); const repoMap = require(`${pluginPath}/lib/repo-map`); if (repoMap.exists(process.cwd())) { repoMap.update(process.cwd(), {}).then(() => console.log('✓ Repo-map updated')).catch((e) => console.log('⚠️ Repo-map update failed: ' + e.message)); } else { console.log('Repo-map not found, skipping'); }" || true
+node -e "const pluginPath = (process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\\\/g, '/'); const repoMap = require(\`\${pluginPath}/lib/repo-map\`); if (repoMap.exists(process.cwd())) { repoMap.update(process.cwd(), {}).then(() => console.log('✓ Repo-map updated')).catch((e) => console.log('⚠️ Repo-map update failed: ' + e.message)); } else { console.log('Repo-map not found, skipping'); }" || true
 MERGE_SHA=$(git rev-parse HEAD)
 echo "✓ Merged PR #$PR_NUMBER at $MERGE_SHA"
 ```

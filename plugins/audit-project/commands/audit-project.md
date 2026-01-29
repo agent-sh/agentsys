@@ -38,8 +38,10 @@ Otherwise create a new queue file. See `audit-project-agents.md` for queue handl
 ### Platform Detection
 
 ```bash
-PLATFORM=$(node ${CLAUDE_PLUGIN_ROOT}/lib/platform/detect-platform.js)
-TOOLS=$(node ${CLAUDE_PLUGIN_ROOT}/lib/platform/verify-tools.js)
+PLUGIN_PATH="${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}"
+if [ -z "$PLUGIN_PATH" ]; then echo "Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set"; exit 1; fi
+PLATFORM=$(node "$PLUGIN_PATH/lib/platform/detect-platform.js")
+TOOLS=$(node "$PLUGIN_PATH/lib/platform/verify-tools.js")
 
 PROJECT_TYPE=$(echo $PLATFORM | jq -r '.projectType')
 PACKAGE_MGR=$(echo $PLATFORM | jq -r '.packageManager')

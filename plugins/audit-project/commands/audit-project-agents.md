@@ -32,7 +32,7 @@ Create a temporary review queue file in the platform state dir. Review passes ap
 ```javascript
 const path = require('path');
 const fs = require('fs');
-const { getStateDirPath } = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/platform/state-dir.js');
+const { getStateDirPath } = require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/platform/state-dir.js');
 
 const stateDirPath = getStateDirPath(process.cwd());
 if (!fs.existsSync(stateDirPath)) {
