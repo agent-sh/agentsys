@@ -10,7 +10,9 @@ This document defines how /perf investigations are executed. It complements perf
 
 ## 2. Baseline
 
-- Run the benchmark for at least 60s.
+- Run the benchmark for at least 60s by default.
+- For micro-benchmarks, use a shorter duration (for example 1–10s) only with explicit approval and record the duration in the log.
+- For single-run (start-to-end) benchmarks, use multiple runs (for example 3) and record the median in the log.
 - Require PERF_METRICS markers in output.
 - Parse metrics and store baseline JSON.
 - Re-run if results look anomalous.
@@ -53,6 +55,11 @@ This document defines how /perf investigations are executed. It complements perf
 - One change per experiment.
 - Run 2+ validation passes per change.
 - Revert to baseline before next change.
+
+## Run Modes
+
+- Duration mode (default): runner sets `PERF_RUN_DURATION` and benchmarks may pad to the target time.
+- One-shot mode: runner sets `PERF_RUN_MODE=oneshot` and benchmarks should emit metrics immediately after completion (no padding).
 
 ## 9. Decision
 

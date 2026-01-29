@@ -11,6 +11,11 @@ const DEFAULT_MIN_DURATION = 60;
 const BINARY_SEARCH_MIN_DURATION = 30;
 const DEFAULT_DURATION_SLACK_SECONDS = 1;
 
+function parseDuration(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
 /**
  * Normalize benchmark options and enforce minimum durations.
  * @param {object} options
@@ -18,11 +23,14 @@ const DEFAULT_DURATION_SLACK_SECONDS = 1;
  */
 function normalizeBenchmarkOptions(options = {}) {
   const mode = options.mode || 'full';
-  const minDuration = mode === 'binary-search'
+  const defaultMin = mode === 'binary-search'
     ? BINARY_SEARCH_MIN_DURATION
     : DEFAULT_MIN_DURATION;
+  const requestedDuration = parseDuration(options.duration);
+  const requestedMin = parseDuration(options.minDuration);
+  const minDuration = requestedMin ?? requestedDuration ?? defaultMin;
+  const duration = Math.max(requestedDuration ?? minDuration, minDuration);
 
-  const duration = Math.max(options.duration || minDuration, minDuration);
   return {
     ...options,
     mode,
@@ -36,6 +44,10 @@ function normalizeBenchmarkOptions(options = {}) {
  * Run a benchmark command synchronously (sequential only).
  * @param {string} command
  * @param {object} options
+ * @param {number} [options.duration]
+ * @param {number} [options.minDuration]
+ * @param {boolean} [options.setDurationEnv]
+ * @param {string} [options.runMode]
  * @returns {{ success: boolean, output: string }}
  */
 function runBenchmark(command, options = {}) {
@@ -44,11 +56,17 @@ function runBenchmark(command, options = {}) {
   }
 
   const normalized = normalizeBenchmarkOptions(options);
+  const setDurationEnv = options.setDurationEnv !== false;
   const env = {
     ...process.env,
-    PERF_RUN_DURATION: String(normalized.duration),
     ...normalized.env
   };
+  if (setDurationEnv) {
+    env.PERF_RUN_DURATION = String(normalized.duration);
+  }
+  if (options.runMode) {
+    env.PERF_RUN_MODE = options.runMode;
+  }
 
   const start = Date.now();
   const output = execSync(command, {
@@ -59,7 +77,7 @@ function runBenchmark(command, options = {}) {
   const elapsedSeconds = (Date.now() - start) / 1000;
 
   const allowShort = normalized.allowShort || process.env.PERF_ALLOW_SHORT === '1';
-  if (!allowShort && elapsedSeconds + DEFAULT_DURATION_SLACK_SECONDS < normalized.duration) {
+  if (!allowShort && setDurationEnv && elapsedSeconds + DEFAULT_DURATION_SLACK_SECONDS < normalized.duration) {
     throw new Error(`Benchmark finished too quickly (${elapsedSeconds.toFixed(2)}s < ${normalized.duration}s)`);
   }
 
@@ -188,10 +206,175 @@ function parseMetrics(output) {
   return { ok: true, metrics: lineParsed.metrics };
 }
 
+function flattenMetrics(metrics) {
+  if (!metrics || typeof metrics !== 'object' || Array.isArray(metrics)) {
+    throw new Error('metrics must be an object');
+  }
+  const flat = {};
+
+  for (const [key, value] of Object.entries(metrics)) {
+    if (key === 'scenarios') {
+      if (!value || typeof value !== 'object' || Array.isArray(value)) {
+        throw new Error('metrics.scenarios must be an object');
+      }
+      for (const [scenarioName, scenarioMetrics] of Object.entries(value)) {
+        if (!scenarioMetrics || typeof scenarioMetrics !== 'object' || Array.isArray(scenarioMetrics)) {
+          throw new Error(`metrics.scenarios.${scenarioName} must be an object`);
+        }
+        for (const [metricName, metricValue] of Object.entries(scenarioMetrics)) {
+          if (typeof metricValue !== 'number' || Number.isNaN(metricValue)) {
+            throw new Error(`metric ${scenarioName}.${metricName} must be a number`);
+          }
+          flat[`scenarios.${scenarioName}.${metricName}`] = metricValue;
+        }
+      }
+      continue;
+    }
+
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+      throw new Error(`metric ${key} must be a number`);
+    }
+    flat[key] = value;
+  }
+
+  return flat;
+}
+
+function unflattenMetrics(flat) {
+  const metrics = {};
+  for (const [key, value] of Object.entries(flat)) {
+    if (!key.startsWith('scenarios.')) {
+      metrics[key] = value;
+      continue;
+    }
+    const parts = key.split('.');
+    if (parts.length < 3) {
+      throw new Error(`invalid scenario metric key: ${key}`);
+    }
+    const scenarioName = parts[1];
+    const metricName = parts.slice(2).join('.');
+    if (!metrics.scenarios) {
+      metrics.scenarios = {};
+    }
+    if (!metrics.scenarios[scenarioName]) {
+      metrics.scenarios[scenarioName] = {};
+    }
+    metrics.scenarios[scenarioName][metricName] = value;
+  }
+  return metrics;
+}
+
+function aggregateValues(values, aggregate) {
+  const normalized = (aggregate || 'median').toLowerCase();
+  const sorted = [...values].sort((a, b) => a - b);
+
+  switch (normalized) {
+    case 'median': {
+      const mid = Math.floor(sorted.length / 2);
+      if (sorted.length % 2 === 0) {
+        return (sorted[mid - 1] + sorted[mid]) / 2;
+      }
+      return sorted[mid];
+    }
+    case 'mean': {
+      const sum = sorted.reduce((acc, value) => acc + value, 0);
+      return sum / sorted.length;
+    }
+    case 'min':
+      return sorted[0];
+    case 'max':
+      return sorted[sorted.length - 1];
+    default:
+      throw new Error(`Unsupported aggregate: ${aggregate}`);
+  }
+}
+
+function aggregateMetrics(samples, aggregate = 'median') {
+  if (!Array.isArray(samples) || samples.length === 0) {
+    throw new Error('samples must be a non-empty array');
+  }
+
+  const flattened = samples.map(flattenMetrics);
+  const keys = Object.keys(flattened[0]).sort();
+
+  for (const sample of flattened) {
+    const sampleKeys = Object.keys(sample).sort();
+    if (sampleKeys.length !== keys.length) {
+      throw new Error('Metric sets differ across runs');
+    }
+    for (let i = 0; i < keys.length; i++) {
+      if (keys[i] !== sampleKeys[i]) {
+        throw new Error('Metric sets differ across runs');
+      }
+    }
+  }
+
+  const aggregated = {};
+  for (const key of keys) {
+    const values = flattened.map(sample => sample[key]);
+    aggregated[key] = aggregateValues(values, aggregate);
+  }
+
+  return unflattenMetrics(aggregated);
+}
+
+function resolveRuns(options) {
+  if (!options || options.runs == null) return 1;
+  const runs = Number(options.runs);
+  if (!Number.isFinite(runs) || runs < 1) {
+    throw new Error('runs must be a positive number');
+  }
+  return Math.floor(runs);
+}
+
+/**
+ * Run benchmark multiple times and aggregate metrics.
+ * @param {string} command
+ * @param {object} options
+ * @returns {{ metrics: object, samples: object[], runs: number, aggregate: string }}
+ */
+function runBenchmarkSeries(command, options = {}) {
+  const runs = resolveRuns(options);
+  const aggregate = options.aggregate || (runs > 1 ? 'median' : 'median');
+  const runMode = options.runMode || (runs > 1 ? 'oneshot' : 'duration');
+  const env = {
+    ...options.env,
+    PERF_RUN_MODE: runMode
+  };
+  const allowShort = options.allowShort === true || runMode === 'oneshot';
+  const setDurationEnv = runMode !== 'oneshot' && options.setDurationEnv !== false;
+
+  const samples = [];
+  for (let i = 0; i < runs; i++) {
+    const result = runBenchmark(command, {
+      ...options,
+      env,
+      allowShort,
+      setDurationEnv,
+      runMode
+    });
+    const parsed = parseMetrics(result.output);
+    if (!parsed.ok) {
+      throw new Error(`Metrics parse failed: ${parsed.error}`);
+    }
+    samples.push(parsed.metrics);
+  }
+
+  const metrics = samples.length === 1 ? samples[0] : aggregateMetrics(samples, aggregate);
+  return {
+    metrics,
+    samples,
+    runs,
+    aggregate
+  };
+}
+
 module.exports = {
   DEFAULT_MIN_DURATION,
   BINARY_SEARCH_MIN_DURATION,
   normalizeBenchmarkOptions,
   runBenchmark,
+  runBenchmarkSeries,
+  aggregateMetrics,
   parseMetrics
 };

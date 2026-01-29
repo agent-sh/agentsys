@@ -64,7 +64,7 @@ function getLastCommitMessage() {
 function getRecentCommits(limit = 5) {
   try {
     const count = Number.isFinite(limit) ? Math.max(1, Math.floor(limit)) : 5;
-    const output = execSync(`git log -${count} --pretty=%h %s`, { encoding: 'utf8' }).trim();
+    const output = execFileSync('git', ['log', `-${count}`, '--pretty=format:%h %s'], { encoding: 'utf8' }).trim();
     if (!output) return [];
     return output.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
   } catch {

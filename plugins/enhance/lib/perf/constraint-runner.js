@@ -4,7 +4,7 @@
  * @module lib/perf/constraint-runner
  */
 
-const { runBenchmark, parseMetrics, DEFAULT_MIN_DURATION } = require('./benchmark-runner');
+const { runBenchmarkSeries, DEFAULT_MIN_DURATION } = require('./benchmark-runner');
 const { compareBaselines } = require('./baseline-comparator');
 
 /**
@@ -14,11 +14,15 @@ const { compareBaselines } = require('./baseline-comparator');
  * @param {object} options
  * @param {string} options.command
  * @param {object} options.constraints
+ * @param {number} [options.duration]
+ * @param {number} [options.minDuration]
+ * @param {number} [options.runs]
+ * @param {string} [options.aggregate]
  * @param {object} [options.env]
  * @returns {{ constraints: object, baseline: object, constrained: object, delta: object }}
  */
 function runConstraintTest(options) {
-  const { command, constraints, env } = options || {};
+  const { command, constraints, duration, minDuration, runs, aggregate, env } = options || {};
 
   if (!command || typeof command !== 'string') {
     throw new Error('command must be a non-empty string');
@@ -27,39 +31,37 @@ function runConstraintTest(options) {
     throw new Error('constraints must be an object');
   }
 
-  const baselineResult = runBenchmark(command, {
-    duration: DEFAULT_MIN_DURATION,
+  const baselineResult = runBenchmarkSeries(command, {
+    duration: duration ?? DEFAULT_MIN_DURATION,
+    minDuration,
+    runs,
+    aggregate,
     env: {
       ...env
     }
   });
-  const baselineMetrics = parseMetrics(baselineResult.output);
-  if (!baselineMetrics.ok) {
-    throw new Error(`Baseline metrics parse failed: ${baselineMetrics.error}`);
-  }
 
-  const constrainedResult = runBenchmark(command, {
-    duration: DEFAULT_MIN_DURATION,
+  const constrainedResult = runBenchmarkSeries(command, {
+    duration: duration ?? DEFAULT_MIN_DURATION,
+    minDuration,
+    runs,
+    aggregate,
     env: {
       ...env,
       PERF_CPU_LIMIT: constraints.cpu,
       PERF_MEMORY_LIMIT: constraints.memory
     }
   });
-  const constrainedMetrics = parseMetrics(constrainedResult.output);
-  if (!constrainedMetrics.ok) {
-    throw new Error(`Constrained metrics parse failed: ${constrainedMetrics.error}`);
-  }
 
   const delta = compareBaselines(
-    { metrics: baselineMetrics.metrics },
-    { metrics: constrainedMetrics.metrics }
+    { metrics: baselineResult.metrics },
+    { metrics: constrainedResult.metrics }
   );
 
   return {
     constraints,
-    baseline: { metrics: baselineMetrics.metrics },
-    constrained: { metrics: constrainedMetrics.metrics },
+    baseline: { metrics: baselineResult.metrics },
+    constrained: { metrics: constrainedResult.metrics },
     delta
   };
 }

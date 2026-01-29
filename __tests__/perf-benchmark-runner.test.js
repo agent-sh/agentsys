@@ -1,4 +1,4 @@
-const { parseMetrics } = require('../lib/perf/benchmark-runner');
+const { parseMetrics, aggregateMetrics } = require('../lib/perf/benchmark-runner');
 
 describe('perf benchmark parser', () => {
   it('parses single scenario metrics', () => {
@@ -55,5 +55,27 @@ describe('perf benchmark parser', () => {
   it('fails when markers are missing', () => {
     const result = parseMetrics('no metrics here');
     expect(result.ok).toBe(false);
+  });
+
+  it('aggregates median metrics', () => {
+    const samples = [
+      { duration_ms: 12, files: 3 },
+      { duration_ms: 10, files: 3 },
+      { duration_ms: 14, files: 3 }
+    ];
+    const result = aggregateMetrics(samples, 'median');
+    expect(result.duration_ms).toBe(12);
+    expect(result.files).toBe(3);
+  });
+
+  it('aggregates scenario metrics', () => {
+    const samples = [
+      { scenarios: { low: { latency_ms: 10 }, high: { latency_ms: 20 } } },
+      { scenarios: { low: { latency_ms: 12 }, high: { latency_ms: 22 } } },
+      { scenarios: { low: { latency_ms: 11 }, high: { latency_ms: 21 } } }
+    ];
+    const result = aggregateMetrics(samples, 'median');
+    expect(result.scenarios.low.latency_ms).toBe(11);
+    expect(result.scenarios.high.latency_ms).toBe(21);
   });
 });

@@ -4,7 +4,7 @@
  * @module lib/perf/optimization-runner
  */
 
-const { runBenchmark, parseMetrics, DEFAULT_MIN_DURATION } = require('./benchmark-runner');
+const { runBenchmark, runBenchmarkSeries, DEFAULT_MIN_DURATION } = require('./benchmark-runner');
 const { compareBaselines } = require('./baseline-comparator');
 const { isWorkingTreeClean } = require('./checkpoint');
 
@@ -15,11 +15,15 @@ const { isWorkingTreeClean } = require('./checkpoint');
  * @param {object} options
  * @param {string} options.command
  * @param {string} options.changeSummary
+ * @param {number} [options.duration]
+ * @param {number} [options.minDuration]
+ * @param {number} [options.runs]
+ * @param {string} [options.aggregate]
  * @param {object} [options.env]
  * @returns {{ baseline: object, experiment: object, delta: object, verdict: string, change: string }}
  */
 function runOptimizationExperiment(options) {
-  const { command, changeSummary, env } = options || {};
+  const { command, changeSummary, duration, minDuration, runs, aggregate, env } = options || {};
 
   if (!command || typeof command !== 'string') {
     throw new Error('command must be a non-empty string');
@@ -33,30 +37,37 @@ function runOptimizationExperiment(options) {
     throw new Error('working tree is dirty before experiment');
   }
 
-  const baselineRun = runBenchmark(command, { duration: DEFAULT_MIN_DURATION, env });
-  const baselineMetrics = parseMetrics(baselineRun.output);
-  if (!baselineMetrics.ok) {
-    throw new Error(`Baseline parse failed: ${baselineMetrics.error}`);
-  }
+  const seriesOptions = {
+    duration: duration ?? DEFAULT_MIN_DURATION,
+    minDuration,
+    runs,
+    aggregate,
+    env
+  };
+
+  const baselineRun = runBenchmarkSeries(command, seriesOptions);
 
   // NOTE: Caller is responsible for applying the experiment change here.
   // Warm up the system (caches/JIT) before capturing experiment metrics.
-  runBenchmark(command, { duration: DEFAULT_MIN_DURATION, env });
-  const experimentRun = runBenchmark(command, { duration: DEFAULT_MIN_DURATION, env });
-  const experimentMetrics = parseMetrics(experimentRun.output);
-  if (!experimentMetrics.ok) {
-    throw new Error(`Experiment parse failed: ${experimentMetrics.error}`);
-  }
+  const runMode = runs && runs > 1 ? 'oneshot' : 'duration';
+  runBenchmark(command, {
+    duration: duration ?? DEFAULT_MIN_DURATION,
+    minDuration,
+    env,
+    runMode,
+    setDurationEnv: runMode !== 'oneshot'
+  });
+  const experimentRun = runBenchmarkSeries(command, seriesOptions);
 
   const delta = compareBaselines(
-    { metrics: baselineMetrics.metrics },
-    { metrics: experimentMetrics.metrics }
+    { metrics: baselineRun.metrics },
+    { metrics: experimentRun.metrics }
   );
 
   return {
     change: changeSummary,
-    baseline: { metrics: baselineMetrics.metrics },
-    experiment: { metrics: experimentMetrics.metrics },
+    baseline: { metrics: baselineRun.metrics },
+    experiment: { metrics: experimentRun.metrics },
     delta,
     verdict: 'inconclusive'
   };

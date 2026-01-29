@@ -1,6 +1,6 @@
 ---
 description: Structured performance investigation with baselines, profiling, and evidence-backed decisions
-argument-hint: "[--resume] [--phase setup|baseline|breaking-point|constraints|hypotheses|code-paths|profiling|optimization|decision|consolidation] [--id <id>] [--scenario <text>] [--command <cmd>] [--version <ver>] [--quote <text>] [--hypotheses-file <path>] [--param-env <name>] [--param-min <n>] [--param-max <n>] [--cpu <limit>] [--memory <limit>] [--change <summary>] [--verdict <continue|stop>] [--rationale <text>]"
+argument-hint: "[--resume] [--phase setup|baseline|breaking-point|constraints|hypotheses|code-paths|profiling|optimization|decision|consolidation] [--id <id>] [--scenario <text>] [--command <cmd>] [--version <ver>] [--duration <seconds>] [--runs <n>] [--aggregate <median|mean|min|max>] [--quote <text>] [--hypotheses-file <path>] [--param-env <name>] [--param-min <n>] [--param-max <n>] [--cpu <limit>] [--memory <limit>] [--change <summary>] [--verdict <continue|stop>] [--rationale <text>]"
 allowed-tools: Read, Write, Edit, Task, Bash(git:*), Bash(node:*), Bash(npm:*), Bash(pnpm:*), Bash(yarn:*), Bash(cargo:*), Bash(go:*), Bash(pytest:*), Bash(mvn:*), Bash(gradle:*)
 ---
 
@@ -22,6 +22,9 @@ All behavior must follow:
 - `--scenario <text>`: Short scenario description
 - `--command <cmd>`: Benchmark command (prints PERF_METRICS markers)
 - `--version <ver>`: Baseline version label
+- `--duration <seconds>`: Benchmark duration override (default 60s; use smaller values for micro-benchmarks)
+- `--runs <n>`: Number of runs for start-to-end benchmarks (use with median aggregation)
+- `--aggregate <median|mean|min|max>`: Aggregation method for multi-run benchmarks (default median)
 - `--quote <text>`: User quote to record in logs
 - `--hypotheses-file <path>`: JSON file with hypothesis list (for hypotheses phase)
 - `--param-env <name>`: Env var for breaking-point value (default PERF_PARAM_VALUE)
@@ -59,6 +62,9 @@ const options = {
   scenario: '',
   command: '',
   version: '',
+  duration: null,
+  runs: null,
+  aggregate: '',
   quote: '',
   hypothesesFile: '',
   paramEnv: 'PERF_PARAM_VALUE',
@@ -79,6 +85,9 @@ for (let i = 0; i < args.length; i++) {
   else if (arg === '--scenario' && args[i + 1]) options.scenario = args[++i];
   else if (arg === '--command' && args[i + 1]) options.command = args[++i];
   else if (arg === '--version' && args[i + 1]) options.version = args[++i];
+  else if (arg === '--duration' && args[i + 1]) options.duration = Number(args[++i]);
+  else if (arg === '--runs' && args[i + 1]) options.runs = Number(args[++i]);
+  else if (arg === '--aggregate' && args[i + 1]) options.aggregate = args[++i];
   else if (arg === '--quote' && args[i + 1]) options.quote = args[++i];
   else if (arg === '--hypotheses-file' && args[i + 1]) options.hypothesesFile = args[++i];
   else if (arg === '--param-env' && args[i + 1]) options.paramEnv = args[++i];
@@ -127,7 +136,10 @@ if (options.command || options.version || options.scenario) {
     },
     benchmark: {
       command: options.command || state.benchmark?.command || '',
-      version: options.version || state.benchmark?.version || ''
+      version: options.version || state.benchmark?.version || '',
+      duration: Number.isFinite(options.duration) ? options.duration : state.benchmark?.duration,
+      runs: Number.isFinite(options.runs) ? options.runs : state.benchmark?.runs,
+      aggregate: options.aggregate || state.benchmark?.aggregate
     }
   }, cwd);
 }
@@ -183,7 +195,10 @@ async function runPhase() {
         userQuote,
         scenario: state.scenario?.description || '',
         command,
-        version
+        version,
+        duration: Number.isFinite(options.duration) ? options.duration : state.benchmark?.duration,
+        runs: Number.isFinite(options.runs) ? options.runs : state.benchmark?.runs,
+        aggregate: options.aggregate || state.benchmark?.aggregate
       }, cwd);
       checkpoint.commitCheckpoint({
         phase: 'setup',
@@ -194,20 +209,24 @@ async function runPhase() {
       return;
     }
     case 'baseline': {
-      const result = benchmarkRunner.runBenchmark(command);
-      const parsed = benchmarkRunner.parseMetrics(result.output);
-      if (!parsed.ok) {
-        console.error(`Baseline metrics parse failed: ${parsed.error}`);
-        process.exit(1);
-      }
-      baselineStore.writeBaseline(version, { command, metrics: parsed.metrics }, cwd);
+      const runs = Number.isFinite(options.runs) ? options.runs : state.benchmark?.runs;
+      const aggregate = options.aggregate || state.benchmark?.aggregate;
+      const result = benchmarkRunner.runBenchmarkSeries(command, {
+        duration: Number.isFinite(options.duration) ? options.duration : undefined,
+        runs,
+        aggregate
+      });
+      baselineStore.writeBaseline(version, { command, metrics: result.metrics }, cwd);
       const baselinePath = baselineStore.getBaselinePath(version, cwd);
       investigationState.appendBaselineLog({
         id: state.id,
         userQuote,
         command,
-        metrics: parsed.metrics,
+        metrics: result.metrics,
         baselinePath,
+        duration: Number.isFinite(options.duration) ? options.duration : state.benchmark?.duration,
+        runs,
+        aggregate: aggregate || (runs ? 'median' : undefined),
         scenarios: state.scenario?.scenarios
       }, cwd);
       state = investigationState.updateInvestigation({ phase: 'breaking-point' }, cwd);
@@ -249,9 +268,14 @@ async function runPhase() {
       return;
     }
     case 'constraints': {
+      const runs = Number.isFinite(options.runs) ? options.runs : state.benchmark?.runs;
+      const aggregate = options.aggregate || state.benchmark?.aggregate;
       const results = constraintRunner.runConstraintTest({
         command,
-        constraints: { cpu: options.cpu, memory: options.memory }
+        constraints: { cpu: options.cpu, memory: options.memory },
+        duration: Number.isFinite(options.duration) ? options.duration : undefined,
+        runs,
+        aggregate
       });
       const nextResults = Array.isArray(state.constraintResults) ? state.constraintResults : [];
       nextResults.push(results);
@@ -356,9 +380,14 @@ async function runPhase() {
     }
     case 'optimization': {
       const gitHistory = checkpoint.getRecentCommits(5);
+      const runs = Number.isFinite(options.runs) ? options.runs : state.benchmark?.runs;
+      const aggregate = options.aggregate || state.benchmark?.aggregate;
       const result = optimizationRunner.runOptimizationExperiment({
         command,
-        changeSummary: options.change
+        changeSummary: options.change,
+        duration: Number.isFinite(options.duration) ? options.duration : undefined,
+        runs,
+        aggregate
       });
       const nextResults = Array.isArray(state.results) ? state.results : [];
       nextResults.push(result);
@@ -369,7 +398,9 @@ async function runPhase() {
         change: options.change,
         delta: result.delta,
         verdict: result.verdict,
-        gitHistory
+        gitHistory,
+        runs,
+        aggregate: aggregate || (runs ? 'median' : undefined)
       }, cwd);
       checkpoint.commitCheckpoint({
         phase: 'optimization',

@@ -4,7 +4,47 @@
  * @module lib/perf/argument-parser
  */
 
+const GREEDY_FLAGS = new Set(['--quote', '--change', '--scenario', '--command', '--rationale']);
+
+function parseArgv(tokens) {
+  const args = [];
+  if (!Array.isArray(tokens)) return args;
+
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    if (!token) continue;
+
+    if (token.startsWith('--')) {
+      args.push(token);
+      if (i + 1 >= tokens.length) {
+        continue;
+      }
+      if (GREEDY_FLAGS.has(token)) {
+        const valueTokens = [];
+        while (i + 1 < tokens.length && !String(tokens[i + 1]).startsWith('--')) {
+          valueTokens.push(tokens[++i]);
+        }
+        if (valueTokens.length > 0) {
+          args.push(valueTokens.join(' '));
+        }
+        continue;
+      }
+      if (!String(tokens[i + 1]).startsWith('--')) {
+        args.push(tokens[++i]);
+      }
+      continue;
+    }
+
+    args.push(token);
+  }
+
+  return args;
+}
+
 function parseArguments(raw) {
+  if (Array.isArray(raw)) {
+    return parseArgv(raw);
+  }
   if (!raw || typeof raw !== 'string') return [];
 
   const args = [];

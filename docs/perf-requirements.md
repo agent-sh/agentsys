@@ -5,7 +5,7 @@ This is the canonical contract for the /perf workflow. All agents, skills, hooks
 ## Non-Negotiable Rules
 
 1. Run benchmarks sequentially (never in parallel).
-2. Minimum run duration is 60s (30s only for binary search in breaking-point phase).
+2. Default minimum run duration is 60s (30s for binary search in breaking-point phase). For single-run benchmarks (start-to-end), use an explicit run-count (e.g. 3 runs with median aggregation) instead of time padding; record the run count + aggregation in logs. Shorter durations are allowed only for micro-benchmarks with explicit user approval and must be recorded in logs.
 3. Change one thing at a time; revert to baseline between experiments.
 4. Start narrow and expand only with explicit user approval.
 5. Verify anomalies by re-running.
@@ -41,6 +41,7 @@ Every phase log must include:
 - Baseline command must output PERF_METRICS markers.
 - Baseline JSON is stored at {state-dir}/perf/baselines/<version>.json.
 - Baseline metrics must be numeric and comparable across runs.
+- Benchmarks should honor PERF_RUN_MODE=oneshot by emitting metrics immediately without padding.
 
 ## State Requirements
 

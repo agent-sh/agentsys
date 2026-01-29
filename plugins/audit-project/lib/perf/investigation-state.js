@@ -274,6 +274,9 @@ function appendInvestigationLog(id, content, basePath = process.cwd()) {
  * @param {string} input.command
  * @param {object} input.metrics
  * @param {string} input.baselinePath
+ * @param {number} [input.duration]
+ * @param {number} [input.runs]
+ * @param {string} [input.aggregate]
  * @param {string} [input.date]
  * @param {string} basePath
  */
@@ -282,7 +285,7 @@ function appendBaselineLog(input, basePath = process.cwd()) {
     throw new Error('appendBaselineLog requires an input object');
   }
 
-  const { id, userQuote, command, metrics, baselinePath, date, scenarios } = input;
+  const { id, userQuote, command, metrics, baselinePath, date, scenarios, duration, runs, aggregate } = input;
 
   if (!id || typeof id !== 'string') {
     throw new Error('appendBaselineLog requires a valid investigation id');
@@ -305,6 +308,9 @@ function appendBaselineLog(input, basePath = process.cwd()) {
   const scenarioText = Array.isArray(scenarios) && scenarios.length > 0
     ? scenarios.map((scenario) => scenario.name).filter(Boolean).join(', ')
     : '';
+  const durationLine = Number.isFinite(duration) ? `- Duration: ${duration}s` : null;
+  const runsLine = Number.isFinite(runs) ? `- Runs: ${runs}` : null;
+  const aggregateLine = aggregate ? `- Aggregate: ${aggregate}` : null;
 
   const entry = [
     `## Baseline - ${logDate}`,
@@ -314,6 +320,9 @@ function appendBaselineLog(input, basePath = process.cwd()) {
     '**Summary**',
     scenarioText ? `- Scenarios: ${scenarioText}` : null,
     `- Baseline command: \`${command}\``,
+    durationLine,
+    runsLine,
+    aggregateLine,
     `- Metrics: ${metricsText}`,
     '',
     '**Evidence**',
@@ -436,6 +445,9 @@ function appendDecisionLog(input, basePath = process.cwd()) {
  * @param {string} input.scenario
  * @param {string} input.command
  * @param {string} input.version
+ * @param {number} [input.duration]
+ * @param {number} [input.runs]
+ * @param {string} [input.aggregate]
  * @param {string} [input.date]
  * @param {string} basePath
  */
@@ -444,7 +456,7 @@ function appendSetupLog(input, basePath = process.cwd()) {
     throw new Error('appendSetupLog requires an input object');
   }
 
-  const { id, userQuote, scenario, command, version, date } = input;
+  const { id, userQuote, scenario, command, version, duration, runs, aggregate, date } = input;
 
   if (!id || typeof id !== 'string') {
     throw new Error('appendSetupLog requires a valid investigation id');
@@ -463,6 +475,9 @@ function appendSetupLog(input, basePath = process.cwd()) {
   }
 
   const logDate = date || new Date().toISOString().slice(0, 10);
+  const durationLine = Number.isFinite(duration) ? `- Duration: ${duration}s` : null;
+  const runsLine = Number.isFinite(runs) ? `- Runs: ${runs}` : null;
+  const aggregateLine = aggregate ? `- Aggregate: ${aggregate}` : null;
   const entry = [
     `## Setup - ${logDate}`,
     '',
@@ -472,12 +487,15 @@ function appendSetupLog(input, basePath = process.cwd()) {
     `- Scenario: ${scenario}`,
     `- Command: \`${command}\``,
     `- Version: ${version}`,
+    durationLine,
+    runsLine,
+    aggregateLine,
     '',
     '**Evidence**',
     `- Command: \`${command}\``,
     `- Version: ${version}`,
     ''
-  ].join('\n');
+  ].filter(Boolean).join('\n');
 
   appendInvestigationLog(id, entry, basePath);
 }
@@ -694,6 +712,8 @@ function appendCodePathsLog(input, basePath = process.cwd()) {
  * @param {string} input.change
  * @param {object} input.delta
  * @param {string} input.verdict
+ * @param {number} [input.runs]
+ * @param {string} [input.aggregate]
  * @param {string} [input.date]
  * @param {string} basePath
  */
@@ -701,7 +721,7 @@ function appendOptimizationLog(input, basePath = process.cwd()) {
   if (!input || typeof input !== 'object') {
     throw new Error('appendOptimizationLog requires an input object');
   }
-  const { id, userQuote, change, delta, verdict, date, gitHistory } = input;
+  const { id, userQuote, change, delta, verdict, date, gitHistory, runs, aggregate } = input;
 
   if (!id || typeof id !== 'string') {
     throw new Error('appendOptimizationLog requires a valid investigation id');
@@ -723,6 +743,8 @@ function appendOptimizationLog(input, basePath = process.cwd()) {
   const gitHistoryText = Array.isArray(gitHistory) && gitHistory.length
     ? gitHistory.join(' | ')
     : 'n/a';
+  const runsLine = Number.isFinite(runs) ? `- Runs: ${runs}` : null;
+  const aggregateLine = aggregate ? `- Aggregate: ${aggregate}` : null;
   const entry = [
     `## Optimization - ${logDate}`,
     '',
@@ -731,6 +753,8 @@ function appendOptimizationLog(input, basePath = process.cwd()) {
     '**Summary**',
     `- Change: ${change}`,
     `- Verdict: ${verdict}`,
+    runsLine,
+    aggregateLine,
     '',
     '**Evidence**',
     `- Delta: ${JSON.stringify(delta.metrics || {})}`,
