@@ -33,7 +33,7 @@ Example: `/drift-detect --sources github,docs --depth quick --output file`
 
 ```javascript
 // Normalize path for Windows (backslashes break in require strings)
-const pluginPath = '${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/');
+const pluginPath = (process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
 const collectors = require(`${pluginPath}/lib/drift-detect/collectors.js`);
 const repoMap = require(`${pluginPath}/lib/repo-map`);
 
@@ -116,7 +116,7 @@ console.log(`
 
 ${collectedData.github?.available ? `- **GitHub**: ${collectedData.github.issues.length} issues, ${collectedData.github.prs.length} PRs` : '- **GitHub**: Not available'}
 ${collectedData.docs ? `- **Documentation**: ${Object.keys(collectedData.docs.files).length} files analyzed` : '- **Documentation**: Skipped'}
-${collectedData.code ? `- **Code**: ${Object.keys(collectedData.code.structure).length} directories scanned` : '- **Code**: Skipped'}
+${collectedData.code ? `- **Code**: ${collectedData.code.summary.totalDirs} directories scanned` : '- **Code**: Skipped'}
 
 → Sending to semantic analyzer...
 `);
