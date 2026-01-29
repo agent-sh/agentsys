@@ -27,8 +27,7 @@ function normalizeBenchmarkOptions(options = {}) {
     ...options,
     mode,
     duration,
-    warmup: options.warmup || 10,
-    allowShort: options.allowShort === true
+    warmup: options.warmup || 10
   };
 }
 
@@ -54,8 +53,7 @@ function runBenchmark(command, options = {}) {
   });
   const elapsedSeconds = (Date.now() - start) / 1000;
 
-  const allowShort = normalized.allowShort || process.env.PERF_ALLOW_SHORT === '1';
-  if (!allowShort && elapsedSeconds + DEFAULT_DURATION_SLACK_SECONDS < normalized.duration) {
+  if (elapsedSeconds + DEFAULT_DURATION_SLACK_SECONDS < normalized.duration) {
     throw new Error(`Benchmark finished too quickly (${elapsedSeconds.toFixed(2)}s < ${normalized.duration}s)`);
   }
 
