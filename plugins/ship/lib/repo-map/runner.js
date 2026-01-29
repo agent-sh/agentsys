@@ -31,7 +31,7 @@ const EXCLUDE_DIRS = Array.from(new Set([
   '.claude', '.opencode', '.codex', '.venv', 'venv', 'env'
 ]));
 
-const AST_GREP_BATCH_SIZE = 200;
+const AST_GREP_BATCH_SIZE = 100;
 const LANGUAGE_EXTENSION_SCAN_LIMIT = 500;
 
 /**
@@ -217,9 +217,14 @@ async function fullScan(basePath, languages, options = {}) {
 
     for (const [sgLang, entries] of filesBySgLang) {
       const filePaths = entries.map(entry => entry.file);
+      const experimentBatchSize = process.env.PERF_EXPERIMENT === '1'
+        ? Number(process.env.REPO_MAP_AST_GREP_BATCH_SIZE)
+        : null;
       const batchSize = Number.isFinite(options.astGrepBatchSize)
         ? Math.max(1, Math.floor(options.astGrepBatchSize))
-        : AST_GREP_BATCH_SIZE;
+        : Number.isFinite(experimentBatchSize) && experimentBatchSize > 0
+          ? Math.max(1, Math.floor(experimentBatchSize))
+          : AST_GREP_BATCH_SIZE;
       const chunks = chunkArray(filePaths, batchSize);
 
       const patternGroups = [

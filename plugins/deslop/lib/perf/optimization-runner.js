@@ -37,15 +37,16 @@ function runOptimizationExperiment(options) {
     throw new Error('working tree is dirty before experiment');
   }
 
+  const baselineEnv = { ...env, PERF_EXPERIMENT: '0' };
+  const experimentEnv = { ...env, PERF_EXPERIMENT: '1' };
   const seriesOptions = {
     duration: duration ?? DEFAULT_MIN_DURATION,
     minDuration,
     runs,
-    aggregate,
-    env
+    aggregate
   };
 
-  const baselineRun = runBenchmarkSeries(command, seriesOptions);
+  const baselineRun = runBenchmarkSeries(command, { ...seriesOptions, env: baselineEnv });
 
   // NOTE: Caller is responsible for applying the experiment change here.
   // Warm up the system (caches/JIT) before capturing experiment metrics.
@@ -53,11 +54,11 @@ function runOptimizationExperiment(options) {
   runBenchmark(command, {
     duration: duration ?? DEFAULT_MIN_DURATION,
     minDuration,
-    env,
+    env: experimentEnv,
     runMode,
     setDurationEnv: runMode !== 'oneshot'
   });
-  const experimentRun = runBenchmarkSeries(command, seriesOptions);
+  const experimentRun = runBenchmarkSeries(command, { ...seriesOptions, env: experimentEnv });
 
   const delta = compareBaselines(
     { metrics: baselineRun.metrics },
