@@ -46,7 +46,12 @@ Parse from $ARGUMENTS:
 ```javascript
 const args = '$ARGUMENTS'.split(' ');
 const stateIdx = args.indexOf('--state-file');
-const workflowState = stateIdx >= 0 ? require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/state/workflow-state.js') : null;
+let workflowState = null;
+if (stateIdx >= 0) {
+  const pluginPath = (process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
+  if (!pluginPath) { console.error('Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set'); process.exit(1); }
+  workflowState = require(`${pluginPath}/lib/state/workflow-state.js`);
+}
 
 function updatePhase(phase, result) {
   if (!workflowState) return;

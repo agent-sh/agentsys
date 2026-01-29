@@ -81,13 +81,17 @@ For **diff-based cleanup** of new work only, use the `deslop-work` agent via `/n
 Run the detection script to scan for slop patterns:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/scripts/detect.js" <scope> --compact
+PLUGIN_PATH="${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}"
+if [ -z "$PLUGIN_PATH" ]; then echo "Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set"; exit 1; fi
+node "$PLUGIN_PATH/scripts/detect.js" <scope> --compact
 ```
 
 For deep analysis with all multi-pass analyzers:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/scripts/detect.js" <scope> --deep --compact
+PLUGIN_PATH="${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}"
+if [ -z "$PLUGIN_PATH" ]; then echo "Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set"; exit 1; fi
+node "$PLUGIN_PATH/scripts/detect.js" <scope> --deep --compact
 ```
 
 Parse the output to identify top 10 hotspots, sorted by:
@@ -109,7 +113,9 @@ Present findings as a prioritized cleanup plan:
 Run detection with apply flag for auto-fixable patterns:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/scripts/detect.js" <scope> --apply --max <max-changes> --compact
+PLUGIN_PATH="${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}"
+if [ -z "$PLUGIN_PATH" ]; then echo "Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set"; exit 1; fi
+node "$PLUGIN_PATH/scripts/detect.js" <scope> --apply --max <max-changes> --compact
 ```
 
 Then implement remaining manual fixes one changeset at a time:

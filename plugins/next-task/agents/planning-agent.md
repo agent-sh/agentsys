@@ -34,7 +34,9 @@ Before planning, you should have:
 ## Phase 1: Load Context
 
 ```javascript
-const workflowState = require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/state/workflow-state.js');
+const pluginPath = (process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\/g, '/');
+if (!pluginPath) { console.error('Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set'); process.exit(1); }
+const workflowState = require(`${pluginPath}/lib/state/workflow-state.js`);
 const state = workflowState.readFlow();
 
 const task = state.task;
@@ -49,7 +51,9 @@ console.log(`Key files identified: ${explorationResults?.keyFiles?.join(', ')}`)
 Use repo-map to identify dependencies and exports before writing the plan:
 
 ```javascript
-const repoMap = require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/repo-map');
+const pluginPath = (process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\/g, '/');
+if (!pluginPath) { console.error('Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set'); process.exit(1); }
+const repoMap = require(`${pluginPath}/lib/repo-map`);
 const map = repoMap.load(process.cwd());
 
 if (!map) {

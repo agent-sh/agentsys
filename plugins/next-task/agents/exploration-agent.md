@@ -13,7 +13,9 @@ This requires careful investigation and connecting disparate pieces of informati
 ## Phase 1: Load Task Context
 
 ```javascript
-const workflowState = require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/state/workflow-state.js');
+const pluginPath = (process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
+if (!pluginPath) { console.error('Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set'); process.exit(1); }
+const workflowState = require(`${pluginPath}/lib/state/workflow-state.js`);
 const state = workflowState.readState();
 
 const task = state.task;
@@ -26,7 +28,9 @@ console.log(`Description: ${task.description}`);
 Use the cached repo-map for faster symbol discovery and dependency hints:
 
 ```javascript
-const repoMap = require((process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/') + '/lib/repo-map');
+const pluginPath = (process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
+if (!pluginPath) { console.error('Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set'); process.exit(1); }
+const repoMap = require(`${pluginPath}/lib/repo-map`);
 const map = repoMap.load(process.cwd());
 
 if (!map) {
