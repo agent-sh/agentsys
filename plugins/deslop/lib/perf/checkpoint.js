@@ -55,6 +55,22 @@ function getLastCommitMessage() {
 }
 
 /**
+ * Get recent git commit summaries.
+ * @param {number} [limit=5]
+ * @returns {string[]}
+ */
+function getRecentCommits(limit = 5) {
+  try {
+    const count = Number.isFinite(limit) ? Math.max(1, Math.floor(limit)) : 5;
+    const output = execSync(`git log -${count} --pretty=%h %s`, { encoding: 'utf8' }).trim();
+    if (!output) return [];
+    return output.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+/**
  * Check if the next checkpoint would duplicate the last commit.
  * @param {string} message
  * @returns {boolean}
@@ -94,6 +110,7 @@ module.exports = {
   isWorkingTreeClean,
   buildCheckpointMessage,
   getLastCommitMessage,
+  getRecentCommits,
   isDuplicateCheckpoint,
   commitCheckpoint
 };
