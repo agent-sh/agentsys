@@ -9,8 +9,23 @@ const fs = require('fs');
 const sourceCache = require('../lib/sources/source-cache');
 const customHandler = require('../lib/sources/custom-handler');
 const policyQuestions = require('../lib/sources/policy-questions');
+const stateDir = require('../lib/platform/state-dir');
 
-const SOURCES_DIR = '.claude/sources';
+const SOURCES_DIR = '.test-state/sources';
+const originalStateDir = process.env.AI_STATE_DIR;
+
+beforeAll(() => {
+  process.env.AI_STATE_DIR = '.test-state';
+  stateDir.clearCache();
+});
+
+afterAll(() => {
+  if (fs.existsSync('.test-state')) {
+    fs.rmSync('.test-state', { recursive: true, force: true });
+  }
+  process.env.AI_STATE_DIR = originalStateDir;
+  stateDir.clearCache();
+});
 
 describe('source-cache', () => {
   beforeEach(() => {
