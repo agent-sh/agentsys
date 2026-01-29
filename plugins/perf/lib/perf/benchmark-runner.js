@@ -44,11 +44,7 @@ function runBenchmark(command, options = {}) {
   }
 
   const normalized = normalizeBenchmarkOptions(options);
-  const env = {
-    ...process.env,
-    PERF_RUN_DURATION: String(normalized.duration),
-    ...normalized.env
-  };
+  const env = { ...process.env, ...normalized.env };
 
   const start = Date.now();
   const output = execSync(command, {
