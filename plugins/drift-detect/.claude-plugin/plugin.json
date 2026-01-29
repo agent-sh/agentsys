@@ -1,6 +1,6 @@
 {
   "name": "drift-detect",
-  "version": "3.3.0",
+  "version": "3.3.2",
   "description": "Deep repository analysis to realign project plans with actual code reality - discovers drift, gaps, and produces prioritized reconstruction plans",
   "author": {
     "name": "Avi Fenesh",
