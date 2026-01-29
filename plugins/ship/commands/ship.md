@@ -391,6 +391,16 @@ ${WORKFLOW === 'dev-prod' ?
 ✓ Successfully shipped!
 ```
 
+### Workflow Hook Response
+
+After displaying the completion report, output JSON for the SubagentStop hook:
+
+```json
+{"ok": true, "nextPhase": "completed", "status": "shipped"}
+```
+
+This allows the `/next-task` workflow to detect that `/ship` completed successfully.
+
 ## Error Handling
 
 See `ship-error-handling.md` for detailed error handling:
