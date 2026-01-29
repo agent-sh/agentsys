@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "perf-20260129-171328-583b3dab",
+  "status": "in_progress",
+  "phase": "baseline",
+  "createdAt": "2026-01-29T17:13:28.346Z",
+  "updatedAt": "2026-01-29T17:13:28.349Z",
+  "scenario": {
+    "description": "perf",
+    "metrics": [],
+    "successCriteria": "",
+    "scenarios": []
+  },
+  "baselines": [],
+  "hypotheses": [],
+  "codePaths": [],
+  "experiments": [],
+  "results": [],
+  "breakingPoint": null,
+  "breakingPointHistory": [],
+  "constraintResults": [],
+  "profilingResults": [],
+  "decision": null,
+  "benchmark": {
+    "command": "node",
+    "version": "tooling-smoke-2026-01-29"
+  }
+}
