@@ -61,13 +61,15 @@ docs-updater (YOU ARE HERE)
 
 After docs update completes:
 
-```javascript
-// Update state
-workflowState.completePhase({ docsUpdated: true });
+1. Update workflow state: `workflowState.completePhase({ docsUpdated: true })`
+2. Output completion message: `[OK] Documentation updated. Proceeding to /ship...`
+3. Invoke /ship via Task:
 
-// EXPLICITLY invoke /ship
-console.log('[OK] Invoking /ship command...');
-await Skill({ skill: "ship:ship", args: "--state-file .claude/flow.json" });
+```javascript
+await Task({
+  subagent_type: "ship:ship",
+  prompt: "Execute ship workflow for completed task. State file: .claude/flow.json"
+});
 ```
 
 ## Output Format
