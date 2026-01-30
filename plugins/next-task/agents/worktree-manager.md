@@ -123,8 +123,8 @@ else
   fi
 
   if [ $? -eq 0 ]; then
-    echo "✓ Created worktree at $WORKTREE_PATH"
-    echo "✓ Created branch $BRANCH_NAME"
+    echo "[OK] Created worktree at $WORKTREE_PATH"
+    echo "[OK] Created branch $BRANCH_NAME"
   else
     echo "ERROR: Failed to create worktree"
     exit 1
@@ -178,7 +178,7 @@ function claimTaskInRegistry(task, branch, worktreePath) {
 
   // Write registry
   fs.writeFileSync(TASKS_REGISTRY_PATH, JSON.stringify(registry, null, 2));
-  console.log(`✓ Claimed task #${task.id} in tasks.json registry`);
+  console.log(`[OK] Claimed task #${task.id} in tasks.json registry`);
 }
 
 claimTaskInRegistry(state.task, BRANCH_NAME, WORKTREE_PATH);
@@ -198,8 +198,8 @@ if [ "$CURRENT_BRANCH" != "$BRANCH_NAME" ]; then
   exit 1
 fi
 
-echo "✓ Working directory anchored to: $(pwd)"
-echo "✓ On branch: $CURRENT_BRANCH"
+echo "[OK] Working directory anchored to: $(pwd)"
+echo "[OK] On branch: $CURRENT_BRANCH"
 ```
 
 ## Phase 8: Create Worktree Status File
@@ -260,7 +260,7 @@ function createWorktreeStatus(task, workflow, branch, mainRepoPath) {
   };
 
   fs.writeFileSync(WORKTREE_STATUS_PATH, JSON.stringify(status, null, 2));
-  console.log(`✓ Created workflow-status.json in worktree`);
+  console.log(`[OK] Created workflow-status.json in worktree`);
 }
 
 createWorktreeStatus(state.task, state.workflow, BRANCH_NAME, MAIN_REPO_PATH);
@@ -324,19 +324,19 @@ Proceeding to exploration phase...
                     WORKTREE CLEANUP - WHO DOES WHAT
 
   THIS AGENT (worktree-manager):
-  ✓ Creates worktrees
-  ✓ Claims tasks in tasks.json registry
-  ✓ Creates workflow-status.json in worktree
-  ✗ Does NOT clean up worktrees after completion
+  [OK] Creates worktrees
+  [OK] Claims tasks in tasks.json registry
+  [OK] Creates workflow-status.json in worktree
+  [NO] Does NOT clean up worktrees after completion
 
   /ship COMMAND:
-  ✓ Cleans up worktree after successful merge
-  ✓ Removes task from tasks.json registry
-  ✓ Prunes worktree references
+  [OK] Cleans up worktree after successful merge
+  [OK] Removes task from tasks.json registry
+  [OK] Prunes worktree references
 
   --abort FLAG:
-  ✓ Cleans up worktree on workflow abort
-  ✓ Removes task from tasks.json registry
+  [OK] Cleans up worktree on workflow abort
+  [OK] Removes task from tasks.json registry
 
   AGENTS MUST NOT:
   [CRITICAL] Clean up worktrees themselves
@@ -362,11 +362,11 @@ cleanup_worktree() {
 
   # 1. Remove worktree
   git worktree remove "$WORKTREE_PATH" --force 2>/dev/null
-  echo "✓ Removed worktree at $WORKTREE_PATH"
+  echo "[OK] Removed worktree at $WORKTREE_PATH"
 
   # 2. Prune worktree references
   git worktree prune
-  echo "✓ Pruned worktree references"
+  echo "[OK] Pruned worktree references"
 
   # 3. Remove task from registry (CRITICAL)
   if [ -f "${STATE_DIR}/tasks.json" ]; then
@@ -377,7 +377,7 @@ cleanup_worktree() {
       registry.tasks = registry.tasks.filter(t => t.id !== '$TASK_ID');
       fs.writeFileSync('${STATE_DIR}/tasks.json', JSON.stringify(registry, null, 2));
     "
-    echo "✓ Removed task #$TASK_ID from tasks.json registry"
+    echo "[OK] Removed task #$TASK_ID from tasks.json registry"
   fi
 
   # 4. Optionally delete branch (only if not merged and user requested)

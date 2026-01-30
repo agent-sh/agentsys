@@ -252,18 +252,18 @@ const failedChecks = Object.entries(checks)
 
 | Check | Status | Details |
 |-------|--------|---------|
-| Git State | ${checks.gitState.passed ? '✓' : '✗'} | ${checks.gitState.uncommitted ? 'Uncommitted changes' : 'Clean'} |
-| Tests | ${checks.tests.passed ? '✓' : '✗'} | Exit code: ${checks.tests.exitCode} |
-| Build | ${checks.build.passed ? '✓' : '✗'} | Exit code: ${checks.build.exitCode} |
-| Lint | ${checks.lint.passed ? '✓' : '✗'} | Exit code: ${checks.lint.exitCode} |
-| Type Check | ${checks.typeCheck.passed ? '✓' : '✗'} | Exit code: ${checks.typeCheck.exitCode} |
-| Requirements | ${checks.requirements.passed ? '✓' : '✗'} | ${checks.requirements.reason} |
+| Git State | ${checks.gitState.passed ? '[OK]' : '[FAIL]'} | ${checks.gitState.uncommitted ? 'Uncommitted changes' : 'Clean'} |
+| Tests | ${checks.tests.passed ? '[OK]' : '[FAIL]'} | Exit code: ${checks.tests.exitCode} |
+| Build | ${checks.build.passed ? '[OK]' : '[FAIL]'} | Exit code: ${checks.build.exitCode} |
+| Lint | ${checks.lint.passed ? '[OK]' : '[FAIL]'} | Exit code: ${checks.lint.exitCode} |
+| Type Check | ${checks.typeCheck.passed ? '[OK]' : '[FAIL]'} | Exit code: ${checks.typeCheck.exitCode} |
+| Requirements | ${checks.requirements.passed ? '[OK]' : '[FAIL]'} | ${checks.requirements.reason} |
 
 ### Overall Status
 
 ${allPassed ?
-  '## ✓ APPROVED\nAll validation checks passed. Ready to ship!' :
-  `## ✗ NOT APPROVED\nFailed checks: ${failedChecks.join(', ')}`}
+  '## [OK] APPROVED\nAll validation checks passed. Ready to ship!' :
+  `## [FAIL] NOT APPROVED\nFailed checks: ${failedChecks.join(', ')}`}
 
 ${!allPassed ? `
 ### Fix Required

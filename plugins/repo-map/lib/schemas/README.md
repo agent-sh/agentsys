@@ -29,12 +29,12 @@ node lib/schemas/validator.js
 node lib/schemas/validator.js plugins/next-task/.claude-plugin/plugin.json
 
 # Output on success:
-# ✓ Manifest is valid
+# [OK] Manifest is valid
 #   Plugin: next-task v3.0.0
 #   Author: Avi Fenesh
 
 # Output on failure:
-# ✗ Manifest is invalid:
+# [ERROR] Manifest is invalid:
 #   - Missing required property: name
 #   - version: does not match pattern
 ```

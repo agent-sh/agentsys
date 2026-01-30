@@ -188,7 +188,7 @@ function recordStepCompletion(stepName, result = {}) {
     status.resume.resumeFromStep = stepName;
 
     fs.writeFileSync(worktreeStatusPath, JSON.stringify(status, null, 2));
-    console.log(`✓ Updated workflow-status.json: ${stepName}`);
+    console.log(`[OK] Updated workflow-status.json: ${stepName}`);
   }
 
   // 2. Update main repo's tasks.json (if accessible)
@@ -204,7 +204,7 @@ function recordStepCompletion(stepName, result = {}) {
       registry.tasks[taskIdx].lastActivityAt = new Date().toISOString();
       registry.tasks[taskIdx].currentStep = stepName;
       fs.writeFileSync(mainRepoTasksPath, JSON.stringify(registry, null, 2));
-      console.log(`✓ Updated tasks.json registry: ${stepName}`);
+      console.log(`[OK] Updated tasks.json registry: ${stepName}`);
     }
   }
 }
@@ -242,15 +242,15 @@ Parse from $ARGUMENTS:
 
   "Existing session" means AN ACTIVE AGENT IS CURRENTLY RUNNING:
 
-  ✓ An agent is in the middle of processing
-  ✓ The workflow was interrupted (context limit, crash, user cancel)
-  ✓ workflow-status.json shows recent lastActivityAt (< 1 hour)
+  [YES] An agent is in the middle of processing
+  [YES] The workflow was interrupted (context limit, crash, user cancel)
+  [YES] workflow-status.json shows recent lastActivityAt (< 1 hour)
 
   This is DIFFERENT from a "stale session":
 
-  ✗ Worktree exists but no agent is running
-  ✗ lastActivityAt is old (> 24 hours)
-  ✗ User abandoned the task without cleanup
+  [NO] Worktree exists but no agent is running
+  [NO] lastActivityAt is old (> 24 hours)
+  [NO] User abandoned the task without cleanup
 
   BEHAVIOR:
   - Existing session: --resume continues from last checkpoint
@@ -273,12 +273,12 @@ Parse from $ARGUMENTS:
 
   MANDATORY RULE: DO NOT automatically resume existing tasks/worktrees
 
-  ✅ CORRECT BEHAVIOR:
-  - No arguments → Go to Phase 1 (Policy Selection)
+  [CORRECT] CORRECT BEHAVIOR:
+  - No arguments -> Go to Phase 1 (Policy Selection)
   - Policy selector WILL ask about existing tasks
   - User explicitly chooses: resume, start fresh, or view status
 
-  ❌ INCORRECT BEHAVIOR (NEVER DO THIS):
+  [WRONG] INCORRECT BEHAVIOR (NEVER DO THIS):
   - Seeing .claude/tasks.json with existing task → Auto-resume it
   - Finding a worktree → Auto-resume it
   - Detecting "in_progress" status → Auto-resume it
@@ -332,7 +332,7 @@ if (args.includes('--status')) {
 // Handle --abort
 if (args.includes('--abort')) {
   workflowState.abortWorkflow('User requested abort');
-  console.log("✓ Workflow aborted.");
+  console.log("[OK] Workflow aborted.");
   return;
 }
 
@@ -549,7 +549,7 @@ if (!planMatch) {
 }
 
 const plan = JSON.parse(planMatch[1].trim());
-console.log(`✓ Plan received: ${plan.steps.length} steps, ${plan.complexity.overall} complexity`);
+console.log(`[OK] Plan received: ${plan.steps.length} steps, ${plan.complexity.overall} complexity`);
 ```
 
 ## Phase 6: User Approval (Plan Mode)
@@ -596,14 +596,14 @@ ${plan.critical.security?.length ? `**Security**: ${plan.critical.security.join(
 **Reasoning**: ${plan.complexity.reasoning}
 `;
 
-console.log("✓ Entering plan mode for user approval...");
+console.log("[OK] Entering plan mode for user approval...");
 
 // Enter plan mode with the formatted plan
 EnterPlanMode();
 
 // When we reach here, user has approved via ExitPlanMode
-console.log("✓ Plan approved by user");
-console.log("✓ Proceeding to implementation...");
+console.log("[OK] Plan approved by user");
+console.log("[OK] Proceeding to implementation...");
 
 // Save approved plan to state
 workflowState.completePhase({
@@ -744,12 +744,12 @@ After docs-updater completes, you MUST EXPLICITLY invoke /ship.
 ```javascript
 // AFTER docs-updater completes, EXPLICITLY invoke /ship
 console.log(`
-## ✓ Implementation Complete - Ready to Ship
+## [OK] Implementation Complete - Ready to Ship
 
 Task #${state.task.id} passed all validation checks.
-- ✓ Review approved (no open issues or override)
-- ✓ Delivery validated (tests pass, build passes)
-- ✓ Documentation updated
+- [OK] Review approved (no open issues or override)
+- [OK] Delivery validated (tests pass, build passes)
+- [OK] Documentation updated
 
 → EXPLICITLY invoking /ship for PR creation and merge workflow.
 `);
@@ -780,7 +780,7 @@ function cleanupAfterShip(state) {
     const registry = JSON.parse(fs.readFileSync(mainRepoTasksPath, 'utf8'));
     registry.tasks = registry.tasks.filter(t => t.id !== state.task.id);
     fs.writeFileSync(mainRepoTasksPath, JSON.stringify(registry, null, 2));
-    console.log(`✓ Removed task #${state.task.id} from tasks.json registry`);
+    console.log(`[OK] Removed task #${state.task.id} from tasks.json registry`);
   }
 
   // 2. Return to main repo directory
@@ -788,7 +788,7 @@ function cleanupAfterShip(state) {
 
   // 3. Remove worktree
   exec(`git worktree remove "${state.git.worktreePath}" --force`);
-  console.log(`✓ Removed worktree at ${state.git.worktreePath}`);
+  console.log(`[OK] Removed worktree at ${state.git.worktreePath}`);
 
   // 4. Prune worktree references
   exec('git worktree prune');

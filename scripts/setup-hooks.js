@@ -53,37 +53,37 @@ echo ""
 echo "[1/3] Running npm run validate..."
 if ! npm run validate --silent; then
   echo ""
-  echo "❌ BLOCKED: Validation failed"
+  echo "[ERROR] BLOCKED: Validation failed"
   echo "   Fix issues and try again"
   exit 1
 fi
-echo "✓ Validation passed"
+echo "[OK] Validation passed"
 
 # 2. Run tests
 echo ""
 echo "[2/3] Running npm test..."
 if ! npm test --silent 2>/dev/null; then
   echo ""
-  echo "❌ BLOCKED: Tests failed"
+  echo "[ERROR] BLOCKED: Tests failed"
   echo "   Fix failing tests and try again"
   exit 1
 fi
-echo "✓ Tests passed"
+echo "[OK] Tests passed"
 
 # 3. Verify package builds
 echo ""
 echo "[3/3] Running npm pack --dry-run..."
 if ! npm pack --dry-run --silent 2>/dev/null; then
   echo ""
-  echo "❌ BLOCKED: Package build failed"
+  echo "[ERROR] BLOCKED: Package build failed"
   echo "   Fix package issues and try again"
   exit 1
 fi
-echo "✓ Package builds correctly"
+echo "[OK] Package builds correctly"
 
 echo ""
 echo "=============================================="
-echo "  ✅ Release checklist validation PASSED"
+echo "  [OK] Release checklist validation PASSED"
 echo "=============================================="
 echo ""
 echo "Reminder: Did you also verify cross-platform?"

@@ -209,7 +209,7 @@ while (remainingIssues.length > 0) {
   remainingIssues = reReviewResult.issues;
 
   if (remainingIssues.length === 0) {
-    console.log("✓ Zero issues remaining!");
+    console.log("[OK] Zero issues remaining!");
     break;
   }
 
@@ -277,9 +277,9 @@ if (choice === 'Continue review') {
 - Low: ${lowFound} → ${lowRemaining}
 
 ## Verification
-- Tests: ✓/✗
-- Linter: ✓/✗
-- Build: ✓/✗
+- Tests: [OK]/[FAIL]
+- Linter: [OK]/[FAIL]
+- Build: [OK]/[FAIL]
 
 ## Files Changed
 ${FILE_COUNT} files modified

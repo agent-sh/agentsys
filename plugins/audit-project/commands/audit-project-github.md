@@ -73,7 +73,7 @@ Each created issue includes:
 
 ```
 
-  ⚠️ SECURITY ISSUES MUST NOT BE PUBLIC
+  [WARN] SECURITY ISSUES MUST NOT BE PUBLIC
 
   The following must NOT be created as GitHub issues:
   - Token/credential exposure

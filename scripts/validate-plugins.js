@@ -56,7 +56,7 @@ function main() {
         const pkg = JSON.parse(fs.readFileSync(pluginJson, 'utf8'));
         if (!pkg.name) allErrors.push('root: plugin.json missing name');
         if (!pkg.version) allErrors.push('root: plugin.json missing version');
-        console.log(`  ✓ plugin.json valid (${pkg.name}@${pkg.version})`);
+        console.log(`  [OK] plugin.json valid (${pkg.name}@${pkg.version})`);
       } catch (e) {
         allErrors.push(`root: Invalid plugin.json - ${e.message}`);
       }
@@ -74,21 +74,21 @@ function main() {
     const errors = validatePlugin(pluginPath, plugin);
 
     if (errors.length > 0) {
-      errors.forEach(e => console.log(`  ✗ ${e}`));
+      errors.forEach(e => console.log(`  [X] ${e}`));
       allErrors.push(...errors);
     } else {
-      console.log(`  ✓ Valid`);
+      console.log(`  [OK] Valid`);
     }
   }
 
   console.log('');
 
   if (allErrors.length > 0) {
-    console.log(`❌ Validation failed with ${allErrors.length} error(s)`);
+    console.log(`[ERROR] Validation failed with ${allErrors.length} error(s)`);
     process.exit(1);
   }
 
-  console.log(`✅ All ${plugins.length + 1} plugins valid`);
+  console.log(`[OK] All ${plugins.length + 1} plugins valid`);
 }
 
 main();

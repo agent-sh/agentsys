@@ -63,18 +63,18 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "tag=${TAG}" >> $GITHUB_OUTPUT
           echo "npm_tag=${NPM_TAG}" >> $GITHUB_OUTPUT
-          echo "📦 Release version: ${VERSION} (tag: ${TAG})"
-          echo "📦 npm tag: ${NPM_TAG}"
+          echo "[PKG] Release version: ${VERSION} (tag: ${TAG})"
+          echo "[PKG] npm tag: ${NPM_TAG}"
 
       - name: Validate version format
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
-            echo "❌ Invalid version format: $VERSION"
+            echo "[ERROR] Invalid version format: $VERSION"
             echo "Expected: X.Y.Z or X.Y.Z-prerelease"
             exit 1
           fi
-          echo "✅ Version format valid: $VERSION"
+          echo "[OK] Version format valid: $VERSION"
 
       - name: Verify version consistency
         run: |
@@ -85,18 +85,18 @@ jobs:
           # Check package.json
           PKG_VERSION=$(node -p "require('./package.json').version")
           if [ "$PKG_VERSION" != "$VERSION" ]; then
-            echo "❌ package.json version ($PKG_VERSION) doesn't match release version ($VERSION)"
+            echo "[ERROR] package.json version ($PKG_VERSION) doesn't match release version ($VERSION)"
             exit 1
           fi
 
           # Check MCP server
           MCP_VERSION=$(node -e "const fs=require('fs');const content=fs.readFileSync('mcp-server/index.js','utf8');const match=content.match(/version:\s*'([^']+)'/);console.log(match?match[1]:'');")
           if [ -z "$MCP_VERSION" ]; then
-            echo "❌ mcp-server/index.js version not found"
+            echo "[ERROR] mcp-server/index.js version not found"
             exit 1
           fi
           if [ "$MCP_VERSION" != "$VERSION" ]; then
-            echo "❌ mcp-server/index.js version ($MCP_VERSION) doesn't match release version ($VERSION)"
+            echo "[ERROR] mcp-server/index.js version ($MCP_VERSION) doesn't match release version ($VERSION)"
             exit 1
           fi
 
@@ -105,13 +105,13 @@ jobs:
             if [ -f "$plugin_json" ]; then
               PLUGIN_VERSION=$(node -p "require('./$plugin_json').version")
               if [ "$PLUGIN_VERSION" != "$VERSION" ]; then
-                echo "❌ $plugin_json version ($PLUGIN_VERSION) doesn't match release version ($VERSION)"
+                echo "[ERROR] $plugin_json version ($PLUGIN_VERSION) doesn't match release version ($VERSION)"
                 exit 1
               fi
             fi
           done
 
-          echo "✅ All version numbers match: $VERSION"
+          echo "[OK] All version numbers match: $VERSION"
 
   test:
     name: Run Tests
@@ -164,7 +164,7 @@ jobs:
       - name: Dry run publish
         if: ${{ inputs.dry_run }}
         run: |
-          echo "🏃 Dry run - skipping actual publish"
+          echo "[DRY-RUN] Skipping actual publish"
           npm publish --dry-run --tag "${{ needs.validate.outputs.npm_tag }}"
 
   create-release:
@@ -233,18 +233,18 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ "${{ needs.publish-npm.result }}" = "success" ]; then
-            echo "✅ **npm:** Published successfully" >> $GITHUB_STEP_SUMMARY
+            echo "[OK] **npm:** Published successfully" >> $GITHUB_STEP_SUMMARY
             echo "   - https://www.npmjs.com/package/awesome-slash" >> $GITHUB_STEP_SUMMARY
           else
-            echo "❌ **npm:** ${{ needs.publish-npm.result }}" >> $GITHUB_STEP_SUMMARY
+            echo "[ERROR] **npm:** ${{ needs.publish-npm.result }}" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ "${{ needs.create-release.result }}" = "success" ]; then
-            echo "✅ **GitHub Release:** Created successfully" >> $GITHUB_STEP_SUMMARY
+            echo "[OK] **GitHub Release:** Created successfully" >> $GITHUB_STEP_SUMMARY
             echo "   - https://github.com/${{ github.repository }}/releases/tag/${{ needs.validate.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
           elif [ "${{ needs.create-release.result }}" = "skipped" ]; then
-            echo "⏭️ **GitHub Release:** Skipped (dry run)" >> $GITHUB_STEP_SUMMARY
+            echo "[SKIP] **GitHub Release:** Skipped (dry run)" >> $GITHUB_STEP_SUMMARY
           else
-            echo "❌ **GitHub Release:** ${{ needs.create-release.result }}" >> $GITHUB_STEP_SUMMARY
+            echo "[ERROR] **GitHub Release:** ${{ needs.create-release.result }}" >> $GITHUB_STEP_SUMMARY
           fi

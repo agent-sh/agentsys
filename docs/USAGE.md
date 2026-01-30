@@ -267,12 +267,12 @@ Would you like me to apply fixes?
 You: Apply fixes, but keep the console.log in tests
 
 Claude:
-✓ Removed 5 console.log statements
-✓ Removed 2 old TODO comments
-✓ Added logging to empty catch block
-✓ Kept test console.logs
+[OK]Removed 5 console.log statements
+[OK]Removed 2 old TODO comments
+[OK]Added logging to empty catch block
+[OK]Kept test console.logs
 
-Running tests... ✓ All tests pass
+Running tests... [OK]All tests pass
 Ready to commit!
 ```
 
@@ -313,9 +313,9 @@ Investigating implementation...
 Found issue: Session timeout hardcoded to 5 minutes
 
 Implementing fix...
-✓ Fix implemented
-✓ Tests written and passing
-✓ Ready to ship
+[OK]Fix implemented
+[OK]Tests written and passing
+[OK]Ready to ship
 ```
 
 ---
@@ -354,9 +354,9 @@ Would you like me to fix these?
 You: Yes, fix all review issues
 
 Claude:
-Round 1: ✓ Fixed security issue
-Round 2: ✓ Fixed React performance + added tests
-Round 3: ✓ Re-verified - no open issues remain
+Round 1: [OK]Fixed security issue
+Round 2: [OK]Fixed React performance + added tests
+Round 3: [OK]Re-verified - no open issues remain
 
 Code is ready to ship!
 ```
@@ -374,37 +374,37 @@ Claude:
 Starting complete PR workflow...
 
 Phase 1: Pre-flight checks
-✓ Detected: GitHub Actions CI
-✓ Detected: Railway deployment
-✓ On branch: feature/add-dark-mode
+[OK]Detected: GitHub Actions CI
+[OK]Detected: Railway deployment
+[OK]On branch: feature/add-dark-mode
 
 Phase 2: Committing
 Generated commit: "feat(ui): add dark mode toggle"
-✓ Committed as: abc123f
+[OK]Committed as: abc123f
 
 Phase 3: Creating PR
-✓ Created PR #156
+[OK]Created PR #156
 URL: https://github.com/youruser/repo/pull/156
 
 Phase 4: Waiting for CI...
-✓ All checks passed
+[OK]All checks passed
 
 Phase 5: Review passes...
-✓ code quality: approved
-✓ test coverage: approved (95% coverage)
+[OK]code quality: approved
+[OK]test coverage: approved (95% coverage)
 
 Phase 6: Merging
-✓ Merged PR #156 to main
+[OK]Merged PR #156 to main
 
 Phase 7-8: Deploying to development...
-✓ Deployed to: https://app-dev.railway.app
-✓ Validation passed
+[OK]Deployed to: https://app-dev.railway.app
+[OK]Validation passed
 
 Phase 9-10: Deploying to production...
-✓ Deployed to: https://app.railway.app
-✓ Production healthy
+[OK]Deployed to: https://app.railway.app
+[OK]Production healthy
 
-✓ DEPLOYMENT COMPLETE!
+[OK]DEPLOYMENT COMPLETE!
 ```
 
 ---
@@ -436,9 +436,9 @@ Would you like me to fix these?
 You: Yes, fix both
 
 Claude:
-✓ Fixed SQL injection
-✓ Fixed JWT secret
-✓ Added JWT_SECRET to .env.example
+[OK]Fixed SQL injection
+[OK]Fixed JWT secret
+[OK]Added JWT_SECRET to .env.example
 
 Security issues resolved!
 ```
@@ -526,9 +526,9 @@ Here's what /ship will do:
 You: Run /deslop, then /audit-project, then /ship
 
 Claude:
-1. Cleaning up slop... ✓ Removed 5 issues
-2. Running review... ✓ Fixed 2 issues
-3. Shipping to production... ✓ Complete!
+1. Cleaning up slop... [OK]Removed 5 issues
+2. Running review... [OK]Fixed 2 issues
+3. Shipping to production... [OK]Complete!
 
 Your code is cleaned, reviewed, and deployed!
 ```

@@ -447,12 +447,12 @@ function main() {
   validateEnhanceAgentSkillUsage();
 
   if (errors.length > 0) {
-    console.log('❌ Consistency checks failed:\n');
+    console.log('[ERROR] Consistency checks failed:\n');
     errors.forEach(error => console.log(`- ${error}`));
     process.exit(1);
   }
 
-  console.log('✅ Repository consistency checks passed');
+  console.log('[OK] Repository consistency checks passed');
 }
 
 main();

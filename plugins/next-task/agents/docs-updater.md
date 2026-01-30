@@ -293,7 +293,7 @@ async function applyDocUpdates(fixList, flaggedIssues) {
     model: 'haiku'
   });
 
-  console.log(`✓ Applied ${result.applied} documentation fixes`);
+  console.log(`[OK] Applied ${result.applied} documentation fixes`);
 
   return result;
 }
@@ -365,11 +365,11 @@ This agent is called:
 ### Prerequisites (MUST be true before this agent runs)
 
 ```
-✓ implementation-agent completed
-✓ deslop-work ran on new code
-✓ test-coverage-checker ran (advisory)
-✓ Phase 9 review loop APPROVED
-✓ delivery-validator APPROVED
+[OK] implementation-agent completed
+[OK] deslop-work ran on new code
+[OK] test-coverage-checker ran (advisory)
+[OK] Phase 9 review loop APPROVED
+[OK] delivery-validator APPROVED
 ```
 
 ### What This Agent MUST NOT Do
@@ -444,7 +444,7 @@ ${applied.map(a => `- **${a.docFile}**: ${a.description}`).join('\n')}
 ${changelog.updated ? `Added entry: ${changelog.entry}` : 'No changes needed'}
 
 ---
-## ✓ All Gates Passed - Invoking /ship
+## [OK] All Gates Passed - Invoking /ship
 
 Task #${task.id} is ready for PR creation.
 
@@ -471,7 +471,7 @@ status.workflow.currentPhase = 'ready-to-ship';
 status.resume.resumeFromStep = 'ready-to-ship';
 
 fs.writeFileSync(statusPath, JSON.stringify(status, null, 2));
-console.log('✓ Updated workflow-status.json: ready-to-ship');
+console.log('[OK] Updated workflow-status.json: ready-to-ship');
 
 // 2. Update main repo tasks.json
 const mainRepoTasksPath = status.git.mainRepoPath + '/${STATE_DIR}/tasks.json';

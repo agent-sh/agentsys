@@ -239,7 +239,7 @@ const failedChecks = Object.entries(checks)
 
 ```javascript
 if (allPassed) {
-  console.log('## ✓ Delivery Validated');
+  console.log('## [OK] Delivery Validated');
   console.log('All checks passed. Proceeding to ship.');
 
   workflowState.completePhase({
@@ -260,7 +260,7 @@ if (allPassed) {
 
 ```javascript
 if (!allPassed) {
-  console.log('## ✗ Delivery Validation Failed');
+  console.log('## [FAIL] Delivery Validation Failed');
   console.log(`Failed checks: ${failedChecks.join(', ')}`);
 
   // Generate specific fix instructions
@@ -400,10 +400,10 @@ This agent is called:
 ### Prerequisites (MUST be true before this agent runs)
 
 ```
-✓ implementation-agent completed
-✓ deslop-work ran on new code
-✓ test-coverage-checker ran (advisory)
-✓ Phase 9 review loop APPROVED (no open issues or override)
+[OK] implementation-agent completed
+[OK] deslop-work ran on new code
+[OK] test-coverage-checker ran (advisory)
+[OK] Phase 9 review loop APPROVED (no open issues or override)
 ```
 
 ### What This Agent MUST NOT Do

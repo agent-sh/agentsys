@@ -23,7 +23,7 @@ Then authenticate:
 ## CI Failure
 
 ```markdown
-✗ CI checks failed for PR #${PR_NUMBER}
+[ERROR] CI checks failed for PR #${PR_NUMBER}
 
 View details:
   ${CI_URL}
@@ -62,7 +62,7 @@ Requirements:
 ## Merge Conflicts
 
 ```markdown
-✗ Cannot merge PR #${PR_NUMBER}: conflicts with ${MAIN_BRANCH}
+[ERROR] Cannot merge PR #${PR_NUMBER}: conflicts with ${MAIN_BRANCH}
 
 Resolve conflicts:
   git fetch origin
@@ -79,7 +79,7 @@ Then retry:
 ## Deployment Failure
 
 ```markdown
-✗ Deployment failed
+[ERROR] Deployment failed
 
 ${WORKFLOW === 'dev-prod' ? 'Development' : 'Production'} deployment did not succeed.
 
@@ -94,7 +94,7 @@ Once fixed, deployment will retry automatically.
 ## Production Validation Failure with Rollback
 
 ```markdown
-✗ Production validation failed
+[ERROR] Production validation failed
 
 ROLLBACK INITIATED
 
@@ -111,7 +111,7 @@ Fix the issues and try shipping again:
 ## Push Failure
 
 ```markdown
-✗ Push to remote failed
+[ERROR] Push to remote failed
 
 Possible causes:
 1. Authentication issue: gh auth status
@@ -125,7 +125,7 @@ Resolve and retry:
 ## PR Creation Failure
 
 ```markdown
-✗ Failed to create PR
+[ERROR] Failed to create PR
 
 Possible causes:
 1. Already exists: gh pr list --head ${CURRENT_BRANCH}
@@ -139,7 +139,7 @@ Check existing PRs:
 ## Max Review Iterations Reached
 
 ```markdown
-✗ Max iterations (${MAX_ITERATIONS}) reached
+[ERROR] Max iterations (${MAX_ITERATIONS}) reached
 
 Unable to resolve all review comments automatically.
 Manual intervention required.
@@ -157,7 +157,7 @@ Options:
 ## Worktree Cleanup Failure
 
 ```markdown
-⚠ Failed to clean up worktree
+[WARN] Failed to clean up worktree
 
 Worktree at: ${WORKTREE_PATH}
 
@@ -175,7 +175,7 @@ When rollback requires force push:
 # This prevents overwriting unexpected remote changes
 
 if ! git push --force-with-lease origin $PROD_BRANCH; then
-  echo "✗ Force push failed - remote has unexpected changes"
+  echo "[ERROR] Force push failed - remote has unexpected changes"
   echo "Someone else may have pushed to production"
   echo "Manual investigation required"
   exit 1

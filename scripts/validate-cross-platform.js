@@ -158,7 +158,7 @@ function validate(options = {}) {
       console.log(`  agents/: ${agentIssues.length} file(s) with issues`);
       allIssues.push(...agentIssues.map(i => ({ ...i, plugin })));
     } else if (fs.existsSync(agentsDir)) {
-      console.log('  agents/: ✓');
+      console.log('  agents/: [OK]');
     }
 
     // Scan commands
@@ -168,7 +168,7 @@ function validate(options = {}) {
       console.log(`  commands/: ${commandIssues.length} file(s) with issues`);
       allIssues.push(...commandIssues.map(i => ({ ...i, plugin })));
     } else if (fs.existsSync(commandsDir)) {
-      console.log('  commands/: ✓');
+      console.log('  commands/: [OK]');
     }
 
     // Scan skills
@@ -178,7 +178,7 @@ function validate(options = {}) {
       console.log(`  skills/: ${skillIssues.length} file(s) with issues`);
       allIssues.push(...skillIssues.map(i => ({ ...i, plugin })));
     } else if (fs.existsSync(skillsDir)) {
-      console.log('  skills/: ✓');
+      console.log('  skills/: [OK]');
     }
 
     // Scan hooks
@@ -188,7 +188,7 @@ function validate(options = {}) {
       console.log(`  hooks/: ${hookIssues.length} file(s) with issues`);
       allIssues.push(...hookIssues.map(i => ({ ...i, plugin })));
     } else if (fs.existsSync(hooksDir)) {
-      console.log('  hooks/: ✓');
+      console.log('  hooks/: [OK]');
     }
 
     console.log('');
@@ -214,7 +214,7 @@ function validate(options = {}) {
   if (libIssueCount > 0) {
     console.log(`lib/: ${libIssueCount} file(s) with issues\n`);
   } else {
-    console.log('lib/: ✓\n');
+    console.log('lib/: [OK]\n');
   }
 
   // Print summary
@@ -223,7 +223,7 @@ function validate(options = {}) {
   console.log('======================================\n');
 
   if (allIssues.length === 0) {
-    console.log('✅ No cross-platform issues found!\n');
+    console.log('[OK] No cross-platform issues found!\n');
     return { success: true, issues: [] };
   }
 
@@ -244,7 +244,7 @@ function validate(options = {}) {
       const relPath = path.relative(ROOT_DIR, item.path);
       console.log(`${relPath}:`);
       for (const issue of item.issues) {
-        const marker = issue.certainty === 'HIGH' ? '✗' : '!';
+        const marker = issue.certainty === 'HIGH' ? '[X]' : '!';
         console.log(`  ${marker} [${issue.certainty}] ${issue.issue}`);
         console.log(`    Fix: ${issue.fix}`);
       }
@@ -254,9 +254,9 @@ function validate(options = {}) {
 
   const exitCode = highIssues.length > 0 ? 1 : 0;
   if (exitCode === 1) {
-    console.log('❌ Found HIGH certainty cross-platform issues');
+    console.log('[ERROR] Found HIGH certainty cross-platform issues');
   } else {
-    console.log('⚠️  Found MEDIUM certainty issues (review recommended)');
+    console.log('[WARN]  Found MEDIUM certainty issues (review recommended)');
   }
 
   return { success: exitCode === 0, issues: allIssues };

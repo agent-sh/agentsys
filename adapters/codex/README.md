@@ -19,7 +19,7 @@ cd awesome-slash
 
 ## Available Commands
 
-### 🧹 `/deslop` - AI Slop Cleanup
+### `/deslop` - AI Slop Cleanup
 
 Remove debugging code, old TODOs, and other AI slop.
 
@@ -38,7 +38,7 @@ codex
 
 ---
 
-### 📋 `/next-task` - Intelligent Task Prioritization
+### `/next-task` - Intelligent Task Prioritization
 
 Discover what to work on next with AI analysis.
 
@@ -59,7 +59,7 @@ codex
 
 ---
 
-### 🔍 `/audit-project` - Multi-Agent Code Review
+### `/audit-project` - Multi-Agent Code Review
 
 Comprehensive review with specialized AI agents.
 
@@ -79,7 +79,7 @@ codex
 
 ---
 
-### 🚀 `/ship` - Complete PR Workflow
+### `/ship` - Complete PR Workflow
 
 Ship from commit to production with validation.
 
@@ -144,7 +144,7 @@ codex
 
 # Changeset 1/5: Remove console.log statements
 # - src/app.js: Removed 3 console.log calls
-# ✓ Tests passed
+# [OK] Tests passed
 #
 # Summary: 5 files changed, 23 lines deleted
 ```
@@ -169,12 +169,12 @@ git add .
 codex
 > /ship
 
-# ✓ Commits with AI message
-# ✓ Creates PR with context
-# ✓ Waits for CI
-# ✓ Reviews code
-# ✓ Merges to main
-# ✓ Deploys and validates
+# [OK] Commits with AI message
+# [OK] Creates PR with context
+# [OK] Waits for CI
+# [OK] Reviews code
+# [OK] Merges to main
+# [OK] Deploys and validates
 ```
 
 ---
@@ -270,4 +270,4 @@ gh auth status
 
 ---
 
-Made with ❤️ for the Codex CLI community
+Made for the Codex CLI community

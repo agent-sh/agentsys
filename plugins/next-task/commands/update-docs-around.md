@@ -341,7 +341,7 @@ ${outdatedRefs.map(i => `
 - **${i.docFile}**
   - Reference: \`${i.reference.value}\`
   - ${i.suggestion || 'No suggestion available'}
-  - ${i.fixed ? '✓ Fixed' : '⚠️ Manual fix required'}
+  - ${i.fixed ? '[OK] Fixed' : '[WARN] Manual fix required'}
 `).join('\n')}
 
 ### Invalid Code Examples (${syntaxErrors.length} found)

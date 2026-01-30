@@ -58,7 +58,7 @@ For **diff-based cleanup** of new work only, use the `deslop-work` agent via `/n
 **Changed**: src/api.js, src/utils.js
 **Diff**: -8 lines
 
-**Verification**: npm test ✓
+**Verification**: npm test [OK]
 
 ---
 

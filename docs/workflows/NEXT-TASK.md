@@ -396,36 +396,36 @@ User: /next-task
 → Plan looks good? [approve]
 
 [Implementation]
-→ Implementing step 1... ✓
-→ Implementing step 2... ✓
-→ Implementing step 3... ✓
-→ Implementing step 4... ✓
+→ Implementing step 1... [OK]
+→ Implementing step 2... [OK]
+→ Implementing step 3... [OK]
+→ Implementing step 4... [OK]
 
 [Pre-Review Gates]
 → deslop-work: Removed 2 console.logs
-→ test-coverage-checker: 94% coverage ✓
+→ test-coverage-checker: 94% coverage [OK]
 
 [Review Loop]
 → Round 1: Found 3 issues (1 high, 2 medium)
-→ Fixing high issue... ✓
-→ deslop-work: Clean ✓
-→ Round 2: Found 0 open issues ✓
+→ Fixing high issue... [OK]
+→ deslop-work: Clean [OK]
+→ Round 2: Found 0 open issues [OK]
 
 [Delivery Validation]
-→ Tests pass ✓
-→ Build passes ✓
-→ Requirements met ✓
+→ Tests pass [OK]
+→ Build passes [OK]
+→ Requirements met [OK]
 
 [Docs Update]
-→ Updated CHANGELOG.md ✓
+→ Updated CHANGELOG.md [OK]
 
 [Ship]
 → Creating PR #156...
 → Waiting for CI...
 → Waiting for reviewers...
 → Addressing 2 comments...
-→ Merging PR #156... ✓
-→ Cleanup complete ✓
+→ Merging PR #156... [OK]
+→ Cleanup complete [OK]
 
 Done! PR #156 merged to main.
 ```

@@ -106,7 +106,7 @@ const collectedData = await collectors.collectAllData(options);
 // Check if GitHub data collection succeeded
 if (options.sources.includes('github') && collectedData.github && !collectedData.github.available) {
   console.log(`
-⚠️ GitHub CLI not available or not authenticated.
+[WARN] GitHub CLI not available or not authenticated.
 Run \`gh auth login\` to enable GitHub issue scanning.
 Continuing with other sources...
   `);

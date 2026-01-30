@@ -192,8 +192,8 @@ ${mediumIssues.map(i => `- ${i.doc}:${i.line} - ${i.suggestion}`).join('\n')}
 
 ### CHANGELOG Status
 ${changelog.undocumented?.length > 0
-  ? `⚠ ${changelog.undocumented.length} commits may need entries:\n${changelog.undocumented.map(c => `  - ${c}`).join('\n')}`
-  : '✓ Recent changes appear documented'}
+  ? `[WARN] ${changelog.undocumented.length} commits may need entries:\n${changelog.undocumented.map(c => `  - ${c}`).join('\n')}`
+  : '[OK] Recent changes appear documented'}
 
 ## Do Next
 - [ ] Run `/sync-docs apply` to fix auto-fixable issues
@@ -299,7 +299,7 @@ ${changelogUpdates ? `Added ${changelogUpdates.length} entries` : 'No changes ne
 ${skipped.map(s => `- **${s.doc}:${s.line}**: ${s.suggestion} (${s.reason})`).join('\n')}
 
 ### Verification
-${testResult ? '✓ Tests pass' : '⚠ Run tests to verify'}
+${testResult ? '[OK] Tests pass' : '[WARN] Run tests to verify'}
 ```
 
 ## Error Handling

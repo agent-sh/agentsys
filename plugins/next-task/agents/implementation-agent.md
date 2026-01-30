@@ -310,7 +310,7 @@ EOF
 )"`
   });
 
-  console.log(`✓ Committed: ${commitMessage.split('\n')[0]}`);
+  console.log(`[OK] Committed: ${commitMessage.split('\n')[0]}`);
 }
 
 function generateCommitMessage(step) {
@@ -414,16 +414,16 @@ DO NOT invoke any other agents. DO NOT proceed to review yourself.
 ${changes.map(c => `- ${c.file}: ${c.description}`).join('\n')}
 
 ### Verification Results
-- Type check: ✓
-- Linting: ✓
-- Tests: ✓ (${testsPassed}/${totalTests} passed)
-- Build: ✓
+- Type check: [OK]
+- Linting: [OK]
+- Tests: [OK] (${testsPassed}/${totalTests} passed)
+- Build: [OK]
 
 ### Git Log
 ${gitLog}
 
 ---
-⏸️ STOPPING HERE - SubagentStop hook will trigger pre-review gates
+[STOP] STOPPING HERE - SubagentStop hook will trigger pre-review gates
    → deslop-work + test-coverage-checker (parallel)
    → Phase 9 review loop
    → delivery-validator

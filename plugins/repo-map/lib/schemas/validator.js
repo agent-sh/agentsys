@@ -231,14 +231,14 @@ if (require.main === module) {
   const result = validateManifestFile(manifestPath);
 
   if (result.valid) {
-    console.log('✓ Manifest is valid');
+    console.log('[OK] Manifest is valid');
     if (result.manifest) {
       console.log(`  Plugin: ${result.manifest.name} v${result.manifest.version}`);
       console.log(`  Author: ${result.manifest.author.name}`);
     }
     process.exit(0);
   } else {
-    console.error('✗ Manifest is invalid:');
+    console.error('[ERROR] Manifest is invalid:');
     for (const error of result.errors) {
       console.error(`  - ${error}`);
     }

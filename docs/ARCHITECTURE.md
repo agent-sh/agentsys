@@ -220,15 +220,15 @@ enabled = true
 
 | Command | Claude Code | OpenCode | Codex CLI | Notes |
 |---------|-------------|----------|-----------|-------|
-| `/next-task` | ✅ Full | ✅ Full | ✅ Full | MCP tools available |
-| `/ship` | ✅ Full | ✅ Full | ✅ Full | Requires `gh` CLI |
-| `/deslop` | ✅ Full | ✅ Full | ✅ Full | Uses pipeline.js |
-| `/audit-project` | ✅ Full | ✅ Full | ✅ Full | Multi-agent review |
-| `/drift-detect` | ✅ Full | ✅ Full | ✅ Full | JS collectors + Opus |
-| `/repo-map` | ✅ Full | ✅ Full | ✅ Full | AST map via ast-grep |
-| `/enhance` | ✅ Full | ✅ Full | ✅ Full | Orchestrates all enhancers |
-| `/perf` | ✅ Full | ✅ Full | ✅ Full | Performance investigations |
-| `/sync-docs` | ✅ Full | ✅ Full | ✅ Full | Documentation sync |
+| `/next-task` | [OK] Full | [OK] Full | [OK] Full | MCP tools available |
+| `/ship` | [OK] Full | [OK] Full | [OK] Full | Requires `gh` CLI |
+| `/deslop` | [OK] Full | [OK] Full | [OK] Full | Uses pipeline.js |
+| `/audit-project` | [OK] Full | [OK] Full | [OK] Full | Multi-agent review |
+| `/drift-detect` | [OK] Full | [OK] Full | [OK] Full | JS collectors + Opus |
+| `/repo-map` | [OK] Full | [OK] Full | [OK] Full | AST map via ast-grep |
+| `/enhance` | [OK] Full | [OK] Full | [OK] Full | Orchestrates all enhancers |
+| `/perf` | [OK] Full | [OK] Full | [OK] Full | Performance investigations |
+| `/sync-docs` | [OK] Full | [OK] Full | [OK] Full | Documentation sync |
 
 ## Knowledge Base
 
@@ -248,19 +248,19 @@ Research documents informing the implementation (in `agent-docs/`):
 
 ## Implementation Status
 
-### Core Infrastructure ✅
+### Core Infrastructure [OK]
 - [x] CLI installer (`bin/cli.js`)
 - [x] MCP server with pipeline integration
 - [x] Cross-platform library (`lib/cross-platform/`)
 - [x] Platform-aware state directories
 - [x] Knowledge base documentation
 
-### Platform Support ✅
+### Platform Support [OK]
 - [x] Claude Code (marketplace + CLI)
 - [x] OpenCode (MCP + commands)
 - [x] Codex CLI (MCP + skills)
 
-### Testing ✅
+### Testing [OK]
 - [x] All 1307 tests passing
 - [x] npm pack creates valid package (338 KB)
 - [x] Interactive installer works for all platforms

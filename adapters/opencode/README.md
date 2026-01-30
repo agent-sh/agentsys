@@ -19,7 +19,7 @@ cd awesome-slash
 
 ## Available Commands
 
-### 🧹 `/deslop` - AI Slop Cleanup
+### `/deslop` - AI Slop Cleanup
 
 Remove debugging code, old TODOs, and other AI slop.
 
@@ -38,7 +38,7 @@ opencode
 
 ---
 
-### 📋 `/next-task` - Intelligent Task Prioritization
+### `/next-task` - Intelligent Task Prioritization
 
 Discover what to work on next with AI analysis.
 
@@ -59,7 +59,7 @@ opencode
 
 ---
 
-### 🔍 `/audit-project` - Multi-Agent Code Review
+### `/audit-project` - Multi-Agent Code Review
 
 Comprehensive review with specialized AI agents.
 
@@ -79,7 +79,7 @@ opencode
 
 ---
 
-### 🚀 `/ship` - Complete PR Workflow
+### `/ship` - Complete PR Workflow
 
 Ship from commit to production with validation.
 
@@ -181,7 +181,7 @@ opencode
 
 # Changeset 1/3: Remove console.log statements
 # - src/app.js: Removed 3 console.log calls
-# ✓ Tests passed
+# [OK] Tests passed
 ```
 
 ### Review specific files
@@ -190,8 +190,8 @@ opencode
 > /audit-project @src/auth.py @src/api.py
 
 # Iteration 1: Found 4 issues (2 critical, 2 high)
-# ✓ Fixed SQL injection in auth.py:45
-# ✓ Fixed race condition in api.py:123
+# [OK] Fixed SQL injection in auth.py:45
+# [OK] Fixed race condition in api.py:123
 ```
 
 ### Next task with context
@@ -299,4 +299,4 @@ gh auth status
 
 ---
 
-Made with ❤️ for the OpenCode community
+Made for the OpenCode community

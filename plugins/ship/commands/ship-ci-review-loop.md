@@ -81,7 +81,7 @@ while (iteration < MAX_ITERATIONS) {
   const feedback = await checkPRFeedback();
 
   if (feedback.unresolvedCount === 0 && !feedback.changesRequested) {
-    console.log("✓ CI passed, all comments resolved");
+    console.log("[OK] CI passed, all comments resolved");
     break;  // Ready to merge!
   }
 
@@ -112,14 +112,14 @@ wait_for_ci() {
     PASSED=$(echo "$CHECKS" | jq '[.[] | select(.conclusion=="success")] | length')
 
     if [ "$FAILED" -gt 0 ]; then
-      echo "✗ CI failed ($FAILED checks)"
+      echo "[ERROR] CI failed ($FAILED checks)"
       gh pr checks $PR_NUMBER
       return 1
     elif [ "$PENDING" -eq 0 ] && [ "$PASSED" -gt 0 ]; then
-      echo "✓ CI passed ($PASSED checks)"
+      echo "[OK] CI passed ($PASSED checks)"
       return 0
     elif [ "$PENDING" -eq 0 ] && [ "$PASSED" -eq 0 ]; then
-      echo "⚠ No CI checks found, proceeding..."
+      echo "[WARN] No CI checks found, proceeding..."
       return 0
     fi
 
@@ -373,7 +373,7 @@ commit_and_push_fixes() {
     git add -A
     git commit -m "$message"
     git push origin "$branch"
-    echo "✓ Pushed fixes"
+    echo "[OK] Pushed fixes"
     return 0
   else
     echo "No code changes to commit (only comment replies)"
@@ -420,8 +420,8 @@ while [ $iteration -lt $MAX_ITERATIONS ]; do
   if [ "$UNRESOLVED" -eq 0 ] && [ "$CHANGES_REQ" -eq 0 ]; then
     echo ""
     echo ""
-    echo "  ✓ ALL CHECKS PASSED                 "
-    echo "  ✓ ALL COMMENTS RESOLVED             "
+    echo "  [OK] ALL CHECKS PASSED                 "
+    echo "  [OK] ALL COMMENTS RESOLVED             "
     echo "  Ready to merge!                     "
     echo ""
     break
@@ -439,7 +439,7 @@ while [ $iteration -lt $MAX_ITERATIONS ]; do
 done
 
 if [ $iteration -ge $MAX_ITERATIONS ]; then
-  echo "✗ Max iterations reached - manual intervention required"
+  echo "[ERROR] Max iterations reached - manual intervention required"
   exit 1
 fi
 ```
@@ -449,7 +449,7 @@ fi
 ```markdown
 ## Iteration ${iteration} Summary
 
-**CI Status**: ✓ Passed
+**CI Status**: [OK] Passed
 **Comments Addressed**: ${addressedCount}
   - Code fixes: ${codeFixCount}
   - Answered questions: ${questionCount}

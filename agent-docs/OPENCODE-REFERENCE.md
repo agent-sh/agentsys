@@ -136,9 +136,9 @@ System prompt content here...
 
 **Claude Code** - AskUserQuestion renders as interactive checkboxes:
 ```
-☑ Option A (Recommended)
-☐ Option B
-☐ Option C
+[x] Option A (Recommended)
+[ ] Option B
+[ ] Option C
 ```
 
 **OpenCode** - Questions render as numbered list:

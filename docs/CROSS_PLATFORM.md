@@ -21,9 +21,9 @@ Build tools once, run everywhere. The core workflows are the same regardless of 
 
 | Platform | Integration Method | Command Prefix | Status |
 |----------|-------------------|----------------|--------|
-| Claude Code | Native plugins | `/` (slash) | ✅ Full support |
-| OpenCode | Plugins + agent configs (MCP optional) | `/` (slash) | ✅ Supported |
-| Codex CLI | Skills (MCP optional) | `$` (dollar) | ✅ Supported |
+| Claude Code | Native plugins | `/` (slash) | [OK] Full support |
+| OpenCode | Plugins + agent configs (MCP optional) | `/` (slash) | [OK] Supported |
+| Codex CLI | Skills (MCP optional) | `$` (dollar) | [OK] Supported |
 
 > **Note:** Codex CLI uses `$` prefix for skills (e.g., `$next-task`, `$ship`) instead of `/` slash commands.
 

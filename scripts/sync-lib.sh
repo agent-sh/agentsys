@@ -27,7 +27,7 @@ if git diff --cached --name-only | grep -q "^lib/"; then
 fi
 HOOK
   chmod +x "$HOOK_PATH"
-  echo "  ✓ Pre-commit hook installed"
+  echo "  [OK] Pre-commit hook installed"
   echo ""
 fi
 
@@ -56,7 +56,7 @@ for plugin in "${PLUGINS[@]}"; do
     cp -r "$item" "${PLUGIN_LIB}/"
   done
 
-  echo "  ✓ $plugin"
+  echo "  [OK] $plugin"
 done
 
 echo ""

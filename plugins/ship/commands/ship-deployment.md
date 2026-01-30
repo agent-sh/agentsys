@@ -22,10 +22,10 @@ if [ "$DEPLOYMENT" = "railway" ]; then
 
     if [ "$STATUS" = "SUCCESS" ]; then
       DEV_URL=$(railway domain list --service $SERVICE_NAME --json | jq -r '.[0].domain')
-      echo "✓ Deployed to development: https://$DEV_URL"
+      echo "[OK] Deployed to development: https://$DEV_URL"
       break
     elif [ "$STATUS" = "FAILED" ]; then
-      echo "✗ Development deployment failed"
+      echo "[ERROR] Development deployment failed"
       railway logs --deployment $DEPLOY_ID
       exit 1
     fi
@@ -47,11 +47,11 @@ if [ "$DEPLOYMENT" = "vercel" ]; then
     STATUS=$(vercel inspect $DEPLOY_URL --json | jq -r '.readyState')
 
     if [ "$STATUS" = "READY" ]; then
-      echo "✓ Deployed to development: https://$DEPLOY_URL"
+      echo "[OK] Deployed to development: https://$DEPLOY_URL"
       DEV_URL="https://$DEPLOY_URL"
       break
     elif [ "$STATUS" = "ERROR" ]; then
-      echo "✗ Development deployment failed"
+      echo "[ERROR] Development deployment failed"
       vercel logs $DEPLOY_URL
       exit 1
     fi
@@ -75,10 +75,10 @@ if [ "$DEPLOYMENT" = "netlify" ]; then
 
     if [ "$STATUS" = "ready" ]; then
       DEV_URL=$(netlify api getDeploy --data "{ \"deploy_id\": \"$DEPLOY_ID\" }" | jq -r '.deploy_ssl_url')
-      echo "✓ Deployed to development: $DEV_URL"
+      echo "[OK] Deployed to development: $DEV_URL"
       break
     elif [ "$STATUS" = "error" ]; then
-      echo "✗ Development deployment failed"
+      echo "[ERROR] Development deployment failed"
       exit 1
     fi
 
@@ -111,9 +111,9 @@ sleep 30
 HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $DEV_URL/health || echo "000")
 
 if [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "301" ] || [ "$HTTP_STATUS" = "302" ]; then
-  echo "✓ Health check passed: $HTTP_STATUS"
+  echo "[OK] Health check passed: $HTTP_STATUS"
 else
-  echo "✗ Health check failed: $HTTP_STATUS"
+  echo "[ERROR] Health check failed: $HTTP_STATUS"
   echo "Investigate deployment issues before proceeding to production"
   exit 1
 fi
@@ -135,11 +135,11 @@ else
 fi
 
 if [ "$ERROR_COUNT" -gt 10 ]; then
-  echo "✗ High error rate detected: $ERROR_COUNT errors in last 5 minutes"
+  echo "[ERROR] High error rate detected: $ERROR_COUNT errors in last 5 minutes"
   echo "Review logs before proceeding to production"
   exit 1
 else
-  echo "✓ Error rate acceptable: $ERROR_COUNT errors"
+  echo "[OK] Error rate acceptable: $ERROR_COUNT errors"
 fi
 ```
 
@@ -153,9 +153,9 @@ if jq -e '.scripts["smoke-test"]' package.json > /dev/null 2>&1; then
   $PACKAGE_MGR run smoke-test
 
   if [ $? -eq 0 ]; then
-    echo "✓ Smoke tests passed"
+    echo "[OK] Smoke tests passed"
   else
-    echo "✗ Smoke tests failed"
+    echo "[ERROR] Smoke tests failed"
     exit 1
   fi
 fi
@@ -164,12 +164,12 @@ fi
 ### Validation Summary
 
 ```markdown
-## Development Validation ✓
+## Development Validation [OK]
 
 **URL**: ${DEV_URL}
-**Health Check**: ✓ ${HTTP_STATUS}
-**Error Rate**: ✓ ${ERROR_COUNT} errors
-**Smoke Tests**: ✓ Passed
+**Health Check**: [OK] ${HTTP_STATUS}
+**Error Rate**: [OK] ${ERROR_COUNT} errors
+**Smoke Tests**: [OK] Passed
 
 Proceeding to production...
 ```
@@ -187,7 +187,7 @@ git pull origin $PROD_BRANCH
 git merge $MAIN_BRANCH --no-edit
 
 if [ $? -ne 0 ]; then
-  echo "✗ Merge to production failed (conflicts)"
+  echo "[ERROR] Merge to production failed (conflicts)"
   git merge --abort
   exit 1
 fi
@@ -196,9 +196,9 @@ git push origin $PROD_BRANCH
 
 if [ $? -eq 0 ]; then
   PROD_SHA=$(git rev-parse HEAD)
-  echo "✓ Production branch at: $PROD_SHA"
+  echo "[OK] Production branch at: $PROD_SHA"
 else
-  echo "✗ Push to production failed"
+  echo "[ERROR] Push to production failed"
   exit 1
 fi
 ```
@@ -213,7 +213,7 @@ echo "Waiting for production deployment..."
 # Platform-specific deployment monitoring
 # (Similar to Phase 7)
 
-echo "✓ Deployed to production: $PROD_URL"
+echo "[OK] Deployed to production: $PROD_URL"
 ```
 
 ## Phase 10: Validate Production
@@ -230,9 +230,9 @@ sleep 60
 HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $PROD_URL/health || echo "000")
 
 if [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "301" ] || [ "$HTTP_STATUS" = "302" ]; then
-  echo "✓ Production health check: $HTTP_STATUS"
+  echo "[OK] Production health check: $HTTP_STATUS"
 else
-  echo "✗ Production health check failed: $HTTP_STATUS"
+  echo "[ERROR] Production health check failed: $HTTP_STATUS"
   rollback_production
 fi
 ```
@@ -249,10 +249,10 @@ elif [ "$DEPLOYMENT" = "vercel" ]; then
 fi
 
 if [ "$ERROR_COUNT" -gt 20 ]; then
-  echo "✗ CRITICAL: High error rate in production: $ERROR_COUNT errors"
+  echo "[ERROR] CRITICAL: High error rate in production: $ERROR_COUNT errors"
   rollback_production
 else
-  echo "✓ Production error rate acceptable: $ERROR_COUNT errors"
+  echo "[OK] Production error rate acceptable: $ERROR_COUNT errors"
 fi
 ```
 
@@ -266,7 +266,7 @@ if jq -e '.scripts["smoke-test:prod"]' package.json > /dev/null 2>&1; then
   $PACKAGE_MGR run smoke-test:prod
 
   if [ $? -ne 0 ]; then
-    echo "✗ Production smoke tests failed"
+    echo "[ERROR] Production smoke tests failed"
     rollback_production
   fi
 fi
@@ -288,12 +288,12 @@ rollback_production() {
 
   # Use --force-with-lease for safety
   if ! git push --force-with-lease origin $PROD_BRANCH; then
-    echo "✗ Force push failed - remote may have unexpected changes"
+    echo "[ERROR] Force push failed - remote may have unexpected changes"
     echo "Manual intervention required"
     exit 1
   fi
 
-  echo "✓ Rolled back production to previous deployment"
+  echo "[OK] Rolled back production to previous deployment"
   echo "Previous version will redeploy automatically"
 
   # Wait for rollback deployment
@@ -302,9 +302,9 @@ rollback_production() {
   # Verify rollback succeeded
   HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $PROD_URL/health || echo "000")
   if [ "$HTTP_STATUS" = "200" ]; then
-    echo "✓ Rollback successful, production is healthy"
+    echo "[OK] Rollback successful, production is healthy"
   else
-    echo "⚠ Rollback deployed but health check unclear"
+    echo "[WARN] Rollback deployed but health check unclear"
     echo "Manual investigation required"
   fi
 

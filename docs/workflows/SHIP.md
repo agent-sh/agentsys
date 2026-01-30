@@ -404,9 +404,9 @@ This ensures quality gates are trusted but post-PR feedback is still handled.
 User: /ship
 
 [Pre-flight]
-→ CI: GitHub Actions ✓
-→ Deploy: Railway ✓
-→ Branch: feature/add-dark-mode ✓
+→ CI: GitHub Actions [OK]
+→ Deploy: Railway [OK]
+→ Branch: feature/add-dark-mode [OK]
 
 [Commit]
 → Staged 3 files
@@ -431,7 +431,7 @@ User: /ship
 → Comment 2: Answered question
 → Comment 3: Applied code fix
 → Comment 4: Explained false positive
-→ All threads resolved ✓
+→ All threads resolved [OK]
 
 [Merge]
 → Verified MERGEABLE status

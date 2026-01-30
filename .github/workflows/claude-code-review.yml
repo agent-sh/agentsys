@@ -43,7 +43,7 @@ jobs:
           # Error handling: default to 0 if API call failed or returned empty
           RUN_COUNT=${RUN_COUNT:-0}
           if ! [[ "$RUN_COUNT" =~ ^[0-9]+$ ]]; then
-            echo "⚠️  Warning: invalid RUN_COUNT value ('$RUN_COUNT') from GitHub API. Defaulting to 0."
+            echo "[WARN]  Warning: invalid RUN_COUNT value ('$RUN_COUNT') from GitHub API. Defaulting to 0."
             RUN_COUNT=0
           fi
 
@@ -55,10 +55,10 @@ jobs:
           # Allow reviews on first 3 runs total (opened + first 2 pushes)
           if [ "$RUN_COUNT" -le 3 ]; then
             echo "should_run=true" >> $GITHUB_OUTPUT
-            echo "✅ Will run Claude review (run $RUN_COUNT of 3)"
+            echo "[OK] Will run Claude review (run $RUN_COUNT of 3)"
           else
             echo "should_run=false" >> $GITHUB_OUTPUT
-            echo "⏭️  Skipping Claude review (already ran 3 times)"
+            echo "[SKIP]  Skipping Claude review (already ran 3 times)"
           fi
 
       - name: Run Claude Code Review
@@ -78,4 +78,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr comment ${{ github.event.pull_request.number }} --body "ℹ️ Claude Code review was skipped as it has already run 3 times for this PR. The PR can now continue toward merge."
+          gh pr comment ${{ github.event.pull_request.number }} --body "[INFO] Claude Code review was skipped as it has already run 3 times for this PR. The PR can now continue toward merge."

@@ -158,9 +158,9 @@ async function handleCIFailure(failed) {
     });
 
     if (fixResult.fixed) {
-      console.log(`  ✓ Fixed by ci-fixer: ${fixResult.method}`);
+      console.log(`  [OK] Fixed by ci-fixer: ${fixResult.method}`);
     } else {
-      console.log(`  ⚠ ci-fixer could not fix: ${fixResult.reason}`);
+      console.log(`  [WARN] ci-fixer could not fix: ${fixResult.reason}`);
     }
   }
 
@@ -213,11 +213,11 @@ async function handlePRComments(prNumber) {
     });
 
     if (fixResult.addressed) {
-      console.log(`  ✓ Addressed by ci-fixer`);
+      console.log(`  [OK] Addressed by ci-fixer`);
       // Reply to comment
       await exec(`gh api repos/{owner}/{repo}/pulls/${prNumber}/comments/${comment.id}/replies -f body="Addressed in latest commit"`);
     } else {
-      console.log(`  ⚠ Could not address: ${fixResult.reason}`);
+      console.log(`  [WARN] Could not address: ${fixResult.reason}`);
     }
   }
 }
@@ -242,7 +242,7 @@ async function monitorPR(prNumber) {
       // Re-check CI after comment fixes
       const recheck = await waitForCI(prNumber);
       if (recheck.status === 'success') {
-        console.log("\n## ✓ All Checks Passed");
+        console.log("\n## [OK] All Checks Passed");
         workflowState.updateState({
           pr: { ciStatus: 'success' }
         });

@@ -41,10 +41,10 @@ Describe expected output.
 - Include examples for complex operations
 - Reference lib modules with Windows-safe paths:
   ```javascript
-  // ✓ CORRECT
+  // CORRECT
   const module = require('${CLAUDE_PLUGIN_ROOT}'.replace(/\\/g, '/') + '/lib/module.js');
 
-  // ✗ WRONG (breaks on Windows)
+  // WRONG (breaks on Windows)
   const module = require('${CLAUDE_PLUGIN_ROOT}/lib/module.js');
   ```
 

@@ -4,7 +4,7 @@ set -e
 # OpenCode Installer for awesome-slash commands
 # This script installs all 5 slash commands for use with OpenCode
 
-echo "🚀 Installing awesome-slash commands for OpenCode..."
+echo "[INSTALL] Installing awesome-slash commands for OpenCode..."
 echo
 
 # Configuration
@@ -23,62 +23,62 @@ else
   IS_WINDOWS=false
 fi
 
-echo "📂 Configuration:"
+echo "[CONFIG] Configuration:"
 echo "  Repository: $REPO_ROOT"
 echo "  Install to: $OPENCODE_COMMANDS_DIR"
 echo
 
 # Check prerequisites
-echo "🔍 Checking prerequisites..."
+echo "[CHECK] Checking prerequisites..."
 
 # Check Node.js
 if ! command -v node &> /dev/null; then
-  echo "❌ Node.js not found. Install from: https://nodejs.org"
+  echo "[ERROR] Node.js not found. Install from: https://nodejs.org"
   exit 1
 fi
 NODE_VERSION=$(node --version)
-echo "  ✓ Node.js $NODE_VERSION"
+echo "  [OK] Node.js $NODE_VERSION"
 
 # Check Git
 if ! command -v git &> /dev/null; then
-  echo "❌ Git not found. Install from: https://git-scm.com"
+  echo "[ERROR] Git not found. Install from: https://git-scm.com"
   exit 1
 fi
 GIT_VERSION=$(git --version | cut -d' ' -f3)
-echo "  ✓ Git $GIT_VERSION"
+echo "  [OK] Git $GIT_VERSION"
 
 # Check OpenCode (optional - user may not have it installed yet)
 if command -v opencode &> /dev/null; then
   OPENCODE_VERSION=$(opencode --version 2>&1 | head -n1 || echo "unknown")
-  echo "  ✓ OpenCode $OPENCODE_VERSION"
+  echo "  [OK] OpenCode $OPENCODE_VERSION"
 else
-  echo "  ⚠️  OpenCode not found (install from: https://opencode.ai)"
+  echo "  [WARN]  OpenCode not found (install from: https://opencode.ai)"
   echo "     You can still install commands and use OpenCode later"
 fi
 
 echo
 
 # Create directories
-echo "📁 Creating directories..."
+echo "[DIR] Creating directories..."
 mkdir -p "$OPENCODE_COMMANDS_DIR"
 mkdir -p "$LIB_DIR"/{platform,patterns,utils}
-echo "  ✓ Created $OPENCODE_COMMANDS_DIR"
-echo "  ✓ Created $LIB_DIR"
+echo "  [OK] Created $OPENCODE_COMMANDS_DIR"
+echo "  [OK] Created $LIB_DIR"
 echo
 
 # Copy library files from shared root lib directory
-echo "📚 Installing shared libraries..."
+echo "[LIB] Installing shared libraries..."
 # Use explicit iteration to handle paths with spaces safely
 for item in "${REPO_ROOT}/lib"/*; do
   cp -r "$item" "${LIB_DIR}/"
 done
-echo "  ✓ Copied platform detection"
-echo "  ✓ Copied pattern libraries"
-echo "  ✓ Copied utility functions"
+echo "  [OK] Copied platform detection"
+echo "  [OK] Copied pattern libraries"
+echo "  [OK] Copied utility functions"
 echo
 
 # Install commands with path adjustments
-echo "⚙️  Installing commands..."
+echo "[SETUP] Installing commands..."
 
 # Command mappings: target_name:plugin:source_file
 # Format allows commands from different plugins
@@ -101,9 +101,9 @@ for mapping in "${COMMAND_MAPPINGS[@]}"; do
     # Copy and transform CLAUDE_PLUGIN_ROOT -> PLUGIN_ROOT for OpenCode
     sed 's/\${CLAUDE_PLUGIN_ROOT}/${PLUGIN_ROOT}/g; s/\$CLAUDE_PLUGIN_ROOT/$PLUGIN_ROOT/g' \
       "$SOURCE_FILE" > "$TARGET_FILE"
-    echo "  ✓ Installed /$TARGET_NAME"
+    echo "  [OK] Installed /$TARGET_NAME"
   else
-    echo "  ⚠️  Skipped /$TARGET_NAME (source not found: $SOURCE_FILE)"
+    echo "  [WARN]  Skipped /$TARGET_NAME (source not found: $SOURCE_FILE)"
   fi
 done
 
@@ -112,14 +112,14 @@ OLD_COMMANDS=("pr-merge")
 for old_cmd in "${OLD_COMMANDS[@]}"; do
   if [ -f "$OPENCODE_COMMANDS_DIR/$old_cmd.md" ]; then
     rm "$OPENCODE_COMMANDS_DIR/$old_cmd.md"
-    echo "  🗑️  Removed legacy /$old_cmd"
+    echo "  [DEL]  Removed legacy /$old_cmd"
   fi
 done
 
 echo
 
 # Create environment setup script
-echo "📝 Creating environment setup..."
+echo "[ENV] Creating environment setup..."
 cat > "$OPENCODE_COMMANDS_DIR/env.sh" << 'EOF'
 #!/usr/bin/env bash
 # Environment variables for awesome-slash commands in OpenCode
@@ -136,11 +136,11 @@ export AWESOME_SLASH_TOOLS_SCRIPT="${OPENCODE_COMMANDS_ROOT}/lib/platform/verify
 EOF
 
 chmod +x "$OPENCODE_COMMANDS_DIR/env.sh"
-echo "  ✓ Created environment setup script"
+echo "  [OK] Created environment setup script"
 echo
 
 # Configure MCP server
-echo "🔌 Configuring MCP server..."
+echo "[MCP] Configuring MCP server..."
 OPENCODE_GLOBAL_CONFIG_DIR="${HOME}/.config/opencode"
 CONFIG_JSON="$OPENCODE_GLOBAL_CONFIG_DIR/opencode.json"
 
@@ -195,11 +195,11 @@ else
 EOF
 fi
 
-echo "  ✓ Added MCP server to opencode.json"
+echo "  [OK] Added MCP server to opencode.json"
 echo
 
 # Install native OpenCode plugin (auto-thinking, workflow enforcement, compaction)
-echo "🔌 Installing native plugin..."
+echo "[PLUGIN] Installing native plugin..."
 PLUGIN_DIR="${OPENCODE_CONFIG_DIR}/plugins/awesome-slash"
 PLUGIN_SRC="${REPO_ROOT}/adapters/opencode-plugin"
 
@@ -207,10 +207,10 @@ if [ -d "$PLUGIN_SRC" ]; then
   mkdir -p "$PLUGIN_DIR"
   cp "$PLUGIN_SRC/index.ts" "$PLUGIN_DIR/" 2>/dev/null || true
   cp "$PLUGIN_SRC/package.json" "$PLUGIN_DIR/" 2>/dev/null || true
-  echo "  ✓ Installed native plugin to $PLUGIN_DIR"
+  echo "  [OK] Installed native plugin to $PLUGIN_DIR"
   echo "    Features: Auto-thinking selection, workflow enforcement, session compaction"
 else
-  echo "  ⚠️  Native plugin source not found at $PLUGIN_SRC"
+  echo "  [WARN]  Native plugin source not found at $PLUGIN_SRC"
 fi
 echo
 
@@ -281,28 +281,28 @@ cd /path/to/awesome-slash
 - Issues: https://github.com/avifenesh/awesome-slash/issues
 EOF
 
-echo "  ✓ Created README"
+echo "  [OK] Created README"
 echo
 
 # Success message
-echo "✅ Installation complete!"
+echo "[OK] Installation complete!"
 echo
-echo "📋 Installed Commands:"
+echo "[LIST] Installed Commands:"
 for cmd in "${COMMANDS[@]}"; do
   echo "  • /$cmd"
 done
 echo
-echo "📖 Next Steps:"
+echo "[NEXT] Next Steps:"
 echo "  1. Start OpenCode TUI: opencode"
 echo "  2. Use commands: /$cmd"
 echo "  3. See help: cat $OPENCODE_COMMANDS_DIR/README.md"
 echo
-echo "💡 OpenCode Pro Tips:"
+echo "[TIP] OpenCode Pro Tips:"
 echo "  • Use @filename to include file contents"
 echo "  • Use !command to include bash output"
 echo "  • Example: /project-review @src/main.py"
 echo
-echo "🔄 To update commands, re-run this installer:"
+echo "[UPDATE] To update commands, re-run this installer:"
 echo "  ./adapters/opencode/install.sh"
 echo
-echo "Happy coding! 🎉"
+echo "Happy coding!"

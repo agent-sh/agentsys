@@ -402,12 +402,12 @@ ${g.candidates ? `- Suggested test location: ${g.candidates[0]}` : ''}
 ### Test Quality Issues
 ${qualityIssues.map(q => `
 **${q.file}** → ${q.testFile} (Quality: ${q.quality})
-${q.issues.map(i => `- ⚠️ ${i.message}`).join('\n')}
-${q.suggestions?.map(s => `- 💡 ${s}`).join('\n') || ''}
+${q.issues.map(i => `- [WARN] ${i.message}`).join('\n')}
+${q.suggestions?.map(s => `- [TIP] ${s}`).join('\n') || ''}
 `).join('\n')}
 
 ### Well-Covered Files
-${covered.filter(c => c.quality === 'good').map(c => `- ✓ ${c.file} → ${c.testFile}`).join('\n')}
+${covered.filter(c => c.quality === 'good').map(c => `- [OK] ${c.file} -> ${c.testFile}`).join('\n')}
 
 ### Recommendation
 ${summary.recommendation}

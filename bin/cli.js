@@ -114,10 +114,10 @@ function installDependencies(installDir) {
 }
 
 function installForClaude() {
-  console.log('\n📦 Installing for Claude Code...\n');
+  console.log('\n[INSTALL] Installing for Claude Code...\n');
 
   if (!commandExists('claude')) {
-    console.log('⚠️  Claude Code CLI not detected.');
+    console.log('[WARN]  Claude Code CLI not detected.');
     console.log('   Install it first: https://claude.ai/code\n');
     console.log('   Then run in Claude Code:');
     console.log('   /plugin marketplace add avifenesh/awesome-slash');
@@ -151,11 +151,11 @@ function installForClaude() {
       }
     }
 
-    console.log('\n✅ Claude Code installation complete!\n');
+    console.log('\n[OK] Claude Code installation complete!\n');
     console.log('Commands: /next-task, /ship, /deslop, /audit-project, /drift-detect, /enhance, /perf');
     return true;
   } catch (err) {
-    console.log('❌ Auto-install failed. Manual installation:');
+    console.log('[ERROR] Auto-install failed. Manual installation:');
     console.log('   /plugin marketplace add avifenesh/awesome-slash');
     console.log('   /plugin install next-task@awesome-slash');
     return false;
@@ -163,7 +163,7 @@ function installForClaude() {
 }
 
 function installForOpenCode(installDir, options = {}) {
-  console.log('\n📦 Installing for OpenCode...\n');
+  console.log('\n[INSTALL] Installing for OpenCode...\n');
   const { stripModels = false } = options;
 
   const home = process.env.HOME || process.env.USERPROFILE;
@@ -220,7 +220,7 @@ function installForOpenCode(installDir, options = {}) {
         fs.copyFileSync(srcPath, destPath);
       }
     }
-    console.log('  ✓ Installed native plugin (auto-thinking, workflow enforcement)');
+    console.log('  [OK] Installed native plugin (auto-thinking, workflow enforcement)');
   }
 
   // Remove old/deprecated command files
@@ -382,9 +382,9 @@ function installForOpenCode(installDir, options = {}) {
       }
     }
   }
-  console.log(`  ✓ Installed ${agentCount} agents to ${agentsDir}`);
+  console.log(`  [OK] Installed ${agentCount} agents to ${agentsDir}`);
 
-  console.log('✅ OpenCode installation complete!');
+  console.log('[OK] OpenCode installation complete!');
   console.log(`   Config: ${configPath}`);
   console.log(`   Commands: ${commandsDir}`);
   console.log(`   Agents: ${agentsDir}`);
@@ -396,7 +396,7 @@ function installForOpenCode(installDir, options = {}) {
 }
 
 function installForCodex(installDir) {
-  console.log('\n📦 Installing for Codex CLI...\n');
+  console.log('\n[INSTALL] Installing for Codex CLI...\n');
 
   const home = process.env.HOME || process.env.USERPROFILE;
   const configDir = path.join(home, '.codex');
@@ -544,11 +544,11 @@ AI_STATE_DIR = ".codex"
       content = content.replace(/\$PLUGIN_ROOT/g, pluginInstallPath);
 
       fs.writeFileSync(destPath, content);
-      console.log(`  ✓ Installed skill: ${skillName}`);
+      console.log(`  [OK] Installed skill: ${skillName}`);
     }
   }
 
-  console.log('\n✅ Codex CLI installation complete!');
+  console.log('\n[OK] Codex CLI installation complete!');
   console.log(`   Config: ${configPath}`);
   console.log(`   Skills: ${skillsDir}`);
   console.log('   Access via: $next-task, $ship, $deslop, etc.');
@@ -567,7 +567,7 @@ function removeInstallation() {
   console.log('Removing awesome-slash...');
   fs.rmSync(installDir, { recursive: true, force: true });
 
-  console.log('\n✅ Removed ~/.awesome-slash');
+  console.log('\n[OK] Removed ~/.awesome-slash');
   console.log('\nNote: MCP configs in OpenCode/Codex are not removed.');
   console.log('To fully uninstall, also remove:');
   console.log('  - Claude: /plugin marketplace remove awesome-slash');

@@ -4,7 +4,7 @@ This directory contains adapters for using awesome-slash commands with different
 
 ## Supported Tools
 
-### ✅ Claude Code (Native)
+### Claude Code (Native)
 The primary target. Install via marketplace:
 ```bash
 claude plugin marketplace add avifenesh/awesome-slash
@@ -15,7 +15,7 @@ See main [README.md](../README.md) for details.
 
 ---
 
-### 🤖 Codex CLI
+### Codex CLI
 OpenAI's Codex command-line interface.
 
 **Installation:**
@@ -37,7 +37,7 @@ codex
 
 ---
 
-### 🔓 OpenCode
+### OpenCode
 Open-source AI coding assistant.
 
 **Installation:**
@@ -98,18 +98,18 @@ Installers automatically handle these substitutions.
 
 | Feature | Claude Code | Codex CLI | OpenCode |
 |---------|-------------|-----------|----------|
-| Platform Detection | ✅ | ✅ | ✅ |
-| Git Operations | ✅ | ✅ | ✅ |
-| CI/CD Detection | ✅ | ✅ | ✅ |
-| GitHub CLI Integration | ✅ | ✅ | ✅ |
-| Multi-agent Workflows | ✅ | ⚠️ Varies | ⚠️ Varies |
-| File Includes | ✅ | ✅ | ✅ (@filename) |
-| Bash Command Output | ✅ | ✅ | ✅ (!command) |
+| Platform Detection | Yes | Yes | Yes |
+| Git Operations | Yes | Yes | Yes |
+| CI/CD Detection | Yes | Yes | Yes |
+| GitHub CLI Integration | Yes | Yes | Yes |
+| Multi-agent Workflows | Yes | Varies | Varies |
+| File Includes | Yes | Yes | Yes (@filename) |
+| Bash Command Output | Yes | Yes | Yes (!command) |
 
 **Legend:**
-- ✅ Full support
-- ⚠️ Partial support (may vary by tool version)
-- ❌ Not supported
+- Yes = Full support
+- Varies = Partial support (may vary by tool version)
+- No = Not supported
 
 ---
 
@@ -117,10 +117,10 @@ Installers automatically handle these substitutions.
 
 | Command | Claude Code | Codex CLI | OpenCode | Notes |
 |---------|-------------|-----------|----------|-------|
-| `/deslop` | ✅ Full | ✅ Full | ✅ Full | Pure bash, 100% compatible |
-| `/next-task` | ✅ Full | ✅ Full | ✅ Full | Requires `gh` CLI |
-| `/audit-project` | ✅ Full | ⚠️ Partial | ⚠️ Partial | Multi-agent may differ |
-| `/ship` | ✅ Full | ⚠️ Partial | ⚠️ Partial | CI/CD works, agents may vary |
+| `/deslop` | Yes | Yes | Yes | Pure bash, 100% compatible |
+| `/next-task` | Yes | Yes | Yes | Requires `gh` CLI |
+| `/audit-project` | Yes | Partial | Partial | Multi-agent may differ |
+| `/ship` | Yes | Partial | Partial | CI/CD works, agents may vary |
 
 ---
 
@@ -253,4 +253,4 @@ Found a bug or want to add support for another tool?
 
 ---
 
-Made with ❤️ for the AI coding tools community
+Made for the AI coding tools community

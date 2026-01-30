@@ -137,7 +137,7 @@ EOF
 )"
 
 COMMIT_SHA=$(git rev-parse HEAD)
-echo "✓ Committed: $COMMIT_SHA"
+echo "[OK] Committed: $COMMIT_SHA"
 ```
 
 ## Phase 3: Create Pull Request
@@ -163,7 +163,7 @@ EOF
 )")
 
 PR_NUMBER=$(echo $PR_URL | grep -oP '/pull/\K\d+')
-echo "✓ Created PR #$PR_NUMBER: $PR_URL"
+echo "[OK] Created PR #$PR_NUMBER: $PR_URL"
 ```
 
 ## Phase 4: CI & Review Monitor Loop
@@ -255,7 +255,7 @@ Iterate until no open (non-false-positive) issues remain (max 3 iterations if ru
 ```bash
 # 1. Verify mergeable status
 MERGEABLE=$(gh pr view $PR_NUMBER --json mergeable --jq '.mergeable')
-[ "$MERGEABLE" != "MERGEABLE" ] && { echo "✗ PR not mergeable"; exit 1; }
+[ "$MERGEABLE" != "MERGEABLE" ] && { echo "[ERROR] PR not mergeable"; exit 1; }
 
 # 2. MANDATORY: Verify ALL comments resolved (zero unresolved threads)
 # Use separate gh calls for cleaner extraction (avoids cut parsing issues)
@@ -279,12 +279,12 @@ UNRESOLVED=$(gh api graphql -f query='
   --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
 
 if [ "$UNRESOLVED" -gt 0 ]; then
-  echo "✗ CANNOT MERGE: $UNRESOLVED unresolved comment threads"
+  echo "[ERROR] CANNOT MERGE: $UNRESOLVED unresolved comment threads"
   echo "Go back to Phase 4 and address ALL comments"
   exit 1
 fi
 
-echo "✓ All comments resolved"
+echo "[OK] All comments resolved"
 
 # 3. Merge with strategy (default: squash)
 STRATEGY=${STRATEGY:-squash}
@@ -295,9 +295,9 @@ git checkout $MAIN_BRANCH
 git pull origin $MAIN_BRANCH
 
 # Update repo-map if it exists (non-blocking)
-node -e "const { getPluginRoot } = require('@awesome-slash/lib/cross-platform'); const pluginRoot = getPluginRoot('ship'); if (!pluginRoot) { console.log('Plugin root not found, skipping repo-map'); process.exit(0); } const repoMap = require(\`\${pluginRoot}/lib/repo-map\`); if (repoMap.exists(process.cwd())) { repoMap.update(process.cwd(), {}).then(() => console.log('✓ Repo-map updated')).catch((e) => console.log('⚠️ Repo-map update failed: ' + e.message)); } else { console.log('Repo-map not found, skipping'); }" || true
+node -e "const { getPluginRoot } = require('@awesome-slash/lib/cross-platform'); const pluginRoot = getPluginRoot('ship'); if (!pluginRoot) { console.log('Plugin root not found, skipping repo-map'); process.exit(0); } const repoMap = require(\`\${pluginRoot}/lib/repo-map\`); if (repoMap.exists(process.cwd())) { repoMap.update(process.cwd(), {}).then(() => console.log('[OK] Repo-map updated')).catch((e) => console.log('[WARN] Repo-map update failed: ' + e.message)); } else { console.log('Repo-map not found, skipping'); }" || true
 MERGE_SHA=$(git rev-parse HEAD)
-echo "✓ Merged PR #$PR_NUMBER at $MERGE_SHA"
+echo "[OK] Merged PR #$PR_NUMBER at $MERGE_SHA"
 ```
 
 ## Phases 7-10: Deploy & Validate
@@ -328,7 +328,7 @@ If the task came from a GitHub issue, close it with a completion comment:
 if [ -n "$TASK_ID" ] && [ "$TASK_SOURCE" = "github" ]; then
   # Post completion comment
   gh issue comment "$TASK_ID" --body "$(cat <<'EOF'
-✅ **Task Completed Successfully**
+[DONE] **Task Completed Successfully**
 
 **PR**: #${PR_NUMBER}
 **Status**: Merged to ${MAIN_BRANCH}
@@ -349,7 +349,7 @@ EOF
   # Close the issue
   gh issue close "$TASK_ID" --reason completed
 
-  echo "✓ Closed issue #$TASK_ID with completion comment"
+  echo "[OK] Closed issue #$TASK_ID with completion comment"
 fi
 ```
 
@@ -367,7 +367,7 @@ if (workflowState) {
     const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
     registry.tasks = registry.tasks.filter(t => t.id !== taskId);
     fs.writeFileSync(registryPath, JSON.stringify(registry, null, 2));
-    console.log(`✓ Removed task #${taskId} from registry`);
+    console.log(`[OK] Removed task #${taskId} from registry`);
   }
 }
 ```
@@ -389,14 +389,14 @@ git branch -D $CURRENT_BRANCH 2>/dev/null || true
 **Number**: #${PR_NUMBER} | **Status**: Merged to ${MAIN_BRANCH}
 
 ## Review Results
-- Code Quality: ✓ | Error Handling: ✓ | Test Coverage: ✓ | CI: ✓
+- Code Quality: [OK] | Error Handling: [OK] | Test Coverage: [OK] | CI: [OK]
 
 ## Deployments
 ${WORKFLOW === 'dev-prod' ?
-  `Development: ${DEV_URL} ✓ | Production: ${PROD_URL} ✓` :
+  `Development: ${DEV_URL} [OK] | Production: ${PROD_URL} [OK]` :
   `Production: Deployed to ${MAIN_BRANCH}`}
 
-✓ Successfully shipped!
+[OK] Successfully shipped!
 ```
 
 ### Workflow Hook Response

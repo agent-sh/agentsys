@@ -4,7 +4,7 @@ set -e
 # Codex CLI Installer for awesome-slash commands
 # This script installs all 5 slash commands for use with OpenAI Codex CLI
 
-echo "🚀 Installing awesome-slash commands for Codex CLI..."
+echo "[INSTALL] Installing awesome-slash commands for Codex CLI..."
 echo
 
 # Configuration
@@ -26,63 +26,63 @@ else
   IS_WINDOWS=false
 fi
 
-echo "📂 Configuration:"
+echo "[CONFIG] Configuration:"
 echo "  Repository: $REPO_ROOT"
 echo "  Skills to: $CODEX_SKILLS_DIR"
 echo "  Libraries to: $CODEX_LIB_DIR"
 echo
 
 # Check prerequisites
-echo "🔍 Checking prerequisites..."
+echo "[CHECK] Checking prerequisites..."
 
 # Check Node.js
 if ! command -v node &> /dev/null; then
-  echo "❌ Node.js not found. Install from: https://nodejs.org"
+  echo "[ERROR] Node.js not found. Install from: https://nodejs.org"
   exit 1
 fi
 NODE_VERSION=$(node --version)
-echo "  ✓ Node.js $NODE_VERSION"
+echo "  [OK] Node.js $NODE_VERSION"
 
 # Check Git
 if ! command -v git &> /dev/null; then
-  echo "❌ Git not found. Install from: https://git-scm.com"
+  echo "[ERROR] Git not found. Install from: https://git-scm.com"
   exit 1
 fi
 GIT_VERSION=$(git --version | cut -d' ' -f3)
-echo "  ✓ Git $GIT_VERSION"
+echo "  [OK] Git $GIT_VERSION"
 
 # Check Codex CLI (optional - user may not have it installed yet)
 if command -v codex &> /dev/null; then
   CODEX_VERSION=$(codex --version 2>&1 | head -n1 || echo "unknown")
-  echo "  ✓ Codex CLI $CODEX_VERSION"
+  echo "  [OK] Codex CLI $CODEX_VERSION"
 else
-  echo "  ⚠️  Codex CLI not found (install from: https://developers.openai.com/codex/cli)"
+  echo "  [WARN]  Codex CLI not found (install from: https://developers.openai.com/codex/cli)"
   echo "     You can still install commands and use Codex CLI later"
 fi
 
 echo
 
 # Create directories
-echo "📁 Creating directories..."
+echo "[DIR] Creating directories..."
 mkdir -p "$CODEX_SKILLS_DIR"
 mkdir -p "$CODEX_LIB_DIR"/{platform,patterns,utils}
-echo "  ✓ Created $CODEX_SKILLS_DIR"
-echo "  ✓ Created $CODEX_LIB_DIR"
+echo "  [OK] Created $CODEX_SKILLS_DIR"
+echo "  [OK] Created $CODEX_LIB_DIR"
 echo
 
 # Copy library files from shared root lib directory
-echo "📚 Installing shared libraries..."
+echo "[LIB] Installing shared libraries..."
 # Use explicit iteration to handle paths with spaces safely
 for item in "${REPO_ROOT}/lib"/*; do
   cp -r "$item" "${CODEX_LIB_DIR}/"
 done
-echo "  ✓ Copied platform detection"
-echo "  ✓ Copied pattern libraries"
-echo "  ✓ Copied utility functions"
+echo "  [OK] Copied platform detection"
+echo "  [OK] Copied pattern libraries"
+echo "  [OK] Copied utility functions"
 echo
 
 # Install skills with proper SKILL.md format
-echo "⚙️  Installing skills..."
+echo "[SETUP]  Installing skills..."
 
 # Skill mappings: skill_name:plugin:source_file:description
 # Codex skills require SKILL.md with name and description in YAML frontmatter
@@ -118,15 +118,15 @@ for mapping in "${SKILL_MAPPINGS[@]}"; do
       sed '1{/^---$/!b};1,/^---$/d' "$SOURCE_FILE"
     } > "$TARGET_FILE"
 
-    echo "  ✓ Installed skill: \$${SKILL_NAME}"
+    echo "  [OK] Installed skill: \$${SKILL_NAME}"
   else
-    echo "  ⚠️  Skipped \$${SKILL_NAME} (source not found: $SOURCE_FILE)"
+    echo "  [WARN]  Skipped \$${SKILL_NAME} (source not found: $SOURCE_FILE)"
   fi
 done
 
 # Install native skills (already have SKILL.md format)
 echo
-echo "📚 Installing native skills..."
+echo "[LIB] Installing native skills..."
 
 # Native skill mappings: skill_name:plugin:skill_name_in_source
 NATIVE_SKILL_MAPPINGS=(
@@ -145,9 +145,9 @@ for mapping in "${NATIVE_SKILL_MAPPINGS[@]}"; do
     # Copy SKILL.md
     if [ -f "$SOURCE_SKILL_DIR/SKILL.md" ]; then
       cp "$SOURCE_SKILL_DIR/SKILL.md" "$TARGET_SKILL_DIR/SKILL.md"
-      echo "  ✓ Installed native skill: \$${SKILL_NAME}"
+      echo "  [OK] Installed native skill: \$${SKILL_NAME}"
     else
-      echo "  ⚠️  Skipped \$${SKILL_NAME} (SKILL.md not found)"
+      echo "  [WARN]  Skipped \$${SKILL_NAME} (SKILL.md not found)"
       continue
     fi
 
@@ -155,11 +155,11 @@ for mapping in "${NATIVE_SKILL_MAPPINGS[@]}"; do
     for subdir in references scripts assets; do
       if [ -d "$SOURCE_SKILL_DIR/$subdir" ]; then
         cp -r "$SOURCE_SKILL_DIR/$subdir" "$TARGET_SKILL_DIR/"
-        echo "    ✓ Copied $subdir/ directory"
+        echo "    [OK] Copied $subdir/ directory"
       fi
     done
   else
-    echo "  ⚠️  Skipped \$${SKILL_NAME} (source not found: $SOURCE_SKILL_DIR)"
+    echo "  [WARN]  Skipped \$${SKILL_NAME} (source not found: $SOURCE_SKILL_DIR)"
   fi
 done
 
@@ -168,7 +168,7 @@ OLD_SKILLS=("deslop" "review" "reality-check-set" "pr-merge" "review-orchestrato
 for old_skill in "${OLD_SKILLS[@]}"; do
   if [ -d "$CODEX_SKILLS_DIR/$old_skill" ]; then
     rm -rf "$CODEX_SKILLS_DIR/$old_skill"
-    echo "  🗑️  Removed deprecated skill: $old_skill"
+    echo "  [DEL]  Removed deprecated skill: $old_skill"
   fi
 done
 
@@ -176,13 +176,13 @@ done
 OLD_PROMPTS_DIR="$CODEX_CONFIG_DIR/prompts"
 if [ -d "$OLD_PROMPTS_DIR" ]; then
   rm -rf "$OLD_PROMPTS_DIR"
-  echo "  🗑️  Removed old prompts directory"
+  echo "  [DEL]  Removed old prompts directory"
 fi
 
 echo
 
 # Configure MCP server
-echo "🔌 Configuring MCP server..."
+echo "[MCP] Configuring MCP server..."
 CONFIG_TOML="$CODEX_CONFIG_DIR/config.toml"
 
 # Convert repo path to forward slashes for config
@@ -208,7 +208,7 @@ args = ["${MCP_PATH}/mcp-server/index.js"]
 PLUGIN_ROOT = "${MCP_PATH}"
 EOF
 
-echo "  ✓ Added MCP server to config.toml"
+echo "  [OK] Added MCP server to config.toml"
 echo
 
 # Create README
@@ -257,13 +257,13 @@ cd /path/to/awesome-slash
 - Issues: https://github.com/avifenesh/awesome-slash/issues
 EOF
 
-echo "  ✓ Created README"
+echo "  [OK] Created README"
 echo
 
 # Success message
-echo "✅ Installation complete!"
+echo "[OK] Installation complete!"
 echo
-echo "📋 Installed Skills (access via \$ prefix):"
+echo "[LIST] Installed Skills (access via \$ prefix):"
 echo "  • \$next-task"
 echo "  • \$ship"
 echo "  • \$deslop-around"
@@ -272,15 +272,15 @@ echo "  • \$reality-check-scan"
 echo "  • \$delivery-approval"
 echo "  • \$update-docs-around"
 echo
-echo "📖 Next Steps:"
+echo "[NEXT] Next Steps:"
 echo "  1. Start Codex CLI: codex"
 echo "  2. Type: \$ (shows available skills)"
 echo "  3. Select a skill or type: \$next-task"
 echo "  4. See help: cat $CODEX_CONFIG_DIR/AWESOME_SLASH_README.md"
 echo
-echo "💡 Pro Tip: Type \$ to see all available skills"
+echo "[TIP] Pro Tip: Type \$ to see all available skills"
 echo
-echo "🔄 To update skills, re-run this installer:"
+echo "[UPDATE] To update skills, re-run this installer:"
 echo "  ./adapters/codex/install.sh"
 echo
-echo "Happy coding! 🎉"
+echo "Happy coding!"
