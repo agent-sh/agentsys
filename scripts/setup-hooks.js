@@ -25,11 +25,31 @@ fi
 
 const prePushHook = `#!/bin/sh
 # Pre-push validations:
-# 1. Warn if agents/skills/hooks/prompts modified (run /enhance)
-# 2. Block version tag pushes until release checklist passes
+# 1. Run all validation checks (counts, paths, cross-platform docs)
+# 2. Warn if agents/skills/hooks/prompts modified (run /enhance)
+# 3. Block version tag pushes until release checklist passes
 # See: CLAUDE.md Critical Rule #7, checklists/release.md
 
+echo ""
+echo "=============================================="
+echo "  Pre-Push Validation"
+echo "=============================================="
+echo ""
+
+# Run validation suite
+echo "[1/3] Running validation checks..."
+if ! npm run validate --silent 2>&1 | grep -E "\\[OK\\]|\\[ERROR\\]"; then
+  echo ""
+  echo "[ERROR] BLOCKED: Validation failed"
+  echo "   Fix issues and try again"
+  echo "   Skip: git push --no-verify"
+  exit 1
+fi
+echo "[OK] Validation passed"
+echo ""
+
 # Check for modified agents/skills/hooks/prompts
+echo "[2/3] Checking for enhanced content modifications..."
 modified_files=$(git diff --name-only origin/\$(git remote show origin | grep "HEAD branch" | cut -d' ' -f5)..HEAD 2>/dev/null || git diff --name-only HEAD~1..HEAD)
 
 agents_modified=$(echo "$modified_files" | grep -E "agents/.*\\.md$" || true)
@@ -39,31 +59,26 @@ prompts_modified=$(echo "$modified_files" | grep -E "prompts/.*\\.md$" || true)
 
 if [ -n "$agents_modified" ] || [ -n "$skills_modified" ] || [ -n "$hooks_modified" ] || [ -n "$prompts_modified" ]; then
   echo ""
-  echo "=============================================="
-  echo "  [WARN] Enhanced content modified"
-  echo "=============================================="
-  echo ""
   echo "CLAUDE.md Critical Rule #7 requires running /enhance"
   echo "on modified agents, skills, hooks, or prompts."
   echo ""
   echo "Modified files:"
   echo "$agents_modified$skills_modified$hooks_modified$prompts_modified"
   echo ""
-  echo "ACTION REQUIRED:"
-  echo "  1. Run: /enhance"
-  echo "  2. Address any HIGH certainty findings"
-  echo "  3. Push again"
-  echo ""
-  echo "Skip this check: git push --no-verify"
-  echo ""
-  read -p "Have you run /enhance? (y/N) " response
+  read -p "Have you run /enhance on these files? (y/N) " response
   if [ "$response" != "y" ] && [ "$response" != "Y" ]; then
     echo "[BLOCKED] Run /enhance first"
+    echo "   Skip: git push --no-verify"
     exit 1
   fi
+  echo "[OK] /enhance confirmed"
+else
+  echo "[OK] No enhanced content modified"
 fi
+echo ""
 
 # Check if pushing a version tag (v*)
+echo "[3/3] Checking for version tag..."
 pushing_tag=false
 while read local_ref local_sha remote_ref remote_sha; do
   if echo "$local_ref" | grep -q "^refs/tags/v"; then
@@ -74,6 +89,12 @@ while read local_ref local_sha remote_ref remote_sha; do
 done
 
 if [ "$pushing_tag" = "false" ]; then
+  echo "[OK] No version tag detected"
+  echo ""
+  echo "=============================================="
+  echo "  [OK] Pre-Push Validation PASSED"
+  echo "=============================================="
+  echo ""
   exit 0
 fi
 
@@ -85,19 +106,8 @@ echo ""
 echo "Running release checklist validation..."
 echo ""
 
-# 1. Run validation
-echo "[1/3] Running npm run validate..."
-if ! npm run validate --silent; then
-  echo ""
-  echo "[ERROR] BLOCKED: Validation failed"
-  echo "   Fix issues and try again"
-  exit 1
-fi
-echo "[OK] Validation passed"
-
-# 2. Run tests
-echo ""
-echo "[2/3] Running npm test..."
+# 1. Tests already validated above
+echo "[1/2] Running npm test..."
 if ! npm test --silent 2>/dev/null; then
   echo ""
   echo "[ERROR] BLOCKED: Tests failed"
@@ -106,9 +116,9 @@ if ! npm test --silent 2>/dev/null; then
 fi
 echo "[OK] Tests passed"
 
-# 3. Verify package builds
+# 2. Verify package builds
 echo ""
-echo "[3/3] Running npm pack --dry-run..."
+echo "[2/2] Running npm pack --dry-run..."
 if ! npm pack --dry-run --silent 2>/dev/null; then
   echo ""
   echo "[ERROR] BLOCKED: Package build failed"

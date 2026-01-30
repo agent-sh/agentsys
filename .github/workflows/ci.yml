@@ -31,8 +31,5 @@ jobs:
       - name: Validate repo consistency
         run: npm run validate
 
-      - name: Check for hardcoded platform paths
-        run: node scripts/check-hardcoded-paths.js
-
       - name: MCP smoke test
         run: node scripts/mcp-smoke-test.js
