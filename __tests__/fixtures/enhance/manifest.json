@@ -1,0 +1,76 @@
+{
+  "version": "1.0",
+  "description": "Pattern validation benchmark fixtures",
+  "fixtures": {
+    "true-positives/agent-missing-frontmatter.md": {
+      "analyzer": "agent",
+      "expectedPatterns": ["missing_frontmatter"],
+      "mustNotTrigger": []
+    },
+    "true-positives/agent-unrestricted-bash.md": {
+      "analyzer": "agent",
+      "expectedPatterns": ["unrestricted_bash"],
+      "mustNotTrigger": ["missing_frontmatter"]
+    },
+    "true-positives/agent-missing-role.md": {
+      "analyzer": "agent",
+      "expectedPatterns": ["missing_role"],
+      "mustNotTrigger": ["missing_frontmatter"]
+    },
+    "true-positives/prompt-missing-output-format.md": {
+      "analyzer": "prompt",
+      "expectedPatterns": ["missing_output_format"],
+      "mustNotTrigger": []
+    },
+    "true-positives/prompt-missing-examples.md": {
+      "analyzer": "prompt",
+      "expectedPatterns": ["missing_examples"],
+      "mustNotTrigger": []
+    },
+    "true-positives/prompt-aggressive-emphasis.md": {
+      "analyzer": "prompt",
+      "expectedPatterns": ["aggressive_emphasis"],
+      "mustNotTrigger": []
+    },
+    "true-positives/prompt-vague-instructions.md": {
+      "analyzer": "prompt",
+      "expectedPatterns": ["vague_instructions"],
+      "mustNotTrigger": []
+    },
+    "true-positives/prompt-missing-xml-structure.md": {
+      "analyzer": "prompt",
+      "expectedPatterns": ["missing_xml_structure"],
+      "mustNotTrigger": []
+    },
+    "false-positives/agent-complete-valid.md": {
+      "analyzer": "agent",
+      "expectedPatterns": [],
+      "mustNotTrigger": ["missing_frontmatter", "unrestricted_bash", "missing_role"]
+    },
+    "false-positives/prompt-complete-valid.md": {
+      "analyzer": "prompt",
+      "expectedPatterns": [],
+      "mustNotTrigger": ["missing_output_format", "missing_examples", "aggressive_emphasis"]
+    }
+  },
+  "fixPairs": {
+    "aggressive-emphasis": {
+      "before": "fix-pairs/aggressive-emphasis-before.md",
+      "after": "fix-pairs/aggressive-emphasis-after.md",
+      "pattern": "aggressive_emphasis",
+      "analyzer": "prompt"
+    },
+    "missing-output-format": {
+      "before": "fix-pairs/missing-output-format-before.md",
+      "after": "fix-pairs/missing-output-format-after.md",
+      "pattern": "missing_output_format",
+      "analyzer": "prompt"
+    },
+    "missing-examples": {
+      "before": "fix-pairs/missing-examples-before.md",
+      "after": "fix-pairs/missing-examples-after.md",
+      "pattern": "missing_examples",
+      "analyzer": "prompt"
+    }
+  }
+}

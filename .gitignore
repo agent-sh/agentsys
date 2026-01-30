@@ -60,3 +60,6 @@ workflow-state.json
 # pnpm-lock.yaml
 TECHNICAL_DEBT.md
 *.tgz
+
+# Benchmark results
+*-benchmark-report.md
