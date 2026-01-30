@@ -42,7 +42,7 @@ function getActualCounts() {
     return stat.isDirectory();
   });
 
-  let agentCount = 0;
+  let fileBasedAgentCount = 0;
   let skillCount = 0;
 
   plugins.forEach(plugin => {
@@ -51,7 +51,7 @@ function getActualCounts() {
 
     if (fs.existsSync(agentsDir)) {
       const agents = fs.readdirSync(agentsDir).filter(f => f.endsWith('.md'));
-      agentCount += agents.length;
+      fileBasedAgentCount += agents.length;
     }
 
     if (fs.existsSync(skillsDir)) {
@@ -65,9 +65,15 @@ function getActualCounts() {
     }
   });
 
+  // Role-based agents are defined inline (audit-project has 10)
+  const roleBasedAgentCount = 10;
+  const totalAgentCount = fileBasedAgentCount + roleBasedAgentCount;
+
   return {
     plugins: plugins.length,
-    agents: agentCount,
+    fileBasedAgents: fileBasedAgentCount,
+    roleBasedAgents: roleBasedAgentCount,
+    totalAgents: totalAgentCount,
     skills: skillCount
   };
 }
@@ -92,10 +98,20 @@ function extractCountsFromDocs() {
       counts.plugins = parseInt(pluginMatches[1]);
     }
 
-    // Extract agent count
-    const agentMatches = content.match(/(\d+)\s+agents/i);
-    if (agentMatches) {
-      counts.agents = parseInt(agentMatches[1]);
+    // Extract agent count - handle both total and file-based counts
+    // Pattern: "39 agents (29 file-based + 10 role-based)" or "39 total"
+    const totalAgentMatch = content.match(/(\d+)\s+(?:total|agents)\s*[:\(]?\s*(\d+)?\s*file-based\s*\+\s*(\d+)\s*role-based/i);
+    if (totalAgentMatch) {
+      counts.agents = parseInt(totalAgentMatch[1]); // Total count
+      counts.fileBasedAgents = totalAgentMatch[2] ? parseInt(totalAgentMatch[2]) : null;
+      counts.roleBasedAgents = parseInt(totalAgentMatch[3]);
+    } else {
+      // Look for top-level agent count (not plugin-specific)
+      // Match patterns like "9 plugins · 39 agents" or "39 agents across"
+      const topLevelMatch = content.match(/(?:·|,)\s*(\d+)\s+agents|(\d+)\s+agents\s+across/i);
+      if (topLevelMatch) {
+        counts.agents = parseInt(topLevelMatch[1] || topLevelMatch[2]);
+      }
     }
 
     // Extract skill count
@@ -254,7 +270,7 @@ if (require.main === module) {
   // Check count alignment
   console.log('## Actual Counts (from filesystem)\n');
   console.log(`  Plugins: ${actualCounts.plugins}`);
-  console.log(`  Agents:  ${actualCounts.agents}`);
+  console.log(`  Agents:  ${actualCounts.totalAgents} (${actualCounts.fileBasedAgents} file-based + ${actualCounts.roleBasedAgents} role-based)`);
   console.log(`  Skills:  ${actualCounts.skills}`);
   console.log('');
 
@@ -281,8 +297,21 @@ if (require.main === module) {
     if (counts.plugins !== undefined && counts.plugins !== actualCounts.plugins) {
       countMismatches.push(formatCountMismatch(file, 'plugins', actualCounts.plugins, counts.plugins));
     }
-    if (counts.agents !== undefined && counts.agents !== actualCounts.agents) {
-      countMismatches.push(formatCountMismatch(file, 'agents', actualCounts.agents, counts.agents));
+    if (counts.agents !== undefined) {
+      // Allow either total agent count or file-based count (for docs that only reference file-based)
+      const isValid = counts.agents === actualCounts.totalAgents ||
+                      counts.agents === actualCounts.fileBasedAgents ||
+                      (counts.fileBasedAgents === actualCounts.fileBasedAgents &&
+                       counts.roleBasedAgents === actualCounts.roleBasedAgents);
+
+      if (!isValid) {
+        countMismatches.push(formatCountMismatch(
+          file,
+          'agents',
+          `${actualCounts.totalAgents} (${actualCounts.fileBasedAgents} file-based + ${actualCounts.roleBasedAgents} role-based)`,
+          counts.agents
+        ));
+      }
     }
     if (counts.skills !== undefined && counts.skills !== actualCounts.skills) {
       countMismatches.push(formatCountMismatch(file, 'skills', actualCounts.skills, counts.skills));

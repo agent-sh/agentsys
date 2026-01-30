@@ -67,12 +67,12 @@ lib/                        # Shared library (canonical source)
 ├── utils/                  # Utilities (cache, shell-escape)
 └── index.js                # Main exports
 
-plugins/                    # Claude Code plugins (9 total)
+plugins/                    # 9 plugins, 39 agents (29 file-based + 10 role-based), 23 skills
 ├── next-task/              # Master workflow (12 agents, 4 skills)
-├── enhance/                # Enhancement analyzers (10 agents, 10 skills)
+├── enhance/                # Enhancement analyzers (9 agents, 10 skills)
 ├── ship/                   # PR workflow (4 commands)
 ├── perf/                   # Performance investigation (6 agents, 8 skills)
-├── audit-project/          # Multi-agent review (3 commands)
+├── audit-project/          # Multi-agent review (10 role-based agents, 3 commands)
 ├── deslop/                 # AI slop cleanup (1 command)
 ├── drift-detect/           # Plan drift detection (1 agent, 1 skill)
 ├── repo-map/               # AST repo mapping (1 agent, 1 skill)
