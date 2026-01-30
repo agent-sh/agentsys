@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Pattern Validation Benchmarks** - Manifest-driven testing system for enhance module pattern accuracy (#157)
+  - New lib/enhance/benchmark.js: runPatternBenchmarks, runFixBenchmarks, generateReport, assertThresholds
+  - Precision/recall/F1 metrics for pattern detection quality
+  - True-positive, false-positive, and fix-pair fixture support
+  - CI-ready threshold assertions for regression prevention
+
 ## [3.4.0] - 2026-01-29
 
 ### Added
