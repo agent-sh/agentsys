@@ -194,6 +194,18 @@ describe('Pattern Validation Benchmarks', () => {
         maxFalsePositives: 20
       })).not.toThrow();
     });
+
+    test('assertThresholds should throw on failing thresholds', () => {
+      const results = runPatternBenchmarks(MANIFEST_PATH, analyzers);
+
+      expect(() => assertThresholds(results, {
+        minPrecision: 0.99  // Impossibly high
+      })).toThrow(/precision.*below/i);
+
+      expect(() => assertThresholds(results, {
+        maxFalsePositives: 0  // Impossibly low given current fixtures
+      })).toThrow(/false positives.*exceeds/i);
+    });
   });
 });
 
