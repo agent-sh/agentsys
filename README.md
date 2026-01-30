@@ -41,14 +41,6 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 
 ---
 
-## What's New in v3.4.0
-
-- **/perf benchmarking upgrades** with oneshot runs, multi-run aggregation, and configurable duration/runs
-- **Repo-map simplification** by removing documentation analysis and legacy docs fields
-- **Repo-map perf script** for consistent map creation benchmarks
-
----
-
 ## What This Project Does
 
 You have AI coding assistants. They can write code. But the full workflow—picking what to work on, setting up branches, implementing, reviewing, fixing issues, creating PRs, monitoring CI, addressing reviewer comments, merging—still requires you to babysit every step.
