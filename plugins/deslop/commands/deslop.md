@@ -82,7 +82,7 @@ Run the detection script to scan for slop patterns:
 
 ```bash
 PLUGIN_PATH="${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}"
-if [ -z "$PLUGIN_PATH" ]; then echo "Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set"; exit 1; fi
+if [ -z "$PLUGIN_PATH" ]; then echo "Error: PLUGIN_ROOT environment variable not set"; exit 1; fi
 node "$PLUGIN_PATH/scripts/detect.js" <scope> --compact
 ```
 
@@ -90,7 +90,7 @@ For deep analysis with all multi-pass analyzers:
 
 ```bash
 PLUGIN_PATH="${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}"
-if [ -z "$PLUGIN_PATH" ]; then echo "Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set"; exit 1; fi
+if [ -z "$PLUGIN_PATH" ]; then echo "Error: PLUGIN_ROOT environment variable not set"; exit 1; fi
 node "$PLUGIN_PATH/scripts/detect.js" <scope> --deep --compact
 ```
 
@@ -114,7 +114,7 @@ Run detection with apply flag for auto-fixable patterns:
 
 ```bash
 PLUGIN_PATH="${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}"
-if [ -z "$PLUGIN_PATH" ]; then echo "Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set"; exit 1; fi
+if [ -z "$PLUGIN_PATH" ]; then echo "Error: PLUGIN_ROOT environment variable not set"; exit 1; fi
 node "$PLUGIN_PATH/scripts/detect.js" <scope> --apply --max <max-changes> --compact
 ```
 

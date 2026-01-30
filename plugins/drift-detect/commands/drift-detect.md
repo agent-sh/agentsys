@@ -33,7 +33,7 @@ Example: `/drift-detect --sources github,docs --depth quick --output file`
 
 ```javascript
 // Normalize path for Windows (backslashes break in require strings)
-const pluginPath = (process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
+const pluginPath = (process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
 if (!pluginPath) {
   console.error('Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT environment variable not set');
   process.exit(1);

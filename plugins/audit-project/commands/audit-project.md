@@ -39,7 +39,7 @@ Otherwise create a new queue file. See `audit-project-agents.md` for queue handl
 
 ```bash
 PLUGIN_PATH="${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}"
-if [ -z "$PLUGIN_PATH" ]; then echo "Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set"; exit 1; fi
+if [ -z "$PLUGIN_PATH" ]; then echo "Error: PLUGIN_ROOT environment variable not set"; exit 1; fi
 PLATFORM=$(node "$PLUGIN_PATH/lib/platform/detect-platform.js")
 TOOLS=$(node "$PLUGIN_PATH/lib/platform/verify-tools.js")
 

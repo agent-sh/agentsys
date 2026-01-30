@@ -15,8 +15,8 @@ and present prioritized recommendations to the user.
 ## Phase 1: Load Policy from State
 
 ```javascript
-const pluginPath = (process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
-if (!pluginPath) { console.error('Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set'); process.exit(1); }
+const pluginPath = (process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
+if (!pluginPath) { console.error('Error: PLUGIN_ROOT environment variable not set'); process.exit(1); }
 const workflowState = require(`${pluginPath}/lib/state/workflow-state.js`);
 const state = workflowState.readState();
 const policy = state.policy;
@@ -65,8 +65,8 @@ The source configuration comes from policy. It can be:
 ### Parse Source Configuration
 
 ```javascript
-const pluginPath = (process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
-if (!pluginPath) { console.error('Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set'); process.exit(1); }
+const pluginPath = (process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
+if (!pluginPath) { console.error('Error: PLUGIN_ROOT environment variable not set'); process.exit(1); }
 const { sources } = require(`${pluginPath}/lib`);
 
 // Source can be string or object

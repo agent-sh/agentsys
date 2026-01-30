@@ -32,8 +32,8 @@ Create a temporary review queue file in the platform state dir. Review passes ap
 ```javascript
 const path = require('path');
 const fs = require('fs');
-const pluginPath = (process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
-if (!pluginPath) { console.error('Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set'); process.exit(1); }
+const pluginPath = (process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
+if (!pluginPath) { console.error('Error: PLUGIN_ROOT environment variable not set'); process.exit(1); }
 const { getStateDirPath } = require(`${pluginPath}/lib/platform/state-dir.js`);
 
 const stateDirPath = getStateDirPath(process.cwd());

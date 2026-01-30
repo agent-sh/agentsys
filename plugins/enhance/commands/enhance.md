@@ -184,8 +184,8 @@ Parse from $ARGUMENTS:
 ## Implementation
 
 ```javascript
-const pluginPath = (process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
-if (!pluginPath) { console.error('Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set'); process.exit(1); }
+const pluginPath = (process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
+if (!pluginPath) { console.error('Error: PLUGIN_ROOT environment variable not set'); process.exit(1); }
 const { pluginAnalyzer } = require(`${pluginPath}/lib/enhance`);
 
 // Parse arguments
@@ -324,8 +324,8 @@ Parse from $ARGUMENTS:
 ## Implementation
 
 ```javascript
-const pluginPath = (process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
-if (!pluginPath) { console.error('Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set'); process.exit(1); }
+const pluginPath = (process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
+if (!pluginPath) { console.error('Error: PLUGIN_ROOT environment variable not set'); process.exit(1); }
 const { agentAnalyzer } = require(`${pluginPath}/lib/enhance`);
 
 // Parse arguments
@@ -507,8 +507,8 @@ For user-facing documentation:
 ## Implementation
 
 ```javascript
-const pluginPath = (process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
-if (!pluginPath) { console.error('Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set'); process.exit(1); }
+const pluginPath = (process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
+if (!pluginPath) { console.error('Error: PLUGIN_ROOT environment variable not set'); process.exit(1); }
 const { docsAnalyzer } = require(`${pluginPath}/lib/enhance`);
 
 // Parse arguments
@@ -704,8 +704,8 @@ Note: Reference validation (file paths, npm commands) is always enabled.
 ## Implementation
 
 ```javascript
-const pluginPath = (process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
-if (!pluginPath) { console.error('Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set'); process.exit(1); }
+const pluginPath = (process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
+if (!pluginPath) { console.error('Error: PLUGIN_ROOT environment variable not set'); process.exit(1); }
 const { projectmemoryAnalyzer } = require(`${pluginPath}/lib/enhance`);
 
 // Parse arguments
@@ -882,8 +882,8 @@ Parse from $ARGUMENTS:
 ## Implementation
 
 ```javascript
-const pluginPath = (process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
-if (!pluginPath) { console.error('Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set'); process.exit(1); }
+const pluginPath = (process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
+if (!pluginPath) { console.error('Error: PLUGIN_ROOT environment variable not set'); process.exit(1); }
 const { promptAnalyzer } = require(`${pluginPath}/lib/enhance`);
 
 // Parse arguments

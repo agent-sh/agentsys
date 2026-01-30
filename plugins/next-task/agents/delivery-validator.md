@@ -39,8 +39,8 @@ NO human in the loop - either pass validation or fail and return to implementati
 ## Phase 1: Get Task Context
 
 ```javascript
-const pluginPath = (process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
-if (!pluginPath) { console.error('Error: CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT not set'); process.exit(1); }
+const pluginPath = (process.env.PLUGIN_ROOT || '').replace(/\\/g, '/');
+if (!pluginPath) { console.error('Error: PLUGIN_ROOT environment variable not set'); process.exit(1); }
 const workflowState = require(`${pluginPath}/lib/state/workflow-state.js`);
 
 const state = workflowState.readFlow();
