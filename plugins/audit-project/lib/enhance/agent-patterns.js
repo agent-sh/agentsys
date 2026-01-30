@@ -96,11 +96,12 @@ const agentPatterns = {
     check: (content) => {
       if (!content || typeof content !== 'string') return null;
 
-      // Look for role indicators
+      // Look for role indicators (various forms)
       const hasYouAre = /you are/i.test(content);
-      const hasRoleSection = /##\s+(?:your\s+)?role/i.test(content);
+      const hasYouPerform = /you (?:perform|handle|execute|do|manage|coordinate|analyze|review|create|design|implement|validate|update|check|monitor)/i.test(content);
+      const hasRoleSection = /##\s+(?:your\s+)?role|\*\*(?:your\s+)?role\*\*/i.test(content);
 
-      if (!hasYouAre && !hasRoleSection) {
+      if (!hasYouAre && !hasYouPerform && !hasRoleSection) {
         return {
           issue: 'Missing role definition',
           fix: 'Add role section explaining agent purpose'
@@ -151,12 +152,13 @@ const agentPatterns = {
     check: (content) => {
       if (!content || typeof content !== 'string') return null;
 
-      // Look for constraints indicators
-      const hasConstraints = /##\s+constraints/i.test(content);
-      const hasDontSection = /##\s+(?:what\s+)?(?:you\s+)?(?:must\s+)?not\s+do/i.test(content);
-      const hasRulesSection = /##\s+rules/i.test(content);
+      // Look for constraints indicators (H2 or H3)
+      const hasConstraints = /#{2,3}\s+constraints/i.test(content);
+      const hasDontSection = /#{2,3}\s+(?:what\s+)?(?:this\s+agent\s+)?(?:you\s+)?(?:must\s+)?not\s+do/i.test(content);
+      const hasRulesSection = /#{2,3}\s+rules/i.test(content);
+      const hasWorkflowGates = /#{2,3}\s+workflow\s+gates/i.test(content);
 
-      if (!hasConstraints && !hasDontSection && !hasRulesSection) {
+      if (!hasConstraints && !hasDontSection && !hasRulesSection && !hasWorkflowGates) {
         return {
           issue: 'Missing constraints section',
           fix: 'Add section defining agent limitations and boundaries'
