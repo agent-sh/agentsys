@@ -1,8 +1,3 @@
-/**
- * Pattern Validation Benchmark Tests
- * Measures pattern accuracy (precision/recall) and fix effectiveness
- */
-
 const path = require('path');
 const fs = require('fs');
 const {
@@ -126,8 +121,6 @@ describe('Pattern Validation Benchmarks', () => {
       const fixFn = fixer[fixFnName];
 
       if (!fixFn) {
-        // Skip if no fixer exists for this pattern
-        console.log(`Skipping ${pairName}: no fixer function ${fixFnName}`);
         return;
       }
 
@@ -177,15 +170,6 @@ describe('Pattern Validation Benchmarks', () => {
       // Should have per-pattern metrics
       expect(results.byPattern).toBeDefined();
       expect(Object.keys(results.byPattern).length).toBeGreaterThan(0);
-
-      // Log summary for visibility
-      console.log('\n=== Pattern Benchmark Summary ===');
-      console.log(`Precision: ${(results.summary.precision * 100).toFixed(1)}%`);
-      console.log(`Recall: ${(results.summary.recall * 100).toFixed(1)}%`);
-      console.log(`F1 Score: ${(results.summary.f1 * 100).toFixed(1)}%`);
-      console.log(`True Positives: ${results.summary.truePositives}`);
-      console.log(`False Positives: ${results.summary.falsePositives}`);
-      console.log(`False Negatives: ${results.summary.falseNegatives}`);
     });
 
     test('generateReport should produce markdown', () => {
@@ -213,9 +197,6 @@ describe('Pattern Validation Benchmarks', () => {
   });
 });
 
-/**
- * Convert snake_case to PascalCase
- */
 function toPascalCase(str) {
   return str
     .split('_')
