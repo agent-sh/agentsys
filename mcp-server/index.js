@@ -1063,7 +1063,7 @@ async function main() {
 const server = new Server(
     {
       name: 'awesome-slash',
-      version: '3.5.0-rc.1',
+      version: '3.5.0',
     },
     {
       capabilities: {
