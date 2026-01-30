@@ -422,7 +422,7 @@ function validateEnhanceAgentSkillUsage() {
   for (const file of agentFiles) {
     const filePath = path.join(agentsDir, file);
     const content = fs.readFileSync(filePath, 'utf8');
-    const usageMatch = content.match(/MUST execute the ([^\s]+) skill/);
+    const usageMatch = content.match(/MUST execute the `?([^\s`]+)`? skill/);
     if (!usageMatch) {
       errors.push(`enhance agent ${file} must require skill usage with "MUST execute the <skill> skill"`);
       continue;

@@ -1,12 +1,21 @@
 ---
 name: enhance-orchestrator
-description: "Use when coordinating multiple enhancers and producing a unified /enhance report."
-version: 1.0.0
+description: "Use when coordinating multiple enhancers for /enhance command. Runs analyzers in parallel and produces unified report."
+version: 1.1.0
+argument-hint: "[path] [--apply] [--focus=TYPE]"
 ---
 
 # enhance-orchestrator
 
 Coordinate all enhancement analyzers in parallel and produce a unified report.
+
+## Critical Rules
+
+1. **MUST run enhancers in parallel** - Use Promise.all for efficiency
+2. **MUST only run enhancers for existing content** - Skip if no files found
+3. **MUST report HIGH certainty first** - Priority order: HIGH → MEDIUM → LOW
+4. **NEVER auto-fix without --apply flag** - Explicit consent required
+5. **NEVER auto-fix MEDIUM or LOW issues** - Only HIGH certainty
 
 ## Workflow
 
@@ -50,29 +59,20 @@ const discovery = {
   hooks: await Glob({ pattern: '**/hooks/**/*.md', path: targetPath }),
   skills: await Glob({ pattern: '**/skills/**/SKILL.md', path: targetPath })
 };
-
-// Normalize focus type
-const focus = flags.focus === 'claude-memory' ? 'claudemd' : flags.focus;
 ```
 
 ### Phase 3: Load Suppressions
 
 ```javascript
-const { getSuppressionPath } = require('@awesome-slash/lib/cross-platform');
-const { loadAutoSuppressions, getProjectId, clearAutoSuppressions, exportAutoSuppressions } = require('@awesome-slash/lib/enhance/auto-suppression');
+const { getSuppressionPath } = require('./lib/cross-platform');
+const { loadAutoSuppressions, getProjectId, clearAutoSuppressions } = require('./lib/enhance/auto-suppression');
 
 const suppressionPath = getSuppressionPath();
 const projectId = getProjectId(targetPath);
 
-// Handle special flags
 if (flags.resetLearned) {
   clearAutoSuppressions(suppressionPath, projectId);
   console.log(`Cleared suppressions for project: ${projectId}`);
-}
-
-if (flags.exportLearned) {
-  console.log(JSON.stringify(exportAutoSuppressions(suppressionPath, projectId), null, 2));
-  return;
 }
 
 const autoLearned = loadAutoSuppressions(suppressionPath, projectId);
@@ -80,17 +80,15 @@ const autoLearned = loadAutoSuppressions(suppressionPath, projectId);
 
 ### Phase 4: Launch Enhancers in Parallel
 
-Enhancer registry:
-
-| Type | Agent | Model |
-|------|-------|-------|
-| plugin | enhance:plugin-enhancer | sonnet |
-| agent | enhance:agent-enhancer | opus |
-| claudemd | enhance:claudemd-enhancer | sonnet |
-| docs | enhance:docs-enhancer | sonnet |
-| prompt | enhance:prompt-enhancer | opus |
-| hooks | enhance:hooks-enhancer | opus |
-| skills | enhance:skills-enhancer | opus |
+| Type | Agent | Model | Purpose |
+|------|-------|-------|---------|
+| plugin | enhance:plugin-enhancer | sonnet | Tool schemas, MCP |
+| agent | enhance:agent-enhancer | opus | Agent prompts |
+| claudemd | enhance:claudemd-enhancer | sonnet | Project memory |
+| docs | enhance:docs-enhancer | sonnet | Documentation |
+| prompt | enhance:prompt-enhancer | opus | General prompts |
+| hooks | enhance:hooks-enhancer | opus | Hook safety |
+| skills | enhance:skills-enhancer | opus | Skill triggers |
 
 ```javascript
 const enhancerAgents = {
@@ -105,10 +103,9 @@ const enhancerAgents = {
 
 const promises = [];
 
-// Launch each applicable enhancer
 for (const [type, agent] of Object.entries(enhancerAgents)) {
   if (focus && focus !== type) continue;
-  if (!discovery[type === 'claudemd' ? 'claudemd' : type]?.length) continue;
+  if (!discovery[type]?.length) continue;
 
   promises.push(Task({
     subagent_type: agent,
@@ -117,6 +114,7 @@ Return JSON: { "enhancerType": "${type}", "findings": [...], "summary": { high, 
   }));
 }
 
+// MUST use Promise.all for parallel execution
 const results = await Promise.all(promises);
 ```
 
@@ -145,8 +143,6 @@ function aggregateResults(enhancerResults) {
     }
   };
 }
-
-const aggregated = aggregateResults(results);
 ```
 
 ### Phase 6: Generate Report
@@ -164,37 +160,22 @@ Options: verbose=${flags.verbose}, showAutoFixable=${flags.apply}`
 console.log(report);
 ```
 
-### Phase 7: Auto-Learning (unless --no-learn)
+### Phase 7: Auto-Learning
 
 ```javascript
 if (!flags.noLearn) {
-  const { analyzeForAutoSuppression, saveAutoSuppressions } = require('@awesome-slash/lib/enhance/auto-suppression');
-
-  const fileContents = new Map();
-  for (const finding of aggregated.findings) {
-    if (finding.file && !fileContents.has(finding.file)) {
-      try {
-        fileContents.set(finding.file, await Read({ file_path: finding.file }));
-      } catch {}
-    }
-  }
+  const { analyzeForAutoSuppression, saveAutoSuppressions } = require('./lib/enhance/auto-suppression');
 
   const newSuppressions = analyzeForAutoSuppression(aggregated.findings, fileContents, { projectRoot: targetPath });
 
   if (newSuppressions.length > 0) {
     saveAutoSuppressions(suppressionPath, projectId, newSuppressions);
     console.log(`\nLearned ${newSuppressions.length} new suppressions.`);
-
-    if (flags.showSuppressed) {
-      for (const s of newSuppressions) {
-        console.log(`- ${s.patternId}: ${s.suppressionReason} (${(s.confidence * 100).toFixed(0)}%)`);
-      }
-    }
   }
 }
 ```
 
-### Phase 8: Apply Fixes (if --apply)
+### Phase 8: Apply Fixes
 
 ```javascript
 if (flags.apply) {
@@ -203,7 +184,6 @@ if (flags.apply) {
   if (autoFixable.length > 0) {
     console.log(`\n## Applying ${autoFixable.length} Auto-Fixes\n`);
 
-    // Group by enhancer type
     const byEnhancer = {};
     for (const fix of autoFixable) {
       const type = fix.source;
@@ -219,8 +199,6 @@ if (flags.apply) {
     }
 
     console.log(`Applied ${autoFixable.length} fixes.`);
-  } else {
-    console.log('\nNo auto-fixable issues found.');
   }
 }
 ```
@@ -243,23 +221,20 @@ if (flags.apply) {
 | **Total**| **3**| **5**  | **1**| **2**       |
 
 ## HIGH Certainty Issues
-
-[Grouped by enhancer, file, line]
+[Grouped by enhancer, then file]
 
 ## MEDIUM Certainty Issues
-
 [...]
 
 ## Auto-Fix Summary
-
-{n} issues can be automatically fixed with `--apply` flag.
+{n} issues can be fixed with `--apply` flag.
 ```
 
 ## Constraints
 
-- Run enhancers in parallel for efficiency
-- Only run enhancers for content types that exist
-- HIGH certainty issues reported first
-- Auto-fixes only with explicit --apply
-- Never auto-fix MEDIUM or LOW issues
-- Deduplicate findings across enhancers
+- MUST run enhancers in parallel (Promise.all)
+- MUST skip enhancers for missing content types
+- MUST report HIGH certainty issues first
+- MUST deduplicate findings across enhancers
+- NEVER auto-fix without explicit --apply flag
+- NEVER auto-fix MEDIUM or LOW certainty issues

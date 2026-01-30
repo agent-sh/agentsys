@@ -21,7 +21,15 @@ perf: phase <phase-name> [<id>] baseline=<version> delta=<summary>
 2. Update investigation log with phase summary and evidence.
 3. Commit with the format above.
 
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Checkpoint created successfully |
+| 1 | Failed to create checkpoint (git error, dirty state) |
+| 2 | Blocked - benchmarks still running |
+
 ## Constraints
 
-- No checkpoint if benchmarks are still running.
+- No checkpoint if benchmarks are still running (exit 2).
 - Do not batch multiple phases into one commit.

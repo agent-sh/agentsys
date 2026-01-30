@@ -1,12 +1,21 @@
 ---
 name: enhance-docs
 description: "Use when improving documentation structure, accuracy, and RAG readiness."
-version: 1.0.0
+version: 1.1.0
+argument-hint: "[path] [--fix] [--ai]"
 ---
 
 # enhance-docs
 
 Analyze documentation for readability, structure, and RAG optimization.
+
+## Documentation Locations
+
+| Type | Location | Purpose |
+|------|----------|---------|
+| User docs | `docs/*.md`, `README.md` | Human-readable guides |
+| Agent docs | `agent-docs/*.md` | AI reference material |
+| Project memory | `CLAUDE.md`, `AGENTS.md` | AI context/instructions |
 
 ## Optimization Modes
 
@@ -21,147 +30,260 @@ For agent-docs and RAG-optimized documentation:
 For user-facing documentation:
 - Balance readability with AI-friendliness
 - Clear structure for both humans and retrievers
-- Explanatory text where helpful
 
 ## Workflow
 
-1. **Discover** - Find all .md files in directory
+1. **Discover** - Find all .md files
 2. **Parse** - Extract structure and content
 3. **Check** - Run pattern checks based on mode
-4. **Filter** - Apply certainty filtering
-5. **Report** - Generate markdown output
-6. **Fix** - Apply auto-fixes if --fix flag present
+4. **Report** - Generate markdown output
+5. **Fix** - Apply auto-fixes if --fix
 
 ## Detection Patterns
 
-### 1. Link Validation (HIGH Certainty)
+### 1. Link Validation (HIGH)
+
 - Broken anchor links (`[text](#missing-anchor)`)
 - Links to non-existent files
 - Malformed link syntax
 
-### 2. Structure Validation (HIGH Certainty)
-- Consistent heading hierarchy (no H1 -> H3 jumps)
-- Code blocks with language specification
-- Reasonable section lengths
+### 2. Structure Validation (HIGH)
 
-### 3. Token Efficiency (HIGH - AI Mode Only)
+**Heading hierarchy:**
+- No jumps (H1 → H3 without H2)
+- Single H1 per document
+- Code blocks with language tags
 
-#### Unnecessary Prose
+**Position-aware content** (based on "lost in the middle" research):
+- Critical info at START or END of document
+- Supporting details in MIDDLE
+- Flag important content buried in middle sections
+
+**Recommended structure:**
+```
+1. Overview/Purpose (START - high attention)
+2. Quick Start / TL;DR
+3. Detailed Content
+4. Reference / API
+5. Summary / Key Points (END - high attention)
+```
+
+### 3. Token Efficiency (HIGH - AI Mode)
+
+**Token estimation:** `characters / 4` or `words * 1.3`
+
+**Unnecessary prose:**
 - "In this document..."
 - "As you can see..."
 - "Let's explore..."
+- "It's important to note that..."
 
-#### Verbose Phrases
-- "in order to" -> "to"
-- "due to the fact that" -> "because"
-- "has the ability to" -> "can"
+**Verbose phrases:**
+| Verbose | Concise |
+|---------|---------|
+| "in order to" | "to" |
+| "due to the fact that" | "because" |
+| "has the ability to" | "can" |
+| "at this point in time" | "now" |
+| "for the purpose of" | "for" |
+| "in the event that" | "if" |
 
-### 4. RAG Optimization (MEDIUM - AI Mode Only)
+**Target:** ~1500 tokens for project memory files, flexible for reference docs.
 
-#### Suboptimal Chunking
-- Sections too long (>1000 tokens)
-- Sections too short (<20 tokens)
+### 4. RAG Optimization (MEDIUM - AI Mode)
 
-#### Poor Semantic Boundaries
-- Multiple topics in single section
-- Missing context anchors (sections starting with "It", "This")
+**Chunk size guidelines:**
+| Size | Issue |
+|------|-------|
+| >1000 tokens | Too long, split into subtopics |
+| <50 tokens | Too short, merge with related content |
+| 200-500 tokens | Optimal for retrieval |
 
-### 5. Balance Suggestions (MEDIUM - Both Mode)
-- Missing section headers in long content
-- Important information buried late
+**Semantic boundaries:**
+- Single topic per section
+- Self-contained sections (avoid "It", "This" at section start)
+- Clear section titles that describe content
 
-## Auto-Fix Implementations
+**Context anchors:**
+```markdown
+# Bad - ambiguous start
+## Configuration
+It requires several settings...
 
-### 1. Inconsistent Headings
-```javascript
-// H1 -> H3 becomes H1 -> H2
-fixInconsistentHeadings(content)
+# Good - self-contained
+## Configuration
+The plugin configuration requires several settings...
 ```
 
-### 2. Verbose Explanations (AI mode)
-```javascript
-// "in order to" -> "to"
-fixVerboseExplanations(content)
+### 5. Information Density (MEDIUM - AI Mode)
+
+**Prefer tables over prose:**
+```markdown
+# Bad - verbose
+The function accepts a path parameter which is required,
+a limit parameter which defaults to 10, and an optional
+format parameter.
+
+# Good - dense
+| Param | Required | Default | Description |
+|-------|----------|---------|-------------|
+| path | Yes | - | File path |
+| limit | No | 10 | Max results |
+| format | No | json | Output format |
 ```
+
+**Prefer lists over paragraphs** for sequential items.
+
+**Use code blocks** for examples, commands, configurations.
+
+### 6. Cross-Reference Quality (MEDIUM)
+
+- Internal links should use relative paths
+- External links should be stable (avoid commit hashes)
+- Reference sections should point to canonical sources
+
+### 7. Balance Suggestions (MEDIUM - Both Mode)
+
+- Missing section headers in long content (>500 words without heading)
+- Important information buried late in document
+- Missing TL;DR or summary for long documents
+
+## Auto-Fixes
+
+| Issue | Fix |
+|-------|-----|
+| Inconsistent headings | H1 → H3 becomes H1 → H2 |
+| Verbose phrases | Replace with concise alternatives |
+| Missing code language | Add based on content detection |
 
 ## Output Format
 
 ```markdown
-## Documentation Analysis: {doc-name}
+## Documentation Analysis: {name}
 
 **File**: {path}
-**Mode**: {AI-only | Both audiences}
-**Token Count**: ~{tokens}
+**Mode**: {AI-only | Both}
+**Tokens**: ~{count}
 
-### Summary
-- HIGH: {count} issues
-- MEDIUM: {count} issues
+| Certainty | Count |
+|-----------|-------|
+| HIGH | {n} |
+| MEDIUM | {n} |
 
-### Link Issues ({n})
-| Issue | Fix | Certainty |
+### Link Issues
+| Line | Issue | Fix | Certainty |
 
-### Structure Issues ({n})
-| Issue | Fix | Certainty |
+### Structure Issues
+| Line | Issue | Fix | Certainty |
 
-### Efficiency Issues ({n}) [AI mode]
-| Issue | Fix | Certainty |
+### Efficiency Issues [AI mode]
+| Line | Issue | Fix | Certainty |
 
-### RAG Optimization Issues ({n}) [AI mode]
-| Issue | Fix | Certainty |
+### RAG Issues [AI mode]
+| Line | Issue | Fix | Certainty |
 ```
 
 ## Pattern Statistics
 
-| Category | Patterns | Mode | Auto-Fixable |
-|----------|----------|------|--------------|
-| Link | 1 | shared | 0 |
-| Structure | 3 | shared | 1 |
-| Efficiency | 2 | ai | 1 |
-| RAG | 3 | ai | 0 |
-| Balance | 4 | both | 0 |
-| **Total** | **14** | - | **2** |
+| Category | Patterns | Mode | Certainty |
+|----------|----------|------|-----------|
+| Links | 3 | shared | HIGH |
+| Structure | 4 | shared | HIGH |
+| Token Efficiency | 3 | ai | HIGH |
+| RAG Optimization | 3 | ai | MEDIUM |
+| Information Density | 2 | ai | MEDIUM |
+| Cross-Reference | 2 | shared | MEDIUM |
+| Balance | 3 | both | MEDIUM |
+| **Total** | **20** | - | - |
 
 <examples>
-### Example: Verbose Phrase Detection
-
+### Verbose Phrase
 <bad_example>
 ```markdown
 In order to configure the plugin, you need to...
 ```
-**Why it's bad**: Verbose phrases waste tokens.
 </bad_example>
-
 <good_example>
 ```markdown
 To configure the plugin...
 ```
-**Why it's good**: Direct language reduces tokens.
 </good_example>
 
-### Example: RAG Chunking Issue
-
+### RAG Chunking
 <bad_example>
 ```markdown
 ## Installation
-[2000+ tokens of mixed content]
+[2000+ tokens of mixed content covering install, config, and usage]
 ```
-**Why it's bad**: Long mixed sections create poor retrieval boundaries.
 </bad_example>
-
 <good_example>
 ```markdown
 ## Installation
-[500 tokens - just installation]
+[400 tokens - installation only]
 
 ## Configuration
-[400 tokens - configuration only]
+[300 tokens - config only]
+
+## Usage
+[400 tokens - usage only]
 ```
-**Why it's good**: Single-topic sections for clear chunk boundaries.
+</good_example>
+
+### Position-Aware Content
+<bad_example>
+```markdown
+## Introduction
+[Long background...]
+
+## History
+[More context...]
+
+## Critical Setup Steps
+[Important info buried in middle]
+```
+</bad_example>
+<good_example>
+```markdown
+## Quick Start (Critical)
+[Important setup steps at START]
+
+## Background
+[Supporting context in middle]
+
+## Reference
+[Details...]
+
+## Key Reminders
+[Critical points repeated at END]
+```
+</good_example>
+
+### Tables vs Prose
+<bad_example>
+```markdown
+The API accepts three parameters. The first is `query` which is required.
+The second is `limit` which defaults to 10. The third is `format`.
+```
+</bad_example>
+<good_example>
+```markdown
+| Param | Required | Default |
+|-------|----------|---------|
+| query | Yes | - |
+| limit | No | 10 |
+| format | No | json |
+```
 </good_example>
 </examples>
 
+## References
+
+- `agent-docs/CONTEXT-OPTIMIZATION-REFERENCE.md` - Token budgeting, position awareness, chunking
+- `agent-docs/PROMPT-ENGINEERING-REFERENCE.md` - Structure, information density
+
 ## Constraints
 
-- Only apply auto-fixes for HIGH certainty issues
+- Auto-fix only HIGH certainty issues
 - Preserve original tone and style
 - Balance AI optimization with human readability (default mode)
+- Don't remove content, only restructure or condense

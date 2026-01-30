@@ -1,6 +1,7 @@
 ---
 name: repo-mapping
 description: "Use when user asks to \"create repo map\", \"generate repo map\", \"update repo map\", \"repo map status\", or \"map symbols/imports\". Builds and validates an AST-based repo map using ast-grep."
+argument-hint: "<action> [--force]"
 ---
 
 # Repo Mapping Skill

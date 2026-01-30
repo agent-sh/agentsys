@@ -132,56 +132,31 @@ else
 fi
 ```
 
-## Phase 6: Claim Task in Registry (Main Repo)
+## Phase 6: Claim Task in Registry
 
-Add this task to the main repo's tasks.json registry to prevent other workflows from claiming it:
+Add task to `${STATE_DIR}/tasks.json` to prevent other workflows from claiming it:
 
 ```javascript
 const fs = require('fs');
-const TASKS_REGISTRY_PATH = '${STATE_DIR}/tasks.json';
-const MAIN_REPO_PATH = process.cwd(); // Still in main repo at this point
+const stateDir = process.env.AI_STATE_DIR || '.claude';
+if (!fs.existsSync(stateDir)) fs.mkdirSync(stateDir, { recursive: true });
 
-function claimTaskInRegistry(task, branch, worktreePath) {
-  // Ensure state directory exists (platform-aware: .claude, .opencode, or .codex)
-  const stateDir = process.env.AI_STATE_DIR || '.claude';
-  if (!fs.existsSync(stateDir)) {
-    fs.mkdirSync(stateDir, { recursive: true });
-  }
+let registry = fs.existsSync(`${stateDir}/tasks.json`)
+  ? JSON.parse(fs.readFileSync(`${stateDir}/tasks.json`))
+  : { version: '1.0.0', tasks: [] };
 
-  // Load or create registry
-  let registry = { version: '1.0.0', tasks: [] };
-  if (fs.existsSync(TASKS_REGISTRY_PATH)) {
-    registry = JSON.parse(fs.readFileSync(TASKS_REGISTRY_PATH, 'utf8'));
-  }
+const entry = {
+  id: task.id, source: task.source, title: task.title,
+  branch, worktreePath: path.resolve(worktreePath),
+  claimedAt: new Date().toISOString(), claimedBy: state.workflow.id,
+  status: 'claimed', lastActivityAt: new Date().toISOString()
+};
 
-  // Add this task
-  const taskEntry = {
-    id: task.id,
-    source: task.source,
-    title: task.title,
-    branch: branch,
-    worktreePath: path.resolve(worktreePath),
-    claimedAt: new Date().toISOString(),
-    claimedBy: state.workflow.id,
-    status: 'claimed',
-    lastActivityAt: new Date().toISOString()
-  };
+const idx = registry.tasks.findIndex(t => t.id === task.id);
+if (idx >= 0) registry.tasks[idx] = entry;
+else registry.tasks.push(entry);
 
-  // Check if already claimed (shouldn't happen, but safety check)
-  const existingIdx = registry.tasks.findIndex(t => t.id === task.id);
-  if (existingIdx >= 0) {
-    console.log(`WARNING: Task #${task.id} was already in registry, updating...`);
-    registry.tasks[existingIdx] = taskEntry;
-  } else {
-    registry.tasks.push(taskEntry);
-  }
-
-  // Write registry
-  fs.writeFileSync(TASKS_REGISTRY_PATH, JSON.stringify(registry, null, 2));
-  console.log(`[OK] Claimed task #${task.id} in tasks.json registry`);
-}
-
-claimTaskInRegistry(state.task, BRANCH_NAME, WORKTREE_PATH);
+fs.writeFileSync(`${stateDir}/tasks.json`, JSON.stringify(registry, null, 2));
 ```
 
 ## Phase 7: Anchor PWD to Worktree
@@ -204,210 +179,47 @@ echo "[OK] On branch: $CURRENT_BRANCH"
 
 ## Phase 8: Create Worktree Status File
 
-Create the workflow-status.json file in this worktree to track steps:
+Create `${STATE_DIR}/workflow-status.json` with task, workflow, git info, and resume state.
 
-```javascript
-const fs = require('fs');
-const WORKTREE_STATUS_PATH = '${STATE_DIR}/workflow-status.json';
-
-function createWorktreeStatus(task, workflow, branch, mainRepoPath) {
-  // Ensure state directory exists in worktree (platform-aware)
-  const stateDir = process.env.AI_STATE_DIR || '.claude';
-  if (!fs.existsSync(stateDir)) {
-    fs.mkdirSync(stateDir, { recursive: true });
-  }
-
-  const status = {
-    version: '1.0.0',
-    task: {
-      id: task.id,
-      source: task.source,
-      title: task.title,
-      description: task.description || '',
-      url: task.url || null
-    },
-    workflow: {
-      id: workflow.id,
-      startedAt: workflow.startedAt,
-      lastActivityAt: new Date().toISOString(),
-      status: 'active',
-      currentPhase: 'worktree-setup'
-    },
-    git: {
-      branch: branch,
-      baseSha: await exec('git rev-parse HEAD'),
-      currentSha: await exec('git rev-parse HEAD'),
-      mainRepoPath: mainRepoPath
-    },
-    policy: state.policy || {},
-    steps: [
-      {
-        step: 'worktree-created',
-        status: 'completed',
-        startedAt: workflow.startedAt,
-        completedAt: new Date().toISOString()
-      }
-    ],
-    resume: {
-      canResume: true,
-      resumeFromStep: 'worktree-created'
-    },
-    agents: {
-      reviewIterations: 0,
-      issuesFound: 0,
-      issuesFixed: 0
-    }
-  };
-
-  fs.writeFileSync(WORKTREE_STATUS_PATH, JSON.stringify(status, null, 2));
-  console.log(`[OK] Created workflow-status.json in worktree`);
-}
-
-createWorktreeStatus(state.task, state.workflow, BRANCH_NAME, MAIN_REPO_PATH);
-```
+Key fields: `task` (id, source, title), `workflow` (id, status, currentPhase), `git` (branch, baseSha, mainRepoPath), `resume` (canResume, resumeFromStep).
 
 ## Phase 9: Update Workflow State
 
-Update the workflow state with git information:
-
-```javascript
-const { getPluginRoot } = require('./lib/cross-platform');
-const path = require('path');
-
-const pluginRoot = getPluginRoot('next-task');
-if (!pluginRoot) {
-  console.error('Error: Could not locate next-task plugin installation');
-  process.exit(1);
-}
-
-const workflowState = require(path.join(pluginRoot, 'lib/state/workflow-state.js'));
-
-workflowState.updateState({
-  git: {
-    originalBranch: ORIGINAL_BRANCH,
-    workingBranch: BRANCH_NAME,
-    worktreePath: WORKTREE_PATH,
-    baseSha: await exec('git rev-parse HEAD'),
-    currentSha: await exec('git rev-parse HEAD'),
-    isWorktree: true
-  }
-});
-
-// Complete worktree-setup phase
-workflowState.completePhase({
-  worktreePath: WORKTREE_PATH,
-  branchName: BRANCH_NAME
-});
-```
+Call `workflowState.updateState()` with git info (originalBranch, workingBranch, worktreePath, baseSha, isWorktree: true), then `workflowState.completePhase()`.
 
 ## Phase 10: Output Summary
 
-Report the worktree setup:
+Report: branch name, worktree path, base commit. Confirm PWD anchored to worktree.
 
-```markdown
-## Worktree Setup Complete
+## Cleanup Responsibilities
 
-**Branch**: ${BRANCH_NAME}
-**Path**: ${WORKTREE_PATH}
-**Base**: ${ORIGINAL_BRANCH} @ ${BASE_SHA}
+| Component | Creates | Cleans Up |
+|-----------|---------|-----------|
+| worktree-manager | worktrees, tasks.json entries, workflow-status.json | Nothing |
+| /ship | - | worktrees (after merge), tasks.json entries |
+| --abort | - | worktrees, tasks.json entries |
 
-Working directory is now anchored to the worktree.
-All subsequent operations will occur in isolated environment.
+**Agents MUST NOT**: clean up worktrees, remove tasks from registry, or delete branches.
 
-Proceeding to exploration phase...
-```
-
-## [WARN] WORKTREE CLEANUP RESPONSIBILITIES
-
-```
-
-                    WORKTREE CLEANUP - WHO DOES WHAT
-
-  THIS AGENT (worktree-manager):
-  [OK] Creates worktrees
-  [OK] Claims tasks in tasks.json registry
-  [OK] Creates workflow-status.json in worktree
-  [NO] Does NOT clean up worktrees after completion
-
-  /ship COMMAND:
-  [OK] Cleans up worktree after successful merge
-  [OK] Removes task from tasks.json registry
-  [OK] Prunes worktree references
-
-  --abort FLAG:
-  [OK] Cleans up worktree on workflow abort
-  [OK] Removes task from tasks.json registry
-
-  AGENTS MUST NOT:
-  [CRITICAL] Clean up worktrees themselves
-  [CRITICAL] Remove tasks from registry
-  [CRITICAL] Delete branches
-
-```
-
-## Cleanup Function (Used by /ship and --abort ONLY)
-
-This function is for reference - it is called by /ship after merge or by --abort:
+## Cleanup Reference (for /ship and --abort)
 
 ```bash
-# ONLY called by /ship or --abort, NOT by agents
 cleanup_worktree() {
-  local WORKTREE_PATH="$1"
-  local BRANCH_NAME="$2"
-  local ORIGINAL_DIR="$3"
-  local TASK_ID="$4"
-
-  # Return to original directory first
   cd "$ORIGINAL_DIR"
-
-  # 1. Remove worktree
   git worktree remove "$WORKTREE_PATH" --force 2>/dev/null
-  echo "[OK] Removed worktree at $WORKTREE_PATH"
-
-  # 2. Prune worktree references
   git worktree prune
-  echo "[OK] Pruned worktree references"
-
-  # 3. Remove task from registry (CRITICAL)
-  if [ -f "${STATE_DIR}/tasks.json" ]; then
-    # Use node to safely modify JSON
-    node -e "
-      const fs = require('fs');
-      const registry = JSON.parse(fs.readFileSync('${STATE_DIR}/tasks.json', 'utf8'));
-      registry.tasks = registry.tasks.filter(t => t.id !== '$TASK_ID');
-      fs.writeFileSync('${STATE_DIR}/tasks.json', JSON.stringify(registry, null, 2));
-    "
-    echo "[OK] Removed task #$TASK_ID from tasks.json registry"
-  fi
-
-  # 4. Optionally delete branch (only if not merged and user requested)
-  # git branch -d "$BRANCH_NAME" 2>/dev/null
+  [ -f "${STATE_DIR}/tasks.json" ] && node -e "
+    const fs = require('fs');
+    const r = JSON.parse(fs.readFileSync('${STATE_DIR}/tasks.json'));
+    r.tasks = r.tasks.filter(t => t.id !== '$TASK_ID');
+    fs.writeFileSync('${STATE_DIR}/tasks.json', JSON.stringify(r, null, 2));
+  "
 }
 ```
 
 ## Error Handling
 
-```bash
-# Handle worktree creation failure
-if [ $? -ne 0 ]; then
-  echo "ERROR: Failed to create worktree"
-
-  # Try to recover
-  if [ -d "$WORKTREE_PATH" ]; then
-    echo "Attempting to remove failed worktree..."
-    rm -rf "$WORKTREE_PATH"
-    git worktree prune
-  fi
-
-  # Update state with failure
-  workflowState.failPhase("Worktree creation failed", {
-    attemptedPath: WORKTREE_PATH,
-    attemptedBranch: BRANCH_NAME
-  });
-
-  exit 1
-fi
-```
+On failure: remove partial worktree, prune refs, update state with `failPhase()`, exit 1.
 
 ## Success Criteria
 

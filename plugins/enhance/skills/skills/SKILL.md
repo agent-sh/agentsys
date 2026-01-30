@@ -2,6 +2,7 @@
 name: enhance-skills
 description: "Use when reviewing SKILL.md files for structure and trigger quality."
 version: 1.0.0
+argument-hint: "[path] [--fix]"
 ---
 
 # enhance-skills
@@ -12,92 +13,257 @@ Analyze skill definitions for trigger quality, structure, and discoverability.
 
 1. **Discover** - Find all SKILL.md files
 2. **Parse** - Extract frontmatter and content
-3. **Check** - Run all pattern checks (21 patterns)
+3. **Check** - Run all pattern checks against knowledge below
 4. **Filter** - Apply certainty filtering
 5. **Report** - Generate markdown output
 6. **Fix** - Apply auto-fixes if --fix flag present
+
+---
+
+## Skill Knowledge Reference
+
+### Frontmatter Fields (Complete Reference)
+
+| Field | Required | Description | Validation |
+|-------|----------|-------------|------------|
+| `name` | No | Display name, defaults to directory name | lowercase, max 64 chars |
+| `description` | Recommended | What skill does and when to use | max 1024 chars, should include trigger |
+| `argument-hint` | No | Autocomplete hint, e.g., `[file-path]` | keep under 30 chars |
+| `disable-model-invocation` | No | `true` = manual only (for side effects) | boolean, default false |
+| `user-invocable` | No | `false` = hidden from `/` menu (auto-only) | boolean, default true |
+| `allowed-tools` | No | Tools Claude can use without permission | comma-separated list |
+| `model` | No | Specific model when skill is active | opus, sonnet, haiku |
+| `context` | No | `fork` = run in isolated subagent context | fork or omit |
+| `agent` | No | Subagent type for execution | Explore, Plan, general-purpose |
+| `hooks` | No | Skill-scoped lifecycle hooks | PreToolUse, PostToolUse |
+
+### Directory Structure
+
+```
+skills/my-skill/
+├── SKILL.md           # Required - core definition (under 500 lines)
+├── reference.md       # Optional - detailed documentation
+├── examples.md        # Optional - usage examples
+└── scripts/           # Optional - helper scripts
+    └── helper.py
+```
+
+**Storage Locations:**
+- Enterprise: Managed settings
+- Personal: `~/.claude/skills/<name>/SKILL.md`
+- Project: `.claude/skills/<name>/SKILL.md`
+
+### Invocation Control Patterns
+
+**Manual Only (for skills with side effects):**
+```yaml
+---
+name: deploy
+description: Deploy to production
+disable-model-invocation: true
+---
+```
+
+**Background Knowledge (auto-only, hidden from menu):**
+```yaml
+---
+name: legacy-context
+description: How the legacy payment system works
+user-invocable: false
+---
+```
+
+**Full Access (default - both auto and manual):**
+```yaml
+---
+name: review
+description: Use when user asks to review code. Checks quality and security.
+---
+```
+
+### Trigger Phrases
+
+Description should include trigger context for auto-discovery:
+- "Use when user asks..."
+- "Use when..."
+- "Invoke when..."
+
+**Good:** `"Use when user asks to 'review code', 'check PR', or 'code review'"`
+**Bad:** `"Reviews code"` (no trigger context)
+
+### Dynamic Context Injection
+
+Skills can inject dynamic content using backtick syntax:
+
+```yaml
+---
+name: pr-summary
+description: Summarize PR changes
+context: fork
+agent: Explore
+allowed-tools: Bash(gh:*)
+---
+
+## Pull request context
+- PR diff: !`gh pr diff`
+- PR comments: !`gh pr view --comments`
+- Changed files: !`gh pr diff --name-only`
+```
+
+**Rules:**
+- Use `!` followed by backtick-wrapped command
+- Limit to 3 injections per skill
+- Each injection adds to context budget
+
+### String Substitutions
+
+| Variable | Description |
+|----------|-------------|
+| `$ARGUMENTS` | All arguments passed when invoking |
+| `${CLAUDE_SESSION_ID}` | Current session ID |
+
+### Context Budget
+
+- Skill descriptions have ~15,000 character default limit
+- Content beyond limit is truncated
+- Check with `/context` command
+- Increase via: `SLASH_COMMAND_TOOL_CHAR_BUDGET=30000`
+
+### Subagent Execution
+
+When using `context: fork`:
+
+```yaml
+---
+name: deep-research
+description: Research a topic thoroughly
+context: fork
+agent: Explore
+allowed-tools: Read, Grep, Glob
+---
+
+Research $ARGUMENTS thoroughly:
+1. Find relevant files
+2. Analyze the code
+3. Summarize findings
+```
+
+**Agent Types:**
+| Agent | Purpose | Tool Access |
+|-------|---------|-------------|
+| `Explore` | Read-only codebase exploration | Read, Grep, Glob only |
+| `Plan` | Planning-focused reasoning | Read, analysis tools |
+| `general-purpose` | Full capabilities | All tools |
+
+### Skill-Scoped Hooks
+
+```yaml
+---
+name: secure-operations
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      hooks:
+        - type: command
+          command: "./scripts/security-check.sh"
+---
+```
+
+### Tool Restrictions
+
+Use scoped tool patterns for security:
+
+| Pattern | Meaning |
+|---------|---------|
+| `Bash(git:*)` | Only git commands |
+| `Bash(npm:*)` | Only npm commands |
+| `Bash(gh:*)` | Only GitHub CLI |
+| `Read(src/**)` | Only files in src/ |
+
+---
 
 ## Detection Patterns
 
 ### 1. Frontmatter Validation (HIGH Certainty)
 
-#### Required Elements
+**Required:**
 - YAML frontmatter with `---` delimiters
 - `name` field (lowercase, max 64 chars)
 - `description` field (max 1024 chars)
 
-#### Recommended Elements
+**Recommended:**
 - `version` field for tracking
-- `argument-hint` for user guidance
+- `argument-hint` for skills accepting input
 - `allowed-tools` for security
+- `model` when specific model required
+
+**Flag:**
+- Missing frontmatter delimiters
+- Invalid field values (uppercase name, description >1024 chars)
 
 ### 2. Trigger Quality (HIGH Certainty)
 
-Description should include trigger context:
-- "Use when user asks..."
-- "Use when..."
-- "Invoke when..."
+**Check:** Description includes trigger phrase
+**Trigger patterns:** "Use when", "Invoke when", "Use when user asks"
 
-#### Good Triggers
-```yaml
-description: "Use when user asks to 'review code', 'check PR', or 'code review'"
-```
-
-#### Bad Triggers
-```yaml
-description: "Reviews code"  # No trigger context
-description: "Useful tool"   # Too vague
-```
+**Flag:**
+- Description without trigger context
+- Vague descriptions like "Useful tool" or "Does stuff"
 
 ### 3. Invocation Control (HIGH Certainty)
 
-| Setting | Purpose |
-|---------|---------|
-| `disable-model-invocation: true` | Manual only (side effects) |
-| `user-invocable: false` | Background knowledge (auto-only) |
+**Check:** Side-effect skills are protected
 
-#### Flag Issues
-- Skills with side effects missing `disable-model-invocation: true`
-- Deploy/ship skills auto-invocable
+**Flag:**
+- Skills with deploy/ship/publish in name but `disable-model-invocation` not set
+- Dangerous auto-invocable skills (can accidentally trigger)
 
 ### 4. Tool Restrictions (HIGH Certainty)
 
-- Skills with Bash should specify scope: `Bash(git:*)`
-- Read-only skills should not have Write/Edit
-- Research skills should not have Task
+**Check:** Tools are appropriately scoped
+
+**Flag:**
+- Unrestricted `Bash` (should be `Bash(git:*)` or similar)
+- Read-only skills with Write/Edit
+- Research skills with Task tool
 
 ### 5. Content Scope (MEDIUM Certainty)
 
-#### Size Guidelines
-- SKILL.md should be under 500 lines
-- Large content should move to `references/` subdirectory
+**Guidelines:**
+- SKILL.md under 500 lines
+- Large content in `references/` subdirectory
+- Max 3 dynamic injections
 
-#### Flag Issues
+**Flag:**
 - SKILL.md over 500 lines
-- More than 3 dynamic injections
-- Embedded large examples
+- More than 3 `!`backtick`` injections
+- Embedded large examples (move to examples.md)
 
 ### 6. Structure Quality (MEDIUM Certainty)
 
-#### Recommended Sections
+**Recommended Sections:**
 - Purpose/overview
-- Required checks or steps
+- Required checks or workflow steps
 - Output format
 - Examples (if complex)
 
 ### 7. Context Configuration (MEDIUM Certainty)
 
-| Setting | Purpose |
-|---------|---------|
-| `context: fork` | Isolated context for verbose work |
-| `agent: Explore` | Read-only exploration |
-| `agent: Plan` | Planning-focused reasoning |
+**Check:** Context settings are appropriate
+
+**Flag:**
+- `context: fork` without `agent` type
+- `agent` type without `context: fork`
+- Mismatch between agent type and allowed-tools
 
 ### 8. Anti-Patterns (LOW Certainty)
 
-- Vague descriptions
-- Too many responsibilities (should split)
-- Missing `argument-hint` for skills needing input
+- Vague descriptions without specific triggers
+- Too many responsibilities (should split into multiple skills)
+- Missing `argument-hint` for skills that clearly need input
+- Redundant chain-of-thought instructions (modern models don't need "think step by step")
+
+---
 
 ## Auto-Fix Implementations
 
@@ -115,6 +281,8 @@ Add "Use when user asks..." prefix to description
 
 ### 3. Unrestricted Bash
 Replace `Bash` with `Bash(git:*)` or appropriate scope
+
+---
 
 ## Output Format
 
@@ -143,19 +311,23 @@ Replace `Bash` with `Bash(git:*)` or appropriate scope
 | Issue | Fix | Certainty |
 ```
 
+---
+
 ## Pattern Statistics
 
 | Category | Patterns | Auto-Fixable |
 |----------|----------|--------------|
-| Frontmatter | 4 | 2 |
+| Frontmatter | 5 | 2 |
 | Trigger | 2 | 1 |
 | Invocation | 3 | 1 |
-| Tool | 2 | 1 |
-| Scope | 2 | 0 |
+| Tool | 3 | 1 |
+| Scope | 3 | 0 |
 | Structure | 2 | 0 |
 | Context | 3 | 0 |
-| Anti-Pattern | 3 | 0 |
-| **Total** | **21** | **5** |
+| Anti-Pattern | 4 | 0 |
+| **Total** | **25** | **5** |
+
+---
 
 <examples>
 ### Example: Missing Trigger Phrase
@@ -195,6 +367,24 @@ disable-model-invocation: true
 **Why it's good**: Manual-only prevents accidental deployments.
 </good_example>
 
+### Example: Unrestricted Tools
+
+<bad_example>
+```yaml
+name: git-helper
+allowed-tools: Bash
+```
+**Why it's bad**: Unrestricted Bash allows any command.
+</bad_example>
+
+<good_example>
+```yaml
+name: git-helper
+allowed-tools: Bash(git:*)
+```
+**Why it's good**: Scoped to only git commands.
+</good_example>
+
 ### Example: Oversized Skill
 
 <bad_example>
@@ -202,7 +392,7 @@ disable-model-invocation: true
 # Complex Analysis
 [800 lines of detailed instructions]
 ```
-**Why it's bad**: Large skills consume context budget.
+**Why it's bad**: Large skills consume context budget (15K char limit).
 </bad_example>
 
 <good_example>
@@ -213,10 +403,34 @@ For details, see `references/detailed-guide.md`.
 ```
 **Why it's good**: Core skill is concise; details in separate files.
 </good_example>
+
+### Example: Context/Agent Mismatch
+
+<bad_example>
+```yaml
+name: researcher
+context: fork
+# Missing agent type
+```
+**Why it's bad**: Fork context without specifying agent type.
+</bad_example>
+
+<good_example>
+```yaml
+name: researcher
+context: fork
+agent: Explore
+allowed-tools: Read, Grep, Glob
+```
+**Why it's good**: Agent type matches allowed tools (Explore = read-only).
+</good_example>
 </examples>
+
+---
 
 ## Constraints
 
 - Only apply auto-fixes for HIGH certainty issues
 - Consider skill context when evaluating trigger quality
 - Never remove content, only suggest improvements
+- Validate against embedded knowledge reference above

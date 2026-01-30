@@ -137,7 +137,7 @@ Auto-learning enabled by default - detects and saves false positives for future 
 - Auto-fixable issues highlighted
 - Fixes applied only with explicit --apply flag
 - Auto-learning detects false positives with 90%+ confidence
-- Learned suppressions stored in cross-platform location (~/.claude/enhance/suppressions.json)
+- Learned suppressions stored in cross-platform location (${STATE_DIR}/enhance/suppressions.json)
 - Zero token waste on previously suppressed findings
 
 ---

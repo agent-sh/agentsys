@@ -261,7 +261,7 @@ Research documents informing the implementation (in `agent-docs/`):
 - [x] Codex CLI (MCP + skills)
 
 ### Testing [OK]
-- [x] All 1307 tests passing
+- [x] All 1400+ tests passing
 - [x] npm pack creates valid package (338 KB)
 - [x] Interactive installer works for all platforms
 

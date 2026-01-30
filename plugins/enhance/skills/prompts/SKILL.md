@@ -2,6 +2,7 @@
 name: enhance-prompts
 description: "Use when improving general prompts for structure, examples, and constraints."
 version: 1.0.0
+argument-hint: "[path] [--fix]"
 ---
 
 # enhance-prompts
@@ -19,89 +20,166 @@ Analyze prompts for clarity, structure, examples, and output reliability.
 
 1. **Discover** - Find prompt files (.md, .txt)
 2. **Classify** - Detect prompt type from path/content
-3. **Check** - Run pattern checks
+3. **Check** - Run pattern checks against knowledge below
 4. **Filter** - Apply certainty filtering
 5. **Report** - Generate markdown output
 6. **Fix** - Apply auto-fixes if --fix flag present
 
+---
+
+## Prompt Engineering Knowledge Reference
+
+### System Prompt Structure
+
+Effective system prompts include: Role/Identity, Capabilities & Constraints, Instruction Priority, Output Format, Behavioral Directives, Examples, Error Handling.
+
+**Minimal Template:**
+```xml
+<system>
+You are [ROLE]. [PURPOSE].
+Key constraints: [CONSTRAINTS]
+Output format: [FORMAT]
+When uncertain: [HANDLING]
+</system>
+```
+
+### XML Tags (Claude-Specific)
+
+Claude is fine-tuned for XML tags. Use: `<role>`, `<constraints>`, `<output_format>`, `<examples>`, `<instructions>`, `<context>`
+
+```xml
+<constraints>
+- Maximum response length: 500 words
+- Use only Python 3.10+ syntax
+</constraints>
+```
+
+### Few-Shot Examples
+
+- 2-5 examples is optimal (research-backed)
+- Include edge cases and ensure format consistency
+- Start zero-shot, add examples only if needed
+- Show both good AND bad examples when relevant
+
+### Chain-of-Thought (CoT)
+
+| Use CoT | Don't Use CoT |
+|---------|---------------|
+| Complex multi-step reasoning | Simple factual questions |
+| Math and logic problems | Classification tasks |
+| Code debugging | When model has built-in reasoning |
+
+**Key:** Modern models (Claude 4.x, o1/o3) perform CoT internally. "Think step by step" is redundant.
+
+### Role Prompting
+
+**Helps:** Creative tasks, tone/style, roleplay
+**Doesn't help:** Accuracy tasks, factual retrieval, complex reasoning
+
+Better: "Approach systematically, showing work" vs "You are an expert"
+
+### Instruction Hierarchy
+
+Priority: System > Developer > User > Retrieved Content
+
+Include explicit priority in prompts with multiple constraint sources.
+
+### Negative Prompting
+
+Positive alternatives are more effective than negatives:
+
+| Less Effective | More Effective |
+|----------------|----------------|
+| "Don't use markdown" | "Use prose paragraphs" |
+| "Don't be vague" | "Use specific language" |
+
+### Structured Output
+
+- Prompt-based: ~35.9% reliability
+- Schema enforcement: 100% reliability
+- Always provide schema example and validate output
+
+### Context Window Optimization
+
+**Lost-in-the-Middle:** Models weigh beginning and end more heavily.
+
+Place critical constraints at start, examples in middle, error handling at end.
+
+### Extended Thinking
+
+High-level instructions ("Think deeply") outperform step-by-step guidance. "Think step-by-step" is redundant with modern models.
+
+### Anti-Patterns Quick Reference
+
+| Anti-Pattern | Problem | Fix |
+|--------------|---------|-----|
+| Vague references | "The above code" loses context | Quote specifically |
+| Negative-only | "Don't do X" without alternative | State what TO do |
+| Aggressive emphasis | "CRITICAL: MUST" | Use normal language |
+| Redundant CoT | Wastes tokens | Let model manage |
+| Critical info buried | Lost-in-the-middle | Place at start/end |
+
+---
+
 ## Detection Patterns
 
-### 1. Clarity (HIGH Certainty)
+### 1. Clarity Issues (HIGH Certainty)
 
-#### Vague Instructions
-- "usually", "sometimes", "often"
-- "try to", "if possible", "when appropriate"
+**Vague Instructions:** "usually", "sometimes", "try to", "if possible", "might", "could"
 
-#### Negative-Only Constraints
-- "don't", "never", "avoid" without stating what TO do
+**Negative-Only Constraints:** "don't", "never", "avoid" without stating what TO do
 
-#### Aggressive Emphasis
-- Excessive CAPS (CRITICAL, IMPORTANT)
-- Multiple exclamation marks (!!)
+**Aggressive Emphasis:** Excessive CAPS (CRITICAL, IMPORTANT), multiple !!
 
-### 2. Structure (HIGH/MEDIUM Certainty)
+### 2. Structure Issues (HIGH/MEDIUM Certainty)
 
-#### Missing XML Structure
-- Complex prompts without XML tags
-- Prompts >800 tokens or 6+ sections need structure
+**Missing XML Structure:** Complex prompts (>800 tokens) without XML tags
 
-#### Inconsistent Sections
-- Mixed heading styles
-- Skipped heading levels (H1 to H3)
+**Inconsistent Sections:** Mixed heading styles, skipped levels (H1→H3)
 
-#### Critical Info Buried
-- Important instructions in middle 40% of prompt
-- Lost-in-the-middle effect
+**Critical Info Buried:** Important instructions in middle 40%, constraints after examples
 
-### 3. Examples (HIGH/MEDIUM Certainty)
+### 3. Example Issues (HIGH/MEDIUM Certainty)
 
-#### Missing Examples
-- Complex prompts without few-shot examples
-- Format requests without example output
+**Missing Examples:** Complex tasks without few-shot, format requests without example
 
-#### Suboptimal Example Count
-- Only 1 example (optimal: 2-5)
-- More than 7 examples (token bloat)
+**Suboptimal Count:** Only 1 example (optimal: 2-5), more than 7 (bloat)
 
-#### Missing Contrast
-- Multiple examples without good/bad labeling
+**Missing Contrast:** No good/bad labeling, no edge cases
 
-### 4. Context (MEDIUM Certainty)
+### 4. Context Issues (MEDIUM Certainty)
 
-#### Missing Context/WHY
-- Many rules without explanation
+**Missing WHY:** Rules without explanation
 
-#### Missing Priority
-- Multiple constraint sections
-- No conflict resolution order
+**Missing Priority:** Multiple constraint sections without conflict resolution
 
-### 5. Output Format (MEDIUM/HIGH Certainty)
+### 5. Output Format Issues (HIGH/MEDIUM Certainty)
 
-#### Missing Output Format
-- Substantial prompts without format specification
+**Missing Format:** Substantial prompts without format specification
 
-#### JSON Without Schema
-- Requests JSON output but no schema or example
+**JSON Without Schema:** Requests JSON but no example structure
 
 ### 6. Anti-Patterns (HIGH/MEDIUM/LOW Certainty)
 
-#### Redundant CoT
-- "Think step by step" with modern models
+**Redundant CoT (HIGH):** "Think step by step" with modern models
 
-#### Overly Prescriptive
-- 10+ numbered steps
-- Micro-managing reasoning process
+**Overly Prescriptive (MEDIUM):** 10+ numbered steps, micro-managing reasoning
 
-#### Prompt Bloat (LOW)
-- Over 2500 tokens
+**Prompt Bloat (LOW):** Over 2500 tokens, redundant instructions
+
+**Vague References (HIGH):** "The above code", "as mentioned"
+
+---
 
 ## Auto-Fix Implementations
 
 ### 1. Aggressive Emphasis
-```javascript
-// CRITICAL -> critical, !! -> !
-fixAggressiveEmphasis(content)
-```
+Replace CRITICAL→critical, !!→!, remove excessive caps
+
+### 2. Negative-Only to Positive
+Suggest positive alternatives for "don't" statements
+
+---
 
 ## Output Format
 
@@ -109,7 +187,7 @@ fixAggressiveEmphasis(content)
 ## Prompt Analysis: {prompt-name}
 
 **File**: {path}
-**Type**: {agent|command|skill|prompt}
+**Type**: {system|agent|skill|template}
 **Token Count**: ~{tokens}
 
 ### Summary
@@ -117,35 +195,30 @@ fixAggressiveEmphasis(content)
 - MEDIUM: {count} issues
 
 ### Clarity Issues ({n})
-| Issue | Fix | Certainty |
+| Issue | Location | Fix | Certainty |
 
 ### Structure Issues ({n})
-| Issue | Fix | Certainty |
+| Issue | Location | Fix | Certainty |
 
 ### Example Issues ({n})
-| Issue | Fix | Certainty |
-
-### Context Issues ({n})
-| Issue | Fix | Certainty |
-
-### Output Format Issues ({n})
-| Issue | Fix | Certainty |
-
-### Anti-Pattern Issues ({n})
-| Issue | Fix | Certainty |
+| Issue | Location | Fix | Certainty |
 ```
+
+---
 
 ## Pattern Statistics
 
 | Category | Patterns | Auto-Fixable |
 |----------|----------|--------------|
-| Clarity | 3 | 1 |
-| Structure | 3 | 0 |
-| Examples | 3 | 0 |
+| Clarity | 4 | 1 |
+| Structure | 4 | 0 |
+| Examples | 4 | 0 |
 | Context | 2 | 0 |
-| Output | 2 | 0 |
-| Anti-Pattern | 3 | 0 |
-| **Total** | **16** | **1** |
+| Output Format | 3 | 0 |
+| Anti-Pattern | 4 | 0 |
+| **Total** | **21** | **1** |
+
+---
 
 <examples>
 ### Example: Vague Instructions
@@ -159,7 +232,7 @@ You should usually follow best practices when possible.
 
 <good_example>
 ```markdown
-Follow these specific practices:
+Follow these practices:
 1. Validate input before processing
 2. Handle null/undefined explicitly
 ```
@@ -181,35 +254,72 @@ Follow these specific practices:
 - Use specific, deterministic language
 - Always validate input; return structured errors
 ```
-**Why it's good**: Each constraint includes what TO do.
+**Why it's good**: Each constraint includes positive action.
 </good_example>
 
-### Example: Missing Examples
+### Example: Redundant Chain-of-Thought
 
 <bad_example>
 ```markdown
-## Output Format
+Think through this step by step:
+1. First, analyze the input
+2. Then, identify the key elements
+```
+**Why it's bad**: Modern models do this internally. Wastes tokens.
+</bad_example>
+
+<good_example>
+```markdown
+Analyze the input carefully before responding.
+```
+**Why it's good**: High-level guidance without micro-managing.
+</good_example>
+
+### Example: Missing Output Format
+
+<bad_example>
+```markdown
 Respond with a JSON object containing the analysis results.
 ```
-**Why it's bad**: No example of expected format.
+**Why it's bad**: No schema or example.
 </bad_example>
 
 <good_example>
 ```markdown
 ## Output Format
-```json
-{
-  "status": "success|error",
-  "findings": [{"type": "issue", "severity": "HIGH"}]
-}
+{"status": "success|error", "findings": [{"severity": "HIGH"}]}
 ```
+**Why it's good**: Concrete schema shows exact structure.
+</good_example>
+
+### Example: Critical Info Buried
+
+<bad_example>
+```markdown
+# Task
+[task]
+## Background
+[500 words...]
+## Important Constraints  <- buried at end
 ```
-**Why it's good**: Concrete example shows exact structure.
+**Why it's bad**: Lost-in-the-middle effect.
+</bad_example>
+
+<good_example>
+```markdown
+# Task
+## Critical Constraints  <- at start
+[constraints]
+## Background
+```
+**Why it's good**: Critical info at start where attention is highest.
 </good_example>
 </examples>
+
+---
 
 ## Constraints
 
 - Only apply auto-fixes for HIGH certainty issues
 - Preserve original structure and formatting
-- Differentiate from agent-enhancer (prompt quality vs agent config)
+- Validate against embedded knowledge reference above

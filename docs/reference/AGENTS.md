@@ -2,7 +2,7 @@
 
 Complete reference for all agents in awesome-slash.
 
-**TL;DR:** 39 agents across 6 plugins. opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 39 -->
+**TL;DR:** 39 agents across 9 plugins (6 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 39 -->
 
 ---
 
@@ -27,7 +27,7 @@ Complete reference for all agents in awesome-slash.
 
 ## Overview
 
-awesome-slash uses 39 specialized agents across 6 plugins. Each agent is optimized for a specific task and assigned a model based on complexity:
+awesome-slash uses 39 specialized agents across 9 plugins (6 have agents - ship, deslop, and sync-docs use commands only). Each agent is optimized for a specific task and assigned a model based on complexity:
 
 | Model | Use Case | Cost |
 |-------|----------|------|

@@ -8,7 +8,7 @@
 
 AI models can write code. That's not the hard part anymore. The hard part is everything else—picking what to work on, managing branches, reviewing output, cleaning up artifacts, handling CI, addressing comments, deploying. **awesome-slash automates the entire workflow**, not just the coding.
 
-**9 plugins · 29 agents · 20 skills · 22k lines of lib code · 1,348 tests · 3 platforms**
+**9 plugins · 39 agents · 23 skills · 22k lines of lib code · 1,400+ tests · 3 platforms**
 
 ---
 
@@ -66,13 +66,13 @@ Each command works standalone. Together, they form complete workflows.
 
 ## Skills
 
-20 skills included across the plugins:
+23 skills included across the plugins:
 
 | Category | Skills |
 |----------|--------|
 | **Performance** | `perf:analyzer`, `perf:baseline`, `perf:benchmark`, `perf:code-paths`, `perf:investigation-logger`, `perf:profile`, `perf:theory`, `perf:theory-tester` |
 | **Enhancement** | `enhance:agent-prompts`, `enhance:claude-memory`, `enhance:docs`, `enhance:hooks`, `enhance:orchestrator`, `enhance:plugins`, `enhance:prompts`, `enhance:reporter`, `enhance:skills` |
-| **Workflow** | `next-task:orchestrate-review`, `next-task:delivery-approval`, `next-task:update-docs-around` |
+| **Workflow** | `next-task:orchestrate-review`, `next-task:discover-tasks`, `next-task:validate-delivery`, `next-task:update-docs` |
 | **Analysis** | `drift-detect:drift-analysis`, `repo-map:repo-mapping` |
 
 Skills give your agents specialized capabilities. When you install a plugin, its skills become available to all agents in that session.
@@ -85,7 +85,7 @@ Skills give your agents specialized capabilities. When you install a plugin, its
 |---------|--------------|
 | [The Approach](#the-approach) | Why it's built this way |
 | [Commands](#commands) | All 9 commands overview |
-| [Skills](#skills) | 20 skills across plugins |
+| [Skills](#skills) | 23 skills across plugins |
 | [Command Details](#command-details) | Deep dive into each command |
 | [How Commands Work Together](#how-commands-work-together) | Standalone vs integrated |
 | [Design Philosophy](#design-philosophy) | The thinking behind the architecture |
@@ -654,7 +654,7 @@ This project is built on research, not guesswork.
 - Instruction following reliability
 
 **Testing:**
-- 1,348 tests passing
+- 1,400+ tests passing
 - Drift-detect validated on 1,000+ repositories
 - E2E workflow testing across all commands
 - Cross-platform validation (Claude Code, OpenCode, Codex CLI)

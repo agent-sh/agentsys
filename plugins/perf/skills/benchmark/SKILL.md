@@ -2,6 +2,7 @@
 name: perf-benchmarker
 description: "Use when running performance benchmarks, establishing baselines, or validating regressions with sequential runs. Enforces 60s minimum runs (30s only for binary search) and no parallel benchmarks."
 version: 1.0.0
+argument-hint: "<command> [duration]"
 ---
 
 # perf-benchmarker

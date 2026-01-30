@@ -80,16 +80,17 @@ claude --plugin-dir /path/to/awesome-slash/plugins/next-task
 - `/enhance` - Enhancement analyzer suite
 - `/sync-docs` - Documentation sync
 
-### Available Agents (22 Total)
+### Available Agents (39 total: 29 file-based + 10 role-based)
 
-**next-task: Core Workflow (13 agents)**
+**Key agents shown below:**
+
+**next-task: Core Workflow (12 agents)**
 
 | Agent | Model | Purpose |
 |-------|-------|---------|
 | exploration-agent | opus | Deep codebase analysis |
 | planning-agent | opus | Design implementation plans |
 | implementation-agent | opus | Execute plans with quality code |
-| Phase 9 review loop | sonnet reviewers | Multi-pass review with parallel agents |
 | deslop-work | sonnet | Clean AI slop from changes |
 | test-coverage-checker | sonnet | Validate test coverage |
 | delivery-validator | sonnet | Autonomous delivery validation |
@@ -100,19 +101,38 @@ claude --plugin-dir /path/to/awesome-slash/plugins/next-task
 | ci-fixer | sonnet | Fix CI failures and PR comments |
 | simple-fixer | haiku | Execute pre-defined fixes |
 
+*Note: Phase 9 review loop uses inline orchestration (orchestrate-review skill) to spawn parallel Task agents*
+
 **enhance: Quality Analyzers (9 agents)**
 
 | Agent | Model | Purpose |
 |-------|-------|---------|
 | enhancement-orchestrator | opus | Coordinate all analyzers |
-| plugin-enhancer | opus | Analyze plugin structures |
+| plugin-enhancer | sonnet | Analyze plugin structures |
 | agent-enhancer | opus | Review agent prompts |
-| docs-enhancer | opus | Documentation quality |
-| claudemd-enhancer | opus | Project memory optimization |
+| docs-enhancer | sonnet | Documentation quality |
+| claudemd-enhancer | sonnet | Project memory optimization |
 | prompt-enhancer | opus | General prompt quality |
 | hooks-enhancer | sonnet | Hook frontmatter and safety |
 | skills-enhancer | sonnet | SKILL.md structure and triggers |
 | enhancement-reporter | sonnet | Format unified reports |
+
+**perf: Performance Investigation (6 agents)**
+
+| Agent | Model | Purpose |
+|-------|-------|---------|
+| perf-orchestrator | sonnet | Coordinate perf investigation |
+| perf-theory-gatherer | sonnet | Generate hypotheses |
+| perf-theory-tester | sonnet | Validate hypotheses |
+| perf-code-paths | sonnet | Map hot paths |
+| perf-investigation-logger | sonnet | Log evidence |
+| perf-analyzer | sonnet | Synthesize findings |
+
+**audit-project: Code Review (10 role-based agents)**
+
+Always active: code-quality-reviewer, security-expert, performance-engineer, test-quality-guardian
+
+Conditional: architecture-reviewer, database-specialist, api-designer, frontend-specialist, backend-specialist, devops-reviewer
 
 **drift-detect: Drift Detection (1 agent)**
 
