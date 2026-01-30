@@ -2,6 +2,7 @@
 name: enhance-hooks
 description: "Use when reviewing hooks for safety, timeouts, and correct frontmatter."
 version: 1.0.0
+argument-hint: "[path] [--fix]"
 ---
 
 # enhance-hooks

@@ -2,6 +2,7 @@
 name: enhance-orchestrator
 description: "Use when coordinating multiple enhancers and producing a unified /enhance report."
 version: 1.0.0
+argument-hint: "[path] [--apply] [--focus=TYPE]"
 ---
 
 # enhance-orchestrator
@@ -58,8 +59,9 @@ const focus = flags.focus === 'claude-memory' ? 'claudemd' : flags.focus;
 ### Phase 3: Load Suppressions
 
 ```javascript
-const { getSuppressionPath } = require('@awesome-slash/lib/cross-platform');
-const { loadAutoSuppressions, getProjectId, clearAutoSuppressions, exportAutoSuppressions } = require('@awesome-slash/lib/enhance/auto-suppression');
+// Use relative imports from plugin lib directory
+const { getSuppressionPath } = require('./lib/cross-platform');
+const { loadAutoSuppressions, getProjectId, clearAutoSuppressions, exportAutoSuppressions } = require('./lib/enhance/auto-suppression');
 
 const suppressionPath = getSuppressionPath();
 const projectId = getProjectId(targetPath);
@@ -168,7 +170,7 @@ console.log(report);
 
 ```javascript
 if (!flags.noLearn) {
-  const { analyzeForAutoSuppression, saveAutoSuppressions } = require('@awesome-slash/lib/enhance/auto-suppression');
+  const { analyzeForAutoSuppression, saveAutoSuppressions } = require('./lib/enhance/auto-suppression');
 
   const fileContents = new Map();
   for (const finding of aggregated.findings) {

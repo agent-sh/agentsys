@@ -159,7 +159,7 @@ awesome-slash                # Run installer
 | test-coverage-checker | sonnet | Validate test coverage |
 | delivery-validator | sonnet | Autonomous completion validation |
 | docs-updater | sonnet | Update related documentation |
-| ci-monitor | sonnet | Monitor CI and PR comments |
+| ci-monitor | haiku | Monitor CI and PR comments |
 | ci-fixer | sonnet | Fix CI failures |
 | simple-fixer | haiku | Execute mechanical fixes |
 

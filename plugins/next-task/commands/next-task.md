@@ -280,7 +280,7 @@ After docs-updater completes, EXPLICITLY invoke /ship:
 
 ```javascript
 console.log(`Task #${state.task.id} passed all validation. Invoking /ship...`);
-await Skill({ skill: "ship:ship", args: "--state-file .claude/flow.json" });
+await Task({ subagent_type: "ship:ship", prompt: "Ship the task. State file: .claude/flow.json" });
 ```
 
 **/ship responsibilities:**
