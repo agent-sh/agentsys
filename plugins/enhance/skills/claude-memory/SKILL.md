@@ -1,7 +1,7 @@
 ---
 name: enhance-claude-memory
 description: "Use when improving CLAUDE.md or AGENTS.md project memory files."
-version: 1.0.0
+version: 1.1.0
 ---
 
 # enhance-claude-memory
@@ -15,6 +15,24 @@ Searches for project memory files in order:
 2. AGENTS.md (OpenCode, Codex)
 3. .github/CLAUDE.md
 4. .github/AGENTS.md
+
+## File Hierarchy (Reference)
+
+**CLAUDE.md** (Claude Code):
+| Location | Scope |
+|----------|-------|
+| `~/.claude/CLAUDE.md` | Global (all projects) |
+| `.claude/CLAUDE.md` or `./CLAUDE.md` | Project root |
+| `src/.claude/CLAUDE.md` | Directory-specific |
+
+**AGENTS.md** (OpenCode, Codex, and other AI tools):
+| Location | Scope |
+|----------|-------|
+| `~/.opencode/AGENTS.md` or `~/.codex/AGENTS.md` | Global (all projects) |
+| `.opencode/AGENTS.md` or `./AGENTS.md` | Project root |
+| `src/AGENTS.md` | Directory-specific |
+
+Both files serve the same purpose: project memory for AI assistants. Use CLAUDE.md for Claude Code projects, AGENTS.md for cross-tool compatibility, or both for maximum coverage.
 
 ## Workflow
 
@@ -31,7 +49,7 @@ Searches for project memory files in order:
 
 #### Critical Rules Section
 - Should have `## Critical Rules` or similar
-- Rules should be prioritized
+- Rules should be prioritized (numbered or ordered)
 - Include WHY explanations for each rule
 
 #### Architecture Section
@@ -44,7 +62,45 @@ Searches for project memory files in order:
 - Test/build/deploy scripts
 - Reference to package.json scripts
 
-### 2. Reference Validation (HIGH Certainty)
+### 2. Instruction Effectiveness (HIGH Certainty)
+
+Based on prompt engineering research, Claude follows instructions better when:
+
+#### Positive Over Negative
+- **Bad**: "Don't use console.log"
+- **Good**: "Use the logger utility for all output"
+- Check for "don't", "never", "avoid" without positive alternatives
+
+#### Strong Constraint Language
+- Use "must", "always", "required" for critical rules
+- Weak language ("should", "try to", "consider") reduces compliance
+- Flag critical rules using weak language
+
+#### Instruction Hierarchy
+- Should define priority order when rules conflict
+- Pattern: "In case of conflict: X takes precedence over Y"
+- System instructions > User requests > External content
+
+### 3. Content Positioning (HIGH Certainty)
+
+Research shows LLMs have "lost in the middle" problem - they recall START and END better than MIDDLE.
+
+#### Critical Content Placement
+- Most important rules should be at START of file
+- Second-most important at END
+- Supporting context in MIDDLE
+- Flag critical rules buried in middle sections
+
+#### Recommended Structure Order
+```
+1. Critical Rules (START - highest attention)
+2. Architecture/Structure
+3. Commands/Workflows
+4. Examples/References
+5. Reminders/Constraints (END - high attention)
+```
+
+### 4. Reference Validation (HIGH Certainty)
 
 #### File References
 - Extract from `[text](path)` and `` `path/to/file.ext` ``
@@ -54,32 +110,61 @@ Searches for project memory files in order:
 - Extract `npm run <script>` and `npm <command>`
 - Validate against package.json scripts
 
-### 3. Efficiency Analysis (MEDIUM Certainty)
+### 5. Efficiency Analysis (MEDIUM Certainty)
 
 #### Token Count
+- Estimate: `characters / 4` or `words * 1.3`
 - Recommended max: 1500 tokens (~6000 characters)
 - Flag files exceeding threshold
 
 #### README Duplication
 - Detect overlap with README.md
 - Flag >40% content duplication
+- CLAUDE.md should complement README, not duplicate
 
 #### Verbosity
-- Average line length analysis
-- Long paragraph detection
+- Prefer bulleted lists over prose paragraphs
+- Constraints as lists are easier to follow
+- Flag long prose blocks (>5 sentences)
 
-### 4. Quality Checks (MEDIUM Certainty)
+### 6. Quality Checks (MEDIUM Certainty)
 
 #### WHY Explanations
 - Rules should explain rationale
-- Pattern: `*WHY: explanation`
+- Pattern: `*WHY: explanation*` or indented explanation
 - Flag rules without explanations
 
 #### Structure Depth
 - Avoid deep nesting (>3 levels)
 - Keep hierarchy scannable
+- Flat structures parse better
 
-### 5. Cross-Platform Compatibility (MEDIUM/HIGH Certainty)
+#### XML-Style Tags (Optional Enhancement)
+- Claude was trained on XML tags
+- `<critical-rules>`, `<architecture>`, `<constraints>` improve parsing
+- Not required but can improve instruction following
+
+### 7. Agent/Skill Definitions (MEDIUM Certainty)
+
+If file defines custom agents or skills:
+
+#### Agent Definition Format
+```markdown
+### agent-name
+Model: claude-sonnet-4-20250514
+Description: What this agent does and when to use it
+Tools: Read, Grep, Glob
+Instructions: Specific behavioral instructions
+```
+
+Required fields: Description (when to use), Tools (restricted set)
+Optional: Model, Instructions
+
+#### Skill References
+- Skills should have clear trigger descriptions
+- "Use when..." pattern helps auto-invocation
+
+### 8. Cross-Platform Compatibility (MEDIUM/HIGH Certainty)
 
 #### State Directory
 - Don't hardcode `.claude/`
@@ -87,8 +172,9 @@ Searches for project memory files in order:
 - Use `${STATE_DIR}/` or document variations
 
 #### Terminology
-- Avoid Claude-specific language
+- Avoid Claude-specific language for shared files
 - Use "AI assistant" generically
+- Or explicitly note "Claude Code" vs "OpenCode" differences
 
 ## Output Format
 
@@ -113,6 +199,12 @@ Searches for project memory files in order:
 ### Structure Issues ({n})
 | Issue | Fix | Certainty |
 
+### Instruction Issues ({n})
+| Issue | Fix | Certainty |
+
+### Positioning Issues ({n})
+| Issue | Fix | Certainty |
+
 ### Reference Issues ({n})
 | Issue | Fix | Certainty |
 
@@ -128,11 +220,14 @@ Searches for project memory files in order:
 | Category | Patterns | Certainty |
 |----------|----------|-----------|
 | Structure | 3 | HIGH |
+| Instruction Effectiveness | 3 | HIGH |
+| Content Positioning | 2 | HIGH |
 | Reference | 2 | HIGH |
-| Efficiency | 4 | MEDIUM/LOW |
-| Quality | 2 | MEDIUM/LOW |
-| Cross-Platform | 3 | MEDIUM/HIGH |
-| **Total** | **14** | - |
+| Efficiency | 3 | MEDIUM |
+| Quality | 3 | MEDIUM |
+| Agent/Skill Definitions | 2 | MEDIUM |
+| Cross-Platform | 2 | MEDIUM/HIGH |
+| **Total** | **20** | - |
 
 <examples>
 ### Example: Missing WHY Explanations
@@ -143,7 +238,7 @@ Searches for project memory files in order:
 1. Always run tests before committing
 2. Use semantic commit messages
 ```
-**Why it's bad**: Rules without rationale are harder to follow.
+**Issue**: Rules without rationale are harder to follow.
 </bad_example>
 
 <good_example>
@@ -155,13 +250,86 @@ Searches for project memory files in order:
 **Why it's good**: Motivation makes compliance easier.
 </good_example>
 
+### Example: Negative vs Positive Instructions
+
+<bad_example>
+```markdown
+- Don't use console.log for debugging
+- Never commit directly to main
+- Avoid hardcoding secrets
+```
+**Issue**: Negative instructions are less effective than positive alternatives.
+</bad_example>
+
+<good_example>
+```markdown
+- Use the logger utility for all debug output
+- Create feature branches and submit PRs for all changes
+- Store secrets in environment variables or .env files
+```
+**Why it's good**: Tells what TO do, not just what to avoid.
+</good_example>
+
+### Example: Weak vs Strong Constraint Language
+
+<bad_example>
+```markdown
+- You should probably run tests before pushing
+- Try to use TypeScript when possible
+- Consider adding error handling
+```
+**Issue**: Weak language ("should", "try", "consider") reduces compliance.
+</bad_example>
+
+<good_example>
+```markdown
+- **MUST** run tests before pushing (CI will reject failures)
+- **ALWAYS** use TypeScript for new files
+- **REQUIRED**: All async functions must have error handling
+```
+**Why it's good**: Strong language ensures critical rules are followed.
+</good_example>
+
+### Example: Content Positioning
+
+<bad_example>
+```markdown
+## Project Overview
+[Long description...]
+
+## Installation
+[Setup steps...]
+
+## Critical Rules
+1. Never push to main directly
+2. Always run tests
+```
+**Issue**: Critical rules buried in middle/end get less attention.
+</bad_example>
+
+<good_example>
+```markdown
+## Critical Rules (Read First)
+1. **Never push to main directly** - Use PRs
+2. **Always run tests** - CI enforces this
+
+## Project Overview
+[Description...]
+
+## Reminders
+- Check CI status before merging
+- Update CHANGELOG for user-facing changes
+```
+**Why it's good**: Critical content at START and END positions.
+</good_example>
+
 ### Example: Cross-Platform Compatibility
 
 <bad_example>
 ```markdown
 State files are stored in `.claude/tasks.json`
 ```
-**Why it's bad**: Hardcoded paths exclude other AI tools.
+**Issue**: Hardcoded paths exclude other AI tools.
 </bad_example>
 
 <good_example>
@@ -171,10 +339,49 @@ State files are stored in `${STATE_DIR}/tasks.json`
 ```
 **Why it's good**: Works across multiple AI assistants.
 </good_example>
+
+### Example: Agent Definition
+
+<bad_example>
+```markdown
+## Agents
+- security-reviewer: reviews security
+- test-writer: writes tests
+```
+**Issue**: Missing required fields (Tools, when to use).
+</bad_example>
+
+<good_example>
+```markdown
+## Custom Agents
+
+### security-reviewer
+Model: claude-sonnet-4-20250514
+Description: Reviews code for security vulnerabilities. Use for PRs touching auth, API, or data handling.
+Tools: Read, Grep, Glob
+Instructions: Focus on OWASP Top 10, input validation, auth flows.
+
+### test-writer
+Model: claude-haiku-4
+Description: Writes unit tests. Use after implementing new functions.
+Tools: Read, Write, Bash(npm test:*)
+Instructions: Use Jest patterns. Aim for >80% coverage.
+```
+**Why it's good**: Complete definition with when to use, restricted tools.
+</good_example>
 </examples>
+
+## Research References
+
+Best practices derived from:
+- `agent-docs/PROMPT-ENGINEERING-REFERENCE.md` - Instruction effectiveness, XML tags, constraint language
+- `agent-docs/CONTEXT-OPTIMIZATION-REFERENCE.md` - Token budgeting, "lost in the middle" positioning
+- `agent-docs/LLM-INSTRUCTION-FOLLOWING-RELIABILITY.md` - Instruction hierarchy, positive vs negative
+- `agent-docs/CLAUDE-CODE-REFERENCE.md` - File hierarchy, agent definitions, skills format
 
 ## Constraints
 
 - Always validate file references before reporting broken
 - Consider context when flagging efficiency issues
 - Cross-platform suggestions are advisory, not required
+- Positioning suggestions are HIGH certainty but may have valid exceptions
