@@ -45,7 +45,7 @@ AI models can write code. The bottleneck is everything else—picking tasks, man
 
 | Document | Description |
 |----------|-------------|
-| [reference/AGENTS.md](./reference/AGENTS.md) | All 42 agents: purpose, model, tools, restrictions. <!-- AGENT_COUNT_TOTAL: 42 --> |
+| [reference/AGENTS.md](./reference/AGENTS.md) | All 40 agents: purpose, model, tools, restrictions. <!-- AGENT_COUNT_TOTAL: 40 --> |
 | [reference/SLOP-PATTERNS.md](./reference/SLOP-PATTERNS.md) | All detection patterns by language, severity, auto-fix. |
 | [reference/MCP-TOOLS.md](./reference/MCP-TOOLS.md) | MCP server tools: parameters, returns, platform config. |
 

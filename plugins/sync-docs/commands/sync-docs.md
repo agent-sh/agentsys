@@ -1,11 +1,27 @@
 ---
 description: Use when user asks to "update docs", "sync documentation", "fix outdated docs", "update changelog", "docs are stale", or after completing code changes that might affect documentation.
-argument-hint: "[report|apply] [scope: --recent | --all | path]"
+argument-hint: "[report|apply] [--scope=recent|all|before-pr] [path]"
 ---
 
 # /sync-docs - Documentation Sync
 
 Sync documentation with actual code state. Finds docs that reference changed files, updates CHANGELOG, and flags outdated examples.
+
+## Architecture
+
+```
+/sync-docs command (you are here)
+    |
+    v
+sync-docs-agent (sonnet)
+    |-- Invoke sync-docs skill
+    |-- Return structured results
+    |
+    v
+Command processes results
+    |-- If apply mode + fixes: spawn simple-fixer
+    |-- Present final results
+```
 
 ## Constraints
 
@@ -20,297 +36,115 @@ Parse from $ARGUMENTS:
 
 - **Mode**: `report` (default) or `apply`
 - **Scope**:
-  - `--recent` (default): Files changed since last commit to main
-  - `--all`: Scan all docs against all code
+  - `--scope=recent` (default): Files changed since last commit to main
+  - `--scope=all`: Scan all docs against all code
+  - `--scope=before-pr`: Files in current branch (for /next-task integration)
   - `path`: Specific file or directory
 
-## Phase 1: Get Changed Files
+## Execution
 
-```bash
-# Default: recent changes
-CHANGED_FILES=$(git diff --name-only origin/main..HEAD 2>/dev/null || git diff --name-only HEAD~5..HEAD)
-
-# If --all, use all source files
-if [ "$SCOPE" = "--all" ]; then
-  CHANGED_FILES=$(git ls-files '*.js' '*.ts' '*.py' '*.go' '*.rs' '*.java')
-fi
-```
-
-## Phase 2: Find Related Documentation
-
-For each changed file, search for docs that mention it:
+### Step 1: Parse Arguments
 
 ```javascript
-async function findRelatedDocs(changedFiles) {
-  const results = [];
-  const docFiles = await glob('**/*.md', { ignore: ['node_modules/**', 'dist/**'] });
+const args = '$ARGUMENTS'.split(' ').filter(Boolean);
+const mode = args.includes('apply') ? 'apply' : 'report';
+const scopeArg = args.find(a => a.startsWith('--scope='));
+const scope = scopeArg ? scopeArg.split('=')[1] : 'recent';
+const pathArg = args.find(a => !a.startsWith('--') && a !== 'report' && a !== 'apply');
+```
 
-  for (const file of changedFiles) {
-    const basename = file.split('/').pop().replace(/\.[^.]+$/, '');
-    const modulePath = file.replace(/\.[^.]+$/, '');
+### Step 2: Spawn sync-docs-agent
 
-    for (const doc of docFiles) {
-      const content = await readFile(doc);
+```javascript
+const agentOutput = await Task({
+  subagent_type: "sync-docs:sync-docs-agent",
+  model: "sonnet",
+  prompt: `Sync documentation with code state.
+Mode: ${mode}
+Scope: ${scope}
+${pathArg ? `Path: ${pathArg}` : ''}
 
-      // Check for references
-      const references = [];
-      if (content.includes(basename)) references.push('filename');
-      if (content.includes(file)) references.push('full-path');
-      if (content.includes(`from '${modulePath}'`)) references.push('import');
-      if (content.includes(`require('${modulePath}')`)) references.push('require');
+Execute the sync-docs skill and return structured results.`
+});
+```
 
-      if (references.length > 0) {
-        results.push({
-          doc,
-          referencedFile: file,
-          referenceTypes: references
-        });
-      }
-    }
+### Step 3: Process Results
+
+Parse the structured JSON from between `=== SYNC_DOCS_RESULT ===` markers:
+
+```javascript
+// Helper to extract JSON result from agent output
+function parseSyncDocsResult(output) {
+  const match = output.match(/=== SYNC_DOCS_RESULT ===[\s\S]*?({[\s\S]*?})[\s\S]*?=== END_RESULT ===/);
+  if (!match) {
+    throw new Error('No SYNC_DOCS_RESULT found in agent output');
   }
+  return JSON.parse(match[1]);
+}
 
-  return results;
+const result = parseSyncDocsResult(agentOutput);
+// result now contains: { mode, scope, validation, discovery, issues, fixes, changelog, summary }
+```
+
+### Step 4: Apply Fixes (if apply mode)
+
+If mode is `apply` and fixes array is non-empty:
+
+```javascript
+if (mode === 'apply' && result.fixes.length > 0) {
+  await Task({
+    subagent_type: "next-task:simple-fixer",
+    model: "haiku",
+    prompt: `Apply these documentation fixes:
+${JSON.stringify(result.fixes, null, 2)}
+
+Use the Edit tool to apply each fix. Commit message: "docs: sync documentation with code changes"`
+  });
 }
 ```
 
-## Phase 3: Analyze Documentation Issues
-
-For each related doc, check for problems:
-
-```javascript
-async function analyzeDoc(docPath, changedFile) {
-  const content = await readFile(docPath);
-  const issues = [];
-
-  // 1. Check code blocks for outdated imports
-  const codeBlocks = content.match(/```[\s\S]*?```/g) || [];
-  for (const block of codeBlocks) {
-    // Check if imports reference moved/renamed files
-    const imports = block.match(/import .* from ['"]([^'"]+)['"]/g) || [];
-    for (const imp of imports) {
-      const path = imp.match(/from ['"]([^'"]+)['"]/)[1];
-      if (path.includes(changedFile.replace(/\.[^.]+$/, ''))) {
-        issues.push({
-          type: 'code-example',
-          severity: 'medium',
-          line: findLineNumber(content, imp),
-          current: imp,
-          suggestion: 'Verify import path is still valid'
-        });
-      }
-    }
-  }
-
-  // 2. Check for function/export references
-  const oldExports = await getExportsFromGit(changedFile, 'HEAD~1');
-  const newExports = await getExportsFromGit(changedFile, 'HEAD');
-
-  const removed = oldExports.filter(e => !newExports.includes(e));
-  for (const fn of removed) {
-    if (content.includes(fn)) {
-      issues.push({
-        type: 'removed-export',
-        severity: 'high',
-        reference: fn,
-        suggestion: `'${fn}' was removed or renamed`
-      });
-    }
-  }
-
-  // 3. Check for outdated version numbers
-  const versionMatch = content.match(/version[:\s]+['"]?(\d+\.\d+\.\d+)/gi);
-  // Flag if doc version differs from package.json
-
-  return issues;
-}
-```
-
-## Phase 4: Check CHANGELOG
-
-```javascript
-async function checkChangelog(changedFiles) {
-  const changelogPath = 'CHANGELOG.md';
-  if (!await fileExists(changelogPath)) {
-    return { exists: false };
-  }
-
-  const changelog = await readFile(changelogPath);
-  const packageJson = JSON.parse(await readFile('package.json'));
-  const currentVersion = packageJson.version;
-
-  // Check if Unreleased section exists
-  const hasUnreleased = changelog.includes('## [Unreleased]');
-
-  // Check recent commits for undocumented changes
-  const recentCommits = await exec('git log --oneline -10 HEAD');
-  const documented = [];
-  const undocumented = [];
-
-  for (const commit of recentCommits.split('\n')) {
-    const msg = commit.substring(8); // Skip hash
-    if (changelog.includes(msg) || changelog.includes(commit.substring(0, 7))) {
-      documented.push(msg);
-    } else if (msg.match(/^(feat|fix|breaking)/i)) {
-      undocumented.push(msg);
-    }
-  }
-
-  return {
-    exists: true,
-    hasUnreleased,
-    undocumented,
-    suggestion: undocumented.length > 0
-      ? `${undocumented.length} commits may need CHANGELOG entries`
-      : null
-  };
-}
-```
-
-## Phase 5: Report Mode (Default)
-
-Present findings without making changes:
+### Step 5: Present Results
 
 ```markdown
-## Documentation Sync Report
+## Documentation Sync ${mode === 'apply' ? 'Applied' : 'Report'}
 
 ### Scope
-${scopeDescription}
-Changed files analyzed: ${changedFiles.length}
+- Mode: ${mode}
+- Scope: ${scope}
+- Changed files analyzed: ${result.discovery.changedFilesCount}
+- Related docs found: ${result.discovery.relatedDocsCount}
 
-### Related Documentation Found
-| Doc | References | Issues |
-|-----|------------|--------|
-${relatedDocs.map(d => `| ${d.doc} | ${d.referencedFile} | ${d.issues.length} |`).join('\n')}
+### Validation Results
 
-### Issues by Severity
+**Count/Version Validation**
+${result.validation.counts.status === 'ok' ? '[OK] Counts and versions aligned' : `[WARN] ${result.validation.counts.summary.issueCount} issues found`}
 
-**High** (likely broken)
-${highIssues.map(i => `- ${i.doc}:${i.line} - ${i.suggestion}`).join('\n')}
+**Cross-Platform Validation**
+${result.validation.crossPlatform.status === 'ok' ? '[OK] Cross-platform docs valid' : `[WARN] ${result.validation.crossPlatform.summary.issueCount} issues found`}
 
-**Medium** (should verify)
-${mediumIssues.map(i => `- ${i.doc}:${i.line} - ${i.suggestion}`).join('\n')}
+### Documentation Issues
+
+${result.issues.length === 0 ? '[OK] No documentation issues detected' :
+  result.issues.map(i => `- **${i.doc}:${i.line || '?'}** (${i.severity}): ${i.suggestion || i.type}`).join('\n')}
 
 ### CHANGELOG Status
-${changelog.undocumented?.length > 0
-  ? `[WARN] ${changelog.undocumented.length} commits may need entries:\n${changelog.undocumented.map(c => `  - ${c}`).join('\n')}`
-  : '[OK] Recent changes appear documented'}
 
+${result.changelog.status === 'ok' ? '[OK] All changes documented' :
+  `[WARN] ${result.changelog.undocumented.length} commits may need entries:\n${result.changelog.undocumented.map(c => `  - ${c}`).join('\n')}`}
+
+${mode === 'apply' && result.fixes.length > 0 ? `
+### Fixes Applied
+
+${result.fixes.map(f => `- **${f.file}**: ${f.type}`).join('\n')}
+` : ''}
+
+${mode === 'report' && result.fixes.length > 0 ? `
 ## Do Next
-- [ ] Run `/sync-docs apply` to fix auto-fixable issues
+
+- [ ] Run \`/sync-docs apply\` to fix ${result.fixes.length} auto-fixable issues
 - [ ] Review flagged items manually
+` : ''}
 ```
-
-## Phase 6: Apply Mode
-
-Fix issues that can be safely auto-fixed:
-
-```javascript
-async function applyFixes(issues) {
-  const applied = [];
-  const skipped = [];
-
-  for (const issue of issues) {
-    switch (issue.type) {
-      case 'outdated-version':
-        // Safe to auto-fix
-        await replaceInFile(issue.doc, issue.old, issue.new);
-        applied.push(issue);
-        break;
-
-      case 'removed-export':
-        // Flag only - needs human judgment
-        skipped.push({ ...issue, reason: 'Needs manual review' });
-        break;
-
-      case 'code-example':
-        // Flag only - example might be intentionally different
-        skipped.push({ ...issue, reason: 'Code example may need context' });
-        break;
-    }
-  }
-
-  return { applied, skipped };
-}
-```
-
-### CHANGELOG Update (Apply Mode)
-
-If undocumented commits found, offer to add them:
-
-```javascript
-async function updateChangelog(undocumented) {
-  const changelog = await readFile('CHANGELOG.md');
-
-  // Find or create Unreleased section
-  let updated = changelog;
-  if (!changelog.includes('## [Unreleased]')) {
-    const firstVersion = changelog.match(/## \[\d+\.\d+\.\d+\]/);
-    if (firstVersion) {
-      updated = changelog.slice(0, firstVersion.index) +
-        '## [Unreleased]\n\n' +
-        changelog.slice(firstVersion.index);
-    }
-  }
-
-  // Group commits by type
-  const grouped = {
-    Added: undocumented.filter(c => c.startsWith('feat')),
-    Fixed: undocumented.filter(c => c.startsWith('fix')),
-    Changed: undocumented.filter(c => !c.startsWith('feat') && !c.startsWith('fix'))
-  };
-
-  // Add entries
-  for (const [category, commits] of Object.entries(grouped)) {
-    if (commits.length === 0) continue;
-
-    const entries = commits.map(c => `- ${c.replace(/^(feat|fix)[:\(]?\)?:?\s*/i, '')}`).join('\n');
-
-    // Insert after Unreleased heading
-    const insertPoint = updated.indexOf('## [Unreleased]') + '## [Unreleased]'.length;
-    const existingCategory = updated.indexOf(`### ${category}`, insertPoint);
-
-    if (existingCategory > -1 && existingCategory < updated.indexOf('## [', insertPoint + 1)) {
-      // Add to existing category
-      const categoryEnd = updated.indexOf('\n### ', existingCategory + 1);
-      updated = updated.slice(0, categoryEnd) + '\n' + entries + updated.slice(categoryEnd);
-    } else {
-      // Create new category
-      updated = updated.slice(0, insertPoint) + `\n\n### ${category}\n${entries}` + updated.slice(insertPoint);
-    }
-  }
-
-  await writeFile('CHANGELOG.md', updated);
-  return grouped;
-}
-```
-
-## Output Format (Apply Mode)
-
-```markdown
-## Documentation Sync Applied
-
-### Changes Made
-${applied.map(a => `- **${a.doc}**: ${a.description}`).join('\n')}
-
-### CHANGELOG Updated
-${changelogUpdates ? `Added ${changelogUpdates.length} entries` : 'No changes needed'}
-
-### Flagged for Manual Review
-${skipped.map(s => `- **${s.doc}:${s.line}**: ${s.suggestion} (${s.reason})`).join('\n')}
-
-### Verification
-${testResult ? '[OK] Tests pass' : '[WARN] Run tests to verify'}
-```
-
-## Error Handling
-
-- **No git**: Exit with "Git required for change detection"
-- **No changed files**: "No changes detected. Use --all to scan entire codebase"
-- **No docs found**: "No documentation files found"
-
-## Integration
-
-This command works standalone. For workflow integration, the `docs-updater` agent in `/next-task` uses similar logic but with task context.
 
 ## Examples
 
@@ -325,5 +159,27 @@ This command works standalone. For workflow integration, the `docs-updater` agen
 /sync-docs apply
 
 # Full codebase scan
-/sync-docs report --all
+/sync-docs report --scope=all
+
+# For PR preparation
+/sync-docs apply --scope=before-pr
 ```
+
+## Integration
+
+This command is also used by `/next-task` Phase 11:
+
+```javascript
+// Phase 11 invocation
+await Task({
+  subagent_type: "sync-docs:sync-docs-agent",
+  prompt: "Sync docs for PR. Mode: apply, Scope: before-pr"
+});
+```
+
+## Error Handling
+
+- **No git**: Exit with "Git required for change detection"
+- **No changed files**: "No changes detected. Use --scope=all to scan entire codebase"
+- **No docs found**: "No documentation files found"
+- **Agent failure**: Report error, suggest manual review

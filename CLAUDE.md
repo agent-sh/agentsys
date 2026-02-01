@@ -77,16 +77,16 @@ lib/                        # Shared library (canonical source)
 ├── utils/                  # Utilities (cache, shell-escape)
 └── index.js                # Main exports
 
-plugins/                    # 9 plugins, 42 agents (32 file-based + 10 role-based), 28 skills
-├── next-task/              # Master workflow (12 agents, 4 skills)
-├── enhance/                # Enhancement analyzers (9 agents, 10 skills)
+plugins/                    # 9 plugins, 40 agents (30 file-based + 10 role-based), 25 skills
+├── next-task/              # Master workflow (11 agents, 3 skills)
+├── enhance/                # Enhancement analyzers (9 agents, 9 skills)
 ├── ship/                   # PR workflow (4 commands)
 ├── perf/                   # Performance investigation (6 agents, 8 skills)
 ├── audit-project/          # Multi-agent review (10 role-based agents, 3 commands)
 ├── deslop/                 # AI slop cleanup (1 agent, 2 skills)
 ├── drift-detect/           # Plan drift detection (1 agent, 1 skill)
 ├── repo-map/               # AST repo mapping (1 agent, 1 skill)
-└── sync-docs/              # Documentation sync (2 agents, 3 skills)
+└── sync-docs/              # Documentation sync (1 agent, 1 skill)
 
 adapters/                   # Platform-specific adapters
 ├── opencode-plugin/        # Native OpenCode plugin
@@ -168,7 +168,6 @@ awesome-slash                # Run installer
 | deslop-work | sonnet | Clean AI slop from new code |
 | test-coverage-checker | sonnet | Validate test coverage |
 | delivery-validator | sonnet | Autonomous completion validation |
-| docs-updater | sonnet | Update related documentation |
 | ci-monitor | haiku | Monitor CI and PR comments |
 | ci-fixer | sonnet | Fix CI failures |
 | simple-fixer | haiku | Execute mechanical fixes |
@@ -252,8 +251,8 @@ Cannot skip in /next-task:
 - `exploration-agent` → before planning
 - `planning-agent` → before implementation
 - **Phase 9 review loop** → MUST use orchestrate-review skill
-- `delivery-validator` → before docs-updater
-- `docs-updater` → before /ship
+- `delivery-validator` → before sync-docs:sync-docs-agent
+- `sync-docs:sync-docs-agent` → before /ship
 </workflow-agents>
 
 <pr-auto-review>

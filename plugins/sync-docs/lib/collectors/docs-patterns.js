@@ -31,18 +31,24 @@ function findRelatedDocs(changedFiles, options = {}) {
   // Find all markdown files
   const docFiles = findMarkdownFiles(basePath);
 
+  // Cache doc contents to avoid repeated reads
+  const docCache = new Map();
+  for (const doc of docFiles) {
+    try {
+      docCache.set(doc, fs.readFileSync(path.join(basePath, doc), 'utf8'));
+    } catch {
+      // Skip unreadable files
+    }
+  }
+
   for (const file of changedFiles) {
     const basename = path.basename(file).replace(/\.[^.]+$/, '');
     const modulePath = file.replace(/\.[^.]+$/, '');
     const dirName = path.dirname(file);
 
     for (const doc of docFiles) {
-      let content;
-      try {
-        content = fs.readFileSync(path.join(basePath, doc), 'utf8');
-      } catch {
-        continue;
-      }
+      const content = docCache.get(doc);
+      if (!content) continue;
 
       const references = [];
 
@@ -209,6 +215,9 @@ function findLineNumber(content, search) {
   return content.substring(0, index).split('\n').length;
 }
 
+// Cache for git show results to avoid repeated subprocess calls
+const gitCache = new Map();
+
 /**
  * Get exports from a file at a specific git ref
  * @param {string} filePath - File path
@@ -218,13 +227,28 @@ function findLineNumber(content, search) {
  */
 function getExportsFromGit(filePath, ref, options = {}) {
   const opts = { ...DEFAULT_OPTIONS, ...options };
+  const cacheKey = `${ref}:${filePath}`;
+
+  // Return cached result if available
+  if (gitCache.has(cacheKey)) {
+    return gitCache.get(cacheKey);
+  }
 
   try {
-    const content = execSync(`git show ${ref}:${filePath}`, {
+    // Use spawnSync with args array to prevent command injection
+    const { spawnSync } = require('child_process');
+    const result = spawnSync('git', ['show', `${ref}:${filePath}`], {
       cwd: opts.cwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe']
     });
+
+    if (result.error || result.status !== 0) {
+      gitCache.set(cacheKey, []);
+      return [];
+    }
+
+    const content = result.stdout;
 
     const exports = [];
 
@@ -248,9 +272,13 @@ function getExportsFromGit(filePath, ref, options = {}) {
       }
     }
 
-    return [...new Set(exports)];
+    const result = [...new Set(exports)];
+    gitCache.set(cacheKey, result);
+    return result;
   } catch {
-    return [];
+    const emptyResult = [];
+    gitCache.set(cacheKey, emptyResult);
+    return emptyResult;
   }
 }
 

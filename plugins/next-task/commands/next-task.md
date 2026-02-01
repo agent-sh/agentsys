@@ -83,7 +83,7 @@ Each phase must complete before the next starts:
 - No agent may push to remote (only /ship)
 - No agent may skip Phase 9 review loop
 - No agent may skip delivery-validator
-- No agent may skip docs-updater
+- No agent may skip docs update (sync-docs-agent)
 </workflow-gates>
 
 ## Arguments
@@ -369,20 +369,51 @@ if (!result.approved) {
 
 ## Phase 11: Docs Update
 
-**Agent**: `next-task:docs-updater` (sonnet)
+**Agent**: `sync-docs:sync-docs-agent` (sonnet)
+
+Uses the unified sync-docs agent from the sync-docs plugin with `before-pr` scope.
 
 ```javascript
 workflowState.startPhase('docs-update');
-await Task({
-  subagent_type: "next-task:docs-updater",
-  prompt: `Update docs for changed files. CHANGELOG, API docs, code examples.`
+
+// Helper to parse sync-docs structured output
+function parseSyncDocsResult(output) {
+  const match = output.match(/=== SYNC_DOCS_RESULT ===[\s\S]*?({[\s\S]*?})[\s\S]*?=== END_RESULT ===/);
+  return match ? JSON.parse(match[1]) : { issues: [], fixes: [], changelog: { status: 'ok' } };
+}
+
+// Run sync-docs with before-pr scope
+const syncResult = await Task({
+  subagent_type: "sync-docs:sync-docs-agent",
+  prompt: `Sync documentation with code state.
+Mode: apply
+Scope: before-pr
+
+Execute the sync-docs skill and return structured results.`
 });
+
+// Parse results from === SYNC_DOCS_RESULT === markers
+const result = parseSyncDocsResult(syncResult);
+
+// If fixes are needed, spawn simple-fixer
+if (result.fixes && result.fixes.length > 0) {
+  await Task({
+    subagent_type: "next-task:simple-fixer",
+    model: "haiku",
+    prompt: `Apply these documentation fixes:
+${JSON.stringify(result.fixes, null, 2)}
+
+Use the Edit tool to apply each fix. Commit message: "docs: sync documentation with code changes"`
+  });
+}
+
+workflowState.completePhase({ docsUpdated: true, fixesApplied: result.fixes?.length || 0 });
 ```
 
 <ship-handoff>
 ## Handoff to /ship
 
-After docs-updater completes, invoke /ship explicitly:
+After docs update (sync-docs-agent) completes, invoke /ship explicitly:
 
 ```javascript
 console.log(`Task #${state.task.id} passed all validation. Invoking /ship...`);

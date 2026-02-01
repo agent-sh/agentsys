@@ -91,7 +91,7 @@ claude --plugin-dir /path/to/awesome-slash/plugins/next-task
 - `/enhance` - Enhancement analyzer suite
 - `/sync-docs` - Documentation sync
 
-### Available Agents (42 total: 32 file-based + 10 role-based)
+### Available Agents (40 total: 30 file-based + 10 role-based)
 
 **Key agents shown below:**
 
@@ -105,7 +105,6 @@ claude --plugin-dir /path/to/awesome-slash/plugins/next-task
 | deslop-work | sonnet | Clean AI slop from changes |
 | test-coverage-checker | sonnet | Validate test coverage |
 | delivery-validator | sonnet | Autonomous delivery validation |
-| docs-updater | sonnet | Update related documentation |
 | task-discoverer | sonnet | Find and prioritize tasks |
 | worktree-manager | haiku | Create isolated worktrees |
 | ci-monitor | haiku | Monitor CI status |
@@ -198,7 +197,7 @@ The native plugin (`~/.opencode/plugins/awesome-slash/`) provides deep integrati
 | Tier | Budget | Agents |
 |------|--------|--------|
 | Execution | 0 | worktree-manager, simple-fixer, ci-monitor |
-| Discovery | 8k | task-discoverer, docs-updater |
+| Discovery | 8k | task-discoverer |
 | Analysis | 12k | exploration-agent, deslop-work, ci-fixer |
 | Reasoning | 16k | planning-agent, implementation-agent |
 | Synthesis | 20k | plan-synthesizer, enhancement-orchestrator |
