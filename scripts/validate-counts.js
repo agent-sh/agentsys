@@ -12,8 +12,11 @@
  *
  * CRITICAL: Per CLAUDE.md rule - accurate documentation is mandatory
  *
- * Usage: node scripts/validate-counts.js
+ * Usage: node scripts/validate-counts.js [--json]
  * Exit code: 0 if all aligned, 1 if mismatches found
+ *
+ * Options:
+ *   --json    Output structured JSON (for skill consumption)
  *
  * @author Avi Fenesh
  * @license MIT
@@ -256,26 +259,157 @@ function formatCountMismatch(file, metric, expected, actual) {
     Actual: ${actual}`;
 }
 
-// Main execution
-if (require.main === module) {
-  console.log('[OK] Validating counts and versions...\n');
-
+/**
+ * Run all validations and return structured result
+ * @returns {Object} Validation result with status, issues, fixes
+ */
+function runValidation() {
   const actualCounts = getActualCounts();
   const docCounts = extractCountsFromDocs();
   const versionCheck = checkVersionAlignment();
   const memoryAlignment = checkProjectMemoryAlignment();
 
-  let hasErrors = false;
+  const issues = [];
+  const fixes = [];
 
   // Check count alignment
+  Object.entries(docCounts).forEach(([file, counts]) => {
+    if (counts.error) return;
+
+    if (counts.plugins !== undefined && counts.plugins !== actualCounts.plugins) {
+      issues.push({
+        type: 'count-mismatch',
+        severity: 'high',
+        file,
+        metric: 'plugins',
+        expected: actualCounts.plugins,
+        actual: counts.plugins,
+        autoFix: true
+      });
+      fixes.push({
+        file,
+        type: 'update-count',
+        search: `${counts.plugins} plugins`,
+        replace: `${actualCounts.plugins} plugins`
+      });
+    }
+
+    if (counts.agents !== undefined) {
+      const isValid = counts.agents === actualCounts.totalAgents ||
+                      counts.agents === actualCounts.fileBasedAgents ||
+                      (counts.fileBasedAgents === actualCounts.fileBasedAgents &&
+                       counts.roleBasedAgents === actualCounts.roleBasedAgents);
+
+      if (!isValid) {
+        issues.push({
+          type: 'count-mismatch',
+          severity: 'high',
+          file,
+          metric: 'agents',
+          expected: `${actualCounts.totalAgents} (${actualCounts.fileBasedAgents} file-based + ${actualCounts.roleBasedAgents} role-based)`,
+          actual: counts.agents,
+          autoFix: false
+        });
+      }
+    }
+
+    if (counts.skills !== undefined && counts.skills !== actualCounts.skills) {
+      issues.push({
+        type: 'count-mismatch',
+        severity: 'high',
+        file,
+        metric: 'skills',
+        expected: actualCounts.skills,
+        actual: counts.skills,
+        autoFix: true
+      });
+      fixes.push({
+        file,
+        type: 'update-count',
+        search: `${counts.skills} skills`,
+        replace: `${actualCounts.skills} skills`
+      });
+    }
+  });
+
+  // Check version alignment
+  versionCheck.issues.forEach(issue => {
+    issues.push({
+      type: 'version-mismatch',
+      severity: 'high',
+      file: issue.file,
+      expected: issue.expected,
+      actual: issue.actual,
+      autoFix: true
+    });
+    fixes.push({
+      file: issue.file,
+      type: 'update-version',
+      search: `"version": "${issue.actual}"`,
+      replace: `"version": "${issue.expected}"`
+    });
+  });
+
+  // Check project memory alignment
+  if (memoryAlignment.aligned === false) {
+    issues.push({
+      type: 'memory-divergence',
+      severity: 'medium',
+      file: 'CLAUDE.md / AGENTS.md',
+      similarity: memoryAlignment.similarity,
+      autoFix: false
+    });
+  }
+
+  return {
+    status: issues.length === 0 ? 'ok' : 'issues-found',
+    actualCounts,
+    docCounts,
+    versionCheck: {
+      mainVersion: versionCheck.mainVersion,
+      aligned: versionCheck.issues.length === 0
+    },
+    memoryAlignment: {
+      aligned: memoryAlignment.aligned,
+      similarity: memoryAlignment.similarity
+    },
+    issues,
+    fixes,
+    summary: {
+      issueCount: issues.length,
+      fixableCount: fixes.length,
+      bySeverity: {
+        high: issues.filter(i => i.severity === 'high').length,
+        medium: issues.filter(i => i.severity === 'medium').length,
+        low: issues.filter(i => i.severity === 'low').length
+      }
+    }
+  };
+}
+
+// Main execution
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  const jsonMode = args.includes('--json');
+
+  const result = runValidation();
+
+  if (jsonMode) {
+    console.log(JSON.stringify(result, null, 2));
+    process.exit(result.status === 'ok' ? 0 : 1);
+  }
+
+  // Human-readable output (default)
+  console.log('[OK] Validating counts and versions...\n');
+
   console.log('## Actual Counts (from filesystem)\n');
-  console.log(`  Plugins: ${actualCounts.plugins}`);
-  console.log(`  Agents:  ${actualCounts.totalAgents} (${actualCounts.fileBasedAgents} file-based + ${actualCounts.roleBasedAgents} role-based)`);
-  console.log(`  Skills:  ${actualCounts.skills}`);
+  console.log(`  Plugins: ${result.actualCounts.plugins}`);
+  console.log(`  Agents:  ${result.actualCounts.totalAgents} (${result.actualCounts.fileBasedAgents} file-based + ${result.actualCounts.roleBasedAgents} role-based)`);
+  console.log(`  Skills:  ${result.actualCounts.skills}`);
   console.log('');
 
   console.log('## Documentation Counts\n');
-  Object.entries(docCounts).forEach(([file, counts]) => {
+  Object.entries(result.docCounts).forEach(([file, counts]) => {
     if (counts.error) {
       console.log(`  ${file}: ${counts.error}`);
       return;
@@ -287,84 +421,51 @@ if (require.main === module) {
     console.log('');
   });
 
-  // Check for mismatches
   console.log('## Count Validation\n');
-  let countMismatches = [];
-
-  Object.entries(docCounts).forEach(([file, counts]) => {
-    if (counts.error) return;
-
-    if (counts.plugins !== undefined && counts.plugins !== actualCounts.plugins) {
-      countMismatches.push(formatCountMismatch(file, 'plugins', actualCounts.plugins, counts.plugins));
-    }
-    if (counts.agents !== undefined) {
-      // Allow either total agent count or file-based count (for docs that only reference file-based)
-      const isValid = counts.agents === actualCounts.totalAgents ||
-                      counts.agents === actualCounts.fileBasedAgents ||
-                      (counts.fileBasedAgents === actualCounts.fileBasedAgents &&
-                       counts.roleBasedAgents === actualCounts.roleBasedAgents);
-
-      if (!isValid) {
-        countMismatches.push(formatCountMismatch(
-          file,
-          'agents',
-          `${actualCounts.totalAgents} (${actualCounts.fileBasedAgents} file-based + ${actualCounts.roleBasedAgents} role-based)`,
-          counts.agents
-        ));
-      }
-    }
-    if (counts.skills !== undefined && counts.skills !== actualCounts.skills) {
-      countMismatches.push(formatCountMismatch(file, 'skills', actualCounts.skills, counts.skills));
-    }
-  });
-
-  if (countMismatches.length > 0) {
+  const countIssues = result.issues.filter(i => i.type === 'count-mismatch');
+  if (countIssues.length > 0) {
     console.error('[ERROR] Count mismatches found:\n');
-    countMismatches.forEach(msg => console.error(msg));
-    console.error('');
-    hasErrors = true;
+    countIssues.forEach(issue => {
+      console.error(`  ${issue.file}:`);
+      console.error(`    Metric: ${issue.metric}`);
+      console.error(`    Expected: ${issue.expected}`);
+      console.error(`    Actual: ${issue.actual}`);
+      console.error('');
+    });
   } else {
     console.log('[OK] All counts aligned across documentation\n');
   }
 
-  // Check version alignment
   console.log('## Version Alignment\n');
-  console.log(`  Main version (package.json): ${versionCheck.mainVersion}`);
+  console.log(`  Main version (package.json): ${result.versionCheck.mainVersion}`);
   console.log('');
 
-  if (versionCheck.issues.length > 0) {
+  const versionIssues = result.issues.filter(i => i.type === 'version-mismatch');
+  if (versionIssues.length > 0) {
     console.error('[ERROR] Version mismatches found:\n');
-    versionCheck.issues.forEach(issue => {
+    versionIssues.forEach(issue => {
       console.error(`  ${issue.file}:`);
       console.error(`    Expected: ${issue.expected}`);
       console.error(`    Actual:   ${issue.actual}`);
       console.error('');
     });
-    hasErrors = true;
   } else {
     console.log('[OK] All plugin versions aligned with main version\n');
   }
 
-  // Check project memory alignment
   console.log('## Project Memory Alignment (CLAUDE.md vs AGENTS.md)\n');
-  if (memoryAlignment.error) {
-    console.log(`  [SKIP] ${memoryAlignment.error}`);
-  } else if (memoryAlignment.warning) {
-    console.log(`  [SKIP] ${memoryAlignment.warning}`);
+  if (result.memoryAlignment.aligned === undefined) {
+    console.log('  [SKIP] Could not check alignment');
+  } else if (result.memoryAlignment.aligned) {
+    console.log(`  Similarity: ${result.memoryAlignment.similarity}`);
+    console.log('\n[OK] CLAUDE.md and AGENTS.md are aligned\n');
   } else {
-    console.log(`  Similarity: ${memoryAlignment.similarity}`);
-    console.log(`  CLAUDE.md critical rules: ${memoryAlignment.claudeLength} chars`);
-    console.log(`  AGENTS.md critical rules: ${memoryAlignment.agentsLength} chars`);
-
-    if (memoryAlignment.aligned) {
-      console.log('\n[OK] CLAUDE.md and AGENTS.md are aligned\n');
-    } else {
-      console.warn('\n[WARN] CLAUDE.md and AGENTS.md divergence detected (similarity < 90%)\n');
-      console.warn('This may be intentional (platform-specific differences) or may need sync.\n');
-    }
+    console.log(`  Similarity: ${result.memoryAlignment.similarity}`);
+    console.warn('\n[WARN] CLAUDE.md and AGENTS.md divergence detected (similarity < 90%)\n');
+    console.warn('This may be intentional (platform-specific differences) or may need sync.\n');
   }
 
-  if (hasErrors) {
+  if (result.status !== 'ok') {
     console.error('[ERROR] Validation failed - fix mismatches and run again\n');
     console.error('CLAUDE.md Critical Rule #1: Production project - accurate docs required\n');
     process.exit(1);
@@ -378,5 +479,6 @@ module.exports = {
   getActualCounts,
   extractCountsFromDocs,
   checkVersionAlignment,
-  checkProjectMemoryAlignment
+  checkProjectMemoryAlignment,
+  runValidation
 };

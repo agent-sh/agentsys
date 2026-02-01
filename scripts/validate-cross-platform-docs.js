@@ -13,8 +13,11 @@
  *
  * CRITICAL: Per CLAUDE.md rule - 3 platforms must work (Claude Code, OpenCode, Codex)
  *
- * Usage: node scripts/validate-cross-platform-docs.js
+ * Usage: node scripts/validate-cross-platform-docs.js [--json]
  * Exit code: 0 if valid, 1 if conflicts found
+ *
+ * Options:
+ *   --json    Output structured JSON (for skill consumption)
  *
  * @author Avi Fenesh
  * @license MIT
@@ -343,26 +346,165 @@ function validateMCPConfigurations() {
   return issues;
 }
 
+/**
+ * Run all validations and return structured result
+ * @returns {Object} Validation result with status, issues, fixes
+ */
+function runValidation() {
+  const prefixIssues = validateCommandPrefixes();
+  const stateDirIssues = validateStateDirReferences();
+  const { featuresByPlatform, issues: parityIssues } = validateFeatureParity();
+  const installIssues = validateInstallationInstructions();
+  const mcpIssues = validateMCPConfigurations();
+
+  const issues = [];
+  const fixes = [];
+
+  // Process prefix issues
+  prefixIssues.forEach(issue => {
+    issue.occurrences.forEach(occ => {
+      issues.push({
+        type: 'command-prefix',
+        severity: 'medium',
+        file: issue.file,
+        platform: issue.platform,
+        line: occ.line,
+        expected: issue.expectedPrefix,
+        actual: issue.wrongPrefix,
+        context: occ.context,
+        autoFix: true
+      });
+      fixes.push({
+        file: issue.file,
+        type: 'replace-prefix',
+        line: occ.line,
+        search: occ.match,
+        replace: occ.match.replace(issue.wrongPrefix, issue.expectedPrefix)
+      });
+    });
+  });
+
+  // Process state dir issues
+  stateDirIssues.forEach(issue => {
+    issue.occurrences.forEach(occ => {
+      issues.push({
+        type: 'state-directory',
+        severity: 'medium',
+        file: issue.file,
+        platform: issue.platform,
+        line: occ.line,
+        expected: issue.expectedStateDir,
+        actual: issue.wrongStateDir,
+        context: occ.context,
+        autoFix: false
+      });
+    });
+  });
+
+  // Process parity issues
+  parityIssues.forEach(issue => {
+    issues.push({
+      type: 'feature-parity',
+      severity: 'low',
+      platform: issue.platform,
+      feature: issue.feature,
+      message: issue.message,
+      autoFix: false
+    });
+  });
+
+  // Process install issues
+  installIssues.forEach(issue => {
+    if (!issue.error) {
+      issues.push({
+        type: 'installation',
+        severity: 'medium',
+        file: issue.file,
+        message: issue.message,
+        autoFix: false
+      });
+    }
+  });
+
+  // Process MCP issues
+  mcpIssues.forEach(issue => {
+    if (!issue.error) {
+      issues.push({
+        type: 'mcp-config',
+        severity: 'low',
+        file: issue.file,
+        message: issue.message,
+        autoFix: false
+      });
+    }
+  });
+
+  // Convert featuresByPlatform Sets to arrays for JSON
+  const featuresJson = {};
+  Object.entries(featuresByPlatform).forEach(([platform, features]) => {
+    featuresJson[platform] = Array.from(features);
+  });
+
+  return {
+    status: issues.length === 0 ? 'ok' : 'issues-found',
+    featuresByPlatform: featuresJson,
+    issues,
+    fixes,
+    summary: {
+      issueCount: issues.length,
+      fixableCount: fixes.length,
+      byType: {
+        commandPrefix: issues.filter(i => i.type === 'command-prefix').length,
+        stateDirectory: issues.filter(i => i.type === 'state-directory').length,
+        featureParity: issues.filter(i => i.type === 'feature-parity').length,
+        installation: issues.filter(i => i.type === 'installation').length,
+        mcpConfig: issues.filter(i => i.type === 'mcp-config').length
+      },
+      bySeverity: {
+        high: issues.filter(i => i.severity === 'high').length,
+        medium: issues.filter(i => i.severity === 'medium').length,
+        low: issues.filter(i => i.severity === 'low').length
+      }
+    }
+  };
+}
+
 // Main execution
 if (require.main === module) {
+  const args = process.argv.slice(2);
+  const jsonMode = args.includes('--json');
+
+  const result = runValidation();
+
+  if (jsonMode) {
+    console.log(JSON.stringify(result, null, 2));
+    process.exit(result.status === 'ok' ? 0 : 1);
+  }
+
+  // Human-readable output (default)
   console.log('[OK] Validating cross-platform documentation...\n');
 
   let hasErrors = false;
 
   // 1. Command prefix validation
   console.log('## Command Prefix Validation\n');
-  const prefixIssues = validateCommandPrefixes();
+  const prefixIssues = result.issues.filter(i => i.type === 'command-prefix');
   if (prefixIssues.length > 0) {
     console.error('[ERROR] Command prefix conflicts found:\n');
+    const byFile = {};
     prefixIssues.forEach(issue => {
-      console.error(`  ${issue.file} (${issue.platform}):`);
-      console.error(`    Expected: ${issue.expectedPrefix}<command>`);
-      console.error(`    Found ${issue.occurrences.length} occurrences of ${issue.wrongPrefix}<command>:`);
-      issue.occurrences.slice(0, 3).forEach(occ => {
+      byFile[issue.file] = byFile[issue.file] || [];
+      byFile[issue.file].push(issue);
+    });
+    Object.entries(byFile).forEach(([file, issues]) => {
+      console.error(`  ${file} (${issues[0].platform}):`);
+      console.error(`    Expected: ${issues[0].expected}<command>`);
+      console.error(`    Found ${issues.length} occurrences of ${issues[0].actual}<command>:`);
+      issues.slice(0, 3).forEach(occ => {
         console.error(`      Line ${occ.line}: ${occ.context}`);
       });
-      if (issue.occurrences.length > 3) {
-        console.error(`      ... and ${issue.occurrences.length - 3} more`);
+      if (issues.length > 3) {
+        console.error(`      ... and ${issues.length - 3} more`);
       }
       console.error('');
     });
@@ -373,14 +515,19 @@ if (require.main === module) {
 
   // 2. State directory validation
   console.log('## State Directory Reference Validation\n');
-  const stateDirIssues = validateStateDirReferences();
+  const stateDirIssues = result.issues.filter(i => i.type === 'state-directory');
   if (stateDirIssues.length > 0) {
     console.error('[ERROR] State directory reference conflicts found:\n');
+    const byFile = {};
     stateDirIssues.forEach(issue => {
-      console.error(`  ${issue.file} (${issue.platform}):`);
-      console.error(`    Expected: ${issue.expectedStateDir}`);
-      console.error(`    Found ${issue.occurrences.length} references to ${issue.wrongStateDir}:`);
-      issue.occurrences.slice(0, 3).forEach(occ => {
+      byFile[issue.file] = byFile[issue.file] || [];
+      byFile[issue.file].push(issue);
+    });
+    Object.entries(byFile).forEach(([file, issues]) => {
+      console.error(`  ${file} (${issues[0].platform}):`);
+      console.error(`    Expected: ${issues[0].expected}`);
+      console.error(`    Found ${issues.length} references to ${issues[0].actual}:`);
+      issues.slice(0, 3).forEach(occ => {
         console.error(`      Line ${occ.line}: ${occ.context}`);
       });
       console.error('');
@@ -392,14 +539,13 @@ if (require.main === module) {
 
   // 3. Feature parity validation
   console.log('## Feature Parity Validation\n');
-  const { featuresByPlatform, issues: parityIssues } = validateFeatureParity();
-
   console.log('Features documented by platform:');
-  Object.entries(featuresByPlatform).forEach(([platform, features]) => {
-    console.log(`  ${platform}: ${features.size} features`);
+  Object.entries(result.featuresByPlatform).forEach(([platform, features]) => {
+    console.log(`  ${platform}: ${features.length} features`);
   });
   console.log('');
 
+  const parityIssues = result.issues.filter(i => i.type === 'feature-parity');
   if (parityIssues.length > 0) {
     console.error('[ERROR] Feature parity issues found:\n');
     parityIssues.forEach(issue => {
@@ -413,11 +559,8 @@ if (require.main === module) {
 
   // 4. Installation instructions validation
   console.log('## Installation Instructions Validation\n');
-  const installIssues = validateInstallationInstructions();
-  if (installIssues.length > 0 && installIssues[0].error) {
-    console.error(`[ERROR] ${installIssues[0].error}\n`);
-    hasErrors = true;
-  } else if (installIssues.length > 0) {
+  const installIssues = result.issues.filter(i => i.type === 'installation');
+  if (installIssues.length > 0) {
     console.error('[ERROR] Installation instruction issues found:\n');
     installIssues.forEach(issue => {
       console.error(`  ${issue.file}: ${issue.message}`);
@@ -430,11 +573,8 @@ if (require.main === module) {
 
   // 5. MCP configuration validation
   console.log('## MCP Configuration Validation\n');
-  const mcpIssues = validateMCPConfigurations();
-  if (mcpIssues.length > 0 && mcpIssues[0].error) {
-    console.error(`[ERROR] ${mcpIssues[0].error}\n`);
-    hasErrors = true;
-  } else if (mcpIssues.length > 0) {
+  const mcpIssues = result.issues.filter(i => i.type === 'mcp-config');
+  if (mcpIssues.length > 0) {
     console.error('[ERROR] MCP configuration issues found:\n');
     mcpIssues.forEach(issue => {
       console.error(`  ${issue.file}: ${issue.message}`);
@@ -460,5 +600,6 @@ module.exports = {
   validateStateDirReferences,
   validateFeatureParity,
   validateInstallationInstructions,
-  validateMCPConfigurations
+  validateMCPConfigurations,
+  runValidation
 };

@@ -110,13 +110,13 @@ describe('plugin structure', () => {
       expect(Array.isArray(pluginJson.skills)).toBe(true);
     });
 
-    test('has docs-analyzer agent', () => {
-      const agentPath = path.join(syncDocsDir, 'agents', 'docs-analyzer.md');
+    test('has sync-docs-agent (unified agent)', () => {
+      const agentPath = path.join(syncDocsDir, 'agents', 'sync-docs-agent.md');
       expect(fs.existsSync(agentPath)).toBe(true);
     });
 
-    test('docs-analyzer.md has valid frontmatter', () => {
-      const agentPath = path.join(syncDocsDir, 'agents', 'docs-analyzer.md');
+    test('sync-docs-agent.md has valid frontmatter', () => {
+      const agentPath = path.join(syncDocsDir, 'agents', 'sync-docs-agent.md');
       const content = fs.readFileSync(agentPath, 'utf8');
 
       expect(content.startsWith('---')).toBe(true);
@@ -124,46 +124,27 @@ describe('plugin structure', () => {
       expect(content.includes('model:')).toBe(true);
     });
 
-    test('has docs-validator agent', () => {
-      const agentPath = path.join(syncDocsDir, 'agents', 'docs-validator.md');
-      expect(fs.existsSync(agentPath)).toBe(true);
+    test('has sync-docs skill (unified skill)', () => {
+      const skillPath = path.join(syncDocsDir, 'skills', 'sync-docs', 'SKILL.md');
+      expect(fs.existsSync(skillPath)).toBe(true);
     });
 
-    test('docs-validator.md has valid frontmatter', () => {
-      const agentPath = path.join(syncDocsDir, 'agents', 'docs-validator.md');
-      const content = fs.readFileSync(agentPath, 'utf8');
+    test('sync-docs skill has valid frontmatter', () => {
+      const skillPath = path.join(syncDocsDir, 'skills', 'sync-docs', 'SKILL.md');
+      const content = fs.readFileSync(skillPath, 'utf8');
 
       expect(content.startsWith('---')).toBe(true);
-      expect(content.includes('name:')).toBe(true);
-      expect(content.includes('model:')).toBe(true);
+      expect(content.includes('name: sync-docs')).toBe(true);
+      expect(content.includes('description:')).toBe(true);
     });
 
-    test('has sync-docs-discovery skill', () => {
-      const skillPath = path.join(syncDocsDir, 'skills', 'sync-docs-discovery', 'SKILL.md');
-      expect(fs.existsSync(skillPath)).toBe(true);
-    });
+    test('plugin.json references unified agent and skill', () => {
+      const pluginJson = JSON.parse(fs.readFileSync(pluginJsonPath, 'utf8'));
 
-    test('has sync-docs-analysis skill', () => {
-      const skillPath = path.join(syncDocsDir, 'skills', 'sync-docs-analysis', 'SKILL.md');
-      expect(fs.existsSync(skillPath)).toBe(true);
-    });
-
-    test('has changelog-update skill', () => {
-      const skillPath = path.join(syncDocsDir, 'skills', 'changelog-update', 'SKILL.md');
-      expect(fs.existsSync(skillPath)).toBe(true);
-    });
-
-    test('skills have valid frontmatter', () => {
-      const skills = ['sync-docs-discovery', 'sync-docs-analysis', 'changelog-update'];
-
-      for (const skill of skills) {
-        const skillPath = path.join(syncDocsDir, 'skills', skill, 'SKILL.md');
-        const content = fs.readFileSync(skillPath, 'utf8');
-
-        expect(content.startsWith('---')).toBe(true);
-        expect(content.includes(`name: ${skill}`)).toBe(true);
-        expect(content.includes('description:')).toBe(true);
-      }
+      expect(pluginJson.agents).toContain('agents/sync-docs-agent.md');
+      expect(pluginJson.skills).toContain('skills/sync-docs/SKILL.md');
+      expect(pluginJson.agents.length).toBe(1);
+      expect(pluginJson.skills.length).toBe(1);
     });
   });
 
