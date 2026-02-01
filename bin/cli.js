@@ -547,6 +547,46 @@ After user answers, proceed to Phase 2 with the selected policy.
         // Transform for OpenCode
         content = transformForOpenCode(content);
 
+        // Transform for OpenCode - remove skill references and add implementation
+        content = transformForOpenCode(content);
+
+        // Remove skill invocation references (skills don't exist in OpenCode)
+        content = content.replace(/You MUST execute the `[^`]+` skill[^.]*\./g, '');
+        content = content.replace(/- Invoke the `[^`]+` skill\n?/g, '');
+        content = content.replace(/Do not bypass the skill[^\n]*\n?/g, '');
+        content = content.replace(/The skill contains:[^\n]*(\n- [^\n]*)+/g, '');
+
+        // Add practical implementation for task-discoverer
+        if (agentFile === 'task-discoverer.md') {
+          const taskDiscoveryImpl = `
+## Implementation (OpenCode)
+
+Since skills aren't available, implement task discovery directly:
+
+### For GitHub Issues:
+\`\`\`bash
+gh issue list --state open --json number,title,labels,body --limit 20
+\`\`\`
+
+### For GitLab Issues:
+\`\`\`bash
+glab issue list --state opened --per-page 20
+\`\`\`
+
+### For Local tasks.md:
+Read PLAN.md, tasks.md, or TODO.md from the repo root.
+
+### Scoring:
+- Security issues: +50 points
+- Bug label: +30 points
+- Good first issue: +20 points
+- Recent activity: +10 points
+
+Present top 5 tasks using AskUserQuestion with 30-char max labels.
+`;
+          content = content.replace(/## Constraints/, taskDiscoveryImpl + '\n## Constraints');
+        }
+
         // Transform agent frontmatter from Claude format to OpenCode format
         // Claude: tools: Bash(git:*), Read, Write
         // OpenCode: permission: { read: allow, edit: allow, bash: allow }
