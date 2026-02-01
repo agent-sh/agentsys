@@ -7,24 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [3.7.0-rc.3] - 2026-02-01
-
-### Fixed
-- **Deslop False Positives** - Reduced false positives by 77% (444 → 101 findings)
-  - Disabled noisy patterns: `magic_numbers`, `bare_urls`, `process_exit`, `file_path_references`, `speculative_generality_unused_params`
-  - Refined `console_debugging` to only flag `console.log|debug` (not warn/error)
-  - Added global exclusions for pattern definition files
-- **Security: Shell Injection** - Replaced `execSync` with `spawnSync` in docs-patterns.js to prevent command injection via malicious filenames
-- **Performance: Doc Caching** - Re-introduced documentation file caching to avoid redundant disk reads
-- **Skill Paths** - Updated all skills to use relative paths per Agent Skills spec for cross-platform compatibility
-- **Pre-push Hook** - Added `ENHANCE_CONFIRMED=1` env var support for non-interactive contexts
-
-## [3.7.0-rc.2] - 2026-02-01
-
-### Fixed
-- **Plugin Install Failure** - Removed invalid `agents` and `skills` fields from deslop and sync-docs plugin.json manifests that caused schema validation errors
-
-## [3.7.0-rc.1] - 2026-02-01
+## [3.7.0] - 2026-02-01
 
 ### Added
 - **Repo-Map Usage Analyzer** - New analyzer for tracking repo-map usage patterns across workflows
@@ -36,6 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CLI Improvements** - Enhanced installer output and dev-install plugin registration
 
 ### Fixed
+- **Deslop False Positives** - Reduced false positives by 77% (444 → 101 findings)
+  - Disabled noisy patterns: `magic_numbers`, `bare_urls`, `process_exit`, `file_path_references`, `speculative_generality_unused_params`
+  - Refined `console_debugging` to only flag `console.log|debug` (not warn/error)
+  - Added global exclusions for pattern definition files
+- **Security: Shell Injection** - Replaced `execSync` with `spawnSync` in docs-patterns.js to prevent command injection via malicious filenames
+- **Performance: Doc Caching** - Re-introduced documentation file caching to avoid redundant disk reads
+- **Skill Paths** - Updated all skills to use relative paths per Agent Skills spec for cross-platform compatibility
+- **Pre-push Hook** - Added `ENHANCE_CONFIRMED=1` env var support for non-interactive contexts
+- **Plugin Install Failure** - Removed invalid `agents` and `skills` fields from deslop and sync-docs plugin.json manifests that caused schema validation errors
 - **Deslop Large Repo Crash** - Prevented crash when running deslop on repositories with many files
 - **gh pr checks Field** - Corrected state field usage (was using `conclusion`, now using `state`)
 - **Windows CLI Gotchas** - Added documentation for `$` escaping and single quote issues

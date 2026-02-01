@@ -1,6 +1,6 @@
 {
   "name": "repo-map",
-  "version": "3.7.0-rc.3",
+  "version": "3.7.0",
   "description": "AST-based repository map generator using ast-grep for symbol and import extraction with incremental updates",
   "author": {
     "name": "Avi Fenesh",
