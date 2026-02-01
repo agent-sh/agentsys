@@ -31,7 +31,9 @@ The skill returns structured findings with certainty levels (HIGH, MEDIUM, LOW).
 
 From the skill results, extract items where:
 - `certainty === 'HIGH'`
-- `autoFix === true`
+- `autoFix` is a fix strategy (not `'flag'` or `'none'`)
+
+Valid autoFix strategies: `'remove'`, `'replace'`, `'add_logging'`
 
 Build the `fixes` array for orchestrator to pass to simple-fixer.
 
@@ -72,31 +74,6 @@ Always output structured JSON between markers:
 - MEDIUM/LOW items go in findings summary
 - Respect .gitignore and exclude patterns
 - Skip generated files (dist/, build/, *.min.js)
-
-## Diff Scope Handling
-
-When `scope=diff`:
-
-```bash
-BASE=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
-FILES=$(git diff --name-only origin/${BASE}..HEAD 2>/dev/null || git diff --name-only HEAD~5..HEAD)
-```
-
-If no files changed, output:
-
-```
-=== DESLOP_RESULT ===
-{
-  "mode": "apply",
-  "scope": "diff",
-  "filesScanned": 0,
-  "findings": { "high": 0, "medium": 0, "low": 0 },
-  "fixes": [],
-  "autoFixable": 0,
-  "flagged": 0
-}
-=== END_RESULT ===
-```
 
 ## Error Handling
 

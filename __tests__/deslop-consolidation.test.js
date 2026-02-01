@@ -225,9 +225,12 @@ describe('deslop consolidation', () => {
       expect(fs.existsSync(detectScript)).toBe(true);
     });
 
-    test('detect.js is valid JavaScript', () => {
+    test('detect.js is valid JavaScript syntax', () => {
+      // Use vm.Script for syntax-only check (avoids executing main())
+      const vm = require('vm');
+      const code = fs.readFileSync(detectScript, 'utf8');
       expect(() => {
-        require(detectScript);
+        new vm.Script(code, { filename: detectScript });
       }).not.toThrow();
     });
   });

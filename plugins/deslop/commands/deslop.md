@@ -57,7 +57,7 @@ Extract structured JSON from agent output:
 ```javascript
 function parseDeslop(output) {
   const match = output.match(/=== DESLOP_RESULT ===[\s\S]*?({[\s\S]*?})[\s\S]*?=== END_RESULT ===/);
-  return match ? JSON.parse(match[1]) : null;
+  return match ? JSON.parse(match[1]) : { fixes: [] };
 }
 
 const findings = parseDeslop(result);
@@ -95,7 +95,7 @@ Present findings as markdown table:
 If fixes array is non-empty, spawn simple-fixer:
 
 ```javascript
-if (mode === 'apply' && findings.fixes?.length > 0) {
+if (mode === 'apply' && findings?.fixes?.length > 0) {
   await Task({
     subagent_type: "next-task:simple-fixer",
     model: "haiku",
