@@ -192,11 +192,11 @@ awesome-slash                # Run installer
 ### perf (6 agents)
 | Agent | Model | Purpose |
 |-------|-------|---------|
-| perf-orchestrator | sonnet | Coordinate perf investigation |
-| perf-analyzer | sonnet | Synthesize findings |
+| perf-orchestrator | opus | Coordinate perf investigation |
+| perf-analyzer | opus | Synthesize findings |
 | perf-code-paths | sonnet | Map likely hot paths |
-| perf-theory-gatherer | sonnet | Generate hypotheses |
-| perf-theory-tester | sonnet | Run controlled experiments |
+| perf-theory-gatherer | opus | Generate hypotheses |
+| perf-theory-tester | opus | Run controlled experiments |
 | perf-investigation-logger | sonnet | Log evidence |
 </agents>
 
