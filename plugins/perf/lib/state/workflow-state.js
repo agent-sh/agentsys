@@ -15,6 +15,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { getStateDir } = require('../platform/state-dir');
+const { writeJsonAtomic } = require('../utils/atomic-write');
 
 // File paths
 const TASKS_FILE = 'tasks.json';
@@ -132,7 +133,7 @@ function readTasks(projectPath = process.cwd()) {
 function writeTasks(tasks, projectPath = process.cwd()) {
   ensureStateDir(projectPath);
   const tasksPath = getTasksPath(projectPath);
-  fs.writeFileSync(tasksPath, JSON.stringify(tasks, null, 2), 'utf8');
+  writeJsonAtomic(tasksPath, tasks);
   return true;
 }
 
@@ -208,7 +209,7 @@ function writeFlow(flow, worktreePath = process.cwd()) {
   const flowCopy = JSON.parse(JSON.stringify(flow));
   flowCopy.lastUpdate = new Date().toISOString();
   const flowPath = getFlowPath(worktreePath);
-  fs.writeFileSync(flowPath, JSON.stringify(flowCopy, null, 2), 'utf8');
+  writeJsonAtomic(flowPath, flowCopy);
   return true;
 }
 

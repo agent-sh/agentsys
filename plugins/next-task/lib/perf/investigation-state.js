@@ -13,6 +13,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { getStateDir } = require('../platform/state-dir');
 const { validateInvestigationState, assertValid } = require('./schemas');
+const { writeJsonAtomic, writeFileAtomic } = require('../utils/atomic-write');
 
 const SCHEMA_VERSION = 1;
 const INVESTIGATION_FILE = 'investigation.json';
@@ -178,7 +179,7 @@ function writeInvestigation(state, basePath = process.cwd()) {
   const investigationPath = getInvestigationPath(basePath);
   const nextState = { ...state, updatedAt: new Date().toISOString() };
   assertValid(validateInvestigationState(nextState), 'Invalid investigation state');
-  fs.writeFileSync(investigationPath, JSON.stringify(nextState, null, 2), 'utf8');
+  writeJsonAtomic(investigationPath, nextState);
   return true;
 }
 

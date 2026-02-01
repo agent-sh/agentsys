@@ -9,6 +9,7 @@
 const fs = require('fs');
 const path = require('path');
 const { getStateDirPath } = require('../platform/state-dir');
+const { writeJsonAtomic, writeFileAtomic } = require('../utils/atomic-write');
 
 const MAP_FILENAME = 'repo-map.json';
 const STALE_FILENAME = 'repo-map.stale';
@@ -75,7 +76,7 @@ function save(basePath, map) {
     updated: new Date().toISOString()
   };
 
-  fs.writeFileSync(mapPath, JSON.stringify(output, null, 2), 'utf8');
+  writeJsonAtomic(mapPath, output);
 
   // Clear stale marker if present
   clearStale(basePath);
@@ -96,7 +97,7 @@ function exists(basePath) {
  */
 function markStale(basePath) {
   ensureStateDir(basePath);
-  fs.writeFileSync(getStalePath(basePath), new Date().toISOString(), 'utf8');
+  writeFileAtomic(getStalePath(basePath), new Date().toISOString());
 }
 
 /**
