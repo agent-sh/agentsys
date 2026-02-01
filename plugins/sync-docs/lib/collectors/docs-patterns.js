@@ -240,11 +240,11 @@ function getExportsFromGit(filePath, ref, options = {}) {
 
     const exports = [];
 
-    // Export patterns
+    // Export patterns (all with g flag to avoid infinite loop in while/exec)
     const patterns = [
       /export\s+(?:function|class|const|let|var)\s+(\w+)/g,
       /export\s+\{([^}]+)\}/g,
-      /module\.exports\s*=\s*\{([^}]+)\}/
+      /module\.exports\s*=\s*\{([^}]+)\}/g
     ];
 
     for (const pattern of patterns) {

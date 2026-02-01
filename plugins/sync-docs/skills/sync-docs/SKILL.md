@@ -42,6 +42,7 @@ Detect project type and find documentation files:
 ```javascript
 const fs = require('fs');
 const path = require('path');
+const glob = require('glob');
 
 // Detect documentation files
 const docFiles = [];
