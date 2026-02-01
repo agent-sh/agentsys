@@ -1,10 +1,10 @@
 ---
-name: Reality Analysis
+name: drift-analysis
 description: This skill should be used when the user asks about "plan drift", "reality check", "comparing docs to code", "project state analysis", "roadmap alignment", "implementation gaps", or needs guidance on identifying discrepancies between documented plans and actual implementation state.
 version: 2.0.0
 ---
 
-# Reality Analysis
+# Drift Analysis
 
 Knowledge and patterns for analyzing project state, detecting plan drift, and creating prioritized reconstruction plans.
 

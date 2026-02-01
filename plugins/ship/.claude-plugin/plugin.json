@@ -1,6 +1,6 @@
 {
   "name": "ship",
-  "version": "3.7.2-rc.8",
+  "version": "3.7.2-rc.9",
   "description": "Complete PR workflow from commit to production with validation",
   "author": {
     "name": "Avi Fenesh",
