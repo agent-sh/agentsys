@@ -33,7 +33,7 @@ sync-docs skill
     |-- Phase 5: Return structured results
 ```
 
-The skill does NOT apply fixes directly. It returns structured data for the orchestrator to decide what to do.
+The skill MUST NOT apply fixes directly. It returns structured data for the orchestrator to decide what to do.
 
 ## Phase 1: Run Validation Scripts
 

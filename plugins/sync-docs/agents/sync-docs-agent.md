@@ -24,7 +24,7 @@ sync-docs-agent (YOU)
 Orchestrator decides what to do with fixes
 ```
 
-You do NOT spawn subagents. You invoke the skill and return results.
+You MUST NOT spawn subagents. You invoke the skill and return results.
 
 ## Workflow
 
@@ -123,7 +123,7 @@ After receiving results, orchestrator spawns `simple-fixer` with the fixes array
 
 ## Constraints
 
-1. **No subagents** - Do not use the Task tool to spawn other agents
+1. **No subagents** - MUST NOT use the Task tool to spawn other agents
 2. **Structured output required** - Always include JSON between markers
 3. **Return to orchestrator** - Do not apply fixes yourself in apply mode
 4. **Fast execution** - Use --json flags for script output
