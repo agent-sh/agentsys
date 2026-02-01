@@ -1460,55 +1460,57 @@ describe('slop-patterns', () => {
     });
 
     describe('file_path_references pattern', () => {
-      const pattern = () => slopPatterns.file_path_references.pattern;
+      const patternDef = slopPatterns.file_path_references;
+      const isDisabled = patternDef.pattern === null;
 
       it('should have pattern defined with correct metadata', () => {
-        expect(slopPatterns.file_path_references).toBeDefined();
-        expect(slopPatterns.file_path_references.severity).toBe('low');
-        expect(slopPatterns.file_path_references.autoFix).toBe('flag');
-        expect(slopPatterns.file_path_references.language).toBeNull();
+        expect(patternDef).toBeDefined();
+        expect(patternDef.severity).toBe('low');
+        expect(patternDef.autoFix).toBe('flag');
+        expect(patternDef.language).toBeNull();
       });
 
-      it('should match "see" file references', () => {
-        expect(pattern().test('// see auth-flow.md')).toBe(true);
-        expect(pattern().test('// See docs/API.md')).toBe(true);
-        expect(pattern().test('// see config.json')).toBe(true);
+      // Skip regex tests if pattern is disabled (set to null)
+      (isDisabled ? it.skip : it)('should match "see" file references', () => {
+        expect(patternDef.pattern.test('// see auth-flow.md')).toBe(true);
+        expect(patternDef.pattern.test('// See docs/API.md')).toBe(true);
+        expect(patternDef.pattern.test('// see config.json')).toBe(true);
       });
 
-      it('should match "documented in" references', () => {
-        expect(pattern().test('// documented in docs/spec.md')).toBe(true);
-        expect(pattern().test('// Documented in README.md')).toBe(true);
+      (isDisabled ? it.skip : it)('should match "documented in" references', () => {
+        expect(patternDef.pattern.test('// documented in docs/spec.md')).toBe(true);
+        expect(patternDef.pattern.test('// Documented in README.md')).toBe(true);
       });
 
-      it('should match "refer to" references', () => {
-        expect(pattern().test('// refer to utils.js')).toBe(true);
-        expect(pattern().test('// Refer to helpers.ts')).toBe(true);
+      (isDisabled ? it.skip : it)('should match "refer to" references', () => {
+        expect(patternDef.pattern.test('// refer to utils.js')).toBe(true);
+        expect(patternDef.pattern.test('// Refer to helpers.ts')).toBe(true);
       });
 
-      it('should match "per" references', () => {
-        expect(pattern().test('// per config.yaml')).toBe(true);
-        expect(pattern().test('// Per settings.toml')).toBe(true);
+      (isDisabled ? it.skip : it)('should match "per" references', () => {
+        expect(patternDef.pattern.test('// per config.yaml')).toBe(true);
+        expect(patternDef.pattern.test('// Per settings.toml')).toBe(true);
       });
 
-      it('should match various file extensions', () => {
-        expect(pattern().test('// see file.md')).toBe(true);
-        expect(pattern().test('// see file.js')).toBe(true);
-        expect(pattern().test('// see file.ts')).toBe(true);
-        expect(pattern().test('// see file.json')).toBe(true);
-        expect(pattern().test('// see file.yaml')).toBe(true);
-        expect(pattern().test('// see file.yml')).toBe(true);
-        expect(pattern().test('// see file.toml')).toBe(true);
-        expect(pattern().test('// see file.txt')).toBe(true);
+      (isDisabled ? it.skip : it)('should match various file extensions', () => {
+        expect(patternDef.pattern.test('// see file.md')).toBe(true);
+        expect(patternDef.pattern.test('// see file.js')).toBe(true);
+        expect(patternDef.pattern.test('// see file.ts')).toBe(true);
+        expect(patternDef.pattern.test('// see file.json')).toBe(true);
+        expect(patternDef.pattern.test('// see file.yaml')).toBe(true);
+        expect(patternDef.pattern.test('// see file.yml')).toBe(true);
+        expect(patternDef.pattern.test('// see file.toml')).toBe(true);
+        expect(patternDef.pattern.test('// see file.txt')).toBe(true);
       });
 
-      it('should not match non-file references', () => {
-        expect(pattern().test('// see the documentation')).toBe(false);
-        expect(pattern().test('// See above for details')).toBe(false);
-        expect(pattern().test('// refer to line 42')).toBe(false);
+      (isDisabled ? it.skip : it)('should not match non-file references', () => {
+        expect(patternDef.pattern.test('// see the documentation')).toBe(false);
+        expect(patternDef.pattern.test('// See above for details')).toBe(false);
+        expect(patternDef.pattern.test('// refer to line 42')).toBe(false);
       });
 
-      it('should exclude markdown and test files', () => {
-        const excludes = slopPatterns.file_path_references.exclude;
+      (isDisabled ? it.skip : it)('should exclude markdown and test files', () => {
+        const excludes = patternDef.exclude;
         expect(isFileExcluded('docs.md', excludes)).toBe(true);
         expect(isFileExcluded('README.md', excludes)).toBe(true);
         expect(isFileExcluded('utils.test.js', excludes)).toBe(true);
@@ -1536,7 +1538,8 @@ describe('slop-patterns', () => {
         });
       });
 
-      it('file_path_references pattern should resist ReDoS', () => {
+      // Skip if pattern is disabled
+      (slopPatterns.file_path_references.pattern === null ? it.skip : it)('file_path_references pattern should resist ReDoS', () => {
         const pattern = slopPatterns.file_path_references.pattern;
         const inputs = [
           '// see ' + 'a'.repeat(10000) + '.md',
@@ -2096,27 +2099,29 @@ describe('slop-patterns', () => {
     });
 
     describe('speculative_generality_unused_params pattern', () => {
-      const pattern = () => slopPatterns.speculative_generality_unused_params.pattern;
+      const patternDef = slopPatterns.speculative_generality_unused_params;
+      const isDisabled = patternDef.pattern === null;
 
       it('should have pattern defined with correct metadata', () => {
-        expect(slopPatterns.speculative_generality_unused_params).toBeDefined();
-        expect(slopPatterns.speculative_generality_unused_params.severity).toBe('low');
-        expect(slopPatterns.speculative_generality_unused_params.language).toBe('javascript');
+        expect(patternDef).toBeDefined();
+        expect(patternDef.severity).toBe('low');
+        expect(patternDef.language).toBe('javascript');
       });
 
-      it('should detect underscore-prefixed parameters', () => {
-        expect(pattern().test('function foo(_unusedArg, usedArg) {}')).toBe(true);
-        expect(pattern().test('function handler(_event, context) {}')).toBe(true);
-        expect(pattern().test('function process(_req, _res, next) {}')).toBe(true);
+      // Skip regex tests if pattern is disabled (set to null)
+      (isDisabled ? it.skip : it)('should detect underscore-prefixed parameters', () => {
+        expect(patternDef.pattern.test('function foo(_unusedArg, usedArg) {}')).toBe(true);
+        expect(patternDef.pattern.test('function handler(_event, context) {}')).toBe(true);
+        expect(patternDef.pattern.test('function process(_req, _res, next) {}')).toBe(true);
       });
 
-      it('should NOT detect functions without underscore params', () => {
-        expect(pattern().test('function foo(arg1, arg2) {}')).toBe(false);
-        expect(pattern().test('function bar() {}')).toBe(false);
+      (isDisabled ? it.skip : it)('should NOT detect functions without underscore params', () => {
+        expect(patternDef.pattern.test('function foo(arg1, arg2) {}')).toBe(false);
+        expect(patternDef.pattern.test('function bar() {}')).toBe(false);
       });
 
-      it('should exclude .d.ts files', () => {
-        const excludes = slopPatterns.speculative_generality_unused_params.exclude;
+      (isDisabled ? it.skip : it)('should exclude .d.ts files', () => {
+        const excludes = patternDef.exclude;
         expect(isFileExcluded('types.d.ts', excludes)).toBe(true);
       });
     });

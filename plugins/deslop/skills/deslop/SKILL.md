@@ -27,25 +27,31 @@ Arguments: `[report|apply] [--scope=<path>|all|diff] [--thoroughness=quick|norma
 
 ### Phase 1: Run Detection Script
 
-```bash
-PLUGIN_ROOT=$(node -e "const { getPluginRoot } = require('@awesome-slash/lib/cross-platform'); const root = getPluginRoot('deslop'); if (!root) { console.error('Error: Could not locate deslop plugin root'); process.exit(1); } console.log(root);")
+The detection script is at `../../scripts/detect.js` relative to this skill.
 
-# For diff scope, get changed files first
-if [ "$SCOPE" = "diff" ]; then
-  BASE=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
-  FILES=$(git diff --name-only origin/${BASE}..HEAD 2>/dev/null || git diff --name-only HEAD~5..HEAD)
-  node "$PLUGIN_ROOT/scripts/detect.js" $FILES --thoroughness <level> --json
-else
-  node "$PLUGIN_ROOT/scripts/detect.js" <scope> --thoroughness <level> --json
-fi
+**Run detection** (use relative path from skill directory):
+```bash
+# Scripts are at plugin root: ../../scripts/ from skills/deslop/
+node ../../scripts/detect.js . --thoroughness normal --compact --max 50
 ```
+
+**For diff scope** (only changed files):
+```bash
+BASE=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
+FILES=$(git diff --name-only origin/${BASE}..HEAD 2>/dev/null || git diff --name-only HEAD~5..HEAD)
+node ../../scripts/detect.js $FILES --thoroughness normal --compact
+```
+
+**Note**: The relative path `../../scripts/detect.js` navigates from `skills/deslop/` up to the plugin root where `scripts/` lives.
 
 ### Phase 2: Repo-Map Enhancement (Optional)
 
 If repo-map exists, enhance detection with AST-based analysis:
 
 ```javascript
-const repoMap = require('@awesome-slash/lib/repo-map');
+// Use relative path from skill directory to plugin lib
+// Path: skills/deslop/ -> ../../lib/repo-map
+const repoMap = require('../../lib/repo-map');
 
 if (repoMap.exists(basePath)) {
   const map = repoMap.load(basePath);

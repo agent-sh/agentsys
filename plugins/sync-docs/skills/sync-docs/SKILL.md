@@ -26,7 +26,7 @@ This skill orchestrates all documentation sync operations:
 
 ```
 sync-docs skill
-    |-- Phase 1: Run validation scripts (--json output)
+    |-- Phase 1: Detect project context
     |-- Phase 2: Find related docs (lib/collectors/docs-patterns)
     |-- Phase 3: Analyze issues
     |-- Phase 4: Check CHANGELOG
@@ -35,35 +35,44 @@ sync-docs skill
 
 The skill MUST NOT apply fixes directly. It returns structured data for the orchestrator to decide what to do.
 
-## Phase 1: Run Validation Scripts
+## Phase 1: Detect Project Context
 
-Run the validation scripts with JSON output:
+Detect project type and find documentation files:
 
 ```javascript
-const { exec } = require('child_process');
-const util = require('util');
-const execPromise = util.promisify(exec);
+const fs = require('fs');
+const path = require('path');
 
-// Count and version validation
-const { stdout: countsJson } = await execPromise('node scripts/validate-counts.js --json');
-const counts = JSON.parse(countsJson);
+// Detect documentation files
+const docFiles = [];
+const commonDocs = ['README.md', 'CHANGELOG.md', 'CONTRIBUTING.md', 'docs/**/*.md'];
 
-// Cross-platform validation
-const { stdout: crossPlatformJson } = await execPromise('node scripts/validate-cross-platform-docs.js --json');
-const crossPlatform = JSON.parse(crossPlatformJson);
+for (const pattern of commonDocs) {
+  // Use glob to find matching files
+  const matches = glob.sync(pattern, { cwd: process.cwd() });
+  docFiles.push(...matches);
+}
+
+// Detect project type from package.json, Cargo.toml, go.mod, etc.
+let projectType = 'unknown';
+if (fs.existsSync('package.json')) projectType = 'javascript';
+else if (fs.existsSync('Cargo.toml')) projectType = 'rust';
+else if (fs.existsSync('go.mod')) projectType = 'go';
+else if (fs.existsSync('pyproject.toml') || fs.existsSync('setup.py')) projectType = 'python';
+
+const context = { docFiles, projectType };
 ```
 
-Parse the JSON results and extract issues.
+This phase gathers context about the project without requiring external scripts.
 
 ## Phase 2: Find Related Documentation
 
 Use lib/collectors/docs-patterns to find docs related to changed files:
 
 ```javascript
-const path = require('path');
-const { getPluginRoot } = require('./lib/cross-platform');
-const pluginRoot = getPluginRoot('sync-docs');
-const { collectors } = require(path.join(pluginRoot, 'lib'));
+// Use relative path from skill directory to plugin lib
+// Path: skills/sync-docs/ -> ../../lib
+const { collectors } = require('../../lib');
 const docsPatterns = collectors.docsPatterns;
 
 // Get changed files based on scope
@@ -146,9 +155,9 @@ Combine all results into a single output:
 {
   "mode": "report|apply",
   "scope": "recent|all|before-pr|path",
-  "validation": {
-    "counts": { /* from validate-counts.js --json */ },
-    "crossPlatform": { /* from validate-cross-platform-docs.js --json */ }
+  "context": {
+    "projectType": "javascript|python|rust|go|unknown",
+    "docFiles": ["README.md", "CHANGELOG.md"]
   },
   "discovery": {
     "changedFilesCount": 5,
@@ -231,5 +240,5 @@ The orchestrator receives the structured result and spawns `simple-fixer` if fix
 ## Error Handling
 
 - **No git**: Exit with error "Git required for change detection"
-- **Script failure**: Include error in validation section, continue with other phases
+- **No docs found**: Report empty docFiles, suggest creating README.md
 - **No changed files**: Report scope as "empty", suggest using --scope=all

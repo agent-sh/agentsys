@@ -19,6 +19,22 @@ const slopPatterns = require('./slop-patterns');
 const analyzers = require('./slop-analyzers');
 
 /**
+ * Global exclusions - files that should NEVER be flagged
+ * These are meta-files that define detection patterns, so they naturally
+ * contain the patterns they're detecting (not actual slop)
+ */
+const GLOBAL_EXCLUSIONS = [
+  '**/slop-patterns.js',
+  '**/slop-analyzers.js',
+  '**/cli-enhancers.js',
+  '**/pipeline.js',
+  '**/review-patterns.js',
+  '**/detect.js',
+  '**/*-patterns.js',  // Any pattern definition file
+  '**/*-analyzers.js'  // Any analyzer definition file
+];
+
+/**
  * Certainty levels for findings
  * HIGH: Single regex match - definitive
  * MEDIUM: Multi-pass analysis - requires context
@@ -161,6 +177,11 @@ function runPhase1(repoPath, targetFiles, language) {
     : slopPatterns.slopPatterns;
 
   for (const file of targetFiles) {
+    // Skip globally excluded files (pattern definition files)
+    if (slopPatterns.isFileExcluded(file, GLOBAL_EXCLUSIONS)) {
+      continue;
+    }
+
     // Detect file language once per file
     const fileLanguage = analyzers.detectLanguage(file);
 
@@ -288,6 +309,8 @@ function runMultiPassAnalyzers(repoPath, targetFiles) {
   for (const file of targetFiles) {
     if (!file.match(docCodeLangs)) continue;
     if (analyzers.isTestFile(file)) continue;
+    // Skip globally excluded files (pattern definition files)
+    if (slopPatterns.isFileExcluded(file, GLOBAL_EXCLUSIONS)) continue;
 
     const filePath = path.isAbsolute(file) ? file : path.join(repoPath, file);
 
@@ -439,6 +462,8 @@ function runMultiPassAnalyzers(repoPath, targetFiles) {
     for (const file of targetFiles) {
       // Skip test files
       if (analyzers.isTestFile(file)) continue;
+      // Skip globally excluded files (pattern definition files)
+      if (slopPatterns.isFileExcluded(file, GLOBAL_EXCLUSIONS)) continue;
 
       const filePath = path.isAbsolute(file) ? file : path.join(repoPath, file);
       let content;

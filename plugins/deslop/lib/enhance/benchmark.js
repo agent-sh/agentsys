@@ -189,8 +189,8 @@ function runFixBenchmarks(manifestPath, options = {}) {
         afterFindings = extractPatternIds(analyzer(tempAfter));
       } finally {
         // Cleanup temp files
-        try { fs.unlinkSync(tempBefore); } catch (e) {}
-        try { fs.unlinkSync(tempAfter); } catch (e) {}
+        try { fs.unlinkSync(tempBefore); } catch { /* cleanup - ignore */ }
+        try { fs.unlinkSync(tempAfter); } catch { /* cleanup - ignore */ }
       }
     }
 

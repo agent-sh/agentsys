@@ -88,9 +88,9 @@ describe('sync-docs integration', () => {
       expect(content).toContain('Phase 5');
     });
 
-    test('references validation scripts', () => {
-      expect(content).toContain('validate-counts.js');
-      expect(content).toContain('validate-cross-platform-docs.js');
+    test('references project context detection', () => {
+      expect(content).toContain('projectType');
+      expect(content).toContain('docFiles');
     });
 
     test('references docs-patterns collector', () => {

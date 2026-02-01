@@ -242,7 +242,7 @@ async function detectBranchStrategy() {
             return 'multi-branch';
           }
         }
-      } catch {}
+      } catch { /* config parse error - ignore */ }
     }
 
     return 'single-branch';

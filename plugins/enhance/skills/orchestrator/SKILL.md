@@ -64,8 +64,10 @@ const discovery = {
 ### Phase 3: Load Suppressions
 
 ```javascript
-const { getSuppressionPath } = require('./lib/cross-platform');
-const { loadAutoSuppressions, getProjectId, clearAutoSuppressions } = require('./lib/enhance/auto-suppression');
+// Use relative path from skill directory to plugin lib
+// Path: skills/orchestrator/ -> ../../lib/
+const { getSuppressionPath } = require('../../lib/cross-platform');
+const { loadAutoSuppressions, getProjectId, clearAutoSuppressions } = require('../../lib/enhance/auto-suppression');
 
 const suppressionPath = getSuppressionPath();
 const projectId = getProjectId(targetPath);
@@ -164,7 +166,7 @@ console.log(report);
 
 ```javascript
 if (!flags.noLearn) {
-  const { analyzeForAutoSuppression, saveAutoSuppressions } = require('./lib/enhance/auto-suppression');
+  const { analyzeForAutoSuppression, saveAutoSuppressions } = require('../../lib/enhance/auto-suppression');
 
   const newSuppressions = analyzeForAutoSuppression(aggregated.findings, fileContents, { projectRoot: targetPath });
 

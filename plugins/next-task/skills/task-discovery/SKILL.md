@@ -13,10 +13,9 @@ Discover tasks from configured sources, validate them, and present for user sele
 ### Phase 1: Load Policy and Claimed Tasks
 
 ```javascript
-const { getPluginRoot } = require('./lib/cross-platform');
-const path = require('path');
-const pluginRoot = getPluginRoot('next-task');
-const workflowState = require(path.join(pluginRoot, 'lib/state/workflow-state.js'));
+// Use relative path from skill directory to plugin lib
+// Path: skills/task-discovery/ -> ../../lib/state/workflow-state.js
+const workflowState = require('../../lib/state/workflow-state.js');
 
 const state = workflowState.readState();
 const policy = state.policy;
@@ -57,7 +56,7 @@ done
 
 **Custom Source:**
 ```javascript
-const { sources } = require(path.join(pluginRoot, 'lib'));
+const { sources } = require('../../lib');
 const capabilities = sources.getToolCapabilities(toolName);
 // Execute capabilities.commands.list_issues
 ```
