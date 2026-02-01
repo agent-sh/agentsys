@@ -70,7 +70,21 @@ Execute the sync-docs skill and return structured results.`
 
 ### Step 3: Process Results
 
-Parse the structured JSON from between `=== SYNC_DOCS_RESULT ===` markers.
+Parse the structured JSON from between `=== SYNC_DOCS_RESULT ===` markers:
+
+```javascript
+// Helper to extract JSON result from agent output
+function parseSyncDocsResult(output) {
+  const match = output.match(/=== SYNC_DOCS_RESULT ===[\s\S]*?({[\s\S]*?})[\s\S]*?=== END_RESULT ===/);
+  if (!match) {
+    throw new Error('No SYNC_DOCS_RESULT found in agent output');
+  }
+  return JSON.parse(match[1]);
+}
+
+const result = parseSyncDocsResult(result);
+// result now contains: { mode, scope, validation, discovery, issues, fixes, changelog, summary }
+```
 
 ### Step 4: Apply Fixes (if apply mode)
 

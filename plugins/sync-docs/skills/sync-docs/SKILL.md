@@ -39,12 +39,18 @@ The skill does NOT apply fixes directly. It returns structured data for the orch
 
 Run the validation scripts with JSON output:
 
-```bash
-# Count and version validation
-node scripts/validate-counts.js --json > /tmp/counts-result.json
+```javascript
+const { exec } = require('child_process');
+const util = require('util');
+const execPromise = util.promisify(exec);
 
-# Cross-platform validation
-node scripts/validate-cross-platform-docs.js --json > /tmp/cross-platform-result.json
+// Count and version validation
+const { stdout: countsJson } = await execPromise('node scripts/validate-counts.js --json');
+const counts = JSON.parse(countsJson);
+
+// Cross-platform validation
+const { stdout: crossPlatformJson } = await execPromise('node scripts/validate-cross-platform-docs.js --json');
+const crossPlatform = JSON.parse(crossPlatformJson);
 ```
 
 Parse the JSON results and extract issues.
@@ -54,7 +60,10 @@ Parse the JSON results and extract issues.
 Use lib/collectors/docs-patterns to find docs related to changed files:
 
 ```javascript
-const { collectors } = require('./lib');
+const path = require('path');
+const { getPluginRoot } = require('./lib/cross-platform');
+const pluginRoot = getPluginRoot('sync-docs');
+const { collectors } = require(path.join(pluginRoot, 'lib'));
 const docsPatterns = collectors.docsPatterns;
 
 // Get changed files based on scope
@@ -64,8 +73,15 @@ if (scope === 'all') {
 } else if (scope === 'before-pr') {
   changedFiles = await exec("git diff --name-only origin/main..HEAD");
 } else {
-  // recent (default)
-  const base = await exec("git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@'") || 'main';
+  // recent (default): get the default branch name
+  let base = 'main';
+  try {
+    const { stdout: refOutput } = await exec("git symbolic-ref refs/remotes/origin/HEAD");
+    // Parse "refs/remotes/origin/branch-name" to extract "branch-name"
+    base = refOutput.trim().split('/').pop();
+  } catch (e) {
+    base = 'main'; // fallback to main if symbolic-ref fails
+  }
   changedFiles = await exec(`git diff --name-only origin/${base}..HEAD 2>/dev/null || git diff --name-only HEAD~5..HEAD`);
 }
 

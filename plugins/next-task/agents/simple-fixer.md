@@ -1,6 +1,6 @@
 ---
 name: simple-fixer
-description: Execute simple, pre-defined code fixes. Use this agent when deslop-work or docs-updater has a list of straightforward edits to apply.
+description: Execute simple, pre-defined code fixes. Use this agent when deslop-work or sync-docs:sync-docs-agent has a list of straightforward edits to apply.
 tools: Read, Edit, Bash(git:*)
 model: haiku
 ---

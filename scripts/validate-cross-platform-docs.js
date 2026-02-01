@@ -78,12 +78,23 @@ const REQUIRED_FEATURES = [
   '/sync-docs'
 ];
 
+// Cache for file contents to avoid repeated reads
+const fileCache = new Map();
+
 function readFileIfExists(filePath) {
+  if (fileCache.has(filePath)) {
+    return fileCache.get(filePath);
+  }
+
   const fullPath = path.join(REPO_ROOT, filePath);
   if (!fs.existsSync(fullPath)) {
+    fileCache.set(filePath, null);
     return null;
   }
-  return fs.readFileSync(fullPath, 'utf8');
+
+  const content = fs.readFileSync(fullPath, 'utf8');
+  fileCache.set(filePath, content);
+  return content;
 }
 
 // Check command prefix consistency
@@ -351,6 +362,9 @@ function validateMCPConfigurations() {
  * @returns {Object} Validation result with status, issues, fixes
  */
 function runValidation() {
+  // Clear file cache to ensure fresh reads
+  fileCache.clear();
+
   const prefixIssues = validateCommandPrefixes();
   const stateDirIssues = validateStateDirReferences();
   const { featuresByPlatform, issues: parityIssues } = validateFeatureParity();

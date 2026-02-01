@@ -2,7 +2,7 @@
 
 Complete reference for all agents in awesome-slash.
 
-**TL;DR:** 42 agents across 9 plugins (8 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 42 -->
+**TL;DR:** 40 agents across 9 plugins (8 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 40 -->
 
 ---
 
@@ -10,14 +10,14 @@ Complete reference for all agents in awesome-slash.
 
 | Plugin | Agents | Jump to |
 |--------|--------|---------|
-| next-task | 12 | [task-discoverer](#task-discoverer), [worktree-manager](#worktree-manager), [exploration-agent](#exploration-agent), [planning-agent](#planning-agent), [implementation-agent](#implementation-agent), [deslop-work](#deslop-work), [test-coverage-checker](#test-coverage-checker), [delivery-validator](#delivery-validator), [docs-updater](#docs-updater), [simple-fixer](#simple-fixer), [ci-monitor](#ci-monitor), [ci-fixer](#ci-fixer) |
+| next-task | 10 | [task-discoverer](#task-discoverer), [worktree-manager](#worktree-manager), [exploration-agent](#exploration-agent), [planning-agent](#planning-agent), [implementation-agent](#implementation-agent), [deslop-work](#deslop-work), [test-coverage-checker](#test-coverage-checker), [delivery-validator](#delivery-validator), [ci-monitor](#ci-monitor), [ci-fixer](#ci-fixer) |
 | audit-project | 10 | [code-quality-reviewer](#code-quality-reviewer), [security-expert](#security-expert), [performance-engineer](#performance-engineer), [test-quality-guardian](#test-quality-guardian), [architecture-reviewer](#architecture-reviewer), [database-specialist](#database-specialist), [api-designer](#api-designer), [frontend-specialist](#frontend-specialist), [backend-specialist](#backend-specialist), [devops-reviewer](#devops-reviewer) |
 | enhance | 9 | [enhancement-orchestrator](#enhancement-orchestrator), [plugin-enhancer](#plugin-enhancer), [agent-enhancer](#agent-enhancer), [claudemd-enhancer](#claudemd-enhancer), [docs-enhancer](#docs-enhancer), [prompt-enhancer](#prompt-enhancer), [hooks-enhancer](#hooks-enhancer), [skills-enhancer](#skills-enhancer), [enhancement-reporter](#enhancement-reporter) |
 | drift-detect | 1 | [plan-synthesizer](#plan-synthesizer) |
 | repo-map | 1 | [map-validator](#map-validator) |
 | perf | 6 | [perf-orchestrator](#perf-orchestrator), [perf-theory-gatherer](#perf-theory-gatherer), [perf-theory-tester](#perf-theory-tester), [perf-code-paths](#perf-code-paths), [perf-investigation-logger](#perf-investigation-logger), [perf-analyzer](#perf-analyzer) |
 | deslop | 1 | [deslop-analyzer](#deslop-analyzer) |
-| sync-docs | 2 | [docs-analyzer](#docs-analyzer), [docs-validator](#docs-validator) |
+| sync-docs | 1 | [sync-docs-agent](#sync-docs-agent) |
 
 **Design principle:** Each agent has a single responsibility. Complex work is decomposed into specialized agents that do one thing extremely well, then orchestrated together.
 
@@ -29,7 +29,7 @@ Complete reference for all agents in awesome-slash.
 
 ## Overview
 
-awesome-slash uses 42 specialized agents across 9 plugins (8 have agents - ship uses commands only). Each agent is optimized for a specific task and assigned a model based on complexity:
+awesome-slash uses 40 specialized agents across 9 plugins (8 have agents - ship uses commands only). Each agent is optimized for a specific task and assigned a model based on complexity:
 
 | Model | Use Case | Cost |
 |-------|----------|------|
@@ -38,7 +38,7 @@ awesome-slash uses 42 specialized agents across 9 plugins (8 have agents - ship 
 | haiku | Mechanical execution, no judgment | Low |
 
 **Agent types:**
-- **File-based agents** (32) - Defined in `plugins/*/agents/*.md` with frontmatter <!-- AGENT_COUNT_FILE_BASED: 32 -->
+- **File-based agents** (30) - Defined in `plugins/*/agents/*.md` with frontmatter <!-- AGENT_COUNT_FILE_BASED: 30 -->
 - **Role-based agents** (10) - Defined inline via Task tool with specialized prompts <!-- AGENT_COUNT_ROLE_BASED: 10 -->
 
 ---
@@ -224,11 +224,11 @@ awesome-slash uses 42 specialized agents across 9 plugins (8 have agents - ship 
 **Restrictions:**
 - MUST NOT create PR
 - MUST NOT push
-- MUST NOT skip docs-updater
+- MUST NOT skip sync-docs:sync-docs-agent
 
 ---
 
-### docs-updater
+### sync-docs-agent
 
 **Model:** sonnet
 **Purpose:** Update documentation for recent changes.

@@ -376,6 +376,12 @@ Uses the unified sync-docs agent from the sync-docs plugin with `before-pr` scop
 ```javascript
 workflowState.startPhase('docs-update');
 
+// Helper to parse sync-docs structured output
+function parseSyncDocsResult(output) {
+  const match = output.match(/=== SYNC_DOCS_RESULT ===[\s\S]*?({[\s\S]*?})[\s\S]*?=== END_RESULT ===/);
+  return match ? JSON.parse(match[1]) : { issues: [], fixes: [], changelog: { status: 'ok' } };
+}
+
 // Run sync-docs with before-pr scope
 const syncResult = await Task({
   subagent_type: "sync-docs:sync-docs-agent",

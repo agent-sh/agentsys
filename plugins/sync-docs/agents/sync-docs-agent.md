@@ -41,58 +41,18 @@ Skill: sync-docs
 Args: ${mode} --scope=${scope} ${path || ''}
 ```
 
-### 3. Execute the Skill Logic
+### 3. Execute the Skill
 
-Following the skill instructions, execute each phase:
+Invoke the sync-docs skill, which handles all phases:
+- Phase 1: Run validation scripts with --json output
+- Phase 2: Find related docs using lib/collectors/docs-patterns
+- Phase 3: Analyze issues (outdated versions, removed exports, import paths, code examples)
+- Phase 4: Check CHANGELOG against recent commits
+- Phase 5: Return structured results
 
-**Phase 1: Run validation scripts**
+The skill does the heavy lifting. You orchestrate and format results.
 
-```bash
-node scripts/validate-counts.js --json
-node scripts/validate-cross-platform-docs.js --json
-```
-
-**Phase 2: Get changed files**
-
-```bash
-# For --scope=before-pr
-git diff --name-only origin/main..HEAD
-
-# For --scope=recent (default)
-BASE=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
-git diff --name-only origin/${BASE}..HEAD 2>/dev/null || git diff --name-only HEAD~5..HEAD
-
-# For --scope=all
-git ls-files '*.js' '*.ts' '*.md' '*.py' '*.go' '*.rs' '*.java'
-```
-
-**Phase 3: Find related docs**
-
-For each changed file, search for documentation that references it:
-
-```bash
-# For each changed file
-grep -l "${filename}" **/*.md 2>/dev/null
-```
-
-**Phase 4: Analyze issues**
-
-Check each related doc for:
-- Outdated version references
-- References to removed exports
-- Outdated import paths
-- Stale code examples
-
-**Phase 5: Check CHANGELOG**
-
-```bash
-# Get recent commits that may need documentation
-git log --oneline -10 HEAD | grep -E '^[a-f0-9]+ (feat|fix|breaking)'
-```
-
-Compare against CHANGELOG.md content.
-
-### 4. Format Output
+### 4. Parse and Format Output
 
 Output structured JSON between markers:
 

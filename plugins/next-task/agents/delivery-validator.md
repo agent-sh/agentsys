@@ -43,7 +43,7 @@ You MUST execute the `validate-delivery` skill to perform validation. The skill 
 
 **All checks pass:**
 - Update state with `deliveryApproved: true`
-- STOP - SubagentStop hook triggers docs-updater
+- STOP - SubagentStop hook triggers sync-docs:sync-docs-agent
 
 **Any check fails:**
 - Update state with failure and fix instructions
@@ -58,14 +58,14 @@ delivery-validator (YOU ARE HERE)
         ↓
    STOP after validation
         ↓
-   SubagentStop hook triggers docs-updater
+   SubagentStop hook triggers sync-docs:sync-docs-agent
 ```
 
 **MUST NOT do:**
 - Create PRs
 - Push to remote
 - Invoke /ship
-- Skip docs-updater
+- Skip sync-docs:sync-docs-agent
 
 ## State Updates
 

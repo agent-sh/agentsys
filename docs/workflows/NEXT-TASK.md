@@ -225,13 +225,13 @@ Five checks run:
 **Restrictions enforced:**
 - MUST NOT create PR
 - MUST NOT push
-- MUST NOT skip docs-updater
+- MUST NOT skip sync-docs:sync-docs-agent
 
 ---
 
 ### Phase 11: Documentation Update
 
-**Agent:** docs-updater (sonnet)
+**Agent:** sync-docs:sync-docs-agent (sonnet)
 **Helper:** simple-fixer (haiku)
 **Human interaction: No**
 
@@ -320,7 +320,7 @@ A SubagentStop hook enforces the workflow sequence. When any agent completes, th
 - Cannot skip deslop-work or test-coverage-checker
 - Cannot skip Phase 9 review loop
 - Cannot skip delivery-validator
-- Cannot skip docs-updater
+- Cannot skip sync-docs:sync-docs-agent
 - Cannot create PR before `/ship` is invoked
 - Cannot push to remote before `/ship` is invoked
 
@@ -331,7 +331,7 @@ A SubagentStop hook enforces the workflow sequence. When any agent completes, th
 | Model | Agents | Why |
 |-------|--------|-----|
 | **opus** | exploration-agent, planning-agent, implementation-agent | Complex reasoning, quality-critical phases |
-| **sonnet** | task-discoverer, deslop-work, test-coverage-checker, delivery-validator, docs-updater, ci-fixer | Moderate reasoning, structured tasks |
+| **sonnet** | task-discoverer, deslop-work, test-coverage-checker, delivery-validator, sync-docs:sync-docs-agent, ci-fixer | Moderate reasoning, structured tasks |
 | **haiku** | worktree-manager, simple-fixer, ci-monitor | Mechanical execution, no judgment needed |
 
 ---

@@ -392,7 +392,7 @@ This ensures quality gates are trusted but post-PR feedback is still handled.
 **Integration with next-task:**
 
 ```bash
-# Called automatically by docs-updater agent
+# Called automatically by sync-docs:sync-docs-agent agent
 /ship --state-file .claude/flow.json
 ```
 

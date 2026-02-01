@@ -383,7 +383,7 @@ implementation-agent (YOU ARE HERE)
         ↓
    delivery-validator (must approve)
         ↓
-   docs-updater
+   sync-docs:sync-docs-agent
         ↓
    /ship command (creates PR)
 ```
@@ -427,7 +427,7 @@ ${gitLog}
    → deslop-work + test-coverage-checker (parallel)
    → Phase 9 review loop
    → delivery-validator
-   → docs-updater
+   → sync-docs:sync-docs-agent
    → /ship
 ```
 
