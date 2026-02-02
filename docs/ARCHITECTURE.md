@@ -159,10 +159,10 @@ awesome-slash  # Select option 2
 ```
 
 **Locations:**
-- Commands: `~/.opencode/commands/awesome-slash/`
-- Agents: `~/.opencode/agents/`
-- Skills: `~/.opencode/skills/`
-- Native plugin: `~/.opencode/plugins/awesome-slash/`
+- Commands: `~/.config/opencode/commands/`
+- Agents: `~/.config/opencode/agents/`
+- Skills: `~/.config/opencode/skills/`
+- Native plugin: `~/.config/opencode/plugins/awesome-slash.ts`
 
 **Commands:** `/next-task`, `/ship`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-map`, `/enhance`, `/perf`, `/sync-docs`
 

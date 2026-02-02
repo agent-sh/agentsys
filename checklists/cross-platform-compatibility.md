@@ -9,9 +9,9 @@ Master reference for ensuring features work across Claude Code, OpenCode, and Co
 | **Config format** | JSON | JSON/JSONC | TOML |
 | **Config location** | `~/.claude/settings.json` | `~/.config/opencode/opencode.json` | `~/.codex/config.toml` |
 | **State directory** | `.claude/` | `.opencode/` | `.codex/` |
-| **Commands location** | Plugin `commands/` | `~/.opencode/commands/` | N/A (use skills) |
-| **Skills location** | `.claude/skills/` | `.opencode/skill/` | `~/.codex/skills/` |
-| **Agents location** | Plugin `agents/` | `~/.opencode/agents/` | N/A (use MCP) |
+| **Commands location** | Plugin `commands/` | `~/.config/opencode/commands/` | N/A (use skills) |
+| **Skills location** | `.claude/skills/` | `.opencode/skills/` | `~/.codex/skills/` |
+| **Agents location** | Plugin `agents/` | `~/.config/opencode/agents/` | N/A (use MCP) |
 | **Invocation prefix** | `/command` | `/command` | `$skill` |
 | **Project instructions** | `CLAUDE.md` | `AGENTS.md` (reads CLAUDE.md) | `AGENTS.md` |
 | **Env var for plugin root** | `CLAUDE_PLUGIN_ROOT` | `PLUGIN_ROOT` | `PLUGIN_ROOT` |
@@ -264,8 +264,8 @@ Plugin loaded via marketplace
 ### OpenCode
 ```
 ~/.awesome-slash/                      # Package copy
-~/.opencode/commands/awesome-slash/    # Transformed commands
-~/.opencode/agents/                    # Transformed agents (22 files)
+~/.config/opencode/commands/    # Transformed commands
+~/.config/opencode/agents/                    # Transformed agents (22 files)
 ~/.config/opencode/opencode.json       # MCP config added
 ```
 
@@ -353,7 +353,7 @@ const skillMappings = [
 ### Installer Handles Automatically
 
 The installer (`bin/cli.js`) automatically:
-- Copies agent to `~/.opencode/agents/`
+- Copies agent to `~/.config/opencode/agents/`
 - Transforms frontmatter (tools → permissions, model names)
 - No manual OpenCode agent creation needed
 

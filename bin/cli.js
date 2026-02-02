@@ -30,12 +30,21 @@ function getClaudePluginsDir() {
   return path.join(home, '.claude', 'plugins');
 }
 
-function getConfigPath(platform) {
+function getOpenCodeConfigDir() {
   const home = process.env.HOME || process.env.USERPROFILE;
+  const xdgConfigHome = process.env.XDG_CONFIG_HOME;
+  if (xdgConfigHome && xdgConfigHome.trim()) {
+    return path.join(xdgConfigHome, 'opencode');
+  }
+  return path.join(home, '.config', 'opencode');
+}
+
+function getConfigPath(platform) {
   if (platform === 'opencode') {
-    return path.join(home, '.config', 'opencode', 'opencode.json');
+    return path.join(getOpenCodeConfigDir(), 'opencode.json');
   }
   if (platform === 'codex') {
+    const home = process.env.HOME || process.env.USERPROFILE;
     return path.join(home, '.codex', 'config.toml');
   }
   return null;
@@ -319,49 +328,35 @@ function installForOpenCode(installDir, options = {}) {
   }
 
   const home = process.env.HOME || process.env.USERPROFILE;
-  // Commands go to ~/.opencode/commands/awesome-slash/
-  const commandsDir = path.join(home, '.opencode', 'commands', 'awesome-slash');
-  // Native plugin goes to ~/.opencode/plugins/awesome-slash/
-  const pluginDir = path.join(home, '.opencode', 'plugins', 'awesome-slash');
+  const opencodeConfigDir = getOpenCodeConfigDir();
+  // OpenCode global locations are under ~/.config/opencode (or $XDG_CONFIG_HOME/opencode).
+  const commandsDir = path.join(opencodeConfigDir, 'commands');
+  const pluginDir = path.join(opencodeConfigDir, 'plugins');
 
-  if (fs.existsSync(commandsDir)) {
-    fs.rmSync(commandsDir, { recursive: true, force: true });
-  }
-  if (fs.existsSync(pluginDir)) {
-    fs.rmSync(pluginDir, { recursive: true, force: true });
-  }
   fs.mkdirSync(commandsDir, { recursive: true });
   fs.mkdirSync(pluginDir, { recursive: true });
 
   // Install native OpenCode plugin (auto-thinking, workflow enforcement, compaction)
   const pluginSrcDir = path.join(installDir, 'adapters', 'opencode-plugin');
   if (fs.existsSync(pluginSrcDir)) {
-    // Copy plugin files
-    const pluginFiles = ['index.ts', 'package.json'];
-    for (const file of pluginFiles) {
-      const srcPath = path.join(pluginSrcDir, file);
-      const destPath = path.join(pluginDir, file);
-      if (fs.existsSync(srcPath)) {
-        fs.copyFileSync(srcPath, destPath);
-      }
-    }
-    console.log('  [OK] Installed native plugin (auto-thinking, workflow enforcement)');
-  }
-
-  // Remove old/deprecated command files
-  const oldCommands = ['drift-detect-set.md', 'pr-merge.md'];
-  for (const oldCmd of oldCommands) {
-    const oldPath = path.join(commandsDir, oldCmd);
-    if (fs.existsSync(oldPath)) {
-      fs.unlinkSync(oldPath);
-      console.log(`  Removed deprecated: ${oldCmd}`);
+    // OpenCode loads plugin files directly from the plugins directory.
+    const srcPath = path.join(pluginSrcDir, 'index.ts');
+    const destPath = path.join(pluginDir, 'awesome-slash.ts');
+    if (fs.existsSync(srcPath)) {
+      fs.copyFileSync(srcPath, destPath);
+      console.log('  [OK] Installed native plugin (auto-thinking, workflow enforcement)');
     }
   }
 
-  // Also clean up old wrong location if it exists
-  const wrongDir = path.join(home, '.config', 'opencode', 'commands');
-  if (fs.existsSync(wrongDir)) {
-    fs.rmSync(wrongDir, { recursive: true, force: true });
+  // Clean up the legacy (pre-XDG) install location if it exists.
+  // This location is not used by OpenCode and was used by older awesome-slash versions.
+  const legacyCommandsDir = path.join(home, '.opencode', 'commands', 'awesome-slash');
+  if (fs.existsSync(legacyCommandsDir)) {
+    fs.rmSync(legacyCommandsDir, { recursive: true, force: true });
+  }
+  const legacyPluginDir = path.join(home, '.opencode', 'plugins', 'awesome-slash');
+  if (fs.existsSync(legacyPluginDir)) {
+    fs.rmSync(legacyPluginDir, { recursive: true, force: true });
   }
 
   // OPENCODE_COMMAND_MAPPINGS - Sync command files
@@ -571,8 +566,8 @@ After user answers, proceed to Phase 2 with the selected policy.
   }
 
   // Install agents to global OpenCode location
-  // OpenCode looks for agents in ~/.opencode/agents/ (global) or .opencode/agent/ (per-project)
-  const agentsDir = path.join(home, '.opencode', 'agents');
+  // OpenCode looks for agents in ~/.config/opencode/agents/ (global) or .opencode/agents/ (per-project)
+  const agentsDir = path.join(opencodeConfigDir, 'agents');
   fs.mkdirSync(agentsDir, { recursive: true });
 
   console.log('  Installing agents for OpenCode...');
@@ -657,8 +652,8 @@ After user answers, proceed to Phase 2 with the selected policy.
     console.log(`  [OK] Installed lib to ${libDestDir}`);
   }
 
-  // Install skills to ~/.opencode/skills/<skill-name>/SKILL.md
-  const skillsDestDir = path.join(home, '.opencode', 'skills');
+  // Install skills to the OpenCode global skills directory (~/.config/opencode/skills/<skill-name>/SKILL.md)
+  const skillsDestDir = path.join(opencodeConfigDir, 'skills');
   fs.mkdirSync(skillsDestDir, { recursive: true });
   console.log('  Installing skills...');
   let skillCount = 0;
@@ -819,7 +814,7 @@ function removeInstallation() {
   console.log('\n[OK] Removed ~/.awesome-slash');
   console.log('\nTo fully uninstall, also remove:');
   console.log('  - Claude: /plugin marketplace remove awesome-slash');
-  console.log('  - OpenCode: Remove ~/.opencode/commands/awesome-slash/ and ~/.opencode/plugins/awesome-slash/');
+  console.log('  - OpenCode: Remove files under ~/.config/opencode/ (commands/*.md, agents/*.md, skills/*/SKILL.md) and ~/.config/opencode/plugins/awesome-slash.ts');
   console.log('  - Codex: Remove ~/.codex/skills/*/');
 }
 

@@ -39,9 +39,9 @@ metadata:
 
 | Component | Claude Code | OpenCode | Codex CLI |
 |-----------|-------------|----------|-----------|
-| **Commands** | Plugin `commands/` | `~/.opencode/commands/` | N/A (use skills) |
-| **Agents** | Plugin `agents/` | `~/.opencode/agents/` | N/A (use MCP) |
-| **Skills** | Plugin `skills/` | `.opencode/skill/` (singular) | `~/.codex/skills/` |
+| **Commands** | Plugin `commands/` | `~/.config/opencode/commands/` | N/A (use skills) |
+| **Agents** | Plugin `agents/` | `~/.config/opencode/agents/` | N/A (use MCP) |
+| **Skills** | Plugin `skills/` | `.opencode/skills/` (singular) | `~/.codex/skills/` |
 | **Hooks** | Plugin `hooks/` | Plugin `hooks/` | Plugin `hooks/` |
 
 ### Install Locations (This Repo)
@@ -49,7 +49,7 @@ metadata:
 | Platform | Package Copy | Commands | Agents | Skills | Config |
 |----------|--------------|----------|--------|--------|--------|
 | Claude Code | Via marketplace | Plugin bundled | Plugin bundled | Plugin bundled | N/A |
-| OpenCode | `~/.awesome-slash/` | `~/.opencode/commands/awesome-slash/` | `~/.opencode/agents/` (29 files) | N/A | `~/.config/opencode/opencode.json` |
+| OpenCode | `~/.awesome-slash/` | `~/.config/opencode/commands/` | `~/.config/opencode/agents/` (29 files) | N/A | `~/.config/opencode/opencode.json` |
 | Codex CLI | `~/.awesome-slash/` | N/A | N/A | `~/.codex/skills/` (9 directories) | `~/.codex/config.toml` |
 
 ### Frontmatter Differences
@@ -260,7 +260,7 @@ Same as RC but:
 
 ### If New Agent Added
 
-1. **No changes needed** - Installer auto-copies agents to OpenCode `~/.opencode/agents/`
+1. **No changes needed** - Installer auto-copies agents to OpenCode `~/.config/opencode/agents/`
 2. **Codex uses MCP** - Agents not directly supported, use MCP tools instead
 3. **Validation will catch** - If file-based agent count changes
 
@@ -497,7 +497,7 @@ If pushing version tag (v*):
 - Commands: /next-task, /ship, /deslop, /audit-project, /drift-detect, /enhance, /perf, /sync-docs, /repo-map
 
 **installForOpenCode(installDir, options)** - Line 165
-- Creates dirs: `~/.opencode/commands/awesome-slash/`, `~/.opencode/plugins/awesome-slash/`
+- Creates dirs: `~/.config/opencode/commands/`, `~/.config/opencode/plugins/awesome-slash.ts`
 - Copies native plugin from `adapters/opencode-plugin/`
 - Transforms commands using `OPENCODE_COMMAND_MAPPINGS`
 - Transforms agents (tools → permissions, strips models if --strip-models)
@@ -616,7 +616,7 @@ model: sonnet
 ```
 
 **2. Installer handles automatically:**
-- ✅ Copies to `~/.opencode/agents/my-agent.md`
+- ✅ Copies to `~/.config/opencode/agents/my-agent.md`
 - ✅ Transforms frontmatter (tools → permissions)
 - ✅ Strips model if --strip-models flag
 - ✅ Normalizes Windows paths in require()

@@ -87,7 +87,7 @@ node ~/.codex/prompts/awesome-slash/lib/platform/detect-platform.js
 
 **OpenCode:**
 ```bash
-node ~/.opencode/commands/awesome-slash/lib/platform/detect-platform.js
+node ~/.config/opencode/commands/lib/platform/detect-platform.js
 ```
 
 Installers automatically handle these substitutions.
@@ -208,7 +208,7 @@ git pull origin main
 - Restart Codex CLI
 
 **OpenCode:**
-- Check `~/.opencode/commands/awesome-slash/`
+- Check `~/.config/opencode/commands/`
 - Restart OpenCode TUI
 
 ### Path errors in commands

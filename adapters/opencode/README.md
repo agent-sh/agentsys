@@ -144,7 +144,7 @@ Analyzes tasks with PLAN.md content and current GitHub issues.
 ## Installation Details
 
 The installer:
-1. Creates `~/.opencode/commands/awesome-slash/`
+1. Creates `~/.config/opencode/commands/`
 2. Copies command files with path adjustments
 3. Installs shared libraries (platform detection, patterns)
 4. Creates environment setup scripts
@@ -152,7 +152,7 @@ The installer:
 ### File Structure
 
 ```
-~/.opencode/commands/awesome-slash/
+~/.config/opencode/commands/
 ├── deslop.md
 ├── next-task.md
 ├── audit-project.md
@@ -243,7 +243,7 @@ git pull origin main
 
 ### Commands not showing up
 1. Restart OpenCode TUI
-2. Check installation: `ls ~/.opencode/commands/awesome-slash/`
+2. Check installation: `ls ~/.config/opencode/commands/`
 3. Re-run installer
 
 ### Commands only work in TUI

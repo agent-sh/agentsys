@@ -1,7 +1,6 @@
 # OpenCode Integration Reference
 
-> **SST OpenCode** (opencode.ai, github.com/sst/opencode) - 85k+ stars
-> Not to be confused with the archived opencode-ai/opencode (now "Crush")
+> OpenCode (opencode.ai, github.com/anomalyco/opencode)
 
 ## Executive Summary
 
@@ -19,12 +18,12 @@ OpenCode has significant features Claude Code doesn't have:
 
 | Aspect | OpenCode | Claude Code |
 |--------|----------|-------------|
-| Config file | `opencode.jsonc` | `settings.json` |
+| Config file | `opencode.json` (JSONC supported) | `settings.json` |
 | State directory | `.opencode/` | `.claude/` |
-| Commands location | `~/.opencode/commands/` | Plugin commands |
-| Skills location | `~/.opencode/skills/` | `.claude/skills/` |
-| Agent definitions | `.opencode/agent/*.md` | Plugin agents |
-| Model selection | Any provider (75+) | Anthropic only |
+| Commands location | `.opencode/commands/`, `~/.config/opencode/commands/` | Plugin commands |
+| Skills location | `.opencode/skills/`, `~/.config/opencode/skills/`, `.claude/skills/`, `~/.claude/skills/` | `.claude/skills/` |
+| Agent definitions | `.opencode/agents/*.md` | Plugin agents |
+| Model selection | Multiple providers | Anthropic only |
 | User questions | Numbered list | Checkboxes |
 | Project instructions | `AGENTS.md` (reads `CLAUDE.md` too) | `CLAUDE.md` |
 
@@ -37,7 +36,7 @@ When user runs `awesome-slash` and selects OpenCode:
 ```
 ~/.awesome-slash/                    # Full package copy
 
-~/.opencode/commands/awesome-slash/  # 10 commands
+~/.config/opencode/commands/         # 10 commands (global)
 ├── next-task.md
 ├── delivery-approval.md
 ├── ship.md
@@ -49,22 +48,22 @@ When user runs `awesome-slash` and selects OpenCode:
 ├── sync-docs.md
 └── perf.md
 
-~/.opencode/agents/                  # 29 agents
+~/.config/opencode/agents/           # 29 agents (global)
 ├── task-discoverer.md
 ├── exploration-agent.md
 ├── planning-agent.md
 ├── implementation-agent.md
 ├── delivery-validator.md
-├── ... (24 more)
+└── ...
 
-~/.opencode/skills/                  # 24 skills
+~/.config/opencode/skills/           # 24 skills (global)
 ├── task-discovery/SKILL.md
 ├── orchestrate-review/SKILL.md
 ├── deslop/SKILL.md
-├── ... (21 more)
+└── ...
 
-~/.opencode/plugins/awesome-slash/   # Native plugin
-└── index.ts                         # Auto-thinking, workflow enforcement
+~/.config/opencode/plugins/          # Native plugin (global)
+└── awesome-slash.ts
 ```
 
 **Native Plugin Features:**
@@ -105,7 +104,7 @@ subtask: true
 ### Specifying Model in Agents
 
 ```yaml
-# .opencode/agent/my-agent.md
+# .opencode/agents/my-agent.md
 ---
 description: Deep analysis agent
 mode: subagent
@@ -120,7 +119,7 @@ permission:
 System prompt content here...
 ```
 
-### Per-Agent Config in opencode.jsonc
+### Per-Agent Config in opencode.json
 
 ```jsonc
 {
@@ -259,7 +258,7 @@ Navigate between sessions with `<Leader>+Right/Left` keybinds.
 ### Custom Agent Definition
 
 ```yaml
-# .opencode/agent/opus-reviewer.md
+# .opencode/agents/opus-reviewer.md
 ---
 description: Deep code review with Opus
 mode: subagent
@@ -317,15 +316,12 @@ Note: awesome-slash uses native OpenCode commands, agents, and skills instead of
 
 ### Skill Location
 
-OpenCode scans (in order):
-1. `~/.opencode/skills/<name>/SKILL.md` (global - where we install)
-2. `.opencode/skills/<name>/SKILL.md` (per-project)
+OpenCode searches these locations:
+1. `.opencode/skills/<name>/SKILL.md` (project)
+2. `~/.config/opencode/skills/<name>/SKILL.md` (global)
 3. `.claude/skills/<name>/SKILL.md` (Claude Code compatibility)
+4. `~/.claude/skills/<name>/SKILL.md` (Claude Code compatibility)
 
-### Skill Format
-
-```yaml
-# ~/.opencode/skills/my-skill/SKILL.md
 ---
 name: my-skill
 description: When to use this skill
@@ -336,7 +332,7 @@ Skill content and instructions...
 
 ### Compatibility
 
-Our skills are installed to `~/.opencode/skills/` for global access.
+Our skills are installed to `~/.config/opencode/skills/` for global access.
 OpenCode also scans `.claude/skills/` for Claude Code compatibility.
 
 ---
@@ -347,7 +343,7 @@ OpenCode also scans `.claude/skills/` for Claude Code compatibility.
 1. Remote org configs (`.well-known/opencode`)
 2. Global: `~/.config/opencode/opencode.json`
 3. Custom path: `OPENCODE_CONFIG` env var
-4. Project: `opencode.jsonc` in project root
+4. Project: `opencode.json` in project root
 5. Inline: `OPENCODE_CONFIG_CONTENT` env var
 
 ### Variable Substitution
@@ -404,14 +400,17 @@ permission:
 
 ## Project Instructions
 
-### File Detection (auto-scanned)
+### Rules Discovery
 
-OpenCode automatically reads:
-1. `AGENTS.md` (preferred)
-2. `CLAUDE.md` (fallback - compatibility)
-3. `.github/copilot-instructions.md`
-4. `.cursorrules`
-5. `opencode.md`
+OpenCode applies rules from these sources:
+1. Project rules: `AGENTS.md`
+2. Global rules: `~/.config/opencode/AGENTS.md`
+
+Claude Code compatibility fallbacks:
+- If no project `AGENTS.md` exists: `CLAUDE.md`
+- If no global `~/.config/opencode/AGENTS.md` exists: `~/.claude/CLAUDE.md`
+
+You can also configure additional instruction files via the `instructions` array in `opencode.json` (for example, with glob patterns in monorepos).
 
 ### Generating AGENTS.md
 
@@ -442,9 +441,9 @@ Creates `AGENTS.md` with project context.
 | Issue | Workaround |
 |-------|------------|
 | No checkboxes | Works functionally, just different UI |
-| Model selection | Users can set in `opencode.jsonc` |
+| Model selection | Users can set in `opencode.json` |
 | Agent invocation | Use @ mentions (`@agent-name prompt`) instead of Task tool |
-| Multi-agent workflows | Define native OpenCode agents in `.opencode/agent/` |
+| Multi-agent workflows | Define native OpenCode agents in `.opencode/agents/` |
 
 ---
 
@@ -487,7 +486,7 @@ ls .opencode/
 
 ### Medium Term
 
-1. Create native OpenCode agent definitions (`.opencode/agent/`)
+1. Create native OpenCode agent definitions (`.opencode/agents/`)
 2. Add OpenCode plugin with hooks for workflow enforcement
 3. Test with different model providers
 
@@ -517,7 +516,7 @@ OpenCode supports thinking/reasoning across **multiple providers** with differen
 
 ### Configuring Extended Thinking
 
-**Per-Agent (in opencode.jsonc):**
+**Per-Agent (in opencode.json):**
 ```jsonc
 {
   "agent": {
@@ -573,7 +572,7 @@ function truncateLabel(num, title) {
   const prefix = `#${num}: `;
   const maxTitleLen = 30 - prefix.length;
   return title.length > maxTitleLen
-    ? prefix + title.substring(0, maxTitleLen - 1) + '…'
+    ? prefix + title.substring(0, maxTitleLen - 1) + '...'
     : prefix + title;
 }
 ```
@@ -883,7 +882,7 @@ OpenCode has a pub-sub event system for all operations.
 
 ### Proposal for awesome-slash
 
-Add to user's `opencode.jsonc`:
+Add to user's `opencode.json`:
 
 ```jsonc
 {
@@ -930,7 +929,7 @@ Add to user's `opencode.jsonc`:
 ## Resources
 
 - **Docs**: https://opencode.ai/docs
-- **GitHub**: https://github.com/sst/opencode
+- **GitHub**: https://github.com/anomalyco/opencode
 - **Config Schema**: https://opencode.ai/config.json
 - **SDK**: `npm install @opencode-ai/sdk`
 - **Plugin SDK**: `npm install @opencode-ai/plugin`

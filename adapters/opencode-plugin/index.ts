@@ -7,7 +7,7 @@
  * - Session compaction with workflow state preservation
  *
  * Install: Automatically installed by `awesome-slash` CLI when selecting OpenCode
- * Location: ~/.opencode/plugins/awesome-slash/
+ * Location: ~/.config/opencode/plugins/awesome-slash.ts (or $XDG_CONFIG_HOME/opencode/plugins/awesome-slash.ts)
  */
 
 import type { Plugin } from "@opencode-ai/plugin"

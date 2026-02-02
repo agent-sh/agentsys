@@ -14,7 +14,7 @@ Analyze agent prompt files for prompt engineering best practices.
 | Platform | Global | Project |
 |----------|--------|---------|
 | Claude Code | `~/.claude/agents/*.md` | `.claude/agents/*.md` |
-| OpenCode | `~/.opencode/agents/*.md` | `.opencode/agent/*.md` |
+| OpenCode | `~/.config/opencode/agents/*.md` | `.opencode/agents/*.md` |
 | Codex | `~/.codex/skills/` | `AGENTS.md` |
 
 ## Workflow

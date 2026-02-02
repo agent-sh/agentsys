@@ -81,7 +81,7 @@ npx tsc --noEmit adapters/opencode-plugin/index.ts
 awesome-slash  # Select OpenCode
 
 # Verify plugin copied
-ls ~/.opencode/plugins/awesome-slash/
+ls ~/.config/opencode/plugins/awesome-slash.ts
 ```
 
 ## 4. Version Coordination

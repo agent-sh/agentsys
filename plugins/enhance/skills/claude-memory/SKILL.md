@@ -28,7 +28,7 @@ Searches for project memory files in order:
 **AGENTS.md** (OpenCode, Codex, and other AI tools):
 | Location | Scope |
 |----------|-------|
-| `~/.opencode/AGENTS.md` or `~/.codex/AGENTS.md` | Global (all projects) |
+| `~/.config/opencode/AGENTS.md` or `~/.codex/AGENTS.md` | Global (all projects) |
 | `.opencode/AGENTS.md` or `./AGENTS.md` | Project root |
 | `src/AGENTS.md` | Directory-specific |
 

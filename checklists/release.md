@@ -53,8 +53,8 @@ echo "1 2 3" | awesome-slash
 ### Verify Each Platform
 
 - [ ] **Claude Code**: Commands appear in `/plugin list`
-- [ ] **OpenCode**: Commands in `~/.opencode/commands/awesome-slash/`
-- [ ] **OpenCode**: Agents in `~/.opencode/agents/` (21 files)
+- [ ] **OpenCode**: Commands in `~/.config/opencode/commands/`
+- [ ] **OpenCode**: Agents in `~/.config/opencode/agents/` (21 files)
 - [ ] **OpenCode**: MCP config in `~/.config/opencode/opencode.json`
 - [ ] **Codex CLI**: Skills in `~/.codex/skills/` (8 directories)
 - [ ] **Codex CLI**: MCP config in `~/.codex/config.toml`

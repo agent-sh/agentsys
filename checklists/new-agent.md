@@ -112,7 +112,7 @@ In workflow.md, add to Agent Tool Restrictions table:
 
 ### Automatic Handling (by installer)
 The installer (`bin/cli.js`) automatically handles:
-- Copies agent to `~/.opencode/agents/` for OpenCode
+- Copies agent to `~/.config/opencode/agents/` for OpenCode
 - Transforms frontmatter (tools → permissions, model names)
 - Codex uses MCP tools, not native agents (no extra work needed)
 
@@ -148,7 +148,7 @@ npm pack && npm install -g ./awesome-slash-*.tgz
 echo "1 2 3" | awesome-slash
 
 # Verify agent is installed for OpenCode
-ls ~/.opencode/agents/ | grep new-agent
+ls ~/.config/opencode/agents/ | grep new-agent
 
 # Run workflow and verify agent is called
 /next-task
@@ -172,5 +172,5 @@ Add to appropriate agent category table.
 | Platform | Agent Location | Frontmatter |
 |----------|---------------|-------------|
 | Claude Code | Plugin `agents/` | Claude format (tools, model) |
-| OpenCode | `~/.opencode/agents/` | Auto-transformed (permissions) |
+| OpenCode | `~/.config/opencode/agents/` | Auto-transformed (permissions) |
 | Codex CLI | N/A (uses MCP) | N/A |

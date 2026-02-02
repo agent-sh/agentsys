@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed code block transformation for all blocks (with/without language identifier)
   - Fixed plugin prefix stripping in agent references
   - Fixed skill name format (drift-analysis lowercase-hyphenated)
-  - Fixed skill installation location documentation (~/.opencode/skills/)
+  - Fixed skill installation location documentation (~/.config/opencode/skills/)
   - Removed stale MCP server references from all documentation
   - Removed MCP configuration from adapter install scripts
 
@@ -74,7 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Cross-platform state handling
     - Plugin and installer validation
 - **OpenCode Migration Tool** - Script to set up native OpenCode agents
-  - `scripts/migrate-opencode.js` - Creates `.opencode/agent/` definitions
+  - `scripts/migrate-opencode.js` - Creates `.opencode/agents/` definitions
   - Validates label lengths and identifies Task tool usage
   - Integrated into OpenCode installer
 
@@ -412,7 +412,7 @@ All command names have been simplified for clarity:
   - Auto-thinking model selection based on task complexity
   - Workflow enforcement via SubagentStop hooks
   - Session compaction on compact events
-  - 21 agents installed to `~/.opencode/agents/`
+  - 21 agents installed to `~/.config/opencode/agents/`
 
 - **Codex CLI Integration** - Complete skill-based integration
   - 8 skills with proper trigger-phrase descriptions
@@ -769,7 +769,7 @@ All command names have been simplified for clarity:
   - Multi-select: choose one or more platforms (Claude Code, OpenCode, Codex)
   - Uses npm package files directly (no git clone)
   - Claude Code: Uses GitHub marketplace for plugin installation
-  - OpenCode: Copies commands to `~/.opencode/commands/awesome-slash/`
+  - OpenCode: Copies commands to `~/.config/opencode/commands/`
   - Codex: Copies prompts to `~/.codex/prompts/` (uses prompts system, not skills)
   - Configures MCP servers automatically for OpenCode and Codex
   - Update: `npm update -g awesome-slash`
@@ -778,7 +778,7 @@ All command names have been simplified for clarity:
 
 ### Fixed
 - **CLI Installer** - Multiple fixes for cross-platform installation
-  - Fixed OpenCode command path to `~/.opencode/commands/awesome-slash/`
+  - Fixed OpenCode command path to `~/.config/opencode/commands/`
   - Fixed Codex to use proper skills format with `SKILL.md` (name + description)
   - Fixed MCP server dependency installation
   - Cleans up deprecated files and old wrong locations on install/update

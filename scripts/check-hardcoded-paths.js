@@ -81,7 +81,8 @@ const SAFE_CONTEXTS = [
   "Don't hardcode",
   'Support ',
   '~/.claude/',
-  '~/.opencode/',
+  '~/.config/opencode/',
+  '~/.opencode/', // legacy (pre-XDG) path; keep as safe context for historical docs
   '~/.codex/',
   'MCP in',
   'or `~/',

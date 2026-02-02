@@ -14,7 +14,7 @@ Analyze plugin structures, MCP tools, and security patterns against best practic
 | Platform | Location |
 |----------|----------|
 | Claude Code | `plugins/*/`, `.claude-plugin/plugin.json` |
-| OpenCode | `.opencode/plugins/`, MCP in `opencode.jsonc` |
+| OpenCode | `.opencode/plugins/`, MCP in `opencode.json` |
 | Codex | MCP in `~/.codex/config.toml` |
 
 ## Workflow

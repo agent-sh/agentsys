@@ -179,7 +179,7 @@ This installs:
 
 ### Native Plugin Features
 
-The native plugin (`~/.opencode/plugins/awesome-slash/`) provides deep integration:
+The native plugin (`~/.config/opencode/plugins/awesome-slash.ts`) provides deep integration:
 
 | Feature | Description |
 |---------|-------------|
@@ -219,7 +219,7 @@ mkdir -p ~/.config/opencode/agent/
 # Agent files follow OpenCode markdown format (see below)
 ```
 
-**OpenCode Agent Format** (`.opencode/agent/workflow.md`):
+**OpenCode Agent Format** (`.opencode/agents/workflow.md`):
 
 ```markdown
 ---
@@ -323,10 +323,10 @@ The plugin auto-detects the platform and uses the appropriate directory. Overrid
 ### OpenCode
 - Works with any model provider (Claude, OpenAI, Google, local)
 - State directory: `.opencode/`
-- Slash commands in `~/.opencode/commands/awesome-slash/`
-- Agents in `~/.opencode/agents/` (29 agents)
-- Skills in `~/.opencode/skills/` (24 skills)
-- Native plugin in `~/.opencode/plugins/awesome-slash/`
+- Slash commands in `~/.config/opencode/commands/`
+- Agents in `~/.config/opencode/agents/` (29 agents)
+- Skills in `~/.config/opencode/skills/` (24 skills)
+- Native plugin in `~/.config/opencode/plugins/awesome-slash.ts`
 - **Native plugin features:**
   - Auto-thinking selection (adjusts budget per agent)
   - Workflow enforcement (blocks git push until /ship)
