@@ -113,6 +113,13 @@ module.exports = {
   analyzeDocIssues: docsPatterns.analyzeDocIssues,
   checkChangelog: docsPatterns.checkChangelog,
 
+  // New: repo-map integration exports
+  ensureRepoMap: docsPatterns.ensureRepoMap,
+  ensureRepoMapSync: docsPatterns.ensureRepoMapSync,
+  getExportsFromRepoMap: docsPatterns.getExportsFromRepoMap,
+  findUndocumentedExports: docsPatterns.findUndocumentedExports,
+  isInternalExport: docsPatterns.isInternalExport,
+
   // Constants
   DEFAULT_OPTIONS
 };

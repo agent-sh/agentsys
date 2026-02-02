@@ -39,6 +39,48 @@ The skill MUST NOT apply fixes directly. It returns structured data for the orch
 
 Detect project type and find documentation files:
 
+## Phase 1.5: Ensure Repo-Map (NEW)
+
+Before analyzing issues, ensure repo-map is available for accurate symbol detection:
+
+```javascript
+const { ensureRepoMap } = require('../../lib/collectors/docs-patterns');
+
+// Try to get repo-map (will auto-init if ast-grep available)
+const repoMapStatus = await ensureRepoMap({
+  cwd: process.cwd(),
+  askUser: async (opts) => {
+    // Use AskUserQuestion tool
+    const answer = await AskUserQuestion({
+      question: opts.question,
+      header: opts.header,
+      options: opts.options
+    });
+    return answer;
+  }
+});
+
+if (repoMapStatus.installInstructions) {
+  // User wants to install ast-grep, show instructions
+  console.log(repoMapStatus.installInstructions);
+  // Wait for user to confirm installation, then retry
+}
+
+// repoMapStatus.available indicates if repo-map can be used
+// repoMapStatus.fallbackReason explains why if not available
+```
+
+**User Interaction (only if ast-grep not installed):**
+
+Use AskUserQuestion:
+- Header: "ast-grep Required"
+- Question: "ast-grep not found. Install for better doc sync accuracy?"
+- Options:
+  - "Yes, show instructions" - Display platform-specific install instructions
+  - "No, use regex fallback" - Continue with less accurate regex-based detection
+
+If user declines or repo-map unavailable, the system falls back to regex-based export detection automatically.
+
 ```javascript
 const fs = require('fs');
 const path = require('path');
@@ -132,6 +174,7 @@ Issue types detected:
 - `removed-export`: References removed symbol
 - `code-example`: Code example may be outdated
 - `import-path`: Import path changed
+- `undocumented-export`: Export exists in code but not mentioned in any docs (requires repo-map)
 
 ## Phase 4: Check CHANGELOG
 
@@ -160,6 +203,11 @@ Combine all results into a single output:
     "projectType": "javascript|python|rust|go|unknown",
     "docFiles": ["README.md", "CHANGELOG.md"]
   },
+  "repoMap": {
+    "available": true,
+    "fallbackReason": null,
+    "stats": { "files": 142, "symbols": 847 }
+  },
   "discovery": {
     "changedFilesCount": 5,
     "relatedDocsCount": 3,
@@ -177,6 +225,17 @@ Combine all results into a single output:
       "expected": "1.1.0",
       "autoFix": true,
       "suggestion": "Update version from 1.0.0 to 1.1.0"
+    }
+  ],
+  "undocumentedExports": [
+    {
+      "type": "undocumented-export",
+      "severity": "low",
+      "file": "src/utils.js",
+      "name": "formatDate",
+      "line": 25,
+      "certainty": "MEDIUM",
+      "suggestion": "Export 'formatDate' in src/utils.js is not mentioned in any documentation"
     }
   ],
   "fixes": [

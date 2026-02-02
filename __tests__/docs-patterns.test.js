@@ -15,7 +15,14 @@ const {
   getExportsFromGit,
   compareVersions,
   findLineNumber,
-  collect
+  collect,
+  // New: repo-map integration
+  ensureRepoMap,
+  ensureRepoMapSync,
+  getExportsFromRepoMap,
+  findUndocumentedExports,
+  isInternalExport,
+  isEntryPoint
 } = require('../lib/collectors/docs-patterns');
 
 describe('docs-patterns', () => {
@@ -756,6 +763,179 @@ describe('docs-patterns', () => {
       expect(result).toHaveProperty('documented');
       expect(result).toHaveProperty('undocumented');
       expect(result).toHaveProperty('suggestion');
+    });
+  });
+
+  describe('repo-map integration', () => {
+    describe('isInternalExport', () => {
+      test('returns true for underscore-prefixed names', () => {
+        expect(isInternalExport('_privateHelper', 'src/utils.js')).toBe(true);
+        expect(isInternalExport('__internal', 'src/utils.js')).toBe(true);
+      });
+
+      test('returns false for public names', () => {
+        expect(isInternalExport('publicFunction', 'src/api.js')).toBe(false);
+        expect(isInternalExport('getData', 'src/api.js')).toBe(false);
+      });
+
+      test('returns true for internal directories', () => {
+        expect(isInternalExport('helper', 'src/internal/helper.js')).toBe(true);
+        expect(isInternalExport('util', 'lib/utils/util.js')).toBe(true);
+        expect(isInternalExport('test', 'src/__tests__/test.js')).toBe(true);
+      });
+
+      test('returns true for test files', () => {
+        expect(isInternalExport('testHelper', 'src/api.test.js')).toBe(true);
+        expect(isInternalExport('specHelper', 'src/api.spec.ts')).toBe(true);
+      });
+
+      test('returns false for regular source files', () => {
+        expect(isInternalExport('getData', 'src/api.js')).toBe(false);
+        expect(isInternalExport('Component', 'src/components/Button.tsx')).toBe(false);
+      });
+    });
+
+    describe('isEntryPoint', () => {
+      test('returns true for index files', () => {
+        expect(isEntryPoint('src/index.js')).toBe(true);
+        expect(isEntryPoint('lib/index.ts')).toBe(true);
+      });
+
+      test('returns true for main/app/server files', () => {
+        expect(isEntryPoint('main.js')).toBe(true);
+        expect(isEntryPoint('src/app.ts')).toBe(true);
+        expect(isEntryPoint('server.js')).toBe(true);
+      });
+
+      test('returns true for cli/bin files', () => {
+        expect(isEntryPoint('bin/cli.js')).toBe(true);
+        expect(isEntryPoint('src/bin.js')).toBe(true);
+      });
+
+      test('returns false for regular files', () => {
+        expect(isEntryPoint('src/utils.js')).toBe(false);
+        expect(isEntryPoint('lib/helpers.ts')).toBe(false);
+      });
+    });
+
+    describe('getExportsFromRepoMap', () => {
+      test('returns null for null map', () => {
+        expect(getExportsFromRepoMap('src/api.js', null)).toBeNull();
+      });
+
+      test('returns null for map without files', () => {
+        expect(getExportsFromRepoMap('src/api.js', {})).toBeNull();
+      });
+
+      test('returns null for non-existent file', () => {
+        const map = {
+          files: {
+            'src/other.js': { symbols: { exports: [{ name: 'test' }] } }
+          }
+        };
+        expect(getExportsFromRepoMap('src/api.js', map)).toBeNull();
+      });
+
+      test('returns exports for existing file', () => {
+        const map = {
+          files: {
+            'src/api.js': {
+              symbols: {
+                exports: [
+                  { name: 'getData', line: 5 },
+                  { name: 'setData', line: 10 }
+                ]
+              }
+            }
+          }
+        };
+        const exports = getExportsFromRepoMap('src/api.js', map);
+        expect(exports).toEqual(['getData', 'setData']);
+      });
+
+      test('handles path with leading ./', () => {
+        const map = {
+          files: {
+            'src/api.js': {
+              symbols: {
+                exports: [{ name: 'getData' }]
+              }
+            }
+          }
+        };
+        const exports = getExportsFromRepoMap('./src/api.js', map);
+        expect(exports).toEqual(['getData']);
+      });
+
+      test('handles backslash paths', () => {
+        const map = {
+          files: {
+            'src/api.js': {
+              symbols: {
+                exports: [{ name: 'getData' }]
+              }
+            }
+          }
+        };
+        const exports = getExportsFromRepoMap('src\\api.js', map);
+        expect(exports).toEqual(['getData']);
+      });
+
+      test('returns null for file without exports', () => {
+        const map = {
+          files: {
+            'src/api.js': { symbols: {} }
+          }
+        };
+        expect(getExportsFromRepoMap('src/api.js', map)).toBeNull();
+      });
+    });
+
+    describe('ensureRepoMapSync', () => {
+      test('returns unavailable when repo-map not initialized', () => {
+        const result = ensureRepoMapSync({ cwd: testDir });
+        expect(result.available).toBe(false);
+        expect(result.fallbackReason).toBeTruthy();
+      });
+    });
+
+    describe('findUndocumentedExports', () => {
+      test('returns empty array when repo-map not available', () => {
+        const result = findUndocumentedExports(['src/api.js'], { cwd: testDir });
+        expect(result).toEqual([]);
+      });
+    });
+
+    describe('collect with repo-map', () => {
+      test('includes repoMap status in output', () => {
+        fs.writeFileSync(path.join(testDir, 'docs', 'README.md'), '# Test');
+
+        const result = collect({ cwd: testDir, changedFiles: [] });
+
+        expect(result).toHaveProperty('repoMap');
+        expect(result.repoMap).toHaveProperty('available');
+        expect(result.repoMap).toHaveProperty('fallbackReason');
+      });
+
+      test('includes undocumentedExports in output', () => {
+        fs.writeFileSync(path.join(testDir, 'docs', 'README.md'), '# Test');
+
+        const result = collect({ cwd: testDir, changedFiles: [] });
+
+        expect(result).toHaveProperty('undocumentedExports');
+        expect(Array.isArray(result.undocumentedExports)).toBe(true);
+      });
+    });
+
+    describe('module exports', () => {
+      test('exports new repo-map integration functions', () => {
+        expect(typeof ensureRepoMap).toBe('function');
+        expect(typeof ensureRepoMapSync).toBe('function');
+        expect(typeof getExportsFromRepoMap).toBe('function');
+        expect(typeof findUndocumentedExports).toBe('function');
+        expect(typeof isInternalExport).toBe('function');
+        expect(typeof isEntryPoint).toBe('function');
+      });
     });
   });
 });
