@@ -14,8 +14,13 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # (Git Bash sets HOME to Unix-style path like /c/Users/username)
 # OpenCode global config follows XDG Base Directory Specification:
 # - Default: ~/.config/opencode/
-# - Override: $XDG_CONFIG_HOME/opencode/ (if XDG_CONFIG_HOME is set)
-OPENCODE_CONFIG_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}/opencode"
+# - Override: $XDG_CONFIG_HOME/opencode/ (if XDG_CONFIG_HOME is set and not empty/whitespace)
+# Note: Must match logic in scripts/dev-install.js getOpenCodeConfigDir()
+if [[ -n "${XDG_CONFIG_HOME}" && "${XDG_CONFIG_HOME}" =~ [^[:space:]] ]]; then
+  OPENCODE_CONFIG_DIR="${XDG_CONFIG_HOME}/opencode"
+else
+  OPENCODE_CONFIG_DIR="${HOME}/.config/opencode"
+fi
 OPENCODE_COMMANDS_DIR="${OPENCODE_CONFIG_DIR}/commands/awesome-slash"
 LIB_DIR="${OPENCODE_COMMANDS_DIR}/lib"
 
@@ -260,9 +265,15 @@ if [ -d "$LEGACY_PLUGINS_DIR" ]; then
 fi
 if [ -d "$LEGACY_AGENTS_DIR" ]; then
   # Only remove known agent files, not the whole directory
+  # Must match list in scripts/dev-install.js knownAgents array
   for agent in plan-synthesizer.md enhancement-reporter.md ci-fixer.md deslop-work.md \
-               simple-fixer.md perf-analyzer.md perf-code-paths.md exploration-agent.md \
-               implementation-agent.md planning-agent.md task-discoverer.md delivery-validator.md; do
+               simple-fixer.md perf-analyzer.md perf-code-paths.md perf-investigation-logger.md \
+               perf-theory-gatherer.md perf-theory-tester.md map-validator.md exploration-agent.md \
+               perf-orchestrator.md ci-monitor.md implementation-agent.md planning-agent.md \
+               test-coverage-checker.md plugin-enhancer.md agent-enhancer.md docs-enhancer.md \
+               claudemd-enhancer.md prompt-enhancer.md hooks-enhancer.md skills-enhancer.md \
+               enhancement-orchestrator.md task-discoverer.md delivery-validator.md docs-updater.md \
+               worktree-manager.md deslop-analyzer.md docs-analyzer.md docs-validator.md; do
     if [ -f "$LEGACY_AGENTS_DIR/$agent" ]; then
       rm "$LEGACY_AGENTS_DIR/$agent"
       cleaned_legacy=true

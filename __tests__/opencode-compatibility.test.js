@@ -259,7 +259,21 @@ describe('OpenCode Compatibility', () => {
 
       // Should define OPENCODE_CONFIG_DIR using XDG path (not ~/.opencode/)
       expect(installScript).toMatch(/OPENCODE_CONFIG_DIR/);
-      expect(installScript).toMatch(/XDG_CONFIG_HOME.*\.config.*opencode/);
+      // Should reference both XDG_CONFIG_HOME and .config/opencode
+      expect(installScript).toContain('XDG_CONFIG_HOME');
+      expect(installScript).toContain('.config/opencode');
+    });
+
+    it('should handle empty/whitespace XDG_CONFIG_HOME like JavaScript', () => {
+      const installScript = fs.readFileSync(
+        path.join(__dirname, '../adapters/opencode/install.sh'),
+        'utf-8'
+      );
+
+      // Should check for non-empty AND non-whitespace (matching JS behavior)
+      // The bash pattern [^[:space:]] ensures whitespace-only values are rejected
+      expect(installScript).toContain('-n "${XDG_CONFIG_HOME}"');
+      expect(installScript).toContain('[^[:space:]]');
     });
 
     it('should clean up legacy ~/.opencode/ paths', () => {
@@ -271,6 +285,27 @@ describe('OpenCode Compatibility', () => {
       // Should have legacy cleanup
       expect(installScript).toMatch(/LEGACY_OPENCODE_DIR/);
       expect(installScript).toMatch(/legacy/i);
+    });
+
+    it('should have complete agent list matching dev-install.js', () => {
+      const installScript = fs.readFileSync(
+        path.join(__dirname, '../adapters/opencode/install.sh'),
+        'utf-8'
+      );
+
+      // Critical agents that must be in both lists
+      const criticalAgents = [
+        'exploration-agent.md',
+        'implementation-agent.md',
+        'planning-agent.md',
+        'perf-orchestrator.md',
+        'enhancement-orchestrator.md',
+        'worktree-manager.md'
+      ];
+
+      for (const agent of criticalAgents) {
+        expect(installScript).toContain(agent);
+      }
     });
 
     it('should handle path substitutions for OpenCode', () => {
