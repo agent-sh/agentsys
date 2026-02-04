@@ -21,7 +21,8 @@ if [[ -n "${XDG_CONFIG_HOME}" && "${XDG_CONFIG_HOME}" =~ [^[:space:]] ]]; then
 else
   OPENCODE_CONFIG_DIR="${HOME}/.config/opencode"
 fi
-OPENCODE_COMMANDS_DIR="${OPENCODE_CONFIG_DIR}/commands/awesome-slash"
+# OpenCode expects commands directly in commands/, not a subdirectory
+OPENCODE_COMMANDS_DIR="${OPENCODE_CONFIG_DIR}/commands"
 LIB_DIR="${OPENCODE_COMMANDS_DIR}/lib"
 
 # Legacy path for cleanup (incorrect, pre-XDG location)
@@ -266,15 +267,16 @@ fi
 if [ -d "$LEGACY_AGENTS_DIR" ]; then
   # Only remove known agent files, not the whole directory
   # Must match list in scripts/dev-install.js knownAgents array
+  # Generated from: ls plugins/*/agents/*.md | xargs basename | sort -u
   known_agents=(
-    'plan-synthesizer.md' 'enhancement-reporter.md' 'ci-fixer.md' 'deslop-work.md'
-    'simple-fixer.md' 'perf-analyzer.md' 'perf-code-paths.md' 'perf-investigation-logger.md'
-    'perf-theory-gatherer.md' 'perf-theory-tester.md' 'map-validator.md' 'exploration-agent.md'
-    'perf-orchestrator.md' 'ci-monitor.md' 'implementation-agent.md' 'planning-agent.md'
-    'test-coverage-checker.md' 'plugin-enhancer.md' 'agent-enhancer.md' 'docs-enhancer.md'
-    'claudemd-enhancer.md' 'prompt-enhancer.md' 'hooks-enhancer.md' 'skills-enhancer.md'
-    'enhancement-orchestrator.md' 'task-discoverer.md' 'delivery-validator.md' 'docs-updater.md'
-    'worktree-manager.md' 'deslop-analyzer.md' 'docs-analyzer.md' 'docs-validator.md'
+    'agent-enhancer.md' 'ci-fixer.md' 'ci-monitor.md' 'claudemd-enhancer.md'
+    'delivery-validator.md' 'deslop-agent.md' 'docs-enhancer.md' 'enhancement-orchestrator.md'
+    'enhancement-reporter.md' 'exploration-agent.md' 'hooks-enhancer.md' 'implementation-agent.md'
+    'map-validator.md' 'perf-analyzer.md' 'perf-code-paths.md' 'perf-investigation-logger.md'
+    'perf-orchestrator.md' 'perf-theory-gatherer.md' 'perf-theory-tester.md' 'plan-synthesizer.md'
+    'planning-agent.md' 'plugin-enhancer.md' 'prompt-enhancer.md' 'simple-fixer.md'
+    'skills-enhancer.md' 'sync-docs-agent.md' 'task-discoverer.md' 'test-coverage-checker.md'
+    'worktree-manager.md'
   )
   for agent in "${known_agents[@]}"; do
     if [ -f "$LEGACY_AGENTS_DIR/$agent" ]; then
@@ -302,7 +304,7 @@ done
 echo
 echo "[NEXT] Next Steps:"
 echo "  1. Start OpenCode TUI: opencode"
-echo "  2. Use commands: /$cmd"
+echo "  2. Use commands: /next-task, /ship, etc."
 echo "  3. See help: cat $OPENCODE_COMMANDS_DIR/README.md"
 echo
 echo "[TIP] OpenCode Pro Tips:"

@@ -132,7 +132,8 @@ console.log('Validating OpenCode Installation...\n');
 console.log(`OpenCode directory: ${OPENCODE_DIR}\n`);
 
 // Validate each type
-validateDirectory(path.join(OPENCODE_DIR, 'commands', 'awesome-slash'), 'commands');
+// OpenCode expects commands directly in commands/, not a subdirectory
+validateDirectory(path.join(OPENCODE_DIR, 'commands'), 'commands');
 validateDirectory(path.join(OPENCODE_DIR, 'agents'), 'agents');
 validateDirectory(path.join(OPENCODE_DIR, 'skills'), 'skills');
 
