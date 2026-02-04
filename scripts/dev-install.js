@@ -81,7 +81,8 @@ function cleanAll() {
   }
 
   // Clean OpenCode (correct XDG path: ~/.config/opencode/)
-  const opencodeCommandsDir = path.join(OPENCODE_CONFIG_DIR, 'commands');
+  // Use commands/awesome-slash subdirectory for consistency with install.sh
+  const opencodeCommandsDir = path.join(OPENCODE_CONFIG_DIR, 'commands', 'awesome-slash');
   const opencodePluginDir = path.join(OPENCODE_CONFIG_DIR, 'plugins');
   const opencodeAgentsDir = path.join(OPENCODE_CONFIG_DIR, 'agents');
   const opencodeSkillsDir = path.join(OPENCODE_CONFIG_DIR, 'skills');
@@ -290,7 +291,8 @@ function installOpenCode() {
   log('Installing for OpenCode...');
 
   // Create directories in correct XDG location (~/.config/opencode/)
-  const commandsDir = path.join(OPENCODE_CONFIG_DIR, 'commands');
+  // Use commands/awesome-slash subdirectory for consistency with install.sh
+  const commandsDir = path.join(OPENCODE_CONFIG_DIR, 'commands', 'awesome-slash');
   const pluginDir = path.join(OPENCODE_CONFIG_DIR, 'plugins');
   const agentsDir = path.join(OPENCODE_CONFIG_DIR, 'agents');
 

@@ -266,14 +266,17 @@ fi
 if [ -d "$LEGACY_AGENTS_DIR" ]; then
   # Only remove known agent files, not the whole directory
   # Must match list in scripts/dev-install.js knownAgents array
-  for agent in plan-synthesizer.md enhancement-reporter.md ci-fixer.md deslop-work.md \
-               simple-fixer.md perf-analyzer.md perf-code-paths.md perf-investigation-logger.md \
-               perf-theory-gatherer.md perf-theory-tester.md map-validator.md exploration-agent.md \
-               perf-orchestrator.md ci-monitor.md implementation-agent.md planning-agent.md \
-               test-coverage-checker.md plugin-enhancer.md agent-enhancer.md docs-enhancer.md \
-               claudemd-enhancer.md prompt-enhancer.md hooks-enhancer.md skills-enhancer.md \
-               enhancement-orchestrator.md task-discoverer.md delivery-validator.md docs-updater.md \
-               worktree-manager.md deslop-analyzer.md docs-analyzer.md docs-validator.md; do
+  known_agents=(
+    'plan-synthesizer.md' 'enhancement-reporter.md' 'ci-fixer.md' 'deslop-work.md'
+    'simple-fixer.md' 'perf-analyzer.md' 'perf-code-paths.md' 'perf-investigation-logger.md'
+    'perf-theory-gatherer.md' 'perf-theory-tester.md' 'map-validator.md' 'exploration-agent.md'
+    'perf-orchestrator.md' 'ci-monitor.md' 'implementation-agent.md' 'planning-agent.md'
+    'test-coverage-checker.md' 'plugin-enhancer.md' 'agent-enhancer.md' 'docs-enhancer.md'
+    'claudemd-enhancer.md' 'prompt-enhancer.md' 'hooks-enhancer.md' 'skills-enhancer.md'
+    'enhancement-orchestrator.md' 'task-discoverer.md' 'delivery-validator.md' 'docs-updater.md'
+    'worktree-manager.md' 'deslop-analyzer.md' 'docs-analyzer.md' 'docs-validator.md'
+  )
+  for agent in "${known_agents[@]}"; do
     if [ -f "$LEGACY_AGENTS_DIR/$agent" ]; then
       rm "$LEGACY_AGENTS_DIR/$agent"
       cleaned_legacy=true
