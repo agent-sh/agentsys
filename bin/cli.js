@@ -797,7 +797,7 @@ function installForCodex(installDir) {
   }
 
   console.log('\n[OK] Codex CLI installation complete!');
-  console.log(`   Config: ${configPath}`);
+  console.log(`   Config: ${configDir}`);
   console.log(`   Skills: ${skillsDir}`);
   console.log('   Access via: $next-task, $ship, $deslop, etc.\n');
   return true;
