@@ -879,7 +879,8 @@ function generatePromptReport(results, options = {}) {
     ...(results.exampleIssues || []),
     ...(results.contextIssues || []),
     ...(results.outputIssues || []),
-    ...(results.antiPatternIssues || [])
+    ...(results.antiPatternIssues || []),
+    ...(results.codeValidationIssues || [])
   ];
 
   // Count by certainty
@@ -970,6 +971,18 @@ function generatePromptReport(results, options = {}) {
     lines.push('');
   }
 
+  // Code Validation Issues
+  if (results.codeValidationIssues && results.codeValidationIssues.length > 0) {
+    lines.push(`### Code Validation Issues (${results.codeValidationIssues.length})`);
+    lines.push('');
+    lines.push('| Issue | Fix | Certainty |');
+    lines.push('|-------|-----|-----------|');
+    for (const issue of results.codeValidationIssues) {
+      lines.push(`| ${issue.issue} | ${issue.fix || 'N/A'} | ${issue.certainty} |`);
+    }
+    lines.push('');
+  }
+
   // No issues
   if (allIssues.length === 0) {
     lines.push('No issues found.');
@@ -1007,7 +1020,8 @@ function generatePromptSummaryReport(allResults, options = {}) {
       ...(result.exampleIssues || []),
       ...(result.contextIssues || []),
       ...(result.outputIssues || []),
-      ...(result.antiPatternIssues || [])
+      ...(result.antiPatternIssues || []),
+      ...(result.codeValidationIssues || [])
     ];
     totalHigh += countByCertainty(allIssues, 'HIGH');
     totalMedium += countByCertainty(allIssues, 'MEDIUM');
@@ -1041,7 +1055,8 @@ function generatePromptSummaryReport(allResults, options = {}) {
       ...(result.exampleIssues || []),
       ...(result.contextIssues || []),
       ...(result.outputIssues || []),
-      ...(result.antiPatternIssues || [])
+      ...(result.antiPatternIssues || []),
+      ...(result.codeValidationIssues || [])
     ];
     const h = countByCertainty(allIssues, 'HIGH');
     const m = countByCertainty(allIssues, 'MEDIUM');

@@ -826,6 +826,473 @@ As needed, add more context.
   });
 });
 
+describe('extractCodeBlocks', () => {
+  it('should extract code blocks with language tags', () => {
+    const content = `
+# Example
+
+\`\`\`javascript
+const x = 1;
+\`\`\`
+
+\`\`\`json
+{"key": "value"}
+\`\`\`
+`;
+
+    const blocks = promptAnalyzer.extractCodeBlocks(content);
+
+    expect(blocks).toHaveLength(2);
+    expect(blocks[0].language).toBe('javascript');
+    expect(blocks[0].code).toBe('const x = 1;');
+    expect(blocks[0].startLine).toBeGreaterThan(0);
+
+    expect(blocks[1].language).toBe('json');
+    expect(blocks[1].code).toBe('{"key": "value"}');
+  });
+
+  it('should handle code blocks without language tag', () => {
+    const content = `
+\`\`\`
+some code here
+\`\`\`
+`;
+
+    const blocks = promptAnalyzer.extractCodeBlocks(content);
+
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0].language).toBe('');
+    expect(blocks[0].code).toBe('some code here');
+  });
+
+  it('should handle empty code blocks', () => {
+    const content = `
+\`\`\`javascript
+\`\`\`
+`;
+
+    const blocks = promptAnalyzer.extractCodeBlocks(content);
+
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0].language).toBe('javascript');
+    expect(blocks[0].code).toBe('');
+  });
+
+  it('should handle unclosed code blocks', () => {
+    const content = `
+\`\`\`javascript
+const x = 1;
+`;
+
+    const blocks = promptAnalyzer.extractCodeBlocks(content);
+
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0].language).toBe('javascript');
+    expect(blocks[0].code).toContain('const x = 1;');
+  });
+
+  it('should return empty array for null/undefined content', () => {
+    expect(promptAnalyzer.extractCodeBlocks(null)).toEqual([]);
+    expect(promptAnalyzer.extractCodeBlocks(undefined)).toEqual([]);
+    expect(promptAnalyzer.extractCodeBlocks('')).toEqual([]);
+  });
+
+  it('should handle multi-line code blocks', () => {
+    const content = `
+\`\`\`python
+def hello():
+    print("world")
+    return True
+\`\`\`
+`;
+
+    const blocks = promptAnalyzer.extractCodeBlocks(content);
+
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0].language).toBe('python');
+    expect(blocks[0].code).toContain('def hello():');
+    expect(blocks[0].code).toContain('print("world")');
+  });
+});
+
+describe('Code Validation Patterns', () => {
+  describe('invalid_json_in_code_block', () => {
+    const pattern = promptPatterns.promptPatterns.invalid_json_in_code_block;
+
+    it('should detect invalid JSON syntax', () => {
+      const content = `
+\`\`\`json
+{"key": "value",}
+\`\`\`
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeTruthy();
+      expect(result.issue).toContain('Invalid JSON');
+    });
+
+    it('should pass valid JSON', () => {
+      const content = `
+\`\`\`json
+{"key": "value", "nested": {"a": 1}}
+\`\`\`
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeNull();
+    });
+
+    it('should skip JSON in bad-example tags', () => {
+      const content = `
+<bad-example>
+\`\`\`json
+{"key": "value",}
+\`\`\`
+</bad-example>
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeNull();
+    });
+
+    it('should skip JSON in bad_example tags (underscore variant)', () => {
+      const content = `
+<bad_example>
+\`\`\`json
+{invalid json here}
+\`\`\`
+</bad_example>
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeNull();
+    });
+
+    it('should skip empty JSON blocks', () => {
+      const content = `
+\`\`\`json
+\`\`\`
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('invalid_js_syntax', () => {
+    const pattern = promptPatterns.promptPatterns.invalid_js_syntax;
+
+    it('should detect JavaScript syntax errors', () => {
+      const content = `
+\`\`\`javascript
+const x = {
+  key: "value"
+  // missing comma
+  other: 123
+}
+\`\`\`
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeTruthy();
+      expect(result.issue).toContain('syntax error');
+    });
+
+    it('should pass valid JavaScript', () => {
+      const content = `
+\`\`\`javascript
+const x = {
+  key: "value",
+  other: 123
+};
+function foo() {
+  return x.key;
+}
+\`\`\`
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeNull();
+    });
+
+    it('should skip JS in bad-example tags', () => {
+      const content = `
+<bad-example>
+\`\`\`javascript
+const x = {bad syntax
+\`\`\`
+</bad-example>
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeNull();
+    });
+
+    it('should skip code with import/export statements', () => {
+      // Function constructor doesn't support ES modules syntax
+      const content = `
+\`\`\`javascript
+import { foo } from 'bar';
+export const x = 1;
+\`\`\`
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeNull();
+    });
+
+    it('should handle js language tag (short form)', () => {
+      const content = `
+\`\`\`js
+const x = 1;
+\`\`\`
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('code_language_mismatch', () => {
+    const pattern = promptPatterns.promptPatterns.code_language_mismatch;
+
+    it('should detect JSON tagged as JavaScript', () => {
+      const content = `
+\`\`\`javascript
+{
+  "name": "test",
+  "version": "1.0.0"
+}
+\`\`\`
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeTruthy();
+      expect(result.issue).toContain('JavaScript but appears to be JSON');
+    });
+
+    it('should detect JavaScript tagged as JSON', () => {
+      const content = `
+\`\`\`json
+const config = {
+  name: "test"
+};
+function setup() {}
+\`\`\`
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeTruthy();
+      expect(result.issue).toContain('JSON but appears to be JavaScript');
+    });
+
+    it('should not flag correctly tagged code', () => {
+      const content = `
+\`\`\`json
+{"key": "value"}
+\`\`\`
+
+\`\`\`javascript
+const x = 1;
+function foo() {}
+\`\`\`
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeNull();
+    });
+
+    it('should skip blocks without language tag', () => {
+      const content = `
+\`\`\`
+{"key": "value"}
+\`\`\`
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeNull();
+    });
+
+    it('should skip blocks in bad-example tags', () => {
+      const content = `
+<bad-example>
+\`\`\`json
+const x = wrongTag;
+\`\`\`
+</bad-example>
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeNull();
+    });
+
+    it('should detect Python tagged as JavaScript', () => {
+      const content = `
+\`\`\`javascript
+def hello():
+    print("world")
+\`\`\`
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeTruthy();
+      expect(result.issue).toContain('JavaScript but appears to be Python');
+    });
+  });
+
+  describe('heading_hierarchy_gaps', () => {
+    const pattern = promptPatterns.promptPatterns.heading_hierarchy_gaps;
+
+    it('should detect skipped heading levels', () => {
+      const content = `
+# Main Title
+
+### Skipped H2
+
+Some content here.
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeTruthy();
+      expect(result.issue).toContain('H1 to H3');
+      expect(result.issue).toContain('skipped H2');
+    });
+
+    it('should pass valid heading hierarchy', () => {
+      const content = `
+# Main Title
+
+## Section 1
+
+### Subsection 1.1
+
+## Section 2
+
+### Subsection 2.1
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeNull();
+    });
+
+    it('should allow going from deeper to shallower levels', () => {
+      const content = `
+# Title
+
+## Section
+
+### Subsection
+
+# New Top Level
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeNull();
+    });
+
+    it('should not flag single heading', () => {
+      const content = `
+# Only One Heading
+
+Some content.
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeNull();
+    });
+
+    it('should detect H2 to H4 gap', () => {
+      const content = `
+# Title
+
+## Section
+
+#### Deep Section
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeTruthy();
+      expect(result.issue).toContain('H2 to H4');
+    });
+  });
+});
+
+describe('Code Validation Integration', () => {
+  const fs = require('fs');
+  const os = require('os');
+
+  let tempDir;
+
+  beforeEach(() => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'code-validation-test-'));
+  });
+
+  afterEach(() => {
+    if (tempDir && fs.existsSync(tempDir)) {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it('should detect invalid JSON in prompt file', () => {
+    const promptPath = path.join(tempDir, 'test-prompt.md');
+    fs.writeFileSync(promptPath, `
+# Test Prompt
+
+Example JSON:
+
+\`\`\`json
+{"key": "value",}
+\`\`\`
+`);
+
+    const result = promptAnalyzer.analyzePrompt(promptPath);
+
+    expect(result.codeValidationIssues).toBeDefined();
+    const jsonIssue = result.codeValidationIssues.find(
+      i => i.patternId === 'invalid_json_in_code_block'
+    );
+    expect(jsonIssue).toBeDefined();
+    expect(jsonIssue.certainty).toBe('HIGH');
+  });
+
+  it('should include codeValidationIssues in report', () => {
+    const promptPath = path.join(tempDir, 'validation-test.md');
+    fs.writeFileSync(promptPath, `
+# Test
+
+\`\`\`json
+{invalid}
+\`\`\`
+`);
+
+    const result = promptAnalyzer.analyzePrompt(promptPath);
+    const report = promptAnalyzer.generateReport(result);
+
+    expect(report).toContain('Code Validation Issues');
+  });
+});
+
 describe('Pattern Helper Functions', () => {
   describe('getAllPatterns', () => {
     it('should return all patterns', () => {

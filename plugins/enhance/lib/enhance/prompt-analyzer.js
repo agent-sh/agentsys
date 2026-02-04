@@ -12,6 +12,67 @@ const { promptPatterns, estimateTokens } = require('./prompt-patterns');
 const reporter = require('./reporter');
 
 /**
+ * Extract fenced code blocks from markdown content
+ * @param {string} content - Markdown content
+ * @returns {Array<{language: string, code: string, startLine: number}>} Array of code blocks
+ */
+function extractCodeBlocks(content) {
+  if (!content || typeof content !== 'string') return [];
+
+  const blocks = [];
+  const lines = content.split('\n');
+  let inCodeBlock = false;
+  let currentBlock = null;
+  let codeLines = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const lineNum = i + 1; // 1-indexed
+
+    // Check for code fence start (``` with optional language)
+    const fenceStartMatch = line.match(/^(\s*)```(\w*)\s*$/);
+    const fenceEndMatch = line.match(/^(\s*)```\s*$/);
+
+    if (!inCodeBlock && fenceStartMatch) {
+      // Start of code block
+      inCodeBlock = true;
+      currentBlock = {
+        language: fenceStartMatch[2] || '', // Empty string if no language
+        startLine: lineNum,
+        indent: fenceStartMatch[1] || ''
+      };
+      codeLines = [];
+    } else if (inCodeBlock && fenceEndMatch) {
+      // End of code block
+      inCodeBlock = false;
+      if (currentBlock) {
+        blocks.push({
+          language: currentBlock.language,
+          code: codeLines.join('\n'),
+          startLine: currentBlock.startLine
+        });
+        currentBlock = null;
+      }
+      codeLines = [];
+    } else if (inCodeBlock) {
+      // Inside code block - collect the code
+      codeLines.push(line);
+    }
+  }
+
+  // Handle unclosed code block at end of file
+  if (inCodeBlock && currentBlock) {
+    blocks.push({
+      language: currentBlock.language,
+      code: codeLines.join('\n'),
+      startLine: currentBlock.startLine
+    });
+  }
+
+  return blocks;
+}
+
+/**
  * Detect prompt file type from path or content
  * @param {string} filePath - File path
  * @param {string} content - File content
@@ -69,7 +130,8 @@ function analyzePrompt(promptPath, options = {}) {
     exampleIssues: [],
     contextIssues: [],
     outputIssues: [],
-    antiPatternIssues: []
+    antiPatternIssues: [],
+    codeValidationIssues: []
   };
 
   // Read file
@@ -140,6 +202,9 @@ function analyzePrompt(promptPath, options = {}) {
           break;
         case 'anti-pattern':
           results.antiPatternIssues.push(issue);
+          break;
+        case 'code-validation':
+          results.codeValidationIssues.push(issue);
           break;
         default:
           results.structureIssues.push(issue);
@@ -293,6 +358,7 @@ function applyFixes(results, options = {}) {
       allIssues.push(...(r.contextIssues || []));
       allIssues.push(...(r.outputIssues || []));
       allIssues.push(...(r.antiPatternIssues || []));
+      allIssues.push(...(r.codeValidationIssues || []));
     }
   } else {
     allIssues.push(...(results.clarityIssues || []));
@@ -301,6 +367,7 @@ function applyFixes(results, options = {}) {
     allIssues.push(...(results.contextIssues || []));
     allIssues.push(...(results.outputIssues || []));
     allIssues.push(...(results.antiPatternIssues || []));
+    allIssues.push(...(results.codeValidationIssues || []));
   }
 
   // Filter to auto-fixable HIGH certainty issues
@@ -425,5 +492,6 @@ module.exports = {
   fixAggressiveEmphasis,
   generateReport,
   detectPromptType,
-  estimateTokens
+  estimateTokens,
+  extractCodeBlocks
 };
