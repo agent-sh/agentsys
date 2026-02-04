@@ -1237,6 +1237,26 @@ Some content.
       expect(result).toBeTruthy();
       expect(result.issue).toContain('H2 to H4');
     });
+
+    it('should ignore headings inside code blocks', () => {
+      const content = `
+# Title
+
+## Section
+
+\`\`\`markdown
+# Fake H1 in code block
+
+### Fake H3 that would cause gap if not excluded
+\`\`\`
+
+### Real H3 (valid since we have H2)
+`;
+
+      const result = pattern.check(content);
+
+      expect(result).toBeNull();
+    });
   });
 });
 
