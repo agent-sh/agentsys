@@ -27,16 +27,13 @@ This workflow exists because each step serves a purpose. Taking shortcuts defeat
 1. Every step is mandatory - not suggestions, not guidelines, requirements
 2. Use the specified agents - do not substitute with manual commands
 3. Output verification blocks - prove each step completed
-4. If you think a step is unnecessary, you are wrong
+4. If you think a step is unnecessary, review the "What Happens If Skipped" column above
 
-### Forbidden Actions
+### Forbidden Shortcuts
 
-- Using `git checkout -b` instead of `worktree-manager` agent
-- Skipping review loop iterations
-- Checking CI once and moving to merge
-- Skipping the 3-minute wait for auto-reviewers
-- Leaving PR comments unaddressed
-- Rationalizing shortcuts ("it's faster", "not needed this time")
+- `git checkout -b` or `git branch` instead of `worktree-manager` agent
+- Single CI check instead of monitoring loop
+- Rationalizing skips ("it's faster", "not needed this time")
 </no-shortcuts-policy>
 
 ---
@@ -79,11 +76,8 @@ Each phase must complete before the next starts:
 | Ship | Explicit /ship invocation (not hook-only) |
 
 **Forbidden actions for agents:**
-- No agent may create PRs (only /ship)
-- No agent may push to remote (only /ship)
-- No agent may skip Phase 9 review loop
-- No agent may skip delivery-validator
-- No agent may skip docs update (sync-docs-agent)
+- No agent may create PRs or push to remote (only /ship)
+- No agent may skip Phase 9, delivery-validator, or docs update
 </workflow-gates>
 
 ## Arguments
@@ -170,18 +164,36 @@ if (args.includes('--resume')) {
 }
 ```
 
+<phase-1>
 ## Phase 1: Policy Selection
 
-No agent needed. Use `lib/sources/policy-questions.js`:
+No agent needed. Use AskUserQuestion tool with ALL 3 questions from `lib/sources/policy-questions.js`.
+
+**MANDATORY - Ask ALL 3 Questions:**
+
+| # | Header | Question | Options |
+|---|--------|----------|---------|
+| 1 | Source | Where should I look for tasks? | GitHub Issues, GitLab Issues, Local tasks.md, Custom, Other (+ cached if exists) |
+| 2 | Priority | What type of tasks to prioritize? | All, Bugs, Security, Features |
+| 3 | Stop Point | How far should I take this task? | Merged, PR Created, Implemented, Deployed, Production |
+
+**Forbidden Actions:**
+- Skipping any of the 3 questions
+- Inventing your own questions instead of using the exact ones above
+- Proceeding to Phase 2 without all 3 answers
 
 ```javascript
+// Reference implementation - use ALL questions
 const { sources } = require(path.join(pluginRoot, 'lib'));
 const { questions, cachedPreference } = sources.getPolicyQuestions();
-AskUserQuestion({ questions });
+// questions array contains all 3 questions above
+AskUserQuestion({ questions }); // Pass all 3 questions
 const policy = sources.parseAndCachePolicy(responses);
 workflowState.updateFlow({ policy, phase: 'task-discovery' });
 ```
+</phase-1>
 
+<phase-2>
 ## Phase 2: Task Discovery
 
 **Agent**: `next-task:task-discoverer` (sonnet)
@@ -193,6 +205,7 @@ await Task({
   prompt: `Discover tasks from source: ${JSON.stringify(policy.taskSource)}. Filter: ${policy.priorityFilter}. Present top 5 for selection.`
 });
 ```
+</phase-2>
 
 <phase-3>
 ## Phase 3: Worktree Setup
@@ -224,6 +237,7 @@ console.log(`[VERIFIED] Worktree: ${worktreeResult.worktreePath}`);
 - Skipping worktree "because branching is faster"
 </phase-3>
 
+<phase-4>
 ## Phase 4: Exploration
 
 **Agent**: `next-task:exploration-agent` (opus)
@@ -236,7 +250,9 @@ await Task({
   prompt: `Deep codebase analysis for task #${state.task.id}. Find key files, patterns, dependencies.`
 });
 ```
+</phase-4>
 
+<phase-5>
 ## Phase 5: Planning
 
 **Agent**: `next-task:planning-agent` (opus)
@@ -249,7 +265,9 @@ const planOutput = await Task({
   prompt: `Design implementation plan for task #${state.task.id}. Output structured JSON between === PLAN_START === and === PLAN_END === markers.`
 });
 ```
+</phase-5>
 
+<phase-6>
 ## Phase 6: User Approval (Plan Mode)
 
 **Last human interaction point.** Present plan via EnterPlanMode/ExitPlanMode.
@@ -259,7 +277,9 @@ EnterPlanMode();
 // User reviews and approves via ExitPlanMode
 workflowState.completePhase({ planApproved: true, plan });
 ```
+</phase-6>
 
+<phase-7>
 ## Phase 7: Implementation
 
 **Agent**: `next-task:implementation-agent` (opus)
@@ -273,7 +293,9 @@ await Task({
 });
 // → SubagentStop hook triggers pre-review gates
 ```
+</phase-7>
 
+<phase-8>
 ## Phase 8: Pre-Review Gates
 
 **Agents** (parallel): `deslop:deslop-agent` + `next-task:test-coverage-checker` (sonnet)
@@ -318,6 +340,7 @@ Use Edit tool to apply. Commit message: "fix: clean up AI slop"`
   });
 }
 ```
+</phase-8>
 
 <phase-9>
 ## Phase 9: Review Loop
@@ -416,6 +439,7 @@ After review loop completes, output:
 ```
 </phase-9>
 
+<phase-10>
 ## Phase 10: Delivery Validation
 
 **Agent**: `next-task:delivery-validator` (sonnet)
@@ -431,7 +455,9 @@ if (!result.approved) {
   return; // Retries from implementation
 }
 ```
+</phase-10>
 
+<phase-11>
 ## Phase 11: Docs Update
 
 **Agent**: `sync-docs:sync-docs-agent` (sonnet)
@@ -474,9 +500,10 @@ Use the Edit tool to apply each fix. Commit message: "docs: sync documentation w
 
 workflowState.completePhase({ docsUpdated: true, fixesApplied: result.fixes?.length || 0 });
 ```
+</phase-11>
 
-<ship-handoff>
-## Handoff to /ship
+<phase-12>
+## Phase 12: Handoff to /ship
 
 After docs update (sync-docs-agent) completes, invoke /ship explicitly:
 
@@ -491,7 +518,7 @@ await Task({ subagent_type: "ship:ship", prompt: `Ship the task. State file: ${s
 - Monitor CI and review comments
 - Merge when approved
 - Cleanup worktree and tasks.json
-</ship-handoff>
+</phase-12>
 
 ## Error Handling
 
