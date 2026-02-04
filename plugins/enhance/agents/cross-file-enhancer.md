@@ -7,6 +7,7 @@ tools:
   - Glob
   - Grep
   - Bash(git:*)
+  - Bash(node:*)
 ---
 
 # Cross-File Enhancer
@@ -28,42 +29,29 @@ You MUST execute the `enhance-cross-file` skill to perform the analysis. The ski
 - Cross-file analyzer implementation
 - Output format specification
 
+**CRITICAL**: You MUST run the JavaScript analyzer using Bash(node:*). Do NOT manually apply patterns - the analyzer handles all detection programmatically.
+
 ## Workflow
 
-1. **Invoke Skill** - Execute enhance-cross-file skill
-2. **Load Files** - Use cross-file-analyzer to load agents, skills, commands
-3. **Run Analysis** - Execute all cross-file pattern checks
+1. **Locate Analyzer** - Find `lib/enhance/cross-file-analyzer.js` in the plugin root
+2. **Run Analyzer** - Execute via `node -e` with the script below
+3. **Parse Results** - The analyzer returns JSON with findings
 4. **Format Output** - Return findings in standard enhance format
 
-## Implementation
+## Required Invocation
 
-```javascript
-const path = require('path');
+You MUST run this command to get analysis results:
 
-// Load the cross-file analyzer from lib
-const libPath = path.resolve(__dirname, '../lib/enhance/cross-file-analyzer.js');
-const crossFileAnalyzer = require(libPath);
-
-// Run full analysis
-const targetPath = process.cwd(); // Or from arguments
-const results = crossFileAnalyzer.analyze(targetPath);
-
-// Format findings for orchestrator
-const findings = results.findings.map(f => ({
-  source: 'cross-file',
-  category: f.category,
-  certainty: f.certainty,
-  file: f.file,
-  issue: f.issue,
-  fix: f.fix
-}));
-
-return {
-  enhancer: 'cross-file',
-  summary: results.summary,
-  findings: findings
-};
+```bash
+node -e "
+const analyzer = require('${PLUGIN_ROOT}/lib/enhance/cross-file-analyzer.js');
+const results = analyzer.analyze('${TARGET_PATH}');
+console.log(JSON.stringify(results, null, 2));
+"
 ```
+
+Replace `${PLUGIN_ROOT}` with actual plugin path (use Glob to find it).
+Replace `${TARGET_PATH}` with the target directory to analyze.
 
 ## Output Format
 
