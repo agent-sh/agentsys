@@ -88,7 +88,7 @@ const autoLearned = loadAutoSuppressions(suppressionPath, projectId);
 |------|-------|-------|---------|
 | plugin | enhance:plugin-enhancer | sonnet | Tool schemas, MCP |
 | agent | enhance:agent-enhancer | opus | Agent prompts |
-| claudemd | enhance:claudemd-enhancer | sonnet | Project memory |
+| claudemd | enhance:claudemd-enhancer | opus | Project memory |
 | docs | enhance:docs-enhancer | sonnet | Documentation |
 | prompt | enhance:prompt-enhancer | opus | General prompts |
 | hooks | enhance:hooks-enhancer | opus | Hook safety |
@@ -115,7 +115,9 @@ for (const [type, agent] of Object.entries(enhancerAgents)) {
 
   promises.push(Task({
     subagent_type: agent,
-    prompt: `Analyze ${type} in ${targetPath}. verbose: ${flags.verbose}
+    prompt: `Invoke your skill to analyze ${type} in ${targetPath}.
+Use the Skill tool to execute your enhance-* skill which runs the JavaScript analyzer.
+verbose: ${flags.verbose}
 Return JSON: { "enhancerType": "${type}", "findings": [...], "summary": { high, medium, low } }`
   }));
 }

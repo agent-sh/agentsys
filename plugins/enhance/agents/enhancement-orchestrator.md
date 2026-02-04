@@ -46,7 +46,7 @@ Parse from input:
 |------|-------|-------|
 | plugin | enhance:plugin-enhancer | sonnet |
 | agent | enhance:agent-enhancer | opus |
-| claudemd | enhance:claudemd-enhancer | sonnet |
+| claudemd | enhance:claudemd-enhancer | opus |
 | docs | enhance:docs-enhancer | sonnet |
 | prompt | enhance:prompt-enhancer | opus |
 | hooks | enhance:hooks-enhancer | opus |
