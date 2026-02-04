@@ -14,7 +14,20 @@ const fs = require('fs');
 const path = require('path');
 
 const home = process.env.HOME || process.env.USERPROFILE;
-const OPENCODE_DIR = path.join(home, '.opencode');
+
+/**
+ * Get OpenCode config directory following XDG Base Directory Specification.
+ * OpenCode uses ~/.config/opencode/ by default, or $XDG_CONFIG_HOME/opencode if set.
+ */
+function getOpenCodeConfigDir() {
+  const xdgConfigHome = process.env.XDG_CONFIG_HOME;
+  if (xdgConfigHome && xdgConfigHome.trim()) {
+    return path.join(xdgConfigHome, 'opencode');
+  }
+  return path.join(home, '.config', 'opencode');
+}
+
+const OPENCODE_DIR = getOpenCodeConfigDir();
 
 const issues = [];
 
