@@ -382,6 +382,22 @@ function loadAllAgents(rootDir, options = {}) {
 }
 
 /**
+ * Load all command files from a directory structure
+ * @param {string} rootDir - Root directory to scan
+ * @param {Object} options - Options including verbose flag
+ * @returns {Array<Object>} Array of parsed command objects
+ */
+function loadAllCommands(rootDir, options = {}) {
+  return loadPromptFiles(
+    rootDir,
+    'commands',
+    f => f.endsWith('.md') && f.toLowerCase() !== 'readme.md',
+    (dir, file) => path.join(dir, file),
+    options
+  );
+}
+
+/**
  * Load all skill files from a directory structure
  * @param {string} rootDir - Root directory to scan
  * @param {Object} options - Options including verbose flag
@@ -750,9 +766,10 @@ function analyzeSkillAlignment(skills, knownTools) {
  * Find orphaned agents (not referenced anywhere)
  * @param {Array<Object>} agents - Parsed agents
  * @param {Array<Object>} skills - Parsed skills
+ * @param {Array<Object>} commands - Parsed commands
  * @returns {Array<Object>} Findings
  */
-function analyzeOrphanedPrompts(agents, skills) {
+function analyzeOrphanedPrompts(agents, skills, commands = []) {
   const findings = [];
   const pattern = crossFilePatterns.orphaned_prompt;
 
@@ -768,6 +785,12 @@ function analyzeOrphanedPrompts(agents, skills) {
   // From skills
   for (const skill of skills) {
     const refs = extractAgentReferences(skill.body);
+    refs.forEach(r => allReferences.add(r));
+  }
+
+  // From commands (addresses false positives for command-invoked agents)
+  for (const command of commands) {
+    const refs = extractAgentReferences(command.body);
     refs.forEach(r => allReferences.add(r));
   }
 
@@ -835,12 +858,14 @@ function analyze(rootDir, options = {}) {
   // Load known tools (config file or platform defaults)
   const knownTools = loadKnownTools(rootDir);
 
-  // Load all agents and skills
+  // Load all agents, skills, and commands
   const agents = loadAllAgents(rootDir, { verbose });
   const skills = loadAllSkills(rootDir, { verbose });
+  const commands = loadAllCommands(rootDir, { verbose });
 
   results.summary.agentsAnalyzed = agents.length;
   results.summary.skillsAnalyzed = skills.length;
+  results.summary.commandsAnalyzed = commands.length;
 
   // Run analysis for each category
   if (categories.includes('tool-consistency')) {
@@ -857,7 +882,7 @@ function analyze(rootDir, options = {}) {
 
   if (categories.includes('consistency')) {
     const consistencyFindings = analyzePromptConsistency(agents);
-    const orphanFindings = analyzeOrphanedPrompts(agents, skills);
+    const orphanFindings = analyzeOrphanedPrompts(agents, skills, commands);
     results.findings.push(...consistencyFindings, ...orphanFindings);
     results.summary.byCategory['consistency'] = consistencyFindings.length + orphanFindings.length;
   }
@@ -886,6 +911,7 @@ module.exports = {
   // Loading functions
   loadAllAgents,
   loadAllSkills,
+  loadAllCommands,
 
   // Analysis functions
   analyzeToolConsistency,

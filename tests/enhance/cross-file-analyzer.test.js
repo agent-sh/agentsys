@@ -762,6 +762,15 @@ describe('Integration - Real Plugin Analysis', () => {
     expect(skills[0]).toHaveProperty('body');
   });
 
+  it('should load commands from plugins directory', () => {
+    const commands = crossFileAnalyzer.loadAllCommands(rootDir);
+
+    expect(commands.length).toBeGreaterThan(0);
+    expect(commands[0]).toHaveProperty('plugin');
+    expect(commands[0]).toHaveProperty('name');
+    expect(commands[0]).toHaveProperty('body');
+  });
+
   it('should run full cross-file analysis', () => {
     const results = crossFileAnalyzer.analyze(rootDir, { verbose: true });
 
@@ -769,6 +778,7 @@ describe('Integration - Real Plugin Analysis', () => {
     expect(results).toHaveProperty('summary');
     expect(results.summary.agentsAnalyzed).toBeGreaterThan(0);
     expect(results.summary.skillsAnalyzed).toBeGreaterThan(0);
+    expect(results.summary.commandsAnalyzed).toBeGreaterThan(0);
     expect(results.summary).toHaveProperty('byCategory');
   });
 
