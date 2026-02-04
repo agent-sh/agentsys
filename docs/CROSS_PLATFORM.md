@@ -89,7 +89,7 @@ claude --plugin-dir /path/to/awesome-slash/plugins/next-task
 - `/enhance` - Enhancement analyzer suite
 - `/sync-docs` - Documentation sync
 
-### Available Agents (40 total: 30 file-based + 10 role-based)
+### Available Agents (39 total: 29 file-based + 10 role-based)
 
 **Key agents shown below:**
 

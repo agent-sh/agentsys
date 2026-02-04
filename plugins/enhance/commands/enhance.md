@@ -43,28 +43,15 @@ Parse from $ARGUMENTS:
 
 ## Implementation
 
-This command invokes the `enhancement-orchestrator` agent:
+Execute the `enhance-orchestrator` skill directly. The skill workflow:
 
-```javascript
-// Invoke orchestrator agent with arguments
-await Task({
-  subagent_type: "enhance:enhancement-orchestrator",
-  prompt: `Run enhancement analysis.
+1. Parse arguments from $ARGUMENTS
+2. Run discovery to find content types
+3. Spawn enhancer agents in parallel via Task() for each content type
+4. Aggregate results from all enhancers
+5. Generate unified report
 
-Target: ${targetPath || '.'}
-Options:
-- apply: ${args.includes('--apply')}
-- focus: ${focusType || 'all'}
-- verbose: ${args.includes('--verbose')}
-- showSuppressed: ${args.includes('--show-suppressed')}
-- noLearn: ${args.includes('--no-learn')}
-- resetLearned: ${args.includes('--reset-learned')}
-- exportLearned: ${args.includes('--export-learned')}
-
-Discover content, launch enhancers in parallel, aggregate results, and generate report.
-Auto-learning enabled by default - detects and saves false positives for future runs.`
-});
-```
+See `skills/orchestrator/SKILL.md` for detailed implementation.
 
 ## Output Format
 

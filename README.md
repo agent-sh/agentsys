@@ -8,7 +8,7 @@
 
 AI models can write code. That's not the hard part anymore. The hard part is everything else—picking what to work on, managing branches, reviewing output, cleaning up artifacts, handling CI, addressing comments, deploying. **awesome-slash automates the entire workflow**, not just the coding.
 
-**9 plugins · 40 agents · 25 skills · 26k lines of lib code · 3,357 tests · 3 platforms**
+**9 plugins · 39 agents · 25 skills · 26k lines of lib code · 3,357 tests · 3 platforms**
 
 If you find this useful: [⭐ Star the repo](https://github.com/avifenesh/awesome-slash)
 

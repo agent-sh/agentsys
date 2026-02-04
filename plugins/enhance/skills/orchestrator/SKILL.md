@@ -89,7 +89,7 @@ const autoLearned = loadAutoSuppressions(suppressionPath, projectId);
 | plugin | enhance:plugin-enhancer | sonnet | Tool schemas, MCP |
 | agent | enhance:agent-enhancer | opus | Agent prompts |
 | claudemd | enhance:claudemd-enhancer | opus | Project memory |
-| docs | enhance:docs-enhancer | sonnet | Documentation |
+| docs | enhance:docs-enhancer | opus | Documentation |
 | prompt | enhance:prompt-enhancer | opus | General prompts |
 | hooks | enhance:hooks-enhancer | opus | Hook safety |
 | skills | enhance:skills-enhancer | opus | Skill triggers |

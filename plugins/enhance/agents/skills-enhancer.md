@@ -1,7 +1,7 @@
 ---
 name: skills-enhancer
 description: Analyze SKILL.md files for trigger and structure quality
-tools: Read, Glob, Grep
+tools: Skill, Read, Glob, Grep
 model: opus
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: hooks-enhancer
 description: Analyze hook definitions for safety and best practices
-tools: Read, Glob, Grep
+tools: Skill, Read, Glob, Grep
 model: opus
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: agent-enhancer
 description: Analyze agent prompts for optimization opportunities
-tools: Read, Glob, Grep, Bash(git:*)
+tools: Skill, Read, Glob, Grep, Bash(git:*)
 model: opus
 ---
 

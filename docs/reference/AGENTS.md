@@ -2,7 +2,7 @@
 
 Complete reference for all agents in awesome-slash.
 
-**TL;DR:** 40 agents across 9 plugins (8 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 40 -->
+**TL;DR:** 39 agents across 9 plugins (8 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 39 -->
 
 ---
 
@@ -12,7 +12,7 @@ Complete reference for all agents in awesome-slash.
 |--------|--------|---------|
 | next-task | 10 | [task-discoverer](#task-discoverer), [worktree-manager](#worktree-manager), [exploration-agent](#exploration-agent), [planning-agent](#planning-agent), [implementation-agent](#implementation-agent), [test-coverage-checker](#test-coverage-checker), [delivery-validator](#delivery-validator), [ci-monitor](#ci-monitor), [ci-fixer](#ci-fixer), [simple-fixer](#simple-fixer) |
 | audit-project | 10 | [code-quality-reviewer](#code-quality-reviewer), [security-expert](#security-expert), [performance-engineer](#performance-engineer), [test-quality-guardian](#test-quality-guardian), [architecture-reviewer](#architecture-reviewer), [database-specialist](#database-specialist), [api-designer](#api-designer), [frontend-specialist](#frontend-specialist), [backend-specialist](#backend-specialist), [devops-reviewer](#devops-reviewer) |
-| enhance | 10 | [enhancement-orchestrator](#enhancement-orchestrator), [plugin-enhancer](#plugin-enhancer), [agent-enhancer](#agent-enhancer), [claudemd-enhancer](#claudemd-enhancer), [docs-enhancer](#docs-enhancer), [prompt-enhancer](#prompt-enhancer), [hooks-enhancer](#hooks-enhancer), [skills-enhancer](#skills-enhancer), [cross-file-enhancer](#cross-file-enhancer), [enhancement-reporter](#enhancement-reporter) |
+| enhance | 9 | [plugin-enhancer](#plugin-enhancer), [agent-enhancer](#agent-enhancer), [claudemd-enhancer](#claudemd-enhancer), [docs-enhancer](#docs-enhancer), [prompt-enhancer](#prompt-enhancer), [hooks-enhancer](#hooks-enhancer), [skills-enhancer](#skills-enhancer), [cross-file-enhancer](#cross-file-enhancer), [enhancement-reporter](#enhancement-reporter) |
 | drift-detect | 1 | [plan-synthesizer](#plan-synthesizer) |
 | repo-map | 1 | [map-validator](#map-validator) |
 | perf | 6 | [perf-orchestrator](#perf-orchestrator), [perf-theory-gatherer](#perf-theory-gatherer), [perf-theory-tester](#perf-theory-tester), [perf-code-paths](#perf-code-paths), [perf-investigation-logger](#perf-investigation-logger), [perf-analyzer](#perf-analyzer) |
@@ -310,24 +310,6 @@ awesome-slash uses 40 specialized agents across 9 plugins (8 have agents - ship 
 ---
 
 ## enhance Plugin Agents
-
-### enhancement-orchestrator
-
-**Model:** opus
-**Purpose:** Coordinate all enhancement analyzers.
-
-**What it does:**
-1. Parses arguments (focus, apply mode)
-2. Discovers content to analyze
-3. Launches enhancers in parallel
-4. Aggregates results
-5. Coordinates auto-fixes
-
-**Tools available:**
-- Task (for sub-agents)
-- Read, Glob, Grep
-
----
 
 ### plugin-enhancer
 
