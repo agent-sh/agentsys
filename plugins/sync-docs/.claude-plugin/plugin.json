@@ -1,6 +1,6 @@
 {
   "name": "sync-docs",
-  "version": "3.8.0",
+  "version": "3.8.1",
   "description": "Sync documentation with code changes. Find outdated refs, update CHANGELOG, flag stale examples.",
   "author": {
     "name": "Avi Fenesh",

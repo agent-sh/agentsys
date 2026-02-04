@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.1] - 2026-02-04
+
+### Fixed
+- **Stop Point Options** - Restored missing "Deployed" and "Production" options in OpenCode embedded policy
+- **Phase 9 Review Loop** - Rewrote instructions to explicitly require spawning 4 parallel reviewer agents (code-quality, security, performance, test-coverage) instead of single generic reviewer
+- **Agent Naming Consistency** - Standardized all references from legacy `deslop-work` to `deslop:deslop-agent` across 12 files (docs, configs, agent prompts)
+
 ## [3.8.0] - 2026-02-02
 
 ### Added
