@@ -28,7 +28,7 @@ const AGENT_THINKING_CONFIG: Record<string, { budget: number; description: strin
 
   // Analysis tier - moderate thinking (12k)
   "exploration-agent": { budget: 12000, description: "Codebase exploration" },
-  "deslop-work": { budget: 12000, description: "Slop detection" },
+  "deslop-agent": { budget: 12000, description: "Slop detection" },
   "test-coverage-checker": { budget: 12000, description: "Coverage analysis" },
   "ci-fixer": { budget: 12000, description: "CI problem solving" },
 

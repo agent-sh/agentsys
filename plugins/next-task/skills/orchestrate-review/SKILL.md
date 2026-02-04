@@ -187,7 +187,7 @@ while (iteration <= MAX_ITERATIONS) {
   exec(`git add . && git commit -m "fix: review feedback (iteration ${iteration})"`);
 
   // 6. Post-iteration deslop
-  Task({ subagent_type: 'next-task:deslop-work', model: 'sonnet' });
+  Task({ subagent_type: 'deslop:deslop-agent', model: 'sonnet' });
 
   // 7. Stall detection
   const hash = crypto.createHash('sha256')

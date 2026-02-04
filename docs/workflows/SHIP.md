@@ -335,7 +335,7 @@ When called from `/next-task` (via `--state-file` argument):
 
 **Skipped phases:**
 - Phase 7 (internal review) - Already done by Phase 9 review loop
-- Deslop cleanup - Already done by deslop-work
+- Deslop cleanup - Already done by deslop:deslop-agent
 
 **Still runs:**
 - Phase 6 (address comments) - External reviewers comment AFTER PR creation

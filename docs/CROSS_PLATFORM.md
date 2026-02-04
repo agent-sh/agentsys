@@ -194,7 +194,7 @@ The native plugin (`~/.config/opencode/plugins/awesome-slash.ts`) provides deep 
 |------|--------|--------|
 | Execution | 0 | worktree-manager, simple-fixer, ci-monitor |
 | Discovery | 8k | task-discoverer |
-| Analysis | 12k | exploration-agent, deslop-work, ci-fixer |
+| Analysis | 12k | exploration-agent, deslop-agent, ci-fixer |
 | Reasoning | 16k | planning-agent, implementation-agent |
 | Synthesis | 20k | plan-synthesizer, enhancement-orchestrator |
 

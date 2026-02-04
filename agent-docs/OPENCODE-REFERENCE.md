@@ -920,7 +920,7 @@ Add to user's `opencode.json`:
 |----------------|-------|-----------------|
 | **Execution** (worktree, simple-fixer) | Haiku | None |
 | **Discovery** (task-discoverer, ci-monitor) | Sonnet | 8k |
-| **Analysis** (exploration, deslop-work) | Sonnet | 12k |
+| **Analysis** (exploration, deslop-agent) | Sonnet | 12k |
 | **Reasoning** (planning, review, delivery) | Sonnet | 16k |
 | **Synthesis** (plan-synthesizer, enhancement-orchestrator) | Opus | 16k+ |
 

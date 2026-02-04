@@ -56,7 +56,7 @@ Before proceeding to merge, output:
 
 When called from `/next-task` workflow (via `--state-file`):
 - **SKIPS Phase 5** internal review agents (already done by Phase 9 review loop)
-- **SKIPS deslop/docs** (already done by deslop-work, docs-updater)
+- **SKIPS deslop/docs** (already done by deslop:deslop-agent, sync-docs:sync-docs-agent)
 - **Trusts** that all quality gates passed
 
 **CRITICAL: Phase 4 ALWAYS runs** - even from /next-task. External auto-reviewers (Gemini, Copilot, CodeRabbit) comment AFTER PR creation and must be addressed.

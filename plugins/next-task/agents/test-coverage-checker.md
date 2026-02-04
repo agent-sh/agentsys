@@ -423,7 +423,7 @@ ${summary.recommendation}
 ## Integration Points
 
 This agent is called:
-1. **Before first review round** - In parallel with deslop-work
+1. **Before first review round** - In parallel with deslop:deslop-agent
 2. Results passed to Phase 9 review loop for context
 
 ## Success Criteria

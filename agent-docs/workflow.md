@@ -23,7 +23,7 @@ The main orchestrator **MUST spawn these agents in order**:
 | 5 | `planning-agent` | opus | Read, Grep, Glob, Bash(git:*), Task | Design implementation plan |
 | 6 | **USER APPROVAL** | - | - | Last human touchpoint |
 | 7 | `implementation-agent` | opus | Read, Write, Edit, Bash | Execute plan |
-| 8 | `deslop-work` | sonnet | Read, Grep, Edit, Bash(git:*) | Clean AI slop (uses pipeline.js) |
+| 8 | `deslop:deslop-agent` | sonnet | Read, Grep, Glob, Bash(git:*) | Clean AI slop (uses deslop skill) |
 | 8 | `test-coverage-checker` | sonnet | Bash(npm:*), Read, Grep | Validate test coverage |
 | 9 | Phase 9 review loop | sonnet reviewers | Task(general-purpose) | Multi-pass review with parallel agents |
 | 10 | `delivery-validator` | sonnet | Bash(npm:*), Read | Validate completion |
@@ -99,7 +99,7 @@ If Phase 9 review loop reports `blocked: true` (iteration limit or stall), /next
 | worktree-manager | Bash(git:*) | Write, Edit |
 | ci-monitor | Bash(gh:*), Read, Task | Write, Edit |
 | simple-fixer | Read, Edit, Bash(git:*) | Task |
-| deslop-work | Read, Grep, Edit, Bash(git:*) | Task |
+| deslop:deslop-agent | Read, Grep, Glob, Bash(git:*) | Task |
 
 ---
 
@@ -109,10 +109,10 @@ Agents that run in parallel after implementation, before review:
 
 | Agent | Purpose | Key Files |
 |-------|---------|-----------|
-| `deslop-work` | Clean AI slop from committed work | `lib/patterns/pipeline.js` |
+| `deslop:deslop-agent` | Clean AI slop from committed work | `deslop skill + lib/patterns/` |
 | `test-coverage-checker` | Validate new code has tests | Advisory only |
 
-**deslop-work** uses the 3-phase pipeline:
+**deslop:deslop-agent** uses the 3-phase pipeline:
 - Phase 1: Regex patterns (HIGH certainty, auto-fix)
 - Phase 2: Multi-pass analyzers (MEDIUM certainty, verify)
 - Phase 3: CLI tools (LOW certainty, advisory)

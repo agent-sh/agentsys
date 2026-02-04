@@ -20,7 +20,7 @@ Complete technical reference for the `/next-task` workflow.
 **Related docs:**
 - [Agent Reference](../reference/AGENTS.md) - Detailed agent documentation
 - [/ship Workflow](./SHIP.md) - The shipping phase in detail
-- [Slop Patterns](../reference/SLOP-PATTERNS.md) - What deslop-work detects
+- [Slop Patterns](../reference/SLOP-PATTERNS.md) - What deslop detects
 
 ---
 
@@ -161,13 +161,13 @@ The agent:
 
 ### Phase 8: Pre-Review Gates
 
-**Agents:** deslop-work (sonnet), test-coverage-checker (sonnet)
+**Agents:** deslop:deslop-agent (sonnet), test-coverage-checker (sonnet)
 **Human interaction: No**
 **Triggered by:** SubagentStop hook after implementation
 
 Both agents run in parallel:
 
-**deslop-work:**
+**deslop:deslop-agent:**
 - Analyzes git diff (only new changes)
 - Invokes `/deslop` pipeline
 - Applies HIGH certainty fixes automatically
@@ -206,7 +206,7 @@ The orchestrator:
 6. Aggregates findings by severity (critical/high/medium/low)
 7. Fixes all non-false-positive issues
 8. Commits fixes
-9. Runs deslop-work after each iteration
+9. Runs deslop:deslop-agent after each iteration
 10. Re-reviews changed files with ALL reviewers again
 11. Repeats until no open issues remain (max 5 iterations)
 
@@ -316,7 +316,7 @@ The workflow:
 | exploration-completed | planning |
 | plan-approved | implementation |
 | implementation-completed | pre-review-gates |
-| deslop-work-completed | review-loop |
+| deslop-completed | review-loop |
 | review-approved | delivery-validation |
 | delivery-validation-passed | docs-update |
 | docs-updated | ship |
@@ -328,7 +328,7 @@ The workflow:
 A SubagentStop hook enforces the workflow sequence. When any agent completes, the hook determines what runs next.
 
 **Enforced rules:**
-- Cannot skip deslop-work or test-coverage-checker
+- Cannot skip deslop:deslop-agent or test-coverage-checker
 - Cannot skip Phase 9 review loop
 - Cannot skip delivery-validator
 - Cannot skip sync-docs:sync-docs-agent
@@ -342,7 +342,7 @@ A SubagentStop hook enforces the workflow sequence. When any agent completes, th
 | Model | Agents | Why |
 |-------|--------|-----|
 | **opus** | exploration-agent, planning-agent, implementation-agent | Complex reasoning, quality-critical phases |
-| **sonnet** | task-discoverer, deslop-work, test-coverage-checker, delivery-validator, sync-docs:sync-docs-agent, ci-fixer | Moderate reasoning, structured tasks |
+| **sonnet** | task-discoverer, deslop:deslop-agent, test-coverage-checker, delivery-validator, sync-docs:sync-docs-agent, ci-fixer | Moderate reasoning, structured tasks |
 | **haiku** | worktree-manager, simple-fixer, ci-monitor | Mechanical execution, no judgment needed |
 
 ---
@@ -413,13 +413,13 @@ User: /next-task
 → Implementing step 4... [OK]
 
 [Pre-Review Gates]
-→ deslop-work: Removed 2 console.logs
+→ deslop: Removed 2 console.logs
 → test-coverage-checker: 94% coverage [OK]
 
 [Review Loop]
 → Round 1: Found 3 issues (1 high, 2 medium)
 → Fixing high issue... [OK]
-→ deslop-work: Clean [OK]
+→ deslop: Clean [OK]
 → Round 2: Found 0 open issues [OK]
 
 [Delivery Validation]
