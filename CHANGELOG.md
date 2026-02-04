@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Prompt Code Validation** - AST-based analysis for code blocks in prompts (#156)
+  - `extractCodeBlocks()` utility for parsing fenced code blocks with language tags
+  - `invalid_json_in_code_block` pattern: Validates JSON syntax (HIGH certainty)
+  - `invalid_js_syntax` pattern: Validates JavaScript syntax (MEDIUM certainty)
+  - `code_language_mismatch` pattern: Detects language tag mismatches (MEDIUM certainty)
+  - `heading_hierarchy_gaps` pattern: Detects skipped heading levels (HIGH certainty)
+  - New `code-validation` category in enhance reports
+  - Skips validation inside `<bad-example>` tags to avoid false positives
+  - Performance: <100ms per file (pre-compiled regex patterns, size limits)
+
 ## [3.8.2] - 2026-02-04
 
 ### Fixed

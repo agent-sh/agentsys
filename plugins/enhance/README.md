@@ -58,7 +58,7 @@ Analyze prompts for prompt engineering best practices.
 /enhance:prompt --fix              # Apply auto-fixes
 ```
 
-**Detects**: Vague instructions, missing examples, aggressive emphasis, structural issues
+**Detects**: Vague instructions, missing examples, aggressive emphasis, structural issues, invalid code blocks (JSON/JS syntax, language mismatches, heading hierarchy)
 
 ### `/enhance:docs [target]`
 
