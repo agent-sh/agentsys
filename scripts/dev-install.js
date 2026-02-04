@@ -30,8 +30,22 @@ const VERSION = require(path.join(SOURCE_DIR, 'package.json')).version;
 // Target directories
 const HOME = process.env.HOME || process.env.USERPROFILE;
 const CLAUDE_PLUGINS_DIR = path.join(HOME, '.claude', 'plugins');
-const OPENCODE_DIR = path.join(HOME, '.opencode');
-const OPENCODE_CONFIG_DIR = path.join(HOME, '.config', 'opencode');
+
+/**
+ * Get OpenCode config directory following XDG Base Directory Specification.
+ * OpenCode uses ~/.config/opencode/ by default, or $XDG_CONFIG_HOME/opencode if set.
+ */
+function getOpenCodeConfigDir() {
+  const xdgConfigHome = process.env.XDG_CONFIG_HOME;
+  if (xdgConfigHome && xdgConfigHome.trim()) {
+    return path.join(xdgConfigHome, 'opencode');
+  }
+  return path.join(HOME, '.config', 'opencode');
+}
+
+const OPENCODE_CONFIG_DIR = getOpenCodeConfigDir();
+// Legacy path - kept for cleanup of old installations
+const LEGACY_OPENCODE_DIR = path.join(HOME, '.opencode');
 const CODEX_DIR = path.join(HOME, '.codex');
 const AWESOME_SLASH_DIR = path.join(HOME, '.awesome-slash');
 
@@ -66,33 +80,62 @@ function cleanAll() {
     }
   }
 
-  // Clean OpenCode
-  const opencodeCommandsDir = path.join(OPENCODE_DIR, 'commands', 'awesome-slash');
-  const opencodePluginDir = path.join(OPENCODE_DIR, 'plugins', 'awesome-slash');
-  const opencodeAgentsDir = path.join(OPENCODE_DIR, 'agents');
+  // Clean OpenCode (correct XDG path: ~/.config/opencode/)
+  const opencodeCommandsDir = path.join(OPENCODE_CONFIG_DIR, 'commands');
+  const opencodePluginDir = path.join(OPENCODE_CONFIG_DIR, 'plugins');
+  const opencodeAgentsDir = path.join(OPENCODE_CONFIG_DIR, 'agents');
+  const opencodeSkillsDir = path.join(OPENCODE_CONFIG_DIR, 'skills');
 
+  // List of agent filenames we install (from plugins/*/agents/*.md)
+  const knownAgents = [
+    'plan-synthesizer.md', 'enhancement-reporter.md', 'ci-fixer.md',
+    'deslop-work.md', 'simple-fixer.md', 'perf-analyzer.md', 'perf-code-paths.md',
+    'perf-investigation-logger.md', 'perf-theory-gatherer.md', 'perf-theory-tester.md',
+    'map-validator.md', 'exploration-agent.md', 'perf-orchestrator.md', 'ci-monitor.md',
+    'implementation-agent.md', 'planning-agent.md', 'test-coverage-checker.md',
+    'plugin-enhancer.md', 'agent-enhancer.md', 'docs-enhancer.md', 'claudemd-enhancer.md',
+    'prompt-enhancer.md', 'hooks-enhancer.md', 'skills-enhancer.md', 'enhancement-orchestrator.md',
+    'task-discoverer.md', 'delivery-validator.md', 'docs-updater.md', 'worktree-manager.md',
+    'deslop-analyzer.md', 'docs-analyzer.md', 'docs-validator.md'
+  ];
+
+  // Known commands we install
+  const knownCommands = [
+    'deslop.md', 'enhance.md', 'next-task.md', 'delivery-approval.md',
+    'sync-docs.md', 'audit-project.md', 'ship.md', 'drift-detect.md',
+    'repo-map.md', 'perf.md'
+  ];
+
+  // Clean commands (remove our files, not the whole directory)
   if (fs.existsSync(opencodeCommandsDir)) {
-    fs.rmSync(opencodeCommandsDir, { recursive: true, force: true });
-    log('  Removed OpenCode commands');
+    let removedCount = 0;
+    for (const file of knownCommands) {
+      const filePath = path.join(opencodeCommandsDir, file);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        removedCount++;
+      }
+    }
+    // Also clean lib directory we install
+    const libDir = path.join(opencodeCommandsDir, 'lib');
+    if (fs.existsSync(libDir)) {
+      fs.rmSync(libDir, { recursive: true, force: true });
+      removedCount++;
+    }
+    if (removedCount > 0) {
+      log(`  Removed ${removedCount} OpenCode commands/lib`);
+    }
   }
-  if (fs.existsSync(opencodePluginDir)) {
-    fs.rmSync(opencodePluginDir, { recursive: true, force: true });
+
+  // Clean plugin file
+  const pluginFile = path.join(opencodePluginDir, 'awesome-slash.ts');
+  if (fs.existsSync(pluginFile)) {
+    fs.unlinkSync(pluginFile);
     log('  Removed OpenCode plugin');
   }
+
   // Clean agent files installed by us - only known awesome-slash agents
   if (fs.existsSync(opencodeAgentsDir)) {
-    // List of agent filenames we install (from plugins/*/agents/*.md)
-    const knownAgents = [
-      'plan-synthesizer.md', 'enhancement-reporter.md', 'ci-fixer.md',
-      'deslop-work.md', 'simple-fixer.md', 'perf-analyzer.md', 'perf-code-paths.md',
-      'perf-investigation-logger.md', 'perf-theory-gatherer.md', 'perf-theory-tester.md',
-      'map-validator.md', 'exploration-agent.md', 'perf-orchestrator.md', 'ci-monitor.md',
-      'implementation-agent.md', 'planning-agent.md', 'test-coverage-checker.md',
-      'plugin-enhancer.md', 'agent-enhancer.md', 'docs-enhancer.md', 'claudemd-enhancer.md',
-      'prompt-enhancer.md', 'hooks-enhancer.md', 'skills-enhancer.md', 'enhancement-orchestrator.md',
-      'task-discoverer.md', 'delivery-validator.md', 'docs-updater.md', 'worktree-manager.md',
-      'deslop-analyzer.md', 'docs-analyzer.md', 'docs-validator.md'
-    ];
     let removedCount = 0;
     for (const file of knownAgents) {
       const filePath = path.join(opencodeAgentsDir, file);
@@ -103,6 +146,33 @@ function cleanAll() {
     }
     if (removedCount > 0) {
       log(`  Removed ${removedCount} OpenCode agents`);
+    }
+  }
+
+  // Clean legacy OpenCode paths (~/.opencode/ - incorrect, pre-XDG)
+  const legacyCommandsDir = path.join(LEGACY_OPENCODE_DIR, 'commands', 'awesome-slash');
+  const legacyPluginDir = path.join(LEGACY_OPENCODE_DIR, 'plugins', 'awesome-slash');
+  const legacyAgentsDir = path.join(LEGACY_OPENCODE_DIR, 'agents');
+
+  if (fs.existsSync(legacyCommandsDir)) {
+    fs.rmSync(legacyCommandsDir, { recursive: true, force: true });
+    log('  Removed legacy ~/.opencode/commands/awesome-slash');
+  }
+  if (fs.existsSync(legacyPluginDir)) {
+    fs.rmSync(legacyPluginDir, { recursive: true, force: true });
+    log('  Removed legacy ~/.opencode/plugins/awesome-slash');
+  }
+  if (fs.existsSync(legacyAgentsDir)) {
+    let removedCount = 0;
+    for (const file of knownAgents) {
+      const filePath = path.join(legacyAgentsDir, file);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        removedCount++;
+      }
+    }
+    if (removedCount > 0) {
+      log(`  Removed ${removedCount} legacy OpenCode agents from ~/.opencode/`);
     }
   }
 
@@ -219,29 +289,39 @@ function installClaude() {
 function installOpenCode() {
   log('Installing for OpenCode...');
 
-  // Create directories
-  const commandsDir = path.join(OPENCODE_DIR, 'commands', 'awesome-slash');
-  const pluginDir = path.join(OPENCODE_DIR, 'plugins', 'awesome-slash');
-  const agentsDir = path.join(OPENCODE_DIR, 'agents');
+  // Create directories in correct XDG location (~/.config/opencode/)
+  const commandsDir = path.join(OPENCODE_CONFIG_DIR, 'commands');
+  const pluginDir = path.join(OPENCODE_CONFIG_DIR, 'plugins');
+  const agentsDir = path.join(OPENCODE_CONFIG_DIR, 'agents');
 
   fs.mkdirSync(commandsDir, { recursive: true });
   fs.mkdirSync(pluginDir, { recursive: true });
   fs.mkdirSync(agentsDir, { recursive: true });
 
+  // Clean up legacy paths (~/.opencode/) if they exist
+  const legacyCommandsDir = path.join(LEGACY_OPENCODE_DIR, 'commands', 'awesome-slash');
+  const legacyPluginDir = path.join(LEGACY_OPENCODE_DIR, 'plugins', 'awesome-slash');
+  if (fs.existsSync(legacyCommandsDir)) {
+    fs.rmSync(legacyCommandsDir, { recursive: true, force: true });
+    log('  Cleaned up legacy ~/.opencode/commands/awesome-slash');
+  }
+  if (fs.existsSync(legacyPluginDir)) {
+    fs.rmSync(legacyPluginDir, { recursive: true, force: true });
+    log('  Cleaned up legacy ~/.opencode/plugins/awesome-slash');
+  }
+
   // Copy to ~/.awesome-slash first (OpenCode needs local files)
   copyToAwesomeSlash();
 
-  // Copy native plugin
+  // Copy native plugin (OpenCode expects plugins as single .ts files in ~/.config/opencode/plugins/)
   const pluginSrcDir = path.join(SOURCE_DIR, 'adapters', 'opencode-plugin');
   if (fs.existsSync(pluginSrcDir)) {
-    for (const file of ['index.ts', 'package.json']) {
-      const srcPath = path.join(pluginSrcDir, file);
-      const destPath = path.join(pluginDir, file);
-      if (fs.existsSync(srcPath)) {
-        fs.copyFileSync(srcPath, destPath);
-      }
+    const srcPath = path.join(pluginSrcDir, 'index.ts');
+    const destPath = path.join(pluginDir, 'awesome-slash.ts');
+    if (fs.existsSync(srcPath)) {
+      fs.copyFileSync(srcPath, destPath);
+      log('  [OK] Native plugin');
     }
-    log('  [OK] Native plugin');
   }
 
   // Transform helpers
