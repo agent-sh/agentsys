@@ -437,7 +437,7 @@ const promptPatterns = {
   missing_xml_structure: {
     id: 'missing_xml_structure',
     category: 'structure',
-    certainty: 'MEDIUM', // Context-dependent - not all prompts need XML
+    certainty: 'LOW', // Very advisory - XML is optional enhancement
     autoFix: true,
     description: 'Complex prompt without XML tags for structure',
     check: (content) => {
@@ -470,7 +470,7 @@ const promptPatterns = {
   inconsistent_sections: {
     id: 'inconsistent_sections',
     category: 'structure',
-    certainty: 'MEDIUM',
+    certainty: 'LOW', // Style preference, not a real issue
     autoFix: false,
     description: 'Mixed heading styles or inconsistent section patterns',
     check: (content) => {
@@ -550,13 +550,21 @@ const promptPatterns = {
     certainty: 'MEDIUM', // Context-dependent - not all prompts need examples
     autoFix: true,
     description: 'Complex prompt without examples (few-shot)',
-    check: (content) => {
+    check: (content, filePath) => {
       if (!content || typeof content !== 'string') return null;
 
       const tokens = estimateTokens(content);
 
       // Skip if prompt is simple
       if (tokens < 300) return null;
+
+      // Skip reference docs, research files, agents, skills, and non-prompt content
+      const isNonPrompt = /[/\\](?:references?|docs?|agents?)[/\\]/i.test(filePath || '') ||
+                         /(?:RESEARCH|SKILL)\.md$/i.test(filePath || '') ||
+                         /^---\s*\nname:/m.test(content) || // Agent frontmatter
+                         /\*\*Parent document\*\*:/i.test(content) || // Sub-reference file
+                         /^##?\s*(?:reference|research|background|knowledge)/im.test(content);
+      if (isNonPrompt) return null;
 
       // Skip workflow orchestrators and command files
       const isOrchestrator = /##\s*Phase\s+\d+|Task\(\{|spawn.*agent|subagent_type/i.test(content);
@@ -600,7 +608,7 @@ const promptPatterns = {
   suboptimal_example_count: {
     id: 'suboptimal_example_count',
     category: 'examples',
-    certainty: 'MEDIUM',
+    certainty: 'LOW', // Advisory - example count is flexible
     autoFix: false,
     description: 'Example count outside optimal 2-5 range',
     check: (content) => {
@@ -829,7 +837,7 @@ const promptPatterns = {
   overly_prescriptive: {
     id: 'overly_prescriptive',
     category: 'anti-pattern',
-    certainty: 'MEDIUM',
+    certainty: 'LOW', // Some workflows need detailed steps
     autoFix: false,
     description: 'Overly prescriptive step-by-step process that may limit model reasoning',
     check: (content) => {
@@ -942,11 +950,18 @@ const promptPatterns = {
     certainty: 'MEDIUM', // Context-dependent - not all prompts are task-oriented
     autoFix: true,
     description: 'Task lacks verification criteria (tests, screenshots, expected output)',
-    check: (content) => {
+    check: (content, filePath) => {
       if (!content || typeof content !== 'string') return null;
 
       const tokens = estimateTokens(content);
       if (tokens < 150) return null; // Too short to need verification
+
+      // Skip SKILL.md files (implementation definitions, not tasks)
+      // Skip agent files (they define behavior, verification is in workflow)
+      const isSkillOrAgent = /SKILL\.md$/i.test(filePath || '') ||
+                            /[/\\]agents?[/\\]/i.test(filePath || '') ||
+                            /^---\s*\nname:/m.test(content); // Agent frontmatter
+      if (isSkillOrAgent) return null;
 
       // Check for implementation/action indicators
       const isActionTask = /\b(?:implement|create|build|write|add|fix|update|refactor|modify)\b/i.test(content);
