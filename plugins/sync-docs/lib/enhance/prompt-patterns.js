@@ -360,8 +360,17 @@ const promptPatterns = {
       const capsPattern = /\b[A-Z]{3,}\b/g;
       const capsMatches = content.match(capsPattern) || [];
 
-      // Filter out common acceptable caps (acronyms, code, workflow terms)
-      const acceptableCaps = ['API', 'JSON', 'XML', 'HTML', 'CSS', 'URL', 'HTTP', 'HTTPS', 'SQL', 'CLI', 'SDK', 'JWT', 'UUID', 'REST', 'YAML', 'EOF', 'TODO', 'FIXME', 'NOTE', 'README', 'MCP', 'CRITICAL', 'MUST', 'NOT', 'STOP', 'MANDATORY', 'SKIP'];
+      // Filter out common acceptable caps (acronyms, code, workflow terms, file names)
+      const acceptableCaps = [
+        // Acronyms
+        'API', 'JSON', 'XML', 'HTML', 'CSS', 'URL', 'HTTP', 'HTTPS', 'SQL', 'CLI', 'SDK', 'JWT', 'UUID', 'REST', 'YAML', 'EOF', 'MCP', 'AST', 'RAG', 'LLM', 'CoT', 'SSO', 'OAuth',
+        // Code markers
+        'TODO', 'FIXME', 'NOTE', 'HACK', 'XXX',
+        // File names (common AI tool conventions)
+        'README', 'CLAUDE', 'AGENTS', 'CHANGELOG', 'LICENSE', 'CONTRIBUTING', 'SKILL',
+        // Constraint keywords (intentional emphasis in prompts)
+        'CRITICAL', 'MUST', 'NOT', 'STOP', 'MANDATORY', 'SKIP', 'NEVER', 'ALWAYS', 'REQUIRED', 'IMPORTANT', 'HIGH', 'MEDIUM', 'LOW'
+      ];
       const aggressiveCaps = capsMatches.filter(c => !acceptableCaps.includes(c));
 
       // Check for excessive exclamation marks
