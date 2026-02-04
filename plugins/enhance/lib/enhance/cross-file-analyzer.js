@@ -13,6 +13,142 @@ const path = require('path');
 const { parseMarkdownFrontmatter } = require('./agent-analyzer');
 const { crossFilePatterns, loadKnownTools } = require('./cross-file-patterns');
 
+// ============================================
+// CONSTANTS
+// ============================================
+
+/** Minimum instruction length to consider for duplicate/contradiction detection */
+const MIN_INSTRUCTION_LENGTH = 20;
+
+/** Minimum number of files for duplicate instruction flagging */
+const MIN_DUPLICATE_COUNT = 3;
+
+/** Similarity threshold for contradiction detection (0-1) */
+const CONTRADICTION_SIMILARITY_THRESHOLD = 0.6;
+
+/** Length of action text to compare for contradictions */
+const ACTION_COMPARISON_LENGTH = 30;
+
+/** Minimum word length for similarity calculation (filters noise) */
+const MIN_WORD_LENGTH = 3;
+
+/** Default analysis categories */
+const DEFAULT_ANALYSIS_CATEGORIES = ['tool-consistency', 'workflow', 'consistency', 'skill-alignment'];
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+/**
+ * Escape regex special characters in a string
+ * @param {string} str - String to escape
+ * @returns {string} Escaped string safe for RegExp
+ */
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Validate that a path is within the expected root directory
+ * Prevents path traversal attacks
+ * @param {string} targetPath - Path to validate
+ * @param {string} rootDir - Expected root directory
+ * @returns {boolean} True if path is safe
+ */
+function isPathWithinRoot(targetPath, rootDir) {
+  const resolvedTarget = path.resolve(targetPath);
+  const resolvedRoot = path.resolve(rootDir);
+  return resolvedTarget.startsWith(resolvedRoot + path.sep) || resolvedTarget === resolvedRoot;
+}
+
+/**
+ * Calculate simple string similarity (Jaccard index on words)
+ * @param {string} a - First string
+ * @param {string} b - Second string
+ * @returns {number} Similarity score 0-1
+ */
+function calculateSimilarity(a, b) {
+  if (!a || !b) return 0;
+
+  const wordsA = new Set(a.split(/\s+/).filter(w => w.length >= MIN_WORD_LENGTH));
+  const wordsB = new Set(b.split(/\s+/).filter(w => w.length >= MIN_WORD_LENGTH));
+
+  if (wordsA.size === 0 || wordsB.size === 0) return 0;
+
+  let intersection = 0;
+  for (const word of wordsA) {
+    if (wordsB.has(word)) intersection++;
+  }
+
+  const union = wordsA.size + wordsB.size - intersection;
+  return intersection / union;
+}
+
+// ============================================
+// PRE-COMPILED PATTERNS
+// ============================================
+
+/** Pre-compiled shell command patterns for Bash detection */
+const SHELL_PATTERNS = [
+  /\bgit\s+(?:add|commit|push|pull|branch|checkout|merge|rebase|status|diff|log)\b/i,
+  /\bnpm\s+(?:install|test|run|build|publish)\b/i,
+  /\bpnpm\s+/i,
+  /\byarn\s+/i,
+  /\bcargo\s+/i,
+  /\bgo\s+(?:build|test|run|mod)\b/i
+];
+
+/** Pre-compiled critical instruction patterns */
+const CRITICAL_PATTERNS = [
+  /\bMUST\b/,
+  /\bNEVER\b/,
+  /\bALWAYS\b/i,
+  /\bREQUIRED\b/i,
+  /\bFORBIDDEN\b/i,
+  /\bCRITICAL\b/i,
+  /\bDO NOT\b/i,
+  /\bdon't\b/i
+];
+
+/** Pre-compiled pattern for extracting agent references */
+const SUBAGENT_PATTERN = /subagent_type\s*[=:]\s*["']([^"']+)["']/g;
+
+/** Pre-compiled patterns for cleaning content */
+const BAD_EXAMPLE_TAG_PATTERN = /<bad[- ]?example>[\s\S]*?<\/bad[- ]?example>/gi;
+const BAD_EXAMPLE_CODE_PATTERN = /```[^\n]*bad[^\n]*\n[\s\S]*?```/gi;
+
+// ============================================
+// TOOL PATTERN CACHE
+// ============================================
+
+/** Cache for compiled tool patterns */
+const toolPatternCache = new Map();
+
+/**
+ * Get or create compiled patterns for a tool name
+ * @param {string} tool - Tool name
+ * @returns {Object} Compiled patterns for the tool
+ */
+function getToolPatterns(tool) {
+  if (toolPatternCache.has(tool)) {
+    return toolPatternCache.get(tool);
+  }
+
+  const escapedTool = escapeRegex(tool);
+  const patterns = {
+    call: new RegExp(`\\b${escapedTool}\\s*\\(`),
+    mention: new RegExp(`\\b(?:use|invoke|call|with)\\s+(?:the\\s+)?${escapedTool}\\b`, 'i'),
+    noun: new RegExp(`\\b${escapedTool}\\s+tool\\b`, 'i')
+  };
+
+  toolPatternCache.set(tool, patterns);
+  return patterns;
+}
+
+// ============================================
+// EXTRACTION FUNCTIONS
+// ============================================
+
 /**
  * Extract tool mentions from prompt content
  * Detects tool usage patterns in prompt body
@@ -22,47 +158,39 @@ const { crossFilePatterns, loadKnownTools } = require('./cross-file-patterns');
  */
 function extractToolMentions(content, knownTools) {
   if (!content || typeof content !== 'string') return [];
+  if (!Array.isArray(knownTools)) return [];
 
   const found = new Set();
 
   // Skip content inside bad-example tags and code blocks with "bad" in info string
   const cleanContent = content
-    .replace(/<bad[- ]?example>[\s\S]*?<\/bad[- ]?example>/gi, '')
-    .replace(/```[^\n]*bad[^\n]*\n[\s\S]*?```/gi, '');
+    .replace(BAD_EXAMPLE_TAG_PATTERN, '')
+    .replace(BAD_EXAMPLE_CODE_PATTERN, '');
 
   for (const tool of knownTools) {
+    const patterns = getToolPatterns(tool);
+
     // Pattern 1: Tool({ or Tool(
-    const callPattern = new RegExp(`\\b${tool}\\s*\\(`, 'g');
-    if (callPattern.test(cleanContent)) {
+    if (patterns.call.test(cleanContent)) {
       found.add(tool);
       continue;
     }
 
     // Pattern 2: "use the Tool tool" or "invoke Tool"
-    const mentionPattern = new RegExp(`\\b(?:use|invoke|call|with)\\s+(?:the\\s+)?${tool}\\b`, 'gi');
-    if (mentionPattern.test(cleanContent)) {
+    if (patterns.mention.test(cleanContent)) {
       found.add(tool);
       continue;
     }
 
     // Pattern 3: Tool tool (e.g., "Read tool", "Bash tool")
-    const toolNounPattern = new RegExp(`\\b${tool}\\s+tool\\b`, 'gi');
-    if (toolNounPattern.test(cleanContent)) {
+    if (patterns.noun.test(cleanContent)) {
       found.add(tool);
     }
   }
 
   // Special case: Bash detection via shell commands
   if (!found.has('Bash') && !found.has('Shell')) {
-    const shellPatterns = [
-      /\bgit\s+(?:add|commit|push|pull|branch|checkout|merge|rebase|status|diff|log)\b/i,
-      /\bnpm\s+(?:install|test|run|build|publish)\b/i,
-      /\bpnpm\s+/i,
-      /\byarn\s+/i,
-      /\bcargo\s+/i,
-      /\bgo\s+(?:build|test|run|mod)\b/i
-    ];
-    for (const pattern of shellPatterns) {
+    for (const pattern of SHELL_PATTERNS) {
       if (pattern.test(cleanContent)) {
         found.add('Bash');
         break;
@@ -84,10 +212,9 @@ function extractAgentReferences(content) {
 
   const references = new Set();
 
-  // Pattern: subagent_type: "plugin:agent" or subagent_type: 'plugin:agent'
-  const subagentPattern = /subagent_type\s*[=:]\s*["']([^"']+)["']/g;
-  let match;
-  while ((match = subagentPattern.exec(content)) !== null) {
+  // Use matchAll for safer iteration (no lastIndex issues)
+  const matches = content.matchAll(new RegExp(SUBAGENT_PATTERN.source, 'g'));
+  for (const match of matches) {
     references.add(match[1]);
   }
 
@@ -106,17 +233,6 @@ function extractCriticalInstructions(content) {
   const lines = content.split('\n');
   let inCodeBlock = false;
 
-  const criticalPatterns = [
-    /\bMUST\b/,
-    /\bNEVER\b/,
-    /\bALWAYS\b/i,
-    /\bREQUIRED\b/i,
-    /\bFORBIDDEN\b/i,
-    /\bCRITICAL\b/i,
-    /\bDO NOT\b/i,
-    /\bdon't\b/i
-  ];
-
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
 
@@ -129,7 +245,7 @@ function extractCriticalInstructions(content) {
     // Skip empty lines, headers, and content inside code blocks
     if (!line || line.startsWith('#') || inCodeBlock) continue;
 
-    for (const pattern of criticalPatterns) {
+    for (const pattern of CRITICAL_PATTERNS) {
       if (pattern.test(line)) {
         instructions.push({ line, lineNumber: i + 1 });
         break;
@@ -140,87 +256,206 @@ function extractCriticalInstructions(content) {
   return instructions;
 }
 
+// ============================================
+// FILE LOADING FUNCTIONS
+// ============================================
+
 /**
- * Load all agent files from a directory structure
- * @param {string} rootDir - Root directory to scan
- * @returns {Array<Object>} Array of parsed agent objects
+ * Generic function to load prompt files from plugins directory
+ * @param {string} rootDir - Root directory
+ * @param {string} subDir - Subdirectory name ('agents' or 'skills')
+ * @param {Function} fileFilter - Function to filter files
+ * @param {Function} pathBuilder - Function to build file path
+ * @param {Object} options - Options including verbose flag
+ * @returns {Array<Object>} Array of parsed prompt objects
  */
-function loadAllAgents(rootDir) {
-  const agents = [];
+function loadPromptFiles(rootDir, subDir, fileFilter, pathBuilder, options = {}) {
+  const results = [];
+  const errors = [];
 
-  // Find plugins directory
   const pluginsDir = path.join(rootDir, 'plugins');
-  if (!fs.existsSync(pluginsDir)) return agents;
 
-  // Scan each plugin for agents
-  const plugins = fs.readdirSync(pluginsDir).filter(f => {
-    const fullPath = path.join(pluginsDir, f);
-    return fs.statSync(fullPath).isDirectory();
-  });
+  // Validate path is within root
+  if (!isPathWithinRoot(pluginsDir, rootDir)) {
+    if (options.verbose) {
+      console.error('[cross-file] Invalid plugins directory path');
+    }
+    return results;
+  }
+
+  // Check if plugins directory exists
+  try {
+    fs.accessSync(pluginsDir);
+  } catch {
+    return results;
+  }
+
+  let plugins;
+  try {
+    plugins = fs.readdirSync(pluginsDir).filter(f => {
+      const fullPath = path.join(pluginsDir, f);
+      if (!isPathWithinRoot(fullPath, rootDir)) return false;
+      try {
+        return fs.statSync(fullPath).isDirectory();
+      } catch {
+        return false;
+      }
+    });
+  } catch (err) {
+    if (options.verbose) {
+      console.error('[cross-file] Failed to read plugins directory:', err.message);
+    }
+    return results;
+  }
 
   for (const plugin of plugins) {
-    const agentsDir = path.join(pluginsDir, plugin, 'agents');
-    if (!fs.existsSync(agentsDir)) continue;
+    const targetDir = path.join(pluginsDir, plugin, subDir);
 
-    const agentFiles = fs.readdirSync(agentsDir)
-      .filter(f => f.endsWith('.md') && f !== 'README.md');
+    // Validate path
+    if (!isPathWithinRoot(targetDir, rootDir)) continue;
 
-    for (const agentFile of agentFiles) {
-      const agentPath = path.join(agentsDir, agentFile);
+    // Check if directory exists
+    try {
+      fs.accessSync(targetDir);
+    } catch {
+      continue;
+    }
+
+    let files;
+    try {
+      files = fs.readdirSync(targetDir).filter(fileFilter);
+    } catch (err) {
+      if (options.verbose) {
+        errors.push({ path: targetDir, error: err.message });
+      }
+      continue;
+    }
+
+    for (const file of files) {
+      const filePath = pathBuilder(targetDir, file);
+
+      // Validate path
+      if (!isPathWithinRoot(filePath, rootDir)) continue;
+
       try {
-        const content = fs.readFileSync(agentPath, 'utf8');
+        const content = fs.readFileSync(filePath, 'utf8');
         const { frontmatter, body } = parseMarkdownFrontmatter(content);
 
-        agents.push({
+        results.push({
           plugin,
-          name: agentFile.replace('.md', ''),
-          path: agentPath,
+          name: file.replace('.md', '').replace(/^SKILL$/, path.basename(path.dirname(filePath))),
+          path: filePath,
           frontmatter: frontmatter || {},
           body,
           content
         });
-      } catch {
-        // Skip files that can't be read
+      } catch (err) {
+        if (options.verbose) {
+          errors.push({ path: filePath, error: err.message });
+        }
+        // Skip files that can't be read - intentional for robustness
       }
     }
   }
 
-  return agents;
+  if (options.verbose && errors.length > 0) {
+    console.error('[cross-file] File read errors:', errors);
+  }
+
+  return results;
+}
+
+/**
+ * Load all agent files from a directory structure
+ * @param {string} rootDir - Root directory to scan
+ * @param {Object} options - Options including verbose flag
+ * @returns {Array<Object>} Array of parsed agent objects
+ */
+function loadAllAgents(rootDir, options = {}) {
+  return loadPromptFiles(
+    rootDir,
+    'agents',
+    f => f.endsWith('.md') && f.toLowerCase() !== 'readme.md',
+    (dir, file) => path.join(dir, file),
+    options
+  );
 }
 
 /**
  * Load all skill files from a directory structure
  * @param {string} rootDir - Root directory to scan
+ * @param {Object} options - Options including verbose flag
  * @returns {Array<Object>} Array of parsed skill objects
  */
-function loadAllSkills(rootDir) {
+function loadAllSkills(rootDir, options = {}) {
   const skills = [];
-
-  // Find plugins directory
   const pluginsDir = path.join(rootDir, 'plugins');
-  if (!fs.existsSync(pluginsDir)) return skills;
 
-  // Scan each plugin for skills
-  const plugins = fs.readdirSync(pluginsDir).filter(f => {
-    const fullPath = path.join(pluginsDir, f);
-    return fs.statSync(fullPath).isDirectory();
-  });
+  // Validate path
+  if (!isPathWithinRoot(pluginsDir, rootDir)) {
+    return skills;
+  }
+
+  try {
+    fs.accessSync(pluginsDir);
+  } catch {
+    return skills;
+  }
+
+  let plugins;
+  try {
+    plugins = fs.readdirSync(pluginsDir).filter(f => {
+      const fullPath = path.join(pluginsDir, f);
+      if (!isPathWithinRoot(fullPath, rootDir)) return false;
+      try {
+        return fs.statSync(fullPath).isDirectory();
+      } catch {
+        return false;
+      }
+    });
+  } catch (err) {
+    if (options.verbose) {
+      console.error('[cross-file] Failed to read plugins directory:', err.message);
+    }
+    return skills;
+  }
 
   for (const plugin of plugins) {
     const skillsDir = path.join(pluginsDir, plugin, 'skills');
-    if (!fs.existsSync(skillsDir)) continue;
 
-    // Skills are in subdirectories with SKILL.md
-    const skillDirs = fs.readdirSync(skillsDir).filter(f => {
-      const fullPath = path.join(skillsDir, f);
-      return fs.statSync(fullPath).isDirectory();
-    });
+    if (!isPathWithinRoot(skillsDir, rootDir)) continue;
+
+    try {
+      fs.accessSync(skillsDir);
+    } catch {
+      continue;
+    }
+
+    let skillDirs;
+    try {
+      skillDirs = fs.readdirSync(skillsDir).filter(f => {
+        const fullPath = path.join(skillsDir, f);
+        if (!isPathWithinRoot(fullPath, rootDir)) return false;
+        try {
+          return fs.statSync(fullPath).isDirectory();
+        } catch {
+          return false;
+        }
+      });
+    } catch (err) {
+      if (options.verbose) {
+        console.error('[cross-file] Failed to read skills directory:', skillsDir, err.message);
+      }
+      continue;
+    }
 
     for (const skillDir of skillDirs) {
       const skillPath = path.join(skillsDir, skillDir, 'SKILL.md');
-      if (!fs.existsSync(skillPath)) continue;
+
+      if (!isPathWithinRoot(skillPath, rootDir)) continue;
 
       try {
+        fs.accessSync(skillPath);
         const content = fs.readFileSync(skillPath, 'utf8');
         const { frontmatter, body } = parseMarkdownFrontmatter(content);
 
@@ -232,14 +467,21 @@ function loadAllSkills(rootDir) {
           body,
           content
         });
-      } catch {
-        // Skip files that can't be read
+      } catch (err) {
+        if (options.verbose) {
+          console.error('[cross-file] Failed to read skill:', skillPath, err.message);
+        }
+        // Skip files that can't be read - intentional for robustness
       }
     }
   }
 
   return skills;
 }
+
+// ============================================
+// ANALYSIS FUNCTIONS
+// ============================================
 
 /**
  * Analyze tool consistency between frontmatter and body
@@ -332,6 +574,7 @@ function analyzeWorkflowCompleteness(agents) {
 
 /**
  * Analyze prompt consistency (duplicates, contradictions)
+ * Uses optimized O(n) contradiction detection via keyword indexing
  * @param {Array<Object>} agents - Parsed agents
  * @returns {Array<Object>} Findings
  */
@@ -339,15 +582,14 @@ function analyzePromptConsistency(agents) {
   const findings = [];
 
   // Collect all critical instructions with their sources
-  const instructionMap = new Map(); // instruction -> [files]
+  const instructionMap = new Map(); // normalized instruction -> [files]
 
   for (const agent of agents) {
     const instructions = extractCriticalInstructions(agent.body);
 
     for (const { line } of instructions) {
-      // Normalize instruction for comparison
       const normalized = line.toLowerCase().trim();
-      if (normalized.length < 20) continue; // Skip very short lines
+      if (normalized.length < MIN_INSTRUCTION_LENGTH) continue;
 
       if (!instructionMap.has(normalized)) {
         instructionMap.set(normalized, []);
@@ -358,8 +600,8 @@ function analyzePromptConsistency(agents) {
 
   // Find duplicates
   const duplicatePattern = crossFilePatterns.duplicate_instructions;
-  for (const [instruction, files] of instructionMap) {
-    if (files.length >= 3) { // Only flag if in 3+ files
+  for (const [instruction, files] of instructionMap.entries()) {
+    if (files.length >= MIN_DUPLICATE_COUNT) {
       const result = duplicatePattern.check({ instruction, files });
       if (result) {
         findings.push({
@@ -373,79 +615,87 @@ function analyzePromptConsistency(agents) {
     }
   }
 
-  // Find contradictions (always vs never for same action)
+  // Find contradictions using keyword indexing (O(n) instead of O(n^2))
   const contradictionPattern = crossFilePatterns.contradictory_rules;
-  const alwaysRules = [];
-  const neverRules = [];
+
+  // Index rules by keywords for efficient lookup
+  const alwaysRulesByKeyword = new Map(); // keyword -> [{rule, file}]
+  const neverRulesByKeyword = new Map();
 
   for (const agent of agents) {
     const instructions = extractCriticalInstructions(agent.body);
 
     for (const { line } of instructions) {
-      if (/\bALWAYS\b/i.test(line)) {
-        alwaysRules.push({ line, file: agent.path });
+      const isAlways = /\bALWAYS\b/i.test(line);
+      const isNever = /\bNEVER\b/i.test(line) || /\bDO NOT\b/i.test(line);
+
+      if (!isAlways && !isNever) continue;
+
+      // Extract action keywords
+      let action;
+      if (isAlways) {
+        action = line.replace(/.*\bALWAYS\b\s*/i, '').substring(0, ACTION_COMPARISON_LENGTH);
+      } else {
+        action = line.replace(/.*\b(?:NEVER|DO NOT)\b\s*/i, '').substring(0, ACTION_COMPARISON_LENGTH);
       }
-      if (/\bNEVER\b/i.test(line) || /\bDO NOT\b/i.test(line)) {
-        neverRules.push({ line, file: agent.path });
+
+      // Extract significant keywords from action
+      const keywords = action.toLowerCase().split(/\s+/).filter(w => w.length >= MIN_WORD_LENGTH);
+
+      const ruleData = { line, file: agent.path, action: action.toLowerCase() };
+      const targetMap = isAlways ? alwaysRulesByKeyword : neverRulesByKeyword;
+
+      for (const keyword of keywords) {
+        if (!targetMap.has(keyword)) {
+          targetMap.set(keyword, []);
+        }
+        targetMap.get(keyword).push(ruleData);
       }
     }
   }
 
-  // Check for potential contradictions
-  for (const always of alwaysRules) {
-    for (const never of neverRules) {
-      // Skip if same file
-      if (always.file === never.file) continue;
+  // Find contradictions by checking overlapping keywords
+  const checkedPairs = new Set();
 
-      // Extract the action (words after ALWAYS/NEVER)
-      const alwaysAction = always.line.replace(/.*\bALWAYS\b\s*/i, '').substring(0, 30);
-      const neverAction = never.line.replace(/.*\b(?:NEVER|DO NOT)\b\s*/i, '').substring(0, 30);
+  for (const [keyword, alwaysRules] of alwaysRulesByKeyword.entries()) {
+    const neverRules = neverRulesByKeyword.get(keyword);
+    if (!neverRules) continue;
 
-      // Simple similarity check
-      const similarity = calculateSimilarity(alwaysAction.toLowerCase(), neverAction.toLowerCase());
-      if (similarity > 0.6) {
-        const result = contradictionPattern.check({
-          rule1: always.line,
-          rule2: never.line,
-          file1: path.basename(always.file),
-          file2: path.basename(never.file)
-        });
+    for (const always of alwaysRules) {
+      for (const never of neverRules) {
+        // Skip same file
+        if (always.file === never.file) continue;
 
-        if (result) {
-          findings.push({
-            ...result,
-            file: always.file,
-            certainty: contradictionPattern.certainty,
-            patternId: contradictionPattern.id,
-            source: 'cross-file'
+        // Skip already checked pairs
+        const pairKey = `${always.line}|${never.line}`;
+        if (checkedPairs.has(pairKey)) continue;
+        checkedPairs.add(pairKey);
+
+        // Check similarity
+        const similarity = calculateSimilarity(always.action, never.action);
+        if (similarity > CONTRADICTION_SIMILARITY_THRESHOLD) {
+          const result = contradictionPattern.check({
+            rule1: always.line,
+            rule2: never.line,
+            file1: path.basename(always.file),
+            file2: path.basename(never.file)
           });
+
+          if (result) {
+            findings.push({
+              ...result,
+              file: always.file,
+              certainty: contradictionPattern.certainty,
+              patternId: contradictionPattern.id,
+              source: 'cross-file'
+            });
+          }
         }
       }
     }
   }
 
   return findings;
-}
-
-/**
- * Calculate simple string similarity (Jaccard index on words)
- * @param {string} a - First string
- * @param {string} b - Second string
- * @returns {number} Similarity score 0-1
- */
-function calculateSimilarity(a, b) {
-  const wordsA = new Set(a.split(/\s+/).filter(w => w.length > 2));
-  const wordsB = new Set(b.split(/\s+/).filter(w => w.length > 2));
-
-  if (wordsA.size === 0 || wordsB.size === 0) return 0;
-
-  let intersection = 0;
-  for (const word of wordsA) {
-    if (wordsB.has(word)) intersection++;
-  }
-
-  const union = wordsA.size + wordsB.size - intersection;
-  return intersection / union;
 }
 
 /**
@@ -461,7 +711,7 @@ function analyzeSkillAlignment(skills, knownTools) {
   for (const skill of skills) {
     const { frontmatter, body, name, path: skillPath } = skill;
 
-    // Get allowed-tools from frontmatter
+    // Get allowed-tools from frontmatter (supports multiple field names)
     let allowedTools = [];
     const toolsField = frontmatter['allowed-tools'] || frontmatter.allowedTools || frontmatter.tools;
     if (toolsField) {
@@ -529,8 +779,8 @@ function analyzeOrphanedPrompts(agents, skills) {
     // Check if referenced
     const isReferenced = allReferences.has(fullName) || allReferences.has(shortName);
 
-    // Some agents are entry points (orchestrators, discoverers) - skip them
-    const isEntryPoint = /orchestrator|discoverer|validator|monitor/i.test(agent.name);
+    // Entry point agents are typically called by commands, not other agents
+    const isEntryPoint = /orchestrator|discoverer|validator|monitor|fixer|checker|reporter|manager/i.test(agent.name);
 
     if (!isReferenced && !isEntryPoint) {
       const result = pattern.check({
@@ -553,18 +803,22 @@ function analyzeOrphanedPrompts(agents, skills) {
   return findings;
 }
 
+// ============================================
+// MAIN ANALYSIS FUNCTION
+// ============================================
+
 /**
  * Main cross-file analysis function
  * @param {string} rootDir - Root directory to analyze
  * @param {Object} options - Analysis options
- * @param {boolean} options.verbose - Include all findings
+ * @param {boolean} options.verbose - Include all findings and log errors
  * @param {string[]} options.categories - Specific categories to check
  * @returns {Object} Analysis results
  */
 function analyze(rootDir, options = {}) {
   const {
     verbose = false,
-    categories = ['tool-consistency', 'workflow', 'consistency', 'skill-alignment']
+    categories = DEFAULT_ANALYSIS_CATEGORIES
   } = options;
 
   const results = {
@@ -582,8 +836,8 @@ function analyze(rootDir, options = {}) {
   const knownTools = loadKnownTools(rootDir);
 
   // Load all agents and skills
-  const agents = loadAllAgents(rootDir);
-  const skills = loadAllSkills(rootDir);
+  const agents = loadAllAgents(rootDir, { verbose });
+  const skills = loadAllSkills(rootDir, { verbose });
 
   results.summary.agentsAnalyzed = agents.length;
   results.summary.skillsAnalyzed = skills.length;
@@ -619,16 +873,32 @@ function analyze(rootDir, options = {}) {
   return results;
 }
 
+// ============================================
+// EXPORTS
+// ============================================
+
 module.exports = {
+  // Extraction functions
   extractToolMentions,
   extractAgentReferences,
   extractCriticalInstructions,
+
+  // Loading functions
   loadAllAgents,
   loadAllSkills,
+
+  // Analysis functions
   analyzeToolConsistency,
   analyzeWorkflowCompleteness,
   analyzePromptConsistency,
   analyzeSkillAlignment,
   analyzeOrphanedPrompts,
-  analyze
+
+  // Main entry point
+  analyze,
+
+  // Utilities (exported for testing)
+  calculateSimilarity,
+  escapeRegex,
+  isPathWithinRoot
 };

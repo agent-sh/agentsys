@@ -42,6 +42,9 @@ const PLATFORM_TOOLS = {
   ]
 };
 
+/** Maximum size for tools.json config file (prevents DoS via large files) */
+const MAX_CONFIG_SIZE = 64 * 1024; // 64KB
+
 /**
  * Load tools configuration from state directory or use platform defaults
  * @param {string} [basePath=process.cwd()] - Base path to check
@@ -51,20 +54,37 @@ function loadKnownTools(basePath = process.cwd()) {
   const stateDir = getStateDir(basePath);
   const toolsConfigPath = path.join(basePath, stateDir, 'tools.json');
 
-  // Try to load from config file
+  // Try to load from config file (without race condition)
   try {
-    if (fs.existsSync(toolsConfigPath)) {
-      const content = fs.readFileSync(toolsConfigPath, 'utf8');
-      const config = JSON.parse(content);
-      if (Array.isArray(config.tools)) {
-        return config.tools;
+    const content = fs.readFileSync(toolsConfigPath, 'utf8');
+
+    // Size limit check
+    if (content.length > MAX_CONFIG_SIZE) {
+      if (process.env.DEBUG) {
+        console.error('[cross-file-patterns] tools.json exceeds size limit, using defaults');
       }
-      if (config.knownTools && Array.isArray(config.knownTools)) {
-        return config.knownTools;
-      }
+      throw new Error('Config file too large');
     }
-  } catch {
-    // Config parse error - fall back to defaults
+
+    const config = JSON.parse(content);
+
+    // Validate config structure
+    if (Array.isArray(config.tools)) {
+      return config.tools;
+    }
+    if (config.knownTools && Array.isArray(config.knownTools)) {
+      return config.knownTools;
+    }
+
+    if (process.env.DEBUG) {
+      console.error('[cross-file-patterns] tools.json missing tools array, using defaults');
+    }
+  } catch (err) {
+    // ENOENT (file not found) is expected, don't log
+    // Other errors should be logged for debugging
+    if (err.code !== 'ENOENT' && process.env.DEBUG) {
+      console.error('[cross-file-patterns] Failed to load tools.json:', err.message);
+    }
   }
 
   // Fall back to platform-specific defaults
