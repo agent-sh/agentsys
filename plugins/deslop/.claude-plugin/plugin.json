@@ -1,6 +1,6 @@
 {
   "name": "deslop",
-  "version": "3.8.1",
+  "version": "3.8.2",
   "description": "AI slop cleanup with minimal diffs and behavior preservation",
   "author": {
     "name": "Avi Fenesh",

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.2] - 2026-02-04
+
+### Fixed
+- **Policy Questions Enforcement** - /next-task Phase 1 now explicitly requires all 3 policy questions (Source, Priority, Stop Point) with table and forbidden actions
+- **Codex CLI Installer** - Fixed undefined `configPath` variable (should be `configDir`)
+
+### Changed
+- **XML Tag Consistency** - All 12 workflow phases now wrapped in consistent `<phase-N>` tags
+- **Constructive Language** - Replaced "you are wrong" with guidance pointing to consequences table
+- **Redundancy Reduction** - Consolidated duplicate forbidden actions lists
+
 ## [3.8.1] - 2026-02-04
 
 ### Fixed
