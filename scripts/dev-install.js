@@ -92,7 +92,7 @@ function cleanAll() {
   const knownAgents = [
     'agent-enhancer.md', 'ci-fixer.md', 'ci-monitor.md', 'claudemd-enhancer.md',
     'delivery-validator.md', 'deslop-agent.md', 'docs-enhancer.md', 'enhancement-orchestrator.md',
-    'enhancement-reporter.md', 'exploration-agent.md', 'hooks-enhancer.md', 'implementation-agent.md',
+    'exploration-agent.md', 'hooks-enhancer.md', 'implementation-agent.md', 'learn-agent.md',
     'map-validator.md', 'perf-analyzer.md', 'perf-code-paths.md', 'perf-investigation-logger.md',
     'perf-orchestrator.md', 'perf-theory-gatherer.md', 'perf-theory-tester.md', 'plan-synthesizer.md',
     'planning-agent.md', 'plugin-enhancer.md', 'prompt-enhancer.md', 'simple-fixer.md',

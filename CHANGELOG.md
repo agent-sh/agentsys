@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **New /learn Plugin** - Research any topic online and create comprehensive learning guides
+  - Gathers 10-40 online sources based on depth level (brief/medium/deep)
+  - Uses progressive query architecture (funnel approach: broad → specific → deep)
+  - Implements source quality scoring (authority, recency, depth, examples, uniqueness)
+  - Just-in-time retrieval to avoid context rot
+  - Creates topic-specific guides in `agent-knowledge/` directory
+  - Maintains CLAUDE.md/AGENTS.md as master RAG indexes
+  - Self-evaluation step for output quality assessment
+  - Integrates with enhance:enhance-docs and enhance:enhance-prompts
+  - Opus model for high-quality research synthesis
+
 ## [3.9.0] - 2026-02-04
 
 ### Fixed

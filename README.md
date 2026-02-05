@@ -8,7 +8,7 @@
 
 AI models can write code. That's not the hard part anymore. The hard part is everything else—picking what to work on, managing branches, reviewing output, cleaning up artifacts, handling CI, addressing comments, deploying. **awesome-slash automates the entire workflow**, not just the coding.
 
-**9 plugins · 39 agents · 25 skills · 26k lines of lib code · 3,357 tests · 3 platforms**
+**10 plugins · 39 agents · 25 skills · 26k lines of lib code · 3,357 tests · 3 platforms**
 
 If you find this useful: [⭐ Star the repo](https://github.com/avifenesh/awesome-slash)
 
@@ -59,6 +59,7 @@ This came from testing on 1,000+ repositories.
 | [`/enhance`](#enhance) | Analyzes prompts, agents, plugins, docs, hooks, skills |
 | [`/repo-map`](#repo-map) | AST symbol and import mapping via ast-grep |
 | [`/sync-docs`](#sync-docs) | Finds outdated references, stale examples, missing CHANGELOG entries |
+| [`/learn`](#learn) | Research any topic, gather online sources, create learning guide with RAG index |
 
 Each command works standalone. Together, they form complete workflows.
 
@@ -71,10 +72,11 @@ Each command works standalone. Together, they form complete workflows.
 | Category | Skills |
 |----------|--------|
 | **Performance** | `perf:analyzer`, `perf:baseline`, `perf:benchmark`, `perf:code-paths`, `perf:investigation-logger`, `perf:profile`, `perf:theory`, `perf:theory-tester` |
-| **Enhancement** | `enhance:agent-prompts`, `enhance:claude-memory`, `enhance:cross-file`, `enhance:docs`, `enhance:hooks`, `enhance:orchestrator`, `enhance:plugins`, `enhance:prompts`, `enhance:reporter`, `enhance:skills` |
+| **Enhancement** | `enhance:agent-prompts`, `enhance:claude-memory`, `enhance:cross-file`, `enhance:docs`, `enhance:hooks`, `enhance:orchestrator`, `enhance:plugins`, `enhance:prompts`, `enhance:skills` |
 | **Workflow** | `next-task:orchestrate-review`, `next-task:discover-tasks`, `next-task:validate-delivery` |
 | **Cleanup** | `deslop:deslop`, `sync-docs:sync-docs` |
 | **Analysis** | `drift-detect:drift-analysis`, `repo-map:repo-mapping` |
+| **Learning** | `learn:learn` |
 
 Skills give your agents specialized capabilities. When you install a plugin, its skills become available to all agents in that session.
 
@@ -465,6 +467,51 @@ You refactor `auth.js` into `auth/index.js`. Your README still says `import from
 /sync-docs report src/  # Check docs related to src/
 /sync-docs --all        # Full codebase scan
 ```
+
+---
+
+### /learn
+
+**Purpose:** Research any topic online and create a comprehensive learning guide with RAG-optimized indexes.
+
+**What it does:**
+
+1. **Progressive Discovery** - Uses funnel approach (broad → specific → deep) to find quality sources
+2. **Quality Scoring** - Scores sources by authority, recency, depth, examples, uniqueness
+3. **Just-In-Time Extraction** - Fetches only high-scoring sources to save tokens
+4. **Synthesis** - Creates structured learning guide with examples and best practices
+5. **RAG Index** - Updates CLAUDE.md/AGENTS.md master index for future lookups
+6. **Enhancement** - Runs enhance:enhance-docs and enhance:enhance-prompts
+
+**Depth levels:**
+
+| Depth | Sources | Use Case |
+|-------|---------|----------|
+| brief | 10 | Quick overview |
+| medium | 20 | Default, balanced |
+| deep | 40 | Comprehensive |
+
+**Output structure:**
+
+```
+agent-knowledge/
+  CLAUDE.md                    # Master index (updated each run)
+  AGENTS.md                    # Index for OpenCode/Codex
+  recursion.md                 # Topic-specific guide
+  resources/
+    recursion-sources.json     # Source metadata with quality scores
+```
+
+**Usage:**
+
+```bash
+/learn recursion                    # Default (20 sources)
+/learn react hooks --depth=deep     # Comprehensive (40 sources)
+/learn kubernetes --depth=brief     # Quick overview (10 sources)
+/learn python async --no-enhance    # Skip enhancement pass
+```
+
+**Agent:** learn-agent (opus model for research quality)
 
 ---
 

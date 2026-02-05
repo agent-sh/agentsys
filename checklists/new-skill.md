@@ -199,7 +199,6 @@ These issues were found across all plugins during comprehensive audit and **have
 - `orchestrator` → `enhance-orchestrator`
 - `plugins` → `enhance-plugins`
 - `prompts` → `enhance-prompts`
-- `reporter` → `enhance-reporter`
 - `skills` → `enhance-skills`
 
 **NEXT-TASK plugin** - 2 directories renamed:

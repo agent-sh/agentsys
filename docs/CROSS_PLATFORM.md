@@ -121,7 +121,6 @@ claude --plugin-dir /path/to/awesome-slash/plugins/next-task
 | prompt-enhancer | opus | General prompt quality |
 | hooks-enhancer | sonnet | Hook frontmatter and safety |
 | skills-enhancer | sonnet | SKILL.md structure and triggers |
-| enhancement-reporter | sonnet | Format unified reports |
 | cross-file-enhancer | sonnet | Cross-file consistency |
 
 **perf: Performance Investigation (6 agents)**

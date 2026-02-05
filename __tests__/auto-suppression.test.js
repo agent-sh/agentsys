@@ -106,8 +106,8 @@ Task({
       };
       const content = `
 await Task({
-  subagent_type: "enhance:enhancement-reporter",
-  prompt: "Generate report"
+  subagent_type: "enhance:docs-enhancer",
+  prompt: "Analyze documentation"
 });
 `;
       const result = isLikelyFalsePositive(finding, content, {});

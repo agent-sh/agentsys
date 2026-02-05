@@ -43,6 +43,7 @@ PLUGINS=(
   "sync-docs"
   "repo-map"
   "perf"
+  "learn"
 )
 
 for plugin in "${PLUGINS[@]}"; do

@@ -162,14 +162,14 @@ function aggregateResults(enhancerResults) {
 
 ### Phase 6: Generate Report
 
-Delegate to enhancement-reporter:
+Generate report directly from aggregated findings:
 
 ```javascript
-const report = await Task({
-  subagent_type: "enhance:enhancement-reporter",
-  prompt: `Generate unified report.
-Findings: ${JSON.stringify(aggregated, null, 2)}
-Options: verbose=${flags.verbose}, showAutoFixable=${flags.apply}`
+const { generateReport } = require('../../lib/enhance/reporter');
+
+const report = generateReport(aggregated, {
+  verbose: flags.verbose,
+  showAutoFixable: flags.apply
 });
 
 console.log(report);

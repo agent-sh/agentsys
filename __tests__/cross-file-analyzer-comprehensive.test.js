@@ -151,8 +151,7 @@ NEVER skip
         'delivery-validator',
         'ci-monitor',
         'worktree-manager',
-        'simple-fixer',
-        'enhancement-reporter'
+        'simple-fixer'
       ];
 
       for (const name of entryPointNames) {

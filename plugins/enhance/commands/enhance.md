@@ -37,7 +37,7 @@ Parse from $ARGUMENTS:
 2. **Load Suppressions** - Load auto-learned and manual suppressions for project
 3. **Launch** - Start all relevant enhancers in parallel via Task()
 4. **Aggregate** - Collect and deduplicate findings from all enhancers
-5. **Report** - Generate unified report via enhancement-reporter agent
+5. **Report** - Generate unified report from aggregated findings
 6. **Auto-Learn** - Detect false positives and save for future runs (unless --no-learn)
 7. **Fix** - Apply auto-fixes if --apply flag is present
 
