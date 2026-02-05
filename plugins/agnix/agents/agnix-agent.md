@@ -29,7 +29,7 @@ Extract from prompt:
 
 ```
 Skill: agnix
-Args: <path> [--fix] [--strict] [--target=<target>]
+Args: [path] [--fix] [--strict] [--target=[target]]
 ```
 
 The skill contains full CLI documentation and execution steps.
