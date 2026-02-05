@@ -797,3 +797,4 @@ This project is built on research, not guesswork.
 ---
 
 MIT License | Made by [Avi Fenesh](https://github.com/avifenesh)
+- [Ruleskill](https://ruleskill.com) - We want to verify your code for the RuleSkill Protocol. Claim your badge.
