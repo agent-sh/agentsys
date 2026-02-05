@@ -201,7 +201,9 @@ function shouldSuppress(finding, config, inlineSuppressions, filePath, projectRo
  */
 function matchGlob(filePath, pattern) {
   // Convert glob to regex
+  // First escape backslashes, then other special regex chars, then convert glob patterns
   const regexStr = pattern
+    .replace(/\\/g, '\\\\')
     .replace(/\./g, '\\.')
     .replace(/\*\*/g, '.*')
     .replace(/\*/g, '[^/]*');
