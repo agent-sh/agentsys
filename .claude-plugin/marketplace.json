@@ -1,6 +1,6 @@
 {
   "name": "awesome-slash",
-  "description": "9 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, repo mapping, and perf investigations",
+  "description": "10 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, repo mapping, perf investigations, and topic research",
   "version": "3.9.0",
   "owner": {
     "name": "Avi Fenesh",
@@ -84,6 +84,13 @@
       "description": "Rigorous performance investigation workflow with baselines, profiling, hypotheses, and evidence-backed decisions",
       "version": "3.9.0",
       "category": "development"
+    },
+    {
+      "name": "learn",
+      "source": "./plugins/learn",
+      "description": "Research topics online and create comprehensive learning guides with RAG-optimized indexes",
+      "version": "3.9.0",
+      "category": "productivity"
     }
   ]
 }
