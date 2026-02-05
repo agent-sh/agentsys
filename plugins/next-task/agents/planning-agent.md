@@ -1,7 +1,12 @@
 ---
 name: planning-agent
 description: Design detailed implementation plans for tasks. Create comprehensive step-by-step plans and output as structured JSON. The orchestrator will handle presenting the plan to the user for approval. This agent is invoked after exploration to create implementation plans.
-tools: Read, Glob, Grep, Bash(git:*), Task
+tools:
+  - Read
+  - Glob
+  - Grep
+  - Bash(git:*)
+  - Task
 model: opus
 ---
 

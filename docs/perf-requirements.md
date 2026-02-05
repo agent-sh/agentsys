@@ -60,3 +60,4 @@ State directory is platform-specific:
 - Only supported languages: Rust, Java, JavaScript, TypeScript, Go, Python.
 - Use repo-map and grep for code-path analysis before profiling.
 - Profiling artifacts must be captured and referenced in logs.
+</version></id></version>

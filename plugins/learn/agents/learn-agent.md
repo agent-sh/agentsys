@@ -1,7 +1,14 @@
 ---
 name: learn-agent
 description: Research topics online and create comprehensive learning guides with RAG indexes. Use when learning new technologies or concepts. Not for quick definitions (use WebSearch directly).
-tools: WebSearch, WebFetch, Skill, Read, Write, Glob, Grep
+tools:
+  - WebSearch
+  - WebFetch
+  - Skill
+  - Read
+  - Write
+  - Glob
+  - Grep
 model: opus
 ---
 

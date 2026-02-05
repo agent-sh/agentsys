@@ -1,7 +1,11 @@
 ---
 name: test-coverage-checker
 description: Validate test coverage quality for new code. Use this agent before the first review round to verify tests exist, are meaningful, and actually exercise the new code (not just path matching).
-tools: Bash(git:*), Read, Grep, Glob
+tools:
+  - Bash(git:*)
+  - Read
+  - Grep
+  - Glob
 model: sonnet
 ---
 

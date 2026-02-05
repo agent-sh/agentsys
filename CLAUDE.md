@@ -11,7 +11,7 @@
    *WHY: Breaking changes affect all plugin users immediately.*
 
 2. **Plugin for OTHER projects** - Optimize for plugin users, not internal dev convenience.
-   *WHY: Every decision should improve the experience for developers using this in their repos.*
+   *WHY: Every decision must improve the experience for developers using this in their repos.*
 
 3. **Use CHANGELOG.md for completion tracking** - MUST use CHANGELOG.md for release notes. NEVER create `*_AUDIT.md`, `*_SUMMARY.md`, `*_COMPLETION.md` files.
    *WHY: Summary files clutter repos and add no value. Report completion verbally.*

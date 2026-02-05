@@ -1,6 +1,6 @@
 ---
 description: Structured performance investigation with baselines, profiling, and evidence-backed decisions
-argument-hint: "[--resume] [--phase setup|baseline|breaking-point|constraints|hypotheses|code-paths|profiling|optimization|decision|consolidation] [--id <id>] [--scenario <text>] [--command <cmd>] [--version <ver>] [--duration <seconds>] [--runs <n>] [--aggregate <median|mean|min|max>] [--quote <text>] [--hypotheses-file <path>] [--param-env <name>] [--param-min <n>] [--param-max <n>] [--cpu <limit>] [--memory <limit>] [--change <summary>] [--verdict <continue|stop>] [--rationale <text>]"
+argument-hint: "[--resume] [--phase setup|baseline|breaking-point|constraints|hypotheses|code-paths|profiling|optimization|decision|consolidation] [--id [id]] [--scenario [text]] [--command [cmd]] [--version [ver]] [--duration [seconds]] [--runs [n]] [--aggregate <median|mean|min|max>] [--quote [text]] [--hypotheses-file [path]] [--param-env [name]] [--param-min [n]] [--param-max [n]] [--cpu [limit]] [--memory [limit]] [--change [summary]] [--verdict <continue|stop>] [--rationale [text]]"
 allowed-tools: Read, Write, Edit, Task, Bash(git:*), Bash(node:*), Bash(npm:*), Bash(pnpm:*), Bash(yarn:*), Bash(cargo:*), Bash(go:*), Bash(pytest:*), Bash(mvn:*), Bash(gradle:*)
 ---
 

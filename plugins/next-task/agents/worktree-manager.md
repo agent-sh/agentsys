@@ -1,7 +1,10 @@
 ---
 name: worktree-manager
 description: Create and manage git worktrees for isolated task development. Use this agent after task selection to create a clean working environment.
-tools: Bash(git:*), Read, Write
+tools:
+  - Bash(git:*)
+  - Read
+  - Write
 model: haiku
 ---
 

@@ -1,7 +1,14 @@
 ---
 name: sync-docs-agent
 description: Sync documentation with code state. Use for standalone /sync-docs command or /next-task Phase 11 docs update.
-tools: Bash(git:*), Bash(node:*), Skill, Read, Glob, Grep, Edit
+tools:
+  - Bash(git:*)
+  - Bash(node:*)
+  - Skill
+  - Read
+  - Glob
+  - Grep
+  - Edit
 model: sonnet
 ---
 

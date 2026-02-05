@@ -1,7 +1,17 @@
 ---
 name: implementation-agent
 description: Execute approved implementation plans with high-quality code. Use this agent after plan approval to write production-ready code following the approved plan.
-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(npm:*), Bash(node:*), Task, LSP
+tools:
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash(git:*)
+  - Bash(npm:*)
+  - Bash(node:*)
+  - Task
+  - LSP
 model: opus
 ---
 

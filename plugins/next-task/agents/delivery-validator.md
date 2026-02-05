@@ -1,7 +1,13 @@
 ---
 name: delivery-validator
 description: Validate task completion autonomously. Use this agent after review approval to run validation checks and either approve for shipping or return to implementation with fix instructions.
-tools: Skill, Bash(git:*), Bash(npm:*), Read, Grep, Glob
+tools:
+  - Skill
+  - Bash(git:*)
+  - Bash(npm:*)
+  - Read
+  - Grep
+  - Glob
 model: sonnet
 ---
 

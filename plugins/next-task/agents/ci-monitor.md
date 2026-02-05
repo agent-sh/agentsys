@@ -1,7 +1,11 @@
 ---
 name: ci-monitor
 description: Monitor CI status and PR comments with sleep/check loops. Use this agent after PR creation to watch for issues and delegate fixes to ci-fixer.
-tools: Bash(gh:*), Bash(git:*), Read, Task
+tools:
+  - Bash(gh:*)
+  - Bash(git:*)
+  - Read
+  - Task
 model: haiku
 ---
 

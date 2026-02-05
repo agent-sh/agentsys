@@ -1,6 +1,6 @@
 ---
 description: Use when user asks to "learn about topic", "research subject", "create learning guide", "build knowledge base", "study topic", or wants to gather online resources on any subject.
-argument-hint: "<topic> [--depth=brief|medium|deep]"
+argument-hint: "[topic] [--depth=brief|medium|deep]"
 allowed-tools: Task, Read, Write, Glob, AskUserQuestion
 ---
 

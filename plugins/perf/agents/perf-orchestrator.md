@@ -1,7 +1,22 @@
 ---
 name: perf-orchestrator
 description: Coordinate /perf investigations across all phases, enforcing non-negotiable perf rules.
-tools: Read, Write, Edit, Task, Bash(git:*), Bash(npm:*), Bash(pnpm:*), Bash(yarn:*), Bash(cargo:*), Bash(go:*), Bash(pytest:*), Bash(python:*), Bash(mvn:*), Bash(gradle:*), Bash(node:*)
+tools:
+  - Read
+  - Write
+  - Edit
+  - Task
+  - Bash(git:*)
+  - Bash(npm:*)
+  - Bash(pnpm:*)
+  - Bash(yarn:*)
+  - Bash(cargo:*)
+  - Bash(go:*)
+  - Bash(pytest:*)
+  - Bash(python:*)
+  - Bash(mvn:*)
+  - Bash(gradle:*)
+  - Bash(node:*)
 model: opus
 ---
 

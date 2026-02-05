@@ -1,7 +1,12 @@
 ---
 name: claudemd-enhancer
 description: Analyzes and optimizes CLAUDE.md/AGENTS.md project memory files for better AI understanding
-tools: Skill, Read, Glob, Grep, Bash(git:*)
+tools:
+  - Skill
+  - Read
+  - Glob
+  - Grep
+  - Bash(git:*)
 model: opus
 ---
 

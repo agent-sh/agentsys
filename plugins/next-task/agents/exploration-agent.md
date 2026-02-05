@@ -1,7 +1,13 @@
 ---
 name: exploration-agent
 description: Deep codebase analysis for understanding task context. Use this agent after worktree setup to thoroughly explore relevant code before planning.
-tools: Read, Glob, Grep, Bash(git:*), LSP, Task
+tools:
+  - Read
+  - Glob
+  - Grep
+  - Bash(git:*)
+  - LSP
+  - Task
 model: opus
 ---
 

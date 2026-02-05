@@ -1,7 +1,9 @@
 ---
 name: plan-synthesizer
 description: Perform deep semantic analysis on collected project data to identify drift, gaps, and create a prioritized reconstruction plan. Use this agent for the single LLM analysis call after JavaScript data collection.
-tools: Read, Write
+tools:
+  - Read
+  - Write
 model: opus
 ---
 

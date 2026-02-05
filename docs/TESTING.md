@@ -16,7 +16,7 @@ Use this checklist to validate awesome-slash commands in a real repo.
 
 ## Installation
 
-Follow [docs/INSTALLATION.md](./docs/INSTALLATION.md). For local testing:
+Follow [INSTALLATION.md](./INSTALLATION.md). For local testing:
 
 ```bash
 # Clone this repository

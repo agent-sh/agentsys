@@ -1,7 +1,11 @@
 ---
 name: perf-code-paths
 description: Map likely code paths for perf scenarios before profiling.
-tools: Skill, Read, Grep, Glob
+tools:
+  - Skill
+  - Read
+  - Grep
+  - Glob
 model: sonnet
 ---
 

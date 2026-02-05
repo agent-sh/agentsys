@@ -1,7 +1,8 @@
 ---
 name: map-validator
 description: Validate repo-map output for obvious errors and missing data. Use this agent after /repo-map init or update.
-tools: Read
+tools:
+  - Read
 model: haiku
 ---
 

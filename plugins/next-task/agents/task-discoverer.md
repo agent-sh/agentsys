@@ -1,7 +1,14 @@
 ---
 name: task-discoverer
 description: Discover and prioritize tasks from configured sources. CRITICAL - You MUST use AskUserQuestion tool to present task selection as checkboxes.
-tools: Skill, Bash(gh:*), Bash(glab:*), Bash(git:*), Grep, Read, AskUserQuestion
+tools:
+  - Skill
+  - Bash(gh:*)
+  - Bash(glab:*)
+  - Bash(git:*)
+  - Grep
+  - Read
+  - AskUserQuestion
 model: sonnet
 ---
 

@@ -1,7 +1,10 @@
 ---
 name: perf-investigation-logger
 description: Append structured investigation notes with exact user quotes and rationale.
-tools: Skill, Read, Write
+tools:
+  - Skill
+  - Read
+  - Write
 model: sonnet
 ---
 

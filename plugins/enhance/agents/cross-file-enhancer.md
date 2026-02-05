@@ -2,7 +2,13 @@
 name: cross-file-enhancer
 description: Analyze cross-file semantic consistency (tools, agents, rules)
 model: sonnet
-tools: Skill, Read, Glob, Grep, Bash(git:*), Bash(node:*)
+tools:
+  - Skill
+  - Read
+  - Glob
+  - Grep
+  - Bash(git:*)
+  - Bash(node:*)
 ---
 
 # Cross-File Enhancer

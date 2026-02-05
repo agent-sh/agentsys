@@ -1,7 +1,22 @@
 ---
 name: perf-theory-tester
 description: Execute controlled perf experiments, one change at a time, with rollback between runs.
-tools: Skill, Read, Write, Edit, Bash(git:*), Bash(npm:*), Bash(pnpm:*), Bash(yarn:*), Bash(cargo:*), Bash(go:*), Bash(pytest:*), Bash(python:*), Bash(mvn:*), Bash(gradle:*), Bash(node:*)
+tools:
+  - Skill
+  - Read
+  - Write
+  - Edit
+  - Bash(git:*)
+  - Bash(npm:*)
+  - Bash(pnpm:*)
+  - Bash(yarn:*)
+  - Bash(cargo:*)
+  - Bash(go:*)
+  - Bash(pytest:*)
+  - Bash(python:*)
+  - Bash(mvn:*)
+  - Bash(gradle:*)
+  - Bash(node:*)
 model: opus
 ---
 

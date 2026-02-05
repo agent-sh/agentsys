@@ -2,7 +2,7 @@
 name: learn
 description: "Research any topic online and create learning guides. Use when user asks to 'learn about', 'research topic', 'create learning guide', 'build knowledge base', or 'study subject'."
 version: 1.0.0
-argument-hint: "<topic> [--depth=brief|medium|deep]"
+argument-hint: "[topic] [--depth=brief|medium|deep]"
 ---
 
 # learn
@@ -175,8 +175,8 @@ Synthesized from {n} sources:
 
 | Resource | Type | Why Recommended |
 |----------|------|-----------------|
-| [Title](url) | Official Docs | Authoritative reference |
-| [Title](url) | Tutorial | Step-by-step guide |
+| [Title]({url}) | Official Docs | Authoritative reference |
+| [Title]({url}) | Tutorial | Step-by-step guide |
 
 ---
 

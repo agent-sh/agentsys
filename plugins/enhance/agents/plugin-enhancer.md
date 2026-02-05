@@ -1,7 +1,12 @@
 ---
 name: plugin-enhancer
 description: Analyze plugin structures and MCP tool definitions
-tools: Skill, Read, Glob, Grep, Bash(git:*)
+tools:
+  - Skill
+  - Read
+  - Glob
+  - Grep
+  - Bash(git:*)
 model: sonnet
 ---
 

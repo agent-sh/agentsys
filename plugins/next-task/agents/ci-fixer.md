@@ -1,7 +1,13 @@
 ---
 name: ci-fixer
 description: Fix CI failures and PR comments. Use this agent when ci-monitor detects issues that need code changes.
-tools: Bash(git:*), Bash(npm:*), Read, Edit, Grep, Glob
+tools:
+  - Bash(git:*)
+  - Bash(npm:*)
+  - Read
+  - Edit
+  - Grep
+  - Glob
 model: sonnet
 ---
 

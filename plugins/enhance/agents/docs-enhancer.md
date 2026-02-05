@@ -1,7 +1,12 @@
 ---
 name: docs-enhancer
 description: Analyze documentation for readability and RAG optimization
-tools: Skill, Read, Glob, Grep, Bash(git:*)
+tools:
+  - Skill
+  - Read
+  - Glob
+  - Grep
+  - Bash(git:*)
 model: opus
 ---
 

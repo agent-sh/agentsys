@@ -1,7 +1,13 @@
 ---
 name: prompt-enhancer
 description: Analyze prompts for prompt engineering best practices
-tools: Skill, Read, Glob, Grep, Bash(git:*), Bash(node:*)
+tools:
+  - Skill
+  - Read
+  - Glob
+  - Grep
+  - Bash(git:*)
+  - Bash(node:*)
 model: opus
 ---
 

@@ -1,7 +1,13 @@
 ---
 name: deslop-agent
 description: Clean AI slop from code. Invoke deslop skill and return structured results.
-tools: Bash(git:*), Bash(node:*), Skill, Read, Glob, Grep
+tools:
+  - Bash(git:*)
+  - Bash(node:*)
+  - Skill
+  - Read
+  - Glob
+  - Grep
 model: sonnet
 ---
 
