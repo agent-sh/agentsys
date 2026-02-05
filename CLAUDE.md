@@ -56,6 +56,11 @@
    - Hooks catch problems before they reach the repo
    - Fix the root cause, then retry
    *WHY: Hooks are safety nets. Bypassing them defeats their purpose.*
+
+11. **Argument hints use `[]` not `<>`** - In `argument-hint` frontmatter, use `[arg]` for optional args, not `<arg>`.
+   - Correct: `argument-hint: "[path] [--fix] [--target [target]]"`
+   - Wrong: `argument-hint: "[path] [--fix] [--target <target>]"`
+   *WHY: Consistent with Claude Code conventions. Angle brackets are ambiguous.*
 </critical-rules>
 
 <architecture>
