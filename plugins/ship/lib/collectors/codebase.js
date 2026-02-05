@@ -18,6 +18,12 @@ const DEFAULT_OPTIONS = {
 };
 
 /**
+ * Maximum file size to analyze (50KB)
+ * Larger files are skipped to avoid memory issues
+ */
+const MAX_FILE_SIZE = 50000;
+
+/**
  * Directories to exclude from analysis
  */
 const EXCLUDE_DIRS = [
@@ -184,7 +190,7 @@ function scanFileSymbols(basePath, topLevelDirs) {
 
           try {
             const stat = fs.statSync(fullPath);
-            if (stat.size > 50000) continue;
+            if (stat.size > MAX_FILE_SIZE) continue;
 
             const content = fs.readFileSync(fullPath, 'utf8');
             const symbols = extractSymbols(content);

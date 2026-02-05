@@ -202,8 +202,8 @@ describe('cross-platform', () => {
 
       const result = getPluginRoot('enhance');
 
-      // Sorted alphabetically, '1.9.9' comes last
-      expect(result).toContain('1.9.9');
+      // Sorted by semver, '1.10.0' is latest (greater than 1.9.9)
+      expect(result).toContain('1.10.0');
     });
 
     it('should return null when no plugin directories found', () => {

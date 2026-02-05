@@ -25,7 +25,10 @@ function runPatternBenchmarks(manifestPath, analyzers) {
   };
 
   // Process each fixture
-  for (const [fixturePath, expectations] of Object.entries(manifest.fixtures || {})) {
+  const fixtures = manifest?.fixtures && typeof manifest.fixtures === 'object' && !Array.isArray(manifest.fixtures)
+    ? manifest.fixtures
+    : {};
+  for (const [fixturePath, expectations] of Object.entries(fixtures)) {
     const fullPath = path.join(fixturesDir, fixturePath);
 
     if (!fs.existsSync(fullPath)) {
