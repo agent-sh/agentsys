@@ -103,6 +103,12 @@
   --color-accent-cyan:     #06b6d4;  /* Gradient end - cyan-500                              */
   --color-accent-mid:      #7c3aed;  /* Midpoint for single-color needs - violet-600         */
 
+  /* RGB components for use in rgba() - enables opacity control with tokens */
+  --color-accent-purple-rgb: 168, 85, 247;
+  --color-accent-cyan-rgb:   6, 182, 212;
+  --color-zinc-rgb:          113, 113, 122;
+  --color-info-rgb:          59, 130, 246;
+
   /* Pre-composed gradients for consistent use across components */
   --gradient-accent:       linear-gradient(135deg, #a855f7, #06b6d4);
   --gradient-accent-hover: linear-gradient(135deg, #c084fc, #22d3ee);

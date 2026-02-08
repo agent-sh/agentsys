@@ -249,6 +249,11 @@
         }
       }
     });
+
+    // Dispatch custom event so other features (e.g. dynamic HIW) can react
+    tablist.dispatchEvent(new CustomEvent('tab-changed', {
+      detail: { index: parseInt(activeTab.dataset.index, 10) }
+    }));
   }
 
   // ========================================================================
@@ -663,6 +668,12 @@
     var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var currentIndex = 0;
     var isTransitioning = false;
+    var pendingIndex = null;
+
+    // Read animation durations from CSS tokens to stay in sync
+    var rootStyles = getComputedStyle(document.documentElement);
+    var fadeOutDuration = Math.round(parseFloat(rootStyles.getPropertyValue('--duration-normal')) * 1000) || 200;
+    var fadeInDuration = Math.round(parseFloat(rootStyles.getPropertyValue('--duration-moderate')) * 1000) || 400;
 
     // SVG icons for the 3 step positions
     var stepIcons = [
@@ -690,7 +701,11 @@
     }
 
     function updateHowItWorks(index) {
-      if (index === currentIndex || isTransitioning) return;
+      if (index === currentIndex) return;
+      if (isTransitioning) {
+        pendingIndex = index;
+        return;
+      }
       var data = howItWorksData[index];
       if (!data) return;
 
@@ -714,19 +729,20 @@
         setTimeout(function () {
           stepsContainer.classList.remove('steps--entering');
           isTransitioning = false;
-        }, 400);
-      }, 200);
+          if (pendingIndex !== null) {
+            var next = pendingIndex;
+            pendingIndex = null;
+            updateHowItWorks(next);
+          }
+        }, fadeInDuration);
+      }, fadeOutDuration);
     }
 
-    // Hook into the commands tablist specifically
+    // Listen to tab-changed custom event (fired by activateTab for both click and keyboard)
     var commandsTablist = document.querySelector('.commands .tabs[role="tablist"]');
     if (commandsTablist) {
-      commandsTablist.addEventListener('click', function (e) {
-        var tab = e.target.closest('[role="tab"]');
-        if (tab) {
-          var index = parseInt(tab.dataset.index, 10);
-          updateHowItWorks(index);
-        }
+      commandsTablist.addEventListener('tab-changed', function (e) {
+        updateHowItWorks(e.detail.index);
       });
     }
   }

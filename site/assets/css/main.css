@@ -1393,27 +1393,27 @@
 }
 
 .tier-badge--opus {
-  color: #c084fc;
-  background: rgba(168, 85, 247, 0.12);
-  border: 1px solid rgba(168, 85, 247, 0.2);
+  color: var(--color-accent-hover);
+  background: rgba(var(--color-accent-purple-rgb), 0.12);
+  border: 1px solid rgba(var(--color-accent-purple-rgb), 0.2);
 }
 
 .tier-badge--sonnet {
-  color: #22d3ee;
-  background: rgba(6, 182, 212, 0.12);
-  border: 1px solid rgba(6, 182, 212, 0.2);
+  color: var(--color-accent-cyan);
+  background: rgba(var(--color-accent-cyan-rgb), 0.12);
+  border: 1px solid rgba(var(--color-accent-cyan-rgb), 0.2);
 }
 
 .tier-badge--haiku {
-  color: #a1a1aa;
-  background: rgba(113, 113, 122, 0.12);
-  border: 1px solid rgba(113, 113, 122, 0.2);
+  color: var(--color-text-secondary);
+  background: rgba(var(--color-zinc-rgb), 0.12);
+  border: 1px solid rgba(var(--color-zinc-rgb), 0.2);
 }
 
 .tier-badge--specialist {
-  color: #60a5fa;
-  background: rgba(59, 130, 246, 0.12);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  color: var(--color-info);
+  background: rgba(var(--color-info-rgb), 0.12);
+  border: 1px solid rgba(var(--color-info-rgb), 0.2);
 }
 
 /* Skills grid */
