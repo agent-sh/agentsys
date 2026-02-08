@@ -755,7 +755,7 @@ function installForCodex(installDir) {
     ['learn', 'learn', 'learn.md',
       'Use when user asks to "learn about topic", "research subject", "create learning guide", "build knowledge base", "study topic". Gathers online sources and synthesizes comprehensive guide with RAG index.'],
     ['agnix', 'agnix', 'agnix.md',
-      'Use when user asks to "lint agent configs", "validate skills", "check CLAUDE.md", "validate hooks", "lint MCP". Validates agent configuration files against 100 rules.']
+      'Use when user asks to "lint agent configs", "validate skills", "check CLAUDE.md", "validate hooks", "lint MCP". Validates agent configuration files against 155 rules across 10+ AI tools.']
   ];
 
   for (const [skillName, plugin, sourceFile, description] of skillMappings) {

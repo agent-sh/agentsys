@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>awesome-slash - AI Workflow Automation Toolkit</title>
+  <meta name="description" content="11 plugins, 40 agents, 26 skills. Automate the entire dev workflow from task selection to merged PR. Works with Claude Code, OpenCode, and Codex CLI.">
+  <meta name="theme-color" content="#09090b">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="awesome-slash">
+  <meta property="og:description" content="AI workflow automation. 11 plugins, 40 agents, 26 skills. Task to merged PR.">
+  <meta property="og:image" content="https://avifenesh.github.io/awesome-slash/assets/og-image.png">
+  <meta property="og:url" content="https://avifenesh.github.io/awesome-slash/">
+  <meta property="og:type" content="website">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="awesome-slash">
+  <meta name="twitter:description" content="AI workflow automation. 11 plugins, 40 agents, 26 skills.">
+  <meta name="twitter:image" content="https://avifenesh.github.io/awesome-slash/assets/og-image.png">
+
+  <!-- Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'">
+
+  <!-- Font preconnect for faster loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+
+  <!-- Critical above-fold styles inlined for fast first paint -->
+  <style>
+    .nav{position:fixed;top:0;left:0;right:0;z-index:var(--z-sticky);height:60px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid transparent;transition:background var(--duration-moderate) var(--ease-out),border-color var(--duration-moderate) var(--ease-out)}
+    .hero{min-height:100vh;display:flex;align-items:center;justify-content:center}
+  </style>
+
+  <!-- JS deferred -->
+  <script src="assets/js/main.js" defer></script>
+</head>
+<body>
+  <!-- Skip to content -->
+  <a href="#hero" class="skip-link">Skip to content</a>
+
+  <!-- ===== NAVIGATION ===== -->
+  <nav class="nav" id="nav" aria-label="Main navigation">
+    <div class="nav__inner">
+      <a href="#hero" class="nav__logo" aria-label="awesome-slash home">
+        <img class="nav__logo-icon" src="assets/logo.png" alt="" width="24" height="24" aria-hidden="true">
+        <span>awesome-slash</span>
+      </a>
+
+      <div class="nav__links" id="nav-links">
+        <a href="#commands" class="nav__link" data-section="commands">Commands</a>
+        <a href="#how-it-works" class="nav__link" data-section="how-it-works">How It Works</a>
+        <a href="#install" class="nav__link" data-section="install">Install</a>
+      </div>
+
+      <a href="https://github.com/avifenesh/awesome-slash" class="nav__cta" target="_blank" rel="noopener noreferrer" aria-label="View awesome-slash on GitHub">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        <span>GitHub</span>
+      </a>
+
+      <!-- Mobile hamburger -->
+      <button class="nav__hamburger" id="nav-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+        <span class="nav__hamburger-line"></span>
+        <span class="nav__hamburger-line"></span>
+        <span class="nav__hamburger-line"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile menu overlay -->
+  <div class="mobile-overlay" id="mobile-overlay" aria-hidden="true"></div>
+  <div class="mobile-menu" id="mobile-menu" role="dialog" aria-label="Navigation menu" aria-hidden="true">
+    <div class="mobile-menu__inner">
+      <a href="#commands" class="mobile-menu__link">Commands</a>
+      <a href="#how-it-works" class="mobile-menu__link">How It Works</a>
+      <a href="#install" class="mobile-menu__link">Install</a>
+      <a href="https://github.com/avifenesh/awesome-slash" class="mobile-menu__link" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </div>
+  </div>
+
+  <main>
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="hero" aria-labelledby="hero-title">
+      <div class="hero__inner">
+        <div class="hero__content">
+          <div class="hero__badge anim-fade-in" data-delay="100">
+            11 plugins &middot; 40 agents &middot; 26 skills
+          </div>
+          <h1 class="hero__title anim-fade-up" id="hero-title" data-delay="200">
+            Automate the <span class="text-gradient">entire dev workflow.</span><br>
+            Not just the coding.
+          </h1>
+          <p class="hero__subtitle anim-fade-up" data-delay="350">
+            From task selection to merged PR. Works with Claude Code, OpenCode, and Codex CLI. 3,357 tests. Production-grade.
+          </p>
+          <div class="hero__ctas anim-fade-up" data-delay="500">
+            <a href="#install" class="btn btn--primary">Get Started</a>
+            <a href="https://github.com/avifenesh/awesome-slash" class="btn btn--ghost" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+          </div>
+        </div>
+
+        <div class="hero__terminal anim-fade-left" data-delay="400">
+          <div class="terminal">
+            <div class="terminal__titlebar">
+              <span class="terminal__dot terminal__dot--red"></span>
+              <span class="terminal__dot terminal__dot--yellow"></span>
+              <span class="terminal__dot terminal__dot--green"></span>
+              <span class="terminal__titlebar-text">zsh</span>
+            </div>
+            <div class="terminal__body" id="terminal-body" role="img" aria-label="Animated demo showing the /next-task workflow automating task discovery, implementation, review, and shipping">
+              <!-- JS renders terminal content here -->
+            </div>
+            <span class="terminal__paused" id="terminal-paused">Paused</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PROBLEM ===== -->
+    <section class="problem" id="problem" aria-labelledby="problem-title">
+      <div class="problem__inner">
+        <h2 class="problem__title anim-fade-up" id="problem-title">
+          AI models write code.<br>That's not the hard part anymore.
+        </h2>
+        <p class="problem__body anim-fade-up" data-delay="150">
+          The hard part is everything else. Picking what to work on. Managing branches. Reviewing output. Cleaning up AI artifacts. Handling CI. Addressing reviewer comments. Deploying.
+          <strong>awesome-slash automates all of it.</strong>
+        </p>
+      </div>
+    </section>
+
+    <!-- ===== STATS BAR ===== -->
+    <section class="stats" id="stats" aria-label="Project statistics">
+      <div class="stats__inner">
+        <div class="stats__item">
+          <span class="stats__number" aria-live="polite" data-target="11">0</span>
+          <span class="stats__label">Plugins</span>
+        </div>
+        <div class="stats__item">
+          <span class="stats__number" aria-live="polite" data-target="40">0</span>
+          <span class="stats__label">Agents</span>
+        </div>
+        <div class="stats__item">
+          <span class="stats__number" aria-live="polite" data-target="26">0</span>
+          <span class="stats__label">Skills</span>
+        </div>
+        <div class="stats__item">
+          <span class="stats__number" aria-live="polite" data-target="3357">0</span>
+          <span class="stats__label">Tests Passing</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== COMMANDS ===== -->
+    <section class="commands" id="commands" aria-labelledby="commands-title">
+      <div class="commands__inner">
+        <h2 class="commands__title anim-fade-up" id="commands-title">11 Commands. One Toolkit.</h2>
+        <p class="commands__subtitle anim-fade-up" data-delay="100">Each works standalone. Together, they automate everything.</p>
+
+        <div class="commands__tabs anim-fade-up" data-delay="200">
+          <div class="tabs" role="tablist" aria-label="Command list">
+            <button class="tabs__tab tabs__tab--active" role="tab" aria-selected="true" aria-controls="tab-panel-0" id="tab-0" data-index="0">/next-task</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-1" id="tab-1" tabindex="-1" data-index="1">/ship</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-2" id="tab-2" tabindex="-1" data-index="2">/deslop</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-3" id="tab-3" tabindex="-1" data-index="3">/perf</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-4" id="tab-4" tabindex="-1" data-index="4">/drift-detect</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-5" id="tab-5" tabindex="-1" data-index="5">/audit-project</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-6" id="tab-6" tabindex="-1" data-index="6">/enhance</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-7" id="tab-7" tabindex="-1" data-index="7">/repo-map</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-8" id="tab-8" tabindex="-1" data-index="8">/sync-docs</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-9" id="tab-9" tabindex="-1" data-index="9">/learn</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-10" id="tab-10" tabindex="-1" data-index="10">/agnix</button>
+          </div>
+
+          <!-- Tab panels -->
+          <div class="tabs__panel tabs__panel--active" role="tabpanel" id="tab-panel-0" aria-labelledby="tab-0">
+            <h3 class="tabs__panel-name">/next-task</h3>
+            <p class="tabs__panel-tagline">Task to production, fully automated</p>
+            <ul class="tabs__panel-features">
+              <li>12-phase pipeline: discovery through deployment</li>
+              <li>Multi-agent review loop (code, security, perf, tests)</li>
+              <li>Persistent state -- resume from any phase</li>
+              <li>GitHub Issues, GitLab, or local task files</li>
+            </ul>
+            <div class="code-block">
+              <button class="code-block__copy" aria-label="Copy code to clipboard" data-code="/next-task              # Start new workflow
+/next-task --resume    # Resume interrupted workflow">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+              </button>
+              <pre><code><span class="code-prompt">$</span> /next-task              <span class="code-comment"># Start new workflow</span>
+<span class="code-prompt">$</span> /next-task --resume    <span class="code-comment"># Resume interrupted workflow</span></code></pre>
+            </div>
+          </div>
+
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-1" aria-labelledby="tab-1" hidden>
+            <h3 class="tabs__panel-name">/ship</h3>
+            <p class="tabs__panel-tagline">Branch to merged PR in one command</p>
+            <ul class="tabs__panel-features">
+              <li>Commits, pushes, creates PR, monitors CI</li>
+              <li>Waits for auto-reviewers, addresses every comment</li>
+              <li>Platform auto-detection (GitHub Actions, Railway, Vercel)</li>
+              <li>Merges, deploys, and cleans up</li>
+            </ul>
+            <div class="code-block">
+              <button class="code-block__copy" aria-label="Copy code to clipboard" data-code="/ship                  # Full workflow
+/ship --dry-run        # Preview without executing">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+              </button>
+              <pre><code><span class="code-prompt">$</span> /ship                  <span class="code-comment"># Full workflow</span>
+<span class="code-prompt">$</span> /ship --dry-run        <span class="code-comment"># Preview without executing</span></code></pre>
+            </div>
+          </div>
+
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-2" aria-labelledby="tab-2" hidden>
+            <h3 class="tabs__panel-name">/deslop</h3>
+            <p class="tabs__panel-tagline">Kill AI slop before it ships</p>
+            <ul class="tabs__panel-features">
+              <li>3-phase detection: regex, multi-pass analyzers, CLI tools</li>
+              <li>Certainty-graded findings (HIGH / MEDIUM / LOW)</li>
+              <li>JS/TS, Python, Rust, Go, Java</li>
+              <li>Auto-fix HIGH certainty issues</li>
+            </ul>
+            <div class="code-block">
+              <button class="code-block__copy" aria-label="Copy code to clipboard" data-code="/deslop              # Report only (safe)
+/deslop apply        # Fix HIGH certainty issues">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+              </button>
+              <pre><code><span class="code-prompt">$</span> /deslop              <span class="code-comment"># Report only (safe)</span>
+<span class="code-prompt">$</span> /deslop apply        <span class="code-comment"># Fix HIGH certainty issues</span></code></pre>
+            </div>
+          </div>
+
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-3" aria-labelledby="tab-3" hidden>
+            <h3 class="tabs__panel-name">/perf</h3>
+            <p class="tabs__panel-tagline">Evidence-backed performance investigation</p>
+            <ul class="tabs__panel-features">
+              <li>10-phase methodology with baselines and profiling</li>
+              <li>Hypothesis generation and controlled experiments</li>
+              <li>Breaking point analysis via binary search</li>
+              <li>Based on recorded real investigation sessions</li>
+            </ul>
+            <div class="code-block">
+              <button class="code-block__copy" aria-label="Copy code to clipboard" data-code="/perf                # Start new investigation
+/perf --resume       # Resume previous investigation">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+              </button>
+              <pre><code><span class="code-prompt">$</span> /perf                <span class="code-comment"># Start new investigation</span>
+<span class="code-prompt">$</span> /perf --resume       <span class="code-comment"># Resume previous investigation</span></code></pre>
+            </div>
+          </div>
+
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-4" aria-labelledby="tab-4" hidden>
+            <h3 class="tabs__panel-name">/drift-detect</h3>
+            <p class="tabs__panel-tagline">Find what's documented but not built</p>
+            <ul class="tabs__panel-features">
+              <li>AST-based plan vs code semantic analysis</li>
+              <li>JavaScript collectors + single Opus call</li>
+              <li>77% token reduction vs multi-agent approaches</li>
+              <li>Tested on 1,000+ repositories</li>
+            </ul>
+            <div class="code-block">
+              <button class="code-block__copy" aria-label="Copy code to clipboard" data-code="/drift-detect              # Full analysis
+/drift-detect --depth quick  # Quick scan">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+              </button>
+              <pre><code><span class="code-prompt">$</span> /drift-detect              <span class="code-comment"># Full analysis</span>
+<span class="code-prompt">$</span> /drift-detect --depth quick  <span class="code-comment"># Quick scan</span></code></pre>
+            </div>
+          </div>
+
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-5" aria-labelledby="tab-5" hidden>
+            <h3 class="tabs__panel-name">/audit-project</h3>
+            <p class="tabs__panel-tagline">Multi-agent code review that iterates until clean</p>
+            <ul class="tabs__panel-features">
+              <li>Up to 10 specialized agents per project</li>
+              <li>Security, performance, architecture, DB, API, frontend</li>
+              <li>Iterates until zero open issues remain</li>
+              <li>Auto-fixes all non-false-positive findings</li>
+            </ul>
+            <div class="code-block">
+              <button class="code-block__copy" aria-label="Copy code to clipboard" data-code="/audit-project                # Full review
+/audit-project --domain security  # Security only">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+              </button>
+              <pre><code><span class="code-prompt">$</span> /audit-project                <span class="code-comment"># Full review</span>
+<span class="code-prompt">$</span> /audit-project --domain security  <span class="code-comment"># Security only</span></code></pre>
+            </div>
+          </div>
+
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-6" aria-labelledby="tab-6" hidden>
+            <h3 class="tabs__panel-name">/enhance</h3>
+            <p class="tabs__panel-tagline">Analyze everything that shapes agent behavior</p>
+            <ul class="tabs__panel-features">
+              <li>7 parallel analyzers for prompts, agents, plugins, docs</li>
+              <li>Certainty-graded findings with auto-fix support</li>
+              <li>Auto-learns false positives over time</li>
+              <li>Hooks and skills analysis included</li>
+            </ul>
+            <div class="code-block">
+              <button class="code-block__copy" aria-label="Copy code to clipboard" data-code="/enhance                # Run all analyzers
+/enhance --apply        # Apply HIGH certainty fixes">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+              </button>
+              <pre><code><span class="code-prompt">$</span> /enhance                <span class="code-comment"># Run all analyzers</span>
+<span class="code-prompt">$</span> /enhance --apply        <span class="code-comment"># Apply HIGH certainty fixes</span></code></pre>
+            </div>
+          </div>
+
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-7" aria-labelledby="tab-7" hidden>
+            <h3 class="tabs__panel-name">/repo-map</h3>
+            <p class="tabs__panel-tagline">AST symbol and import mapping</p>
+            <ul class="tabs__panel-features">
+              <li>Cached file-to-symbols map via ast-grep</li>
+              <li>Exports, functions, classes, import graph</li>
+              <li>Used by drift-detect and planners automatically</li>
+              <li>Incremental updates for large repos</li>
+            </ul>
+            <div class="code-block">
+              <button class="code-block__copy" aria-label="Copy code to clipboard" data-code="/repo-map init       # First-time map generation
+/repo-map update     # Incremental update">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+              </button>
+              <pre><code><span class="code-prompt">$</span> /repo-map init       <span class="code-comment"># First-time map generation</span>
+<span class="code-prompt">$</span> /repo-map update     <span class="code-comment"># Incremental update</span></code></pre>
+            </div>
+          </div>
+
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-8" aria-labelledby="tab-8" hidden>
+            <h3 class="tabs__panel-name">/sync-docs</h3>
+            <p class="tabs__panel-tagline">Keep docs in sync with code</p>
+            <ul class="tabs__panel-features">
+              <li>Finds outdated references and stale examples</li>
+              <li>Detects missing CHANGELOG entries</li>
+              <li>Version mismatch detection</li>
+              <li>Auto-fixes safe issues like version numbers</li>
+            </ul>
+            <div class="code-block">
+              <button class="code-block__copy" aria-label="Copy code to clipboard" data-code="/sync-docs           # Check what needs updates
+/sync-docs apply     # Apply safe fixes">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+              </button>
+              <pre><code><span class="code-prompt">$</span> /sync-docs           <span class="code-comment"># Check what needs updates</span>
+<span class="code-prompt">$</span> /sync-docs apply     <span class="code-comment"># Apply safe fixes</span></code></pre>
+            </div>
+          </div>
+
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-9" aria-labelledby="tab-9" hidden>
+            <h3 class="tabs__panel-name">/learn</h3>
+            <p class="tabs__panel-tagline">Research any topic, build a learning guide</p>
+            <ul class="tabs__panel-features">
+              <li>Progressive discovery: broad to specific to deep</li>
+              <li>Quality-scored sources (authority, recency, depth)</li>
+              <li>Structured guide with examples and best practices</li>
+              <li>RAG index for future agent lookups</li>
+            </ul>
+            <div class="code-block">
+              <button class="code-block__copy" aria-label="Copy code to clipboard" data-code="/learn react hooks --depth=deep   # Comprehensive
+/learn kubernetes --depth=brief    # Quick overview">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+              </button>
+              <pre><code><span class="code-prompt">$</span> /learn react hooks --depth=deep   <span class="code-comment"># Comprehensive</span>
+<span class="code-prompt">$</span> /learn kubernetes --depth=brief    <span class="code-comment"># Quick overview</span></code></pre>
+            </div>
+          </div>
+
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-10" aria-labelledby="tab-10" hidden>
+            <h3 class="tabs__panel-name">/agnix</h3>
+            <p class="tabs__panel-tagline">Lint agent configs before they break</p>
+            <ul class="tabs__panel-features">
+              <li>155 validation rules across 28 categories</li>
+              <li>10+ AI tools: Claude Code, Cursor, Copilot, Codex, OpenCode, Gemini CLI</li>
+              <li>57 auto-fixable rules with --fix flag</li>
+              <li>SARIF output for GitHub Code Scanning</li>
+            </ul>
+            <div class="code-block">
+              <button class="code-block__copy" aria-label="Copy code to clipboard" data-code="/agnix                # Validate current project
+/agnix --fix          # Auto-fix fixable issues">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+              </button>
+              <pre><code><span class="code-prompt">$</span> /agnix                <span class="code-comment"># Validate current project</span>
+<span class="code-prompt">$</span> /agnix --fix          <span class="code-comment"># Auto-fix fixable issues</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== HOW IT WORKS ===== -->
+    <section class="how-it-works" id="how-it-works" aria-labelledby="hiw-title">
+      <div class="how-it-works__inner">
+        <h2 class="how-it-works__title anim-fade-up" id="hiw-title">How It Works</h2>
+        <p class="how-it-works__subtitle anim-fade-up" data-delay="100">One approval. Fully autonomous execution.</p>
+
+        <div class="steps">
+          <div class="steps__card anim-fade-up" data-delay="0">
+            <span class="steps__number">1</span>
+            <svg class="steps__icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <h3 class="steps__card-title">Pick a task</h3>
+            <p class="steps__card-desc">Select from GitHub Issues, GitLab, or a local task file. The agent explores your codebase and designs a plan.</p>
+          </div>
+
+          <div class="steps__connector" aria-hidden="true">
+            <svg width="40" height="2" viewBox="0 0 40 2"><line x1="0" y1="1" x2="40" y2="1" stroke="currentColor" stroke-dasharray="4 4"/></svg>
+          </div>
+
+          <div class="steps__card anim-fade-up" data-delay="150">
+            <span class="steps__number">2</span>
+            <svg class="steps__icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <h3 class="steps__card-title">Approve the plan</h3>
+            <p class="steps__card-desc">Review the implementation plan. This is the last human interaction. Everything after is automated.</p>
+          </div>
+
+          <div class="steps__connector" aria-hidden="true">
+            <svg width="40" height="2" viewBox="0 0 40 2"><line x1="0" y1="1" x2="40" y2="1" stroke="currentColor" stroke-dasharray="4 4"/></svg>
+          </div>
+
+          <div class="steps__card anim-fade-up" data-delay="300">
+            <span class="steps__number">3</span>
+            <svg class="steps__icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+            <h3 class="steps__card-title">Watch it ship</h3>
+            <p class="steps__card-desc">Code, review, cleanup, documentation, PR, CI, merge. All handled. You review the result.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PHILOSOPHY ===== -->
+    <section class="philosophy" id="philosophy" aria-labelledby="phil-title">
+      <div class="philosophy__inner">
+        <h2 class="philosophy__title anim-fade-up" id="phil-title">Built Different</h2>
+        <p class="philosophy__subtitle anim-fade-up" data-delay="100">Not another AI wrapper. Engineering-grade workflow automation.</p>
+
+        <div class="philosophy__grid">
+          <div class="philosophy__card anim-fade-up" data-delay="0">
+            <div class="philosophy__card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </div>
+            <h3 class="philosophy__card-title">Code does code work. AI does AI work.</h3>
+            <p class="philosophy__card-desc">Static analysis, regex, and AST for detection. LLMs only for synthesis and judgment. <span class="text-accent">77% fewer tokens</span> than multi-agent approaches.</p>
+          </div>
+          <div class="philosophy__card anim-fade-up" data-delay="100">
+            <div class="philosophy__card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <h3 class="philosophy__card-title">One agent, one job, done well</h3>
+            <p class="philosophy__card-desc"><span class="text-accent">40 specialized agents</span>, each with a narrow scope and clear success criteria. No agent tries to do everything.</p>
+          </div>
+          <div class="philosophy__card anim-fade-up" data-delay="200">
+            <div class="philosophy__card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <h3 class="philosophy__card-title">Pipeline with gates</h3>
+            <p class="philosophy__card-desc">Each step must pass before the next begins. Can't push before review. Can't merge before CI. Hooks enforce it.</p>
+          </div>
+          <div class="philosophy__card anim-fade-up" data-delay="300">
+            <div class="philosophy__card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3 class="philosophy__card-title">Validate plan and results</h3>
+            <p class="philosophy__card-desc">Approve the plan. See the results. The middle is automated. One approval unlocks autonomous execution.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== INSTALLATION ===== -->
+    <section class="install" id="install" aria-labelledby="install-title">
+      <div class="install__inner">
+        <h2 class="install__title anim-fade-up" id="install-title">Get Started in 30 Seconds</h2>
+
+        <div class="install__tabs anim-fade-up" data-delay="150">
+          <div class="tabs tabs--small" role="tablist" aria-label="Installation methods">
+            <button class="tabs__tab tabs__tab--active" role="tab" aria-selected="true" aria-controls="install-panel-0" id="install-tab-0" data-index="0">Claude Code</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="install-panel-1" id="install-tab-1" tabindex="-1" data-index="1">npm (All Platforms)</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="install-panel-2" id="install-tab-2" tabindex="-1" data-index="2">Manual</button>
+          </div>
+
+          <div class="tabs__panel tabs__panel--active" role="tabpanel" id="install-panel-0" aria-labelledby="install-tab-0">
+            <p class="install__label">Recommended</p>
+            <div class="code-block">
+              <button class="code-block__copy" aria-label="Copy code to clipboard" data-code="/plugin marketplace add avifenesh/awesome-slash
+/plugin install next-task@awesome-slash
+/plugin install ship@awesome-slash">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+              </button>
+              <pre><code><span class="code-prompt">$</span> /plugin marketplace add avifenesh/awesome-slash
+<span class="code-prompt">$</span> /plugin install next-task@awesome-slash
+<span class="code-prompt">$</span> /plugin install ship@awesome-slash</code></pre>
+            </div>
+          </div>
+
+          <div class="tabs__panel" role="tabpanel" id="install-panel-1" aria-labelledby="install-tab-1" hidden>
+            <p class="install__label">Interactive installer for Claude Code, OpenCode, and Codex CLI</p>
+            <div class="code-block">
+              <button class="code-block__copy" aria-label="Copy code to clipboard" data-code="npm install -g awesome-slash && awesome-slash">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+              </button>
+              <pre><code><span class="code-prompt">$</span> npm install -g awesome-slash && awesome-slash</code></pre>
+            </div>
+          </div>
+
+          <div class="tabs__panel" role="tabpanel" id="install-panel-2" aria-labelledby="install-tab-2" hidden>
+            <p class="install__label">Clone and install from source</p>
+            <div class="code-block">
+              <button class="code-block__copy" aria-label="Copy code to clipboard" data-code="git clone https://github.com/avifenesh/awesome-slash.git
+cd awesome-slash
+npm install">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+              </button>
+              <pre><code><span class="code-prompt">$</span> git clone https://github.com/avifenesh/awesome-slash.git
+<span class="code-prompt">$</span> cd awesome-slash
+<span class="code-prompt">$</span> npm install</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <img src="assets/logo.png" alt="" width="28" height="28" class="footer__logo" aria-hidden="true">
+        <span class="footer__name">awesome-slash</span>
+        <span class="footer__tagline">AI workflow automation toolkit</span>
+        <span class="footer__license">MIT License</span>
+      </div>
+      <div class="footer__links">
+        <a href="https://github.com/avifenesh/awesome-slash" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://www.npmjs.com/package/awesome-slash" target="_blank" rel="noopener noreferrer">npm</a>
+        <a href="https://github.com/avifenesh/awesome-slash/issues" target="_blank" rel="noopener noreferrer">Issues</a>
+        <a href="https://github.com/avifenesh/awesome-slash/discussions" target="_blank" rel="noopener noreferrer">Discussions</a>
+      </div>
+      <div class="footer__meta">
+        <span class="footer__version" id="site-version">v4.1.0</span>
+        <script>fetch('version.json').then(function(r){return r.json()}).then(function(d){if(d.version&&d.version!=='dev')document.getElementById('site-version').textContent='v'+d.version}).catch(function(){})</script>
+        <span class="footer__author">Made by <a href="https://github.com/avifenesh" target="_blank" rel="noopener noreferrer">Avi Fenesh</a></span>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

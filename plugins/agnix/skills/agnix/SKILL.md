@@ -1,13 +1,13 @@
 ---
 name: agnix
-description: "Use when user asks to 'lint agent configs', 'validate skills', 'check CLAUDE.md', 'validate hooks', 'lint MCP'. Validates agent configuration files against 100 rules."
+description: "Use when user asks to 'lint agent configs', 'validate skills', 'check CLAUDE.md', 'validate hooks', 'lint MCP'. Validates agent configuration files against 155 rules across 10+ AI tools."
 version: 1.0.0
 argument-hint: "[path] [--fix] [--strict] [--target=claude-code|cursor|codex]"
 ---
 
 # agnix
 
-Lint agent configurations before they break your workflow. Validates Skills, Hooks, MCP, Memory, Plugins across Claude Code, Cursor, GitHub Copilot, and Codex CLI.
+Lint agent configurations before they break your workflow. Validates Skills, Hooks, MCP, Memory, Plugins across 10+ AI tools including Claude Code, Cursor, GitHub Copilot, Codex CLI, OpenCode, Gemini CLI, Cline, Windsurf, Kiro, and Amp.
 
 ## When to Use
 

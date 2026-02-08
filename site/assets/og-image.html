@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<!--
+  OG Image Template for awesome-slash
+  ====================================
+  Render this HTML at 1200x630 to generate the Open Graph social preview image.
+  Use a headless browser (Playwright, Puppeteer) to screenshot.
+
+  Usage:
+    npx playwright screenshot --viewport-size=1200,630 site/assets/og-image.html og-image.png
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;800&family=JetBrains+Mono:wght@500&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 1200px;
+      height: 630px;
+      background: #09090b;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 80px 100px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Ambient gradient glow - top right */
+    body::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      right: -200px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Secondary glow - bottom left */
+    body::after {
+      content: '';
+      position: absolute;
+      bottom: -200px;
+      left: -100px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Subtle dot grid pattern */
+    .grid-overlay {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+    }
+
+    .slash-mark {
+      font-family: 'Inter', sans-serif;
+      font-size: 120px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #a855f7, #06b6d4);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .title {
+      font-size: 64px;
+      font-weight: 800;
+      color: #fafafa;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .subtitle {
+      font-size: 24px;
+      font-weight: 600;
+      color: #a1a1aa;
+      letter-spacing: -0.01em;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 32px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 32px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .stat-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 28px;
+      font-weight: 500;
+      background: linear-gradient(135deg, #a855f7, #06b6d4);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-label {
+      font-size: 16px;
+      color: #71717a;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .border-line {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #a855f7, #06b6d4);
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-overlay"></div>
+  <div class="slash-mark">/</div>
+  <div class="title">awesome-slash</div>
+  <div class="subtitle">AI workflow automation toolkit for developer CLI</div>
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-number">11</span>
+      <span class="stat-label">Plugins</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">40</span>
+      <span class="stat-label">Agents</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">26</span>
+      <span class="stat-label">Skills</span>
+    </div>
+  </div>
+  <div class="border-line"></div>
+</body>
+</html>

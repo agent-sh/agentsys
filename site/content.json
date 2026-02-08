@@ -1,0 +1,291 @@
+{
+  "meta": {
+    "title": "awesome-slash",
+    "description": "Production-ready skills, agents, and commands for Claude Code, OpenCode, and Codex CLI. 11 plugins that automate the entire AI development workflow, not just the coding.",
+    "url": "https://avifenesh.github.io/awesome-slash",
+    "repo": "https://github.com/avifenesh/awesome-slash",
+    "npm": "https://www.npmjs.com/package/awesome-slash",
+    "version": "4.1.0",
+    "author": "Avi Fenesh",
+    "author_url": "https://github.com/avifenesh"
+  },
+  "hero": {
+    "title": "Automate the entire workflow, not just the coding",
+    "subtitle": "AI models can write code. That's not the hard part anymore. The hard part is everything else -- picking tasks, managing branches, reviewing output, handling CI, addressing comments, deploying. awesome-slash automates all of it.",
+    "cta_primary": { "text": "Get Started", "url": "#installation" },
+    "cta_secondary": { "text": "View on GitHub", "url": "https://github.com/avifenesh/awesome-slash" }
+  },
+  "stats": [
+    { "value": "11", "label": "Plugins", "suffix": "" },
+    { "value": "40", "label": "Agents", "suffix": "" },
+    { "value": "26", "label": "Skills", "suffix": "" },
+    { "value": "26k", "label": "Lines of Lib Code", "suffix": "" },
+    { "value": "3,357", "label": "Tests", "suffix": "" },
+    { "value": "3", "label": "Platforms", "suffix": "" }
+  ],
+  "problem": {
+    "title": "The bottleneck isn't code generation",
+    "description": "Frontier models write good code. That's solved. What's not solved is context management, compaction amnesia, task drift, skipped steps, token waste, babysitting, and repetitive requests. You shouldn't have to orchestrate each phase manually, every single session.",
+    "points": [
+      "Context management -- models forget what they're doing mid-session",
+      "Compaction amnesia -- long sessions get summarized, losing critical state",
+      "Task drift -- without structure, agents wander from the actual goal",
+      "Skipped steps -- agents skip reviews, tests, or cleanup when not enforced",
+      "Token waste -- using LLM calls for work that static analysis can do faster",
+      "Babysitting -- manually orchestrating each phase of development",
+      "Repetitive requests -- asking for the same workflow every single session"
+    ]
+  },
+  "approach": {
+    "title": "Code does code work. AI does AI work.",
+    "description": "Detection uses regex, AST analysis, and static analysis -- fast, deterministic, no tokens wasted. Judgment uses LLM calls for synthesis, planning, and review -- where reasoning matters. Result: 77% fewer tokens for drift-detect vs multi-agent approaches.",
+    "certainty_levels": [
+      { "level": "HIGH", "meaning": "Definitely a problem", "action": "Safe to auto-fix" },
+      { "level": "MEDIUM", "meaning": "Probably a problem", "action": "Needs context" },
+      { "level": "LOW", "meaning": "Might be a problem", "action": "Needs human judgment" }
+    ]
+  },
+  "commands": [
+    {
+      "name": "/next-task",
+      "tagline": "Task to production, fully automated",
+      "description": "12-phase workflow: discovers tasks, explores codebase, plans implementation, writes code, reviews, and ships. One plan approval unlocks autonomous execution through to merged PR.",
+      "example": "/next-task",
+      "category": "workflow"
+    },
+    {
+      "name": "/ship",
+      "tagline": "Branch to merged PR in one command",
+      "description": "Commits, pushes, creates PR, monitors CI, waits for auto-reviewers, addresses every comment, merges, deploys, and cleans up. Platform auto-detection for GitHub Actions, Railway, Vercel, and more.",
+      "example": "/ship",
+      "category": "workflow"
+    },
+    {
+      "name": "/deslop",
+      "tagline": "Kill AI slop before it ships",
+      "description": "3-phase detection pipeline finds debug statements, placeholder text, verbose comments, TODOs, and over-engineering patterns. Certainty-graded findings across JS/TS, Python, Rust, Go, Java.",
+      "example": "/deslop apply",
+      "category": "analysis"
+    },
+    {
+      "name": "/perf",
+      "tagline": "Evidence-backed performance investigation",
+      "description": "10-phase methodology with baselines, breaking point analysis, hypothesis generation, profiling, and controlled experiments. Based on recorded real investigation sessions.",
+      "example": "/perf",
+      "category": "analysis"
+    },
+    {
+      "name": "/drift-detect",
+      "tagline": "Find what's documented but not built",
+      "description": "AST-based plan vs code analysis. JavaScript collectors gather data fast, one Opus call does semantic matching. Tested on 1,000+ repositories. 77% token reduction vs multi-agent approaches.",
+      "example": "/drift-detect",
+      "category": "analysis"
+    },
+    {
+      "name": "/audit-project",
+      "tagline": "Multi-agent code review that iterates until clean",
+      "description": "Up to 10 specialized agents (security, performance, architecture, database, API, frontend, backend, DevOps) run based on your project. Iterates until zero open issues remain.",
+      "example": "/audit-project",
+      "category": "analysis"
+    },
+    {
+      "name": "/enhance",
+      "tagline": "Analyze everything that shapes agent behavior",
+      "description": "Seven parallel analyzers check your prompts, agents, plugins, docs, hooks, and skills. Certainty-graded findings with auto-fix support. Auto-learns false positives over time.",
+      "example": "/enhance",
+      "category": "analysis"
+    },
+    {
+      "name": "/repo-map",
+      "tagline": "AST symbol and import mapping",
+      "description": "Builds a cached map of exports, functions, classes, and imports via ast-grep. Tools like drift-detect and planners use it instead of re-scanning the repo every time.",
+      "example": "/repo-map init",
+      "category": "maintenance"
+    },
+    {
+      "name": "/sync-docs",
+      "tagline": "Keep docs in sync with code",
+      "description": "Finds outdated references, stale examples, missing CHANGELOG entries, and version mismatches. Auto-fixes safe issues like version numbers and CHANGELOG entries.",
+      "example": "/sync-docs apply",
+      "category": "maintenance"
+    },
+    {
+      "name": "/learn",
+      "tagline": "Research any topic, build a learning guide",
+      "description": "Progressive discovery gathers 10-40 online sources, scores them by quality, and synthesizes a structured guide with RAG index. Creates reusable knowledge in agent-knowledge/.",
+      "example": "/learn react hooks --depth=deep",
+      "category": "learning"
+    },
+    {
+      "name": "/agnix",
+      "tagline": "Lint agent configs before they break",
+      "description": "155 validation rules (57 auto-fixable) for Skills, Memory, Hooks, MCP, and Plugins across 10+ AI tools including Claude Code, Cursor, GitHub Copilot, Codex CLI, OpenCode, and Gemini CLI. SARIF output for GitHub Code Scanning.",
+      "example": "/agnix --fix",
+      "category": "linting"
+    }
+  ],
+  "philosophy": [
+    {
+      "title": "One agent, one job, done extremely well",
+      "description": "Same principle as good code: single responsibility. The exploration-agent explores. The implementation-agent implements. Specialized agents with narrow scope and clear success criteria."
+    },
+    {
+      "title": "Pipeline with gates, not a monolith",
+      "description": "Same principle as DevOps. Each step must pass before the next begins. Can't push before review. Can't merge before CI passes. Hooks enforce this -- agents cannot skip phases."
+    },
+    {
+      "title": "Tools do tool work, agents do agent work",
+      "description": "If static analysis, regex, or a shell command can do it, don't ask an LLM. Pattern detection uses pre-indexed regex. File discovery uses glob. The LLM only handles what requires judgment."
+    },
+    {
+      "title": "Right model for the task",
+      "description": "Opus for complex reasoning and analysis. Sonnet for pattern matching and validation. Haiku for mechanical execution. Quality compounds -- early phases deserve the best model."
+    },
+    {
+      "title": "Validate plan and results, not every step",
+      "description": "Approve the plan. See the results. The middle is automated. One plan approval unlocks autonomous execution through implementation, review, cleanup, and shipping."
+    },
+    {
+      "title": "Composable, not monolithic",
+      "description": "Every command works standalone. /deslop cleans code without /next-task. /ship merges PRs without the full workflow. Pieces compose together, but each piece is useful on its own."
+    }
+  ],
+  "installation": {
+    "claude_code": {
+      "label": "Claude Code",
+      "recommended": true,
+      "steps": [
+        "Add the marketplace",
+        "Install the plugins you need"
+      ],
+      "commands": [
+        "/plugin marketplace add avifenesh/awesome-slash",
+        "/plugin install next-task@awesome-slash",
+        "/plugin install ship@awesome-slash"
+      ]
+    },
+    "npm": {
+      "label": "All Platforms (npm)",
+      "recommended": false,
+      "steps": [
+        "Install globally via npm",
+        "Run the interactive installer",
+        "Select your platforms"
+      ],
+      "commands": [
+        "npm install -g awesome-slash",
+        "awesome-slash"
+      ]
+    },
+    "platforms": {
+      "claude_code": {
+        "name": "Claude Code",
+        "prefix": "/",
+        "state_dir": ".claude/"
+      },
+      "opencode": {
+        "name": "OpenCode",
+        "prefix": "/",
+        "state_dir": ".opencode/"
+      },
+      "codex": {
+        "name": "Codex CLI",
+        "prefix": "$",
+        "state_dir": ".codex/"
+      }
+    }
+  },
+  "workflow_steps": [
+    { "step": 1, "name": "Policy Selection", "description": "Choose task source, priority filter, and stopping point" },
+    { "step": 2, "name": "Task Discovery", "description": "Shows top 5 prioritized tasks -- you pick one" },
+    { "step": 3, "name": "Worktree Setup", "description": "Creates isolated branch and working directory" },
+    { "step": 4, "name": "Exploration", "description": "Deep codebase analysis to understand context" },
+    { "step": 5, "name": "Planning", "description": "Designs step-by-step implementation approach" },
+    { "step": 6, "name": "User Approval", "description": "You review and approve the plan (last human interaction)" },
+    { "step": 7, "name": "Implementation", "description": "Executes the plan autonomously" },
+    { "step": 8, "name": "Pre-Review", "description": "Runs deslop-agent and test coverage checker" },
+    { "step": 9, "name": "Review Loop", "description": "Multi-agent review iterates until clean" },
+    { "step": 10, "name": "Delivery Validation", "description": "Verifies tests pass, build works, requirements met" },
+    { "step": 11, "name": "Docs Update", "description": "Updates CHANGELOG and related documentation" },
+    { "step": 12, "name": "Ship", "description": "Creates PR, monitors CI, addresses comments, merges" }
+  ],
+  "agents": {
+    "total": 40,
+    "file_based": 30,
+    "role_based": 10,
+    "by_model": [
+      { "model": "Opus", "use_case": "Complex reasoning, analysis", "agents": ["exploration-agent", "planning-agent", "implementation-agent", "perf-orchestrator", "learn-agent"] },
+      { "model": "Sonnet", "use_case": "Validation, pattern matching", "agents": ["task-discoverer", "delivery-validator", "ci-fixer", "deslop-agent", "enhancement reporters"] },
+      { "model": "Haiku", "use_case": "Mechanical execution", "agents": ["worktree-manager", "ci-monitor", "simple-fixer"] }
+    ]
+  },
+  "recent_releases": [
+    {
+      "version": "4.1.0",
+      "date": "2026-02-05",
+      "highlights": [
+        "New /agnix plugin -- lint agent configurations with 155 validation rules across 10+ AI tools",
+        "SARIF output for GitHub Code Scanning integration",
+        "Cross-platform validation for Claude Code, Cursor, Copilot, Codex, OpenCode, Gemini CLI, and more"
+      ]
+    },
+    {
+      "version": "4.0.0",
+      "date": "2026-02-05",
+      "highlights": [
+        "New /learn plugin -- research any topic, create learning guides with RAG index",
+        "Progressive query architecture with source quality scoring",
+        "Agent frontmatter converted to YAML array format for spec compliance"
+      ]
+    },
+    {
+      "version": "3.9.0",
+      "date": "2026-02-04",
+      "highlights": [
+        "Reduced prompt analyzer false positives from 175 to 0",
+        "Agent Skills Open Standard compliance with automated validation",
+        "Cross-file semantic analysis for /enhance"
+      ]
+    },
+    {
+      "version": "3.8.0",
+      "date": "2026-02-02",
+      "highlights": [
+        "sync-docs repo-map integration with AST-based symbol detection",
+        "Version bump tool for coordinated releases",
+        "OpenCode config path and plugin fixes"
+      ]
+    }
+  ],
+  "requirements": {
+    "required": [
+      { "name": "Git", "description": "Version control" },
+      { "name": "Node.js 18+", "description": "For library functions" }
+    ],
+    "recommended": [
+      { "name": "GitHub CLI (gh)", "description": "For PR operations and issue discovery" },
+      { "name": "ast-grep (sg)", "description": "For /repo-map generation" }
+    ],
+    "optional": [
+      { "name": "agnix CLI", "description": "For /agnix agent config linting" },
+      { "name": "GitLab CLI (glab)", "description": "For GitLab workflows" }
+    ]
+  },
+  "supported_languages": ["JavaScript", "TypeScript", "Python", "Rust", "Go", "Java"],
+  "supported_ci": ["GitHub Actions", "GitLab CI", "CircleCI", "Jenkins", "Travis CI"],
+  "supported_deploy": ["Railway", "Vercel", "Netlify", "Fly.io", "Render"],
+  "research": {
+    "knowledge_base": "8,000 lines of curated documentation from Anthropic, OpenAI, Google, and Microsoft",
+    "testing": "3,357 tests passing",
+    "drift_detect_repos": "1,000+ repositories validated",
+    "token_reduction": "77% fewer tokens for drift-detect vs multi-agent approaches"
+  },
+  "footer": {
+    "license": "MIT",
+    "author": "Avi Fenesh",
+    "github_url": "https://github.com/avifenesh/awesome-slash",
+    "npm_url": "https://www.npmjs.com/package/awesome-slash",
+    "issues_url": "https://github.com/avifenesh/awesome-slash/issues",
+    "discussions_url": "https://github.com/avifenesh/awesome-slash/discussions"
+  }
+}

@@ -95,7 +95,7 @@
     {
       "name": "agnix",
       "source": "./plugins/agnix",
-      "description": "Lint agent configuration files (SKILL.md, CLAUDE.md, hooks, MCP) against 100 rules",
+      "description": "Lint agent configuration files (SKILL.md, CLAUDE.md, hooks, MCP) against 155 rules across 10+ AI tools",
       "version": "4.1.0",
       "category": "development"
     }

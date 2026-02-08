@@ -1,16 +1,33 @@
-# awesome-slash
+<p align="center">
+  <img src="site/assets/logo.png" alt="awesome-slash" width="120">
+</p>
 
-[![npm version](https://img.shields.io/npm/v/awesome-slash.svg)](https://www.npmjs.com/package/awesome-slash)
-[![npm downloads](https://img.shields.io/npm/dm/awesome-slash.svg)](https://www.npmjs.com/package/awesome-slash)
-[![CI](https://github.com/avifenesh/awesome-slash/actions/workflows/ci.yml/badge.svg)](https://github.com/avifenesh/awesome-slash/actions/workflows/ci.yml)
-[![GitHub stars](https://img.shields.io/github/stars/avifenesh/awesome-slash?style=social)](https://github.com/avifenesh/awesome-slash/stargazers)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<h1 align="center">awesome-slash</h1>
+
+<p align="center">
+  <strong>Automate the entire dev workflow. Not just the coding.</strong>
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/awesome-slash"><img src="https://img.shields.io/npm/v/awesome-slash.svg" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/awesome-slash"><img src="https://img.shields.io/npm/dm/awesome-slash.svg" alt="npm downloads"></a>
+  <a href="https://github.com/avifenesh/awesome-slash/actions/workflows/ci.yml"><img src="https://github.com/avifenesh/awesome-slash/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/avifenesh/awesome-slash/stargazers"><img src="https://img.shields.io/github/stars/avifenesh/awesome-slash?style=social" alt="GitHub stars"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="https://avifenesh.github.io/awesome-slash/"><img src="https://img.shields.io/badge/Website-awesome--slash-blue?style=flat&logo=github" alt="Website"></a>
+</p>
+
+<p align="center">
+  <b>11 plugins · 40 agents · 26 skills · 26k lines of lib code · 3,357 tests · 3 platforms</b>
+</p>
+
+<p align="center">
+  <a href="#commands">Commands</a> · <a href="#installation">Installation</a> · <a href="https://avifenesh.github.io/awesome-slash/">Website</a> · <a href="https://github.com/avifenesh/awesome-slash/discussions">Discussions</a>
+</p>
+
+---
 
 AI models can write code. That's not the hard part anymore. The hard part is everything else—picking what to work on, managing branches, reviewing output, cleaning up artifacts, handling CI, addressing comments, deploying. **awesome-slash automates the entire workflow**, not just the coding.
-
-**11 plugins · 40 agents · 26 skills · 26k lines of lib code · 3,357 tests · 3 platforms**
-
-If you find this useful: [⭐ Star the repo](https://github.com/avifenesh/awesome-slash)
 
 ---
 > Building custom skills, agents, hooks, or MCP tools? [agnix](https://github.com/avifenesh/agnix) is the CLI + LSP linter that catches config errors before they fail silently - real-time IDE validation, auto suggestions, auto-fix, and 125+ rules for Cursor, Claude Code, Cline, Copilot, Codex, Windsurf, and more.
@@ -61,7 +78,7 @@ This came from testing on 1,000+ repositories.
 | [`/repo-map`](#repo-map) | AST symbol and import mapping via ast-grep |
 | [`/sync-docs`](#sync-docs) | Finds outdated references, stale examples, missing CHANGELOG entries |
 | [`/learn`](#learn) | Research any topic, gather online sources, create learning guide with RAG index |
-| [`/agnix`](#agnix) | **Lint agent configs** - 100 rules for Skills, Memory, Hooks, MCP across 5 AI tools |
+| [`/agnix`](#agnix) | **Lint agent configs** - 155 rules for Skills, Memory, Hooks, MCP across 10+ AI tools |
 
 Each command works standalone. Together, they form complete workflows.
 
@@ -538,10 +555,10 @@ agnix catches these issues before they cause problems.
 | **Security** | Prompt injection vectors, overpermissive tools, exposed secrets |
 | **Consistency** | Conflicting rules, duplicate definitions, broken references |
 | **Best Practices** | Tool restrictions, model selection, trigger phrase quality |
-| **Cross-Platform** | Compatibility across Claude Code, Cursor, Copilot, Codex |
+| **Cross-Platform** | Compatibility across Claude Code, Cursor, Copilot, Codex, OpenCode, Gemini CLI, Cline, and more |
 
-**100 validation rules** derived from:
-- Official tool specifications (Claude Code, Cursor, GitHub Copilot, Codex CLI)
+**155 validation rules** (57 auto-fixable) derived from:
+- Official tool specifications (Claude Code, Cursor, GitHub Copilot, Codex CLI, OpenCode, Gemini CLI, and more)
 - Research papers on agent reliability and prompt injection
 - Real-world testing across 500+ repositories
 - Community-reported issues and edge cases
@@ -584,6 +601,8 @@ agnix outputs SARIF format for GitHub Code Scanning. Add it to your workflow:
 **External tool:** Requires [agnix CLI](https://github.com/avifenesh/agnix)
 
 ```bash
+npm install -g agnix         # Install via npm
+# or
 cargo install agnix-cli      # Install via Cargo
 # or
 brew install agnix           # Install via Homebrew (macOS)
