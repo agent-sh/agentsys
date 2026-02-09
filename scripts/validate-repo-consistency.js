@@ -10,14 +10,6 @@ const PLUGINS_DIR = path.join(ROOT_DIR, 'plugins');
 const errors = [];
 const PLUGINS_ROOT = path.resolve(PLUGINS_DIR);
 
-function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function decodeString(value) {
-  return value.replace(/\\'/g, "'");
-}
-
 function isPathWithin(baseDir, targetPath) {
   const relative = path.relative(baseDir, targetPath);
   return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
@@ -40,66 +32,6 @@ function listPluginDirs() {
   }
   return fs.readdirSync(PLUGINS_DIR)
     .filter(name => fs.statSync(path.join(PLUGINS_DIR, name)).isDirectory());
-}
-
-function extractArrayBlock(content, variableName) {
-  const namePattern = escapeRegExp(variableName);
-  const assignmentRegex = new RegExp(`\\b(?:const|let|var)\\s+${namePattern}\\s*=\\s*\\[`, 'm');
-  const match = assignmentRegex.exec(content);
-  if (!match) return null;
-  const openIndex = content.indexOf('[', match.index);
-  if (openIndex === -1) return null;
-
-  let depth = 0;
-  for (let i = openIndex; i < content.length; i++) {
-    const ch = content[i];
-    if (ch === '[') depth += 1;
-    if (ch === ']') depth -= 1;
-    if (depth === 0) {
-      return content.slice(openIndex + 1, i);
-    }
-  }
-
-  return null;
-}
-
-function extractStringArray(content, variableName) {
-  const block = extractArrayBlock(content, variableName);
-  if (!block) return null;
-  const regex = /'((?:\\.|[^'\\])*)'/g;
-  return [...block.matchAll(regex)].map(match => decodeString(match[1]));
-}
-
-function extractCommandMappings(content) {
-  const block = extractArrayBlock(content, 'commandMappings');
-  if (!block) return null;
-  const entries = [];
-  const regex = /\[\s*'((?:\\.|[^'\\])*)'\s*,\s*'((?:\\.|[^'\\])*)'\s*,\s*'((?:\\.|[^'\\])*)'\s*\]/g;
-  let match;
-  while ((match = regex.exec(block)) !== null) {
-    entries.push({
-      target: decodeString(match[1]),
-      plugin: decodeString(match[2]),
-      source: decodeString(match[3])
-    });
-  }
-  return entries;
-}
-
-function extractSkillMappings(content) {
-  const block = extractArrayBlock(content, 'skillMappings');
-  if (!block) return null;
-  const entries = [];
-  const regex = /\[\s*'((?:\\.|[^'\\])*)'\s*,\s*'((?:\\.|[^'\\])*)'\s*,\s*'((?:\\.|[^'\\])*)'\s*,\s*'((?:\\.|[^'\\])*)'\s*\]/g;
-  let match;
-  while ((match = regex.exec(block)) !== null) {
-    entries.push({
-      skill: decodeString(match[1]),
-      plugin: decodeString(match[2]),
-      source: decodeString(match[3])
-    });
-  }
-  return entries;
 }
 
 function normalizeList(list) {

@@ -33,18 +33,16 @@ fi
 
 echo "Syncing lib/ to all plugins..."
 
-# Read plugin list from generated manifest (avoids hardcoding)
+# Always regenerate plugin list to avoid staleness
 PLUGIN_LIST="$REPO_ROOT/scripts/plugins.txt"
-if [ ! -f "$PLUGIN_LIST" ]; then
-  echo "Generating plugins.txt..."
-  node "$REPO_ROOT/scripts/generate-plugin-list.js"
-fi
+node "$REPO_ROOT/scripts/generate-plugin-list.js"
 PLUGINS=()
 while IFS= read -r line; do
   [ -n "$line" ] && PLUGINS+=("$line")
 done < "$PLUGIN_LIST"
 
-# Skip plugins that don't have lib/ (e.g., agnix)
+# Only sync to plugins that already have lib/ (excludes standalone tools like agnix)
+# New plugins that need lib/ should create an empty lib/ directory first
 PLUGINS_WITH_LIB=()
 for plugin in "${PLUGINS[@]}"; do
   if [ -d "$REPO_ROOT/plugins/$plugin/lib" ]; then
