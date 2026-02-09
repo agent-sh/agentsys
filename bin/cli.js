@@ -223,6 +223,8 @@ function installForClaude() {
     // Discover plugins from filesystem convention
     const plugins = discovery.discoverPlugins(PACKAGE_DIR);
     for (const plugin of plugins) {
+      // Validate plugin name before shell use (prevents injection)
+      if (!/^[a-z0-9][a-z0-9-]*$/.test(plugin)) continue;
       console.log(`  Installing ${plugin}...`);
       try {
         // Try install first
@@ -274,6 +276,8 @@ function installForClaudeDevelopment() {
   }
 
   for (const plugin of plugins) {
+    // Validate plugin name before shell use (prevents injection)
+    if (!/^[a-z0-9][a-z0-9-]*$/.test(plugin)) continue;
     try {
       execSync(`claude plugin uninstall ${plugin}@awesome-slash`, { stdio: 'pipe' });
       console.log(`  [OK] Uninstalled ${plugin}`);

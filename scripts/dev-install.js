@@ -205,6 +205,7 @@ function installClaude() {
   }
 
   for (const plugin of PLUGINS) {
+    if (!/^[a-z0-9][a-z0-9-]*$/.test(plugin)) continue;
     try {
       execSync(`claude plugin uninstall ${plugin}@awesome-slash`, { stdio: 'pipe' });
     } catch {
