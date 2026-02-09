@@ -163,8 +163,17 @@ const COMMANDS = {
     }
   },
   'sync-lib': {
-    description: 'Sync lib/ to plugins/',
+    description: 'Sync lib/ to plugins/ (requires bash)',
     handler: () => {
+      // Check bash availability on Windows
+      if (process.platform === 'win32') {
+        try {
+          execSync('where bash', { stdio: 'pipe' });
+        } catch {
+          console.error('[ERROR] bash not found. Install Git Bash or WSL to run sync-lib.');
+          return 1;
+        }
+      }
       const scriptPath = path.join(ROOT_DIR, 'scripts', 'sync-lib.sh');
       try {
         execSync(`bash "${scriptPath}"`, { cwd: ROOT_DIR, stdio: 'inherit' });
@@ -240,8 +249,12 @@ const COMMANDS = {
     description: 'Run test suite',
     handler: (args) => {
       try {
-        const extra = args.length > 0 ? ' -- ' + args.join(' ') : '';
-        execSync('npm test' + extra, { cwd: ROOT_DIR, stdio: 'inherit' });
+        const cmd = ['npm', 'test'];
+        if (args.length > 0) {
+          cmd.push('--');
+          cmd.push(...args);
+        }
+        execSync(cmd.join(' '), { cwd: ROOT_DIR, stdio: 'inherit' });
         return 0;
       } catch (err) {
         return err.status || 1;
