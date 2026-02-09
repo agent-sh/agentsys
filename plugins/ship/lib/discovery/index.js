@@ -57,6 +57,17 @@ function parseFrontmatter(content) {
 }
 
 /**
+ * Validate a plugin/directory name is safe for filesystem and shell use.
+ * Only allows lowercase letters, digits, and hyphens.
+ *
+ * @param {string} name - Directory name to validate
+ * @returns {boolean}
+ */
+function isValidPluginName(name) {
+  return /^[a-z0-9][a-z0-9-]*$/.test(name);
+}
+
+/**
  * Resolve the plugins directory from a repo root.
  *
  * @param {string} [repoRoot] - Repository root path. Defaults to two levels up from this file.
@@ -84,6 +95,7 @@ function discoverPlugins(repoRoot) {
 
   const entries = fs.readdirSync(pluginsDir);
   const plugins = entries.filter(name => {
+    if (!isValidPluginName(name)) return false;
     const pluginJson = path.join(pluginsDir, name, '.claude-plugin', 'plugin.json');
     return fs.existsSync(pluginJson);
   }).sort();
@@ -280,6 +292,7 @@ function invalidateCache() {
 
 module.exports = {
   parseFrontmatter,
+  isValidPluginName,
   discoverPlugins,
   discoverCommands,
   discoverAgents,
