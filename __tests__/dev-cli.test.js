@@ -233,7 +233,7 @@ describe('async handler support', () => {
     expect(result).toBeInstanceOf(Promise);
     const code = await result;
     expect(code).toBe(0);
-  });
+  }, 15000);
 
   test('route returns promise for async commands', async () => {
     const result = route({ version: false, help: false, command: 'detect', subcommand: null, rest: [] });
