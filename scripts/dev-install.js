@@ -165,10 +165,11 @@ function cleanAll() {
   // Clean Codex
   const codexSkillsDir = path.join(CODEX_DIR, 'skills');
   if (fs.existsSync(codexSkillsDir)) {
+    const ourSkills = discovery.getCodexSkillMappings(SOURCE_DIR).map(([name]) => name);
     for (const skill of fs.readdirSync(codexSkillsDir)) {
       const skillPath = path.join(codexSkillsDir, skill);
-      // Only remove skills we know are ours
-      if (['next-task', 'ship', 'deslop', 'audit-project', 'drift-detect', 'enhance', 'sync-docs', 'repo-map', 'perf', 'delivery-approval'].includes(skill)) {
+      // Only remove skills we know are ours (discovered from filesystem)
+      if (ourSkills.includes(skill)) {
         fs.rmSync(skillPath, { recursive: true, force: true });
         log(`  Removed Codex skill: ${skill}`);
       }
