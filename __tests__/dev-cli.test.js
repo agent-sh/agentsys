@@ -202,3 +202,104 @@ describe('dev-cli module', () => {
     expect(stats.mode & 0o100).toBeTruthy();
   });
 });
+
+// ---------------------------------------------------------------------------
+// Async handler support
+// ---------------------------------------------------------------------------
+
+describe('async handler support', () => {
+  const originalLog = console.log;
+  const originalError = console.error;
+
+  beforeEach(() => {
+    console.log = jest.fn();
+    console.error = jest.fn();
+  });
+
+  afterEach(() => {
+    console.log = originalLog;
+    console.error = originalError;
+  });
+
+  test('detect handler returns a promise that resolves to 0', async () => {
+    const result = COMMANDS['detect'].handler([]);
+    expect(result).toBeInstanceOf(Promise);
+    const code = await result;
+    expect(code).toBe(0);
+  });
+
+  test('verify handler returns a promise that resolves to 0', async () => {
+    const result = COMMANDS['verify'].handler([]);
+    expect(result).toBeInstanceOf(Promise);
+    const code = await result;
+    expect(code).toBe(0);
+  });
+
+  test('route returns promise for async commands', async () => {
+    const result = route({ version: false, help: false, command: 'detect', subcommand: null, rest: [] });
+    expect(result && typeof result.then === 'function').toBe(true);
+    await result;
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Error handling
+// ---------------------------------------------------------------------------
+
+describe('error handling', () => {
+  const originalLog = console.log;
+  const originalError = console.error;
+
+  beforeEach(() => {
+    console.log = jest.fn();
+    console.error = jest.fn();
+  });
+
+  afterEach(() => {
+    console.log = originalLog;
+    console.error = originalError;
+  });
+
+  test('status handler returns 0', () => {
+    const code = COMMANDS['status'].handler([]);
+    expect(code).toBe(0);
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('awesome-slash v'));
+  });
+
+  test('bump handler with no version returns help (exits 0)', () => {
+    const code = COMMANDS['bump'].handler([]);
+    expect(code).toBe(0);
+  });
+
+  test('bump handler with --help returns 0', () => {
+    const code = COMMANDS['bump'].handler(['--help']);
+    expect(code).toBe(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Handler argument forwarding
+// ---------------------------------------------------------------------------
+
+describe('argument forwarding', () => {
+  const originalLog = console.log;
+
+  beforeEach(() => {
+    console.log = jest.fn();
+  });
+
+  afterEach(() => {
+    console.log = originalLog;
+  });
+
+  test('validate counts forwards --json flag', () => {
+    const code = VALIDATE_SUBCOMMANDS['counts'].handler(['--json']);
+    // Should not throw and should output JSON
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('{'));
+  });
+
+  test('validate platform-docs forwards --json flag', () => {
+    const code = VALIDATE_SUBCOMMANDS['platform-docs'].handler(['--json']);
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('{'));
+  });
+});
