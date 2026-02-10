@@ -34,6 +34,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All existing `npm run` commands still work (now delegate through dev-cli)
   - All direct `node scripts/foo.js` invocations still work (require.main guards)
   - No external CLI framework dependencies - hand-rolled parsing matching bin/cli.js style
+- **Script failure enforcement hooks** - Three-layer system preventing agents from silently falling back to manual work when project scripts fail (#189)
+  - Claude Code PostToolUse hook for context injection on project script execution
+  - OpenCode plugin failure detection enhancement in tool.execute.after
+  - New critical rule #13 in CLAUDE.md/AGENTS.md requiring failure reporting before manual fallback
 
 ### Changed
 - **Version Management** - Single version source of truth via `package.json` with automated stamping (#183)

@@ -45,7 +45,10 @@ logs/
 .temp/
 
 # Claude Code local files
-.claude/
+.claude/*
+!.claude/settings.json
+!.claude/hooks/
+!.claude/hooks/**
 .opencode/
 .codex/
 settings.local.json

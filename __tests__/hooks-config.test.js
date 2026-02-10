@@ -102,4 +102,31 @@ describe('hooks configuration', () => {
       }
     });
   });
+
+  describe('.claude/settings.json hooks', () => {
+    const settingsPath = path.join(__dirname, '..', '.claude', 'settings.json');
+
+    test('settings.json exists and is valid JSON', () => {
+      expect(fs.existsSync(settingsPath)).toBe(true);
+      const content = fs.readFileSync(settingsPath, 'utf8');
+      expect(() => JSON.parse(content)).not.toThrow();
+    });
+
+    test('has hooks.PostToolUse array', () => {
+      const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+      expect(settings).toHaveProperty('hooks.PostToolUse');
+      expect(Array.isArray(settings.hooks.PostToolUse)).toBe(true);
+    });
+
+    test('PostToolUse has matcher "Bash"', () => {
+      const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+      const bashHook = settings.hooks.PostToolUse.find(h => h.matcher === 'Bash');
+      expect(bashHook).toBeDefined();
+    });
+
+    test('referenced script file exists', () => {
+      const scriptPath = path.join(__dirname, '..', '.claude', 'hooks', 'enforce-script-failure-report.sh');
+      expect(fs.existsSync(scriptPath)).toBe(true);
+    });
+  });
 });

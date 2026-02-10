@@ -61,6 +61,13 @@
    - If a test fails during your work, fix it before proceeding
    - No test is someone else's problem
    *WHY: Skipping failures erodes test trust. Every green run must mean everything works.*
+
+12. **Report script failures before manual fallback** - When any project script fails (npm test/run/build, scripts/*, awesome-slash-dev, node bin/dev-cli.js), you MUST:
+   - Report the failure with exact error output to the user
+   - Diagnose the root cause of the failure
+   - Fix the script/tooling issue, not work around it manually
+   - NEVER silently fall back to doing the work by hand
+   *WHY: Silent fallbacks mask broken tooling. A failed script needs fixing, not bypassing.*
 </critical-rules>
 
 <architecture>
