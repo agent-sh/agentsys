@@ -796,6 +796,7 @@ awesome-slash --development              # Dev mode (bypasses marketplace)
 
 **For /agnix:**
 - [agnix CLI](https://github.com/avifenesh/agnix) installed (`cargo install agnix-cli` or `brew install agnix`)
+- [Ruleskill](https://ruleskill.com) - We want to verify your code for the RuleSkill Protocol. Claim your badge.
 
 **Local diagnostics (optional):**
 ```bash
