@@ -55,11 +55,10 @@ function loadSnippet(name) {
  * @returns {string} Template with all variables substituted
  */
 function substituteVars(template, vars, snippetName) {
-  let result = template;
-  for (const [key, value] of Object.entries(vars)) {
-    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    result = result.replace(new RegExp(`\\{\\{${escapedKey}\\}\\}`, 'g'), value);
-  }
+  // Single-pass replacement avoids recursive expansion if values contain {{...}}
+  const result = template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+    return Object.prototype.hasOwnProperty.call(vars, key) ? vars[key] : match;
+  });
 
   // Check for any remaining unsubstituted variables
   const remaining = result.match(/\{\{(\w+)\}\}/);
@@ -81,7 +80,7 @@ function substituteVars(template, vars, snippetName) {
  * @returns {string} Content with all TEMPLATE markers expanded
  */
 function expandMarkers(content) {
-  const markerRegex = /<!-- TEMPLATE: (\S+) ({.*?}) -->/g;
+  const markerRegex = /<!-- TEMPLATE: (\S+)\s+({.*?})\s*-->/g;
   let result = content;
   let match;
 
@@ -148,7 +147,7 @@ function computeExpansions() {
   if (!fs.existsSync(pluginsDir)) return { staleFiles, expandedMap };
 
   const plugins = fs.readdirSync(pluginsDir).filter(d => {
-    return fs.statSync(path.join(pluginsDir, d)).isDirectory();
+    return fs.lstatSync(path.join(pluginsDir, d)).isDirectory();
   });
 
   for (const plugin of plugins) {
