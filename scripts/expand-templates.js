@@ -36,6 +36,9 @@ const SNIPPETS_DIR = path.join(ROOT_DIR, 'templates', 'agent-snippets');
  * @returns {string} Snippet content
  */
 function loadSnippet(name) {
+  if (name.includes('..') || name.includes('/') || name.includes('\\')) {
+    throw new Error(`Invalid snippet name: ${name}`);
+  }
   const snippetPath = path.join(SNIPPETS_DIR, `${name}.md`);
   if (!fs.existsSync(snippetPath)) {
     throw new Error(`Snippet not found: ${name}`);
@@ -54,7 +57,8 @@ function loadSnippet(name) {
 function substituteVars(template, vars, snippetName) {
   let result = template;
   for (const [key, value] of Object.entries(vars)) {
-    result = result.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value);
+    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    result = result.replace(new RegExp(`\\{\\{${escapedKey}\\}\\}`, 'g'), value);
   }
 
   // Check for any remaining unsubstituted variables
@@ -132,13 +136,16 @@ function expandMarkers(content) {
 /**
  * Scan all agent .md files for TEMPLATE markers and compute expansions.
  *
- * @returns {{ staleFiles: string[] }} List of files where content differs from expanded
+ * @returns {{ staleFiles: string[], expandedMap: Map<string, string> }}
+ *   staleFiles: relative paths of files needing expansion
+ *   expandedMap: map of absolute path -> expanded content (for stale files only)
  */
 function computeExpansions() {
   const staleFiles = [];
+  const expandedMap = new Map();
   const pluginsDir = path.join(ROOT_DIR, 'plugins');
 
-  if (!fs.existsSync(pluginsDir)) return { staleFiles };
+  if (!fs.existsSync(pluginsDir)) return { staleFiles, expandedMap };
 
   const plugins = fs.readdirSync(pluginsDir).filter(d => {
     return fs.statSync(path.join(pluginsDir, d)).isDirectory();
@@ -160,11 +167,12 @@ function computeExpansions() {
       if (expanded !== content) {
         const relPath = path.relative(ROOT_DIR, filePath);
         staleFiles.push(relPath);
+        expandedMap.set(filePath, expanded);
       }
     }
   }
 
-  return { staleFiles };
+  return { staleFiles, expandedMap };
 }
 
 // ---------------------------------------------------------------------------
@@ -182,7 +190,7 @@ function main(args) {
   const checkMode = args.includes('--check');
   const dryRun = args.includes('--dry-run');
 
-  const { staleFiles } = computeExpansions();
+  const { staleFiles, expandedMap } = computeExpansions();
 
   if (checkMode) {
     if (staleFiles.length > 0) {
@@ -203,44 +211,23 @@ function main(args) {
     return { changed: false, files: [] };
   }
 
-  // Expand and write (or dry-run)
-  const changedFiles = [];
-  const pluginsDir = path.join(ROOT_DIR, 'plugins');
-  const plugins = fs.readdirSync(pluginsDir).filter(d => {
-    return fs.statSync(path.join(pluginsDir, d)).isDirectory();
-  });
+  // Write expanded content (already computed by computeExpansions)
+  for (const [filePath, expanded] of expandedMap) {
+    const relPath = path.relative(ROOT_DIR, filePath);
 
-  for (const plugin of plugins) {
-    const agentsDir = path.join(pluginsDir, plugin, 'agents');
-    if (!fs.existsSync(agentsDir)) continue;
-
-    const files = fs.readdirSync(agentsDir).filter(f => f.endsWith('.md'));
-    for (const file of files) {
-      const filePath = path.join(agentsDir, file);
-      const content = fs.readFileSync(filePath, 'utf8');
-
-      if (!content.includes('<!-- TEMPLATE:')) continue;
-
-      const expanded = expandMarkers(content);
-      if (expanded !== content) {
-        const relPath = path.relative(ROOT_DIR, filePath);
-        changedFiles.push(relPath);
-
-        if (dryRun) {
-          console.log(`[CHANGE] Would update: ${relPath}`);
-        } else {
-          fs.writeFileSync(filePath, expanded, 'utf8');
-          console.log(`[OK] Updated: ${relPath}`);
-        }
-      }
+    if (dryRun) {
+      console.log(`[CHANGE] Would update: ${relPath}`);
+    } else {
+      fs.writeFileSync(filePath, expanded, 'utf8');
+      console.log(`[OK] Updated: ${relPath}`);
     }
   }
 
   if (!dryRun) {
-    console.log(`\n[OK] ${changedFiles.length} file(s) updated`);
+    console.log(`\n[OK] ${staleFiles.length} file(s) updated`);
   }
 
-  return { changed: changedFiles.length > 0, files: changedFiles };
+  return { changed: staleFiles.length > 0, files: staleFiles };
 }
 
 /**
@@ -249,7 +236,7 @@ function main(args) {
  * @returns {{ status: string, message: string, staleFiles: string[] }}
  */
 function checkFreshness() {
-  const { staleFiles } = computeExpansions();
+  const { staleFiles } = computeExpansions();  // expandedMap intentionally unused here
 
   if (staleFiles.length === 0) {
     return {
