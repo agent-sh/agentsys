@@ -26,6 +26,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - No external CLI framework dependencies - hand-rolled parsing matching bin/cli.js style
 
 ### Changed
+- **Version Management** - Single version source of truth via `package.json` with automated stamping (#183)
+  - Created `scripts/stamp-version.js` to stamp all downstream files from package.json
+  - Refactored `scripts/bump-version.js` to delegate to `npm version`
+  - Added npm `version` lifecycle hook for automatic stamping
+  - Fixed `validate-counts.js` plugin.json path resolution bug
+  - Added `package-lock.json` and `site/content.json` to version validation
+  - Fixed stale versions in `site/content.json` and `package-lock.json`
+  - Single command updates all 15+ version locations: `npx awesome-slash-dev bump X.Y.Z`
 - **Plugin Discovery** - Convention-based filesystem scanning replaces 14+ hardcoded registration lists (#182)
   - New `lib/discovery/` module auto-discovers plugins, commands, agents, and skills
   - `bin/cli.js`, `scripts/dev-install.js`, `scripts/bump-version.js` use discovery calls

@@ -57,28 +57,34 @@ Before creating a tag:
 - [ ] All tests pass (`npm test`)
 - [ ] No uncommitted changes
 - [ ] CHANGELOG.md updated with new version entry
-- [ ] All version numbers updated (see table below)
+- [ ] Version bumped with `npx awesome-slash-dev bump X.Y.Z` (auto-updates 15+ files)
 - [ ] README.md "What's New" section updated
 
 ---
 
-## Version Locations
+## Version Management
 
-Update **ALL** these locations before release:
+Version bumping is **fully automated**. `package.json` is the single source of truth:
 
-| File | Location |
-|------|----------|
-| `package.json` | `"version": "X.Y.Z"` |
-| `README.md` | Version badge `version-X.Y.Z-blue` |
-| `README.md` | "What's New in vX.Y.Z" section |
-| `.claude-plugin/plugin.json` | `"version": "X.Y.Z"` |
-| `.claude-plugin/marketplace.json` | `"version"` (appears multiple times) |
-| `plugins/*/.claude-plugin/plugin.json` | All 9 plugin versions |
-| `CHANGELOG.md` | New entry at top |
-
-**Quick version grep:**
 ```bash
-grep -r '"version"' package.json .claude-plugin/ plugins/*/.claude-plugin/
+# Single command updates ALL 15+ version locations
+npx awesome-slash-dev bump X.Y.Z
+# Or: npm version X.Y.Z --no-git-tag-version
+```
+
+**Updated automatically by `stamp-version.js`:**
+- `package.json` and `package-lock.json`
+- `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`
+- All `plugins/*/.claude-plugin/plugin.json` (11 plugins)
+- `site/content.json` meta.version
+
+**Manual updates still required:**
+- `README.md` - Version badge and "What's New" section
+- `CHANGELOG.md` - New entry at top
+
+**Verify versions:**
+```bash
+npx awesome-slash-dev validate consistency
 ```
 
 ---
