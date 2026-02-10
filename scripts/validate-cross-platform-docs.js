@@ -189,12 +189,15 @@ function validateStateDirReferences() {
               const lineNum = content.substring(0, lineIdx).split('\n').length;
               const line = lines[lineNum - 1];
 
-              // Skip comparison tables, platform docs, checklist references, and skill names
+              // Skip comparison tables, platform docs, checklist references, skill names, and GEN markers
               if (line.includes('|') || line.includes('Platform') || line.includes('State Dir')) {
                 return;
               }
               if (line.includes('checklists/') || line.includes('update-opencode') || line.includes('skill name') || line.includes('`enhance-') || line.includes('CLAUDE.md patterns')) {
                 return; // Checklist, skill name, or documentation reference
+              }
+              if (line.includes('<!-- GEN:')) {
+                return; // Generated section marker (e.g. claude-architecture)
               }
 
               wrongMentions.push({ line: lineNum, context: line.trim() });
