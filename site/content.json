@@ -12,16 +12,46 @@
   "hero": {
     "title": "Automate the entire workflow, not just the coding",
     "subtitle": "AI models can write code. That's not the hard part anymore. The hard part is everything else -- picking tasks, managing branches, reviewing output, handling CI, addressing comments, deploying. awesome-slash automates all of it.",
-    "cta_primary": { "text": "Get Started", "url": "#installation" },
-    "cta_secondary": { "text": "View on GitHub", "url": "https://github.com/avifenesh/awesome-slash" }
+    "cta_primary": {
+      "text": "Get Started",
+      "url": "#installation"
+    },
+    "cta_secondary": {
+      "text": "View on GitHub",
+      "url": "https://github.com/avifenesh/awesome-slash"
+    }
   },
   "stats": [
-    { "value": "11", "label": "Plugins", "suffix": "" },
-    { "value": "40", "label": "Agents", "suffix": "" },
-    { "value": "26", "label": "Skills", "suffix": "" },
-    { "value": "26k", "label": "Lines of Lib Code", "suffix": "" },
-    { "value": "3,357", "label": "Tests", "suffix": "" },
-    { "value": "3", "label": "Platforms", "suffix": "" }
+    {
+      "value": "11",
+      "label": "Plugins",
+      "suffix": ""
+    },
+    {
+      "value": "40",
+      "label": "Agents",
+      "suffix": ""
+    },
+    {
+      "value": "26",
+      "label": "Skills",
+      "suffix": ""
+    },
+    {
+      "value": "26k",
+      "label": "Lines of Lib Code",
+      "suffix": ""
+    },
+    {
+      "value": "3,357",
+      "label": "Tests",
+      "suffix": ""
+    },
+    {
+      "value": "3",
+      "label": "Platforms",
+      "suffix": ""
+    }
   ],
   "problem": {
     "title": "The bottleneck isn't code generation",
@@ -40,9 +70,21 @@
     "title": "Code does code work. AI does AI work.",
     "description": "Detection uses regex, AST analysis, and static analysis -- fast, deterministic, no tokens wasted. Judgment uses LLM calls for synthesis, planning, and review -- where reasoning matters. Result: 77% fewer tokens for drift-detect vs multi-agent approaches.",
     "certainty_levels": [
-      { "level": "HIGH", "meaning": "Definitely a problem", "action": "Safe to auto-fix" },
-      { "level": "MEDIUM", "meaning": "Probably a problem", "action": "Needs context" },
-      { "level": "LOW", "meaning": "Might be a problem", "action": "Needs human judgment" }
+      {
+        "level": "HIGH",
+        "meaning": "Definitely a problem",
+        "action": "Safe to auto-fix"
+      },
+      {
+        "level": "MEDIUM",
+        "meaning": "Probably a problem",
+        "action": "Needs context"
+      },
+      {
+        "level": "LOW",
+        "meaning": "Might be a problem",
+        "action": "Needs human judgment"
+      }
     ]
   },
   "commands": [
@@ -196,27 +238,103 @@
     }
   },
   "workflow_steps": [
-    { "step": 1, "name": "Policy Selection", "description": "Choose task source, priority filter, and stopping point" },
-    { "step": 2, "name": "Task Discovery", "description": "Shows top 5 prioritized tasks -- you pick one" },
-    { "step": 3, "name": "Worktree Setup", "description": "Creates isolated branch and working directory" },
-    { "step": 4, "name": "Exploration", "description": "Deep codebase analysis to understand context" },
-    { "step": 5, "name": "Planning", "description": "Designs step-by-step implementation approach" },
-    { "step": 6, "name": "User Approval", "description": "You review and approve the plan (last human interaction)" },
-    { "step": 7, "name": "Implementation", "description": "Executes the plan autonomously" },
-    { "step": 8, "name": "Pre-Review", "description": "Runs deslop-agent and test coverage checker" },
-    { "step": 9, "name": "Review Loop", "description": "Multi-agent review iterates until clean" },
-    { "step": 10, "name": "Delivery Validation", "description": "Verifies tests pass, build works, requirements met" },
-    { "step": 11, "name": "Docs Update", "description": "Updates CHANGELOG and related documentation" },
-    { "step": 12, "name": "Ship", "description": "Creates PR, monitors CI, addresses comments, merges" }
+    {
+      "step": 1,
+      "name": "Policy Selection",
+      "description": "Choose task source, priority filter, and stopping point"
+    },
+    {
+      "step": 2,
+      "name": "Task Discovery",
+      "description": "Shows top 5 prioritized tasks -- you pick one"
+    },
+    {
+      "step": 3,
+      "name": "Worktree Setup",
+      "description": "Creates isolated branch and working directory"
+    },
+    {
+      "step": 4,
+      "name": "Exploration",
+      "description": "Deep codebase analysis to understand context"
+    },
+    {
+      "step": 5,
+      "name": "Planning",
+      "description": "Designs step-by-step implementation approach"
+    },
+    {
+      "step": 6,
+      "name": "User Approval",
+      "description": "You review and approve the plan (last human interaction)"
+    },
+    {
+      "step": 7,
+      "name": "Implementation",
+      "description": "Executes the plan autonomously"
+    },
+    {
+      "step": 8,
+      "name": "Pre-Review",
+      "description": "Runs deslop-agent and test coverage checker"
+    },
+    {
+      "step": 9,
+      "name": "Review Loop",
+      "description": "Multi-agent review iterates until clean"
+    },
+    {
+      "step": 10,
+      "name": "Delivery Validation",
+      "description": "Verifies tests pass, build works, requirements met"
+    },
+    {
+      "step": 11,
+      "name": "Docs Update",
+      "description": "Updates CHANGELOG and related documentation"
+    },
+    {
+      "step": 12,
+      "name": "Ship",
+      "description": "Creates PR, monitors CI, addresses comments, merges"
+    }
   ],
   "agents": {
     "total": 40,
     "file_based": 30,
     "role_based": 10,
     "by_model": [
-      { "model": "Opus", "use_case": "Complex reasoning, analysis", "agents": ["exploration-agent", "planning-agent", "implementation-agent", "perf-orchestrator", "learn-agent"] },
-      { "model": "Sonnet", "use_case": "Validation, pattern matching", "agents": ["task-discoverer", "delivery-validator", "ci-fixer", "deslop-agent", "enhancement reporters"] },
-      { "model": "Haiku", "use_case": "Mechanical execution", "agents": ["worktree-manager", "ci-monitor", "simple-fixer"] }
+      {
+        "model": "Opus",
+        "use_case": "Complex reasoning, analysis",
+        "agents": [
+          "exploration-agent",
+          "planning-agent",
+          "implementation-agent",
+          "perf-orchestrator",
+          "learn-agent"
+        ]
+      },
+      {
+        "model": "Sonnet",
+        "use_case": "Validation, pattern matching",
+        "agents": [
+          "task-discoverer",
+          "delivery-validator",
+          "ci-fixer",
+          "deslop-agent",
+          "enhancement reporters"
+        ]
+      },
+      {
+        "model": "Haiku",
+        "use_case": "Mechanical execution",
+        "agents": [
+          "worktree-manager",
+          "ci-monitor",
+          "simple-fixer"
+        ]
+      }
     ]
   },
   "recent_releases": [
@@ -259,21 +377,58 @@
   ],
   "requirements": {
     "required": [
-      { "name": "Git", "description": "Version control" },
-      { "name": "Node.js 18+", "description": "For library functions" }
+      {
+        "name": "Git",
+        "description": "Version control"
+      },
+      {
+        "name": "Node.js 18+",
+        "description": "For library functions"
+      }
     ],
     "recommended": [
-      { "name": "GitHub CLI (gh)", "description": "For PR operations and issue discovery" },
-      { "name": "ast-grep (sg)", "description": "For /repo-map generation" }
+      {
+        "name": "GitHub CLI (gh)",
+        "description": "For PR operations and issue discovery"
+      },
+      {
+        "name": "ast-grep (sg)",
+        "description": "For /repo-map generation"
+      }
     ],
     "optional": [
-      { "name": "agnix CLI", "description": "For /agnix agent config linting" },
-      { "name": "GitLab CLI (glab)", "description": "For GitLab workflows" }
+      {
+        "name": "agnix CLI",
+        "description": "For /agnix agent config linting"
+      },
+      {
+        "name": "GitLab CLI (glab)",
+        "description": "For GitLab workflows"
+      }
     ]
   },
-  "supported_languages": ["JavaScript", "TypeScript", "Python", "Rust", "Go", "Java"],
-  "supported_ci": ["GitHub Actions", "GitLab CI", "CircleCI", "Jenkins", "Travis CI"],
-  "supported_deploy": ["Railway", "Vercel", "Netlify", "Fly.io", "Render"],
+  "supported_languages": [
+    "JavaScript",
+    "TypeScript",
+    "Python",
+    "Rust",
+    "Go",
+    "Java"
+  ],
+  "supported_ci": [
+    "GitHub Actions",
+    "GitLab CI",
+    "CircleCI",
+    "Jenkins",
+    "Travis CI"
+  ],
+  "supported_deploy": [
+    "Railway",
+    "Vercel",
+    "Netlify",
+    "Fly.io",
+    "Render"
+  ],
   "research": {
     "knowledge_base": "8,000 lines of curated documentation from Anthropic, OpenAI, Google, and Microsoft",
     "testing": "3,357 tests passing",

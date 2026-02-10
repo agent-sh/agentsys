@@ -84,17 +84,17 @@ bin/cli.js    → npm CLI installer
 
 | Plugin | Agents | Skills | Purpose |
 |--------|--------|--------|---------|
-| next-task | 10 | 3 | Master workflow orchestration |
-| enhance | 8 | 8 | Code quality analyzers |
-| ship | 0 | 0 | PR creation and deployment |
-| perf | 6 | 8 | Performance investigation |
+| agnix | 1 | 1 | Agent config linting |
 | audit-project | 10 | 0 | Multi-agent code review |
 | deslop | 1 | 1 | AI slop cleanup |
 | drift-detect | 1 | 1 | Plan drift detection |
-| repo-map | 1 | 1 | AST repo mapping |
-| sync-docs | 1 | 1 | Documentation sync |
+| enhance | 8 | 9 | Code quality analyzers |
 | learn | 1 | 1 | Topic research and learning guides |
-| agnix | 1 | 1 | Agent config linting |
+| next-task | 10 | 3 | Master workflow orchestration |
+| perf | 6 | 8 | Performance investigation |
+| repo-map | 1 | 1 | AST repo mapping |
+| ship | 0 | 0 | PR creation and deployment |
+| sync-docs | 1 | 1 | Documentation sync |
 <!-- GEN:END:claude-architecture -->
 
 **Pattern**: `Command → Agent → Skill` (orchestration → invocation → implementation)

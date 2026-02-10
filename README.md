@@ -93,9 +93,9 @@ Each command works standalone. Together, they form complete workflows.
 
 | Category | Skills |
 |----------|--------|
-| **Performance** | `perf:analyzer`, `perf:baseline`, `perf:benchmark`, `perf:code-paths`, `perf:investigation-logger`, `perf:profile`, `perf:theory`, `perf:theory-tester` |
-| **Enhancement** | `enhance:agent-prompts`, `enhance:claude-memory`, `enhance:cross-file`, `enhance:docs`, `enhance:hooks`, `enhance:orchestrator`, `enhance:plugins`, `enhance:prompts`, `enhance:skills` |
-| **Workflow** | `next-task:orchestrate-review`, `next-task:discover-tasks`, `next-task:validate-delivery` |
+| **Performance** | `perf:perf-analyzer`, `perf:perf-baseline-manager`, `perf:perf-benchmarker`, `perf:perf-code-paths`, `perf:perf-investigation-logger`, `perf:perf-profiler`, `perf:perf-theory-gatherer`, `perf:perf-theory-tester` |
+| **Enhancement** | `enhance:enhance-agent-prompts`, `enhance:enhance-claude-memory`, `enhance:enhance-cross-file`, `enhance:enhance-docs`, `enhance:enhance-hooks`, `enhance:enhance-orchestrator`, `enhance:enhance-plugins`, `enhance:enhance-prompts`, `enhance:enhance-skills` |
+| **Workflow** | `next-task:discover-tasks`, `next-task:orchestrate-review`, `next-task:validate-delivery` |
 | **Cleanup** | `deslop:deslop`, `sync-docs:sync-docs` |
 | **Analysis** | `drift-detect:drift-analysis`, `repo-map:repo-mapping` |
 | **Learning** | `learn:learn` |
