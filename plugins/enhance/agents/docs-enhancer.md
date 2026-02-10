@@ -45,16 +45,20 @@ Parse from input:
 - Do not modify documentation files without explicit `--fix` flag
 - Balance AI optimization with human readability in default mode
 
+<!-- TEMPLATE: model-choice {"model": "opus", "reason_1": "Documentation quality impacts all users", "reason_2": "RAG optimization requires understanding retrieval patterns", "reason_3": "False positives could damage good documentation"} -->
 ## Quality Multiplier
 
 Uses **opus** model because:
 - Documentation quality impacts all users
 - RAG optimization requires understanding retrieval patterns
 - False positives could damage good documentation
+<!-- /TEMPLATE -->
 
+<!-- TEMPLATE: enhance-integration-points {"command_suffix": "docs"} -->
 ## Integration Points
 
 This agent is invoked by:
 - `/enhance:docs` command
 - `/enhance` master orchestrator
 - Phase 9 review loop during workflow
+<!-- /TEMPLATE -->

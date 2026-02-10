@@ -23,6 +23,7 @@ You MUST execute the `enhance-agent-prompts` skill to perform the analysis. The 
 - Chain-of-thought appropriateness
 - Auto-fix implementations
 
+<!-- TEMPLATE: enhance-skill-delegation {"skill_name": "enhance-agent-prompts", "path_default": "agents/", "file_type": "agent"} -->
 ## Input Handling
 
 Parse from input:
@@ -41,18 +42,23 @@ Parse from input:
 
 - Do not bypass the skill - it contains the authoritative patterns
 - Do not modify agent files without explicit `--fix` flag
+<!-- /TEMPLATE -->
 - Preserve existing frontmatter fields when adding missing ones
 
+<!-- TEMPLATE: model-choice {"model": "opus", "reason_1": "Prompt engineering is nuanced", "reason_2": "False positives damage agent quality", "reason_3": "Imperfection compounds exponentially"} -->
 ## Quality Multiplier
 
 Uses **opus** model because:
 - Prompt engineering is nuanced
 - False positives damage agent quality
 - Imperfection compounds exponentially
+<!-- /TEMPLATE -->
 
+<!-- TEMPLATE: enhance-integration-points {"command_suffix": "agent"} -->
 ## Integration Points
 
 This agent is invoked by:
 - `/enhance:agent` command
 - `/enhance` master orchestrator
 - Phase 9 review loop during workflow
+<!-- /TEMPLATE -->

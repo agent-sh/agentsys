@@ -143,6 +143,8 @@ npx awesome-slash-dev preflight --all   # Run all checks
 npx awesome-slash-dev preflight --release # All checks + release extras
 npx awesome-slash-dev gen-docs          # Auto-generate doc sections
 npx awesome-slash-dev gen-docs --check  # Validate docs are fresh (CI)
+npx awesome-slash-dev expand-templates  # Expand template markers in agents
+npx awesome-slash-dev expand-templates --check # Validate templates are fresh (CI)
 npx awesome-slash-dev --help           # Show all commands
 
 # Alternative: direct invocation
@@ -156,6 +158,8 @@ npm run preflight:all        # All preflight checks
 npm run preflight:release    # Release preflight
 npm run gen-docs             # Auto-generate documentation
 npm run gen-docs:check       # Check if docs are stale
+npm run expand-templates     # Expand agent templates
+npm run expand-templates:check # Check if templates are stale
 npm run bump <version>       # Bump versions via dev-cli
 npm pack                     # Build package
 awesome-slash                # Run installer

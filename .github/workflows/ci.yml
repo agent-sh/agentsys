@@ -27,3 +27,6 @@ jobs:
 
       - name: Validate repo consistency
         run: npm run validate
+
+      - name: Validate agent templates
+        run: node scripts/expand-templates.js --check

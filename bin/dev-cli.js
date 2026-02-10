@@ -324,6 +324,16 @@ const COMMANDS = {
       if (typeof result === 'number') return result;
       return 0;
     }
+  },
+  'expand-templates': {
+    description: 'Expand agent template snippets',
+    usage: 'expand-templates [--check] [--dry-run]',
+    handler: (args) => {
+      const { main } = require(path.join(ROOT_DIR, 'scripts', 'expand-templates.js'));
+      const result = main(args);
+      if (typeof result === 'number') return result;
+      return 0;
+    }
   }
 };
 
@@ -423,6 +433,9 @@ Commands:
   gen-docs                Auto-generate doc sections from source
     --check               Validate freshness (exit 1 if stale)
     --dry-run             Show changes without writing
+  expand-templates        Expand agent template snippets
+    --check               Validate freshness (exit 1 if stale)
+    --dry-run             Show changes without writing
 
 Aliases (npm scripts):
   npm run validate          = awesome-slash-dev validate
@@ -432,6 +445,8 @@ Aliases (npm scripts):
   npm run verify            = awesome-slash-dev verify
   npm run gen-docs          = awesome-slash-dev gen-docs
   npm run gen-docs:check    = awesome-slash-dev gen-docs --check
+  npm run expand-templates  = awesome-slash-dev expand-templates
+  npm run expand-templates:check = awesome-slash-dev expand-templates --check
 `);
 }
 

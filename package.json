@@ -26,6 +26,8 @@
     "preflight:release": "node bin/dev-cli.js preflight --release",
     "gen-docs": "node bin/dev-cli.js gen-docs",
     "gen-docs:check": "node bin/dev-cli.js gen-docs --check",
+    "expand-templates": "node bin/dev-cli.js expand-templates",
+    "expand-templates:check": "node bin/dev-cli.js expand-templates --check",
     "bump": "node bin/dev-cli.js bump",
     "detect": "node bin/dev-cli.js detect",
     "verify": "node bin/dev-cli.js verify",

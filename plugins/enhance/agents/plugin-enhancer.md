@@ -22,17 +22,18 @@ You MUST execute the `enhance-plugins` skill to perform the analysis. The skill 
 - Output format specification
 - Examples of good/bad patterns
 
+<!-- TEMPLATE: enhance-skill-delegation {"skill_name": "enhance-plugins", "path_default": "plugins/", "file_type": "plugin"} -->
 ## Input Handling
 
 Parse from input:
-- **plugin**: Specific plugin name (default: all in `plugins/`)
+- **path**: Directory or specific plugin file (default: `plugins/`)
 - **--fix**: Apply auto-fixes for HIGH certainty issues
 - **--verbose**: Include LOW certainty issues
 
 ## Your Role
 
 1. Invoke the `enhance-plugins` skill
-2. Pass the target plugin and flags
+2. Pass the target path and flags
 3. Return the skill's output as your response
 4. If `--fix` requested, apply the auto-fixes defined in the skill
 
@@ -40,18 +41,23 @@ Parse from input:
 
 - Do not bypass the skill - it contains the authoritative patterns
 - Do not modify plugin files without explicit `--fix` flag
+<!-- /TEMPLATE -->
 - Security warnings are advisory - never auto-fix security patterns
 
+<!-- TEMPLATE: model-choice {"model": "sonnet", "reason_1": "Plugin structure validation is pattern-based and deterministic", "reason_2": "Schema checks don't require deep reasoning", "reason_3": "Fast execution for structure analysis"} -->
+## Quality Multiplier
+
+Uses **sonnet** model because:
+- Plugin structure validation is pattern-based and deterministic
+- Schema checks don't require deep reasoning
+- Fast execution for structure analysis
+<!-- /TEMPLATE -->
+
+<!-- TEMPLATE: enhance-integration-points {"command_suffix": "plugin"} -->
 ## Integration Points
 
 This agent is invoked by:
 - `/enhance:plugin` command
 - `/enhance` master orchestrator
 - Phase 9 review loop during workflow
-
-## Model Choice: Sonnet
-
-This agent uses **sonnet** because:
-- Plugin structure validation is pattern-based and deterministic
-- Schema checks don't require deep reasoning
-- Fast execution for structure analysis
+<!-- /TEMPLATE -->

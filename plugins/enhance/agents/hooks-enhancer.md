@@ -23,6 +23,7 @@ You MUST execute the `enhance-hooks` skill to perform the analysis. The skill co
 - Timeout configuration
 - Auto-fix implementations
 
+<!-- TEMPLATE: enhance-skill-delegation {"skill_name": "enhance-hooks", "path_default": "hooks/", "file_type": "hook"} -->
 ## Input Handling
 
 Parse from input:
@@ -41,18 +42,23 @@ Parse from input:
 
 - Do not bypass the skill - it contains the authoritative patterns
 - Do not modify hook files without explicit `--fix` flag
+<!-- /TEMPLATE -->
 - Be cautious about security patterns - false negatives worse than false positives
 
+<!-- TEMPLATE: model-choice {"model": "opus", "reason_1": "Hook safety is critical for system security", "reason_2": "False negatives could allow dangerous operations", "reason_3": "Security analysis requires careful reasoning"} -->
 ## Quality Multiplier
 
 Uses **opus** model because:
 - Hook safety is critical for system security
 - False negatives could allow dangerous operations
 - Security analysis requires careful reasoning
+<!-- /TEMPLATE -->
 
+<!-- TEMPLATE: enhance-integration-points {"command_suffix": "hooks"} -->
 ## Integration Points
 
 This agent is invoked by:
 - `/enhance:hooks` command
 - `/enhance` master orchestrator
 - Phase 9 review loop during workflow
+<!-- /TEMPLATE -->

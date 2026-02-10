@@ -23,10 +23,11 @@ You MUST execute the `enhance-skills` skill to perform the analysis. The skill c
 - Content scope guidelines
 - Auto-fix implementations
 
+<!-- TEMPLATE: enhance-skill-delegation {"skill_name": "enhance-skills", "path_default": "skills/", "file_type": "skill"} -->
 ## Input Handling
 
 Parse from input:
-- **path**: Directory or specific skill (default: `skills/`)
+- **path**: Directory or specific skill file (default: `skills/`)
 - **--fix**: Apply auto-fixes for HIGH certainty issues
 - **--verbose**: Include LOW certainty issues
 
@@ -41,18 +42,23 @@ Parse from input:
 
 - Do not bypass the skill - it contains the authoritative patterns
 - Do not modify skill files without explicit `--fix` flag
+<!-- /TEMPLATE -->
 - Consider skill context when evaluating trigger quality
 
+<!-- TEMPLATE: model-choice {"model": "opus", "reason_1": "Trigger quality directly affects skill discoverability", "reason_2": "False positives could disable useful auto-invocation", "reason_3": "Skill configuration impacts entire system behavior"} -->
 ## Quality Multiplier
 
 Uses **opus** model because:
 - Trigger quality directly affects skill discoverability
 - False positives could disable useful auto-invocation
 - Skill configuration impacts entire system behavior
+<!-- /TEMPLATE -->
 
+<!-- TEMPLATE: enhance-integration-points {"command_suffix": "skills"} -->
 ## Integration Points
 
 This agent is invoked by:
 - `/enhance:skills` command
 - `/enhance` master orchestrator
 - Phase 9 review loop during workflow
+<!-- /TEMPLATE -->
