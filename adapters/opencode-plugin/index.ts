@@ -289,7 +289,16 @@ Keep technical details accurate. The user will continue this workflow after comp
         const isProjectScript = PROJECT_SCRIPT_PATTERNS.some(p => p.test(command))
 
         if (isProjectScript) {
-          const outputText = typeof output === "string" ? output : JSON.stringify(output || "")
+          let outputText: string
+          if (typeof output === "string") {
+            outputText = output
+          } else {
+            try {
+              outputText = JSON.stringify(output ?? "")
+            } catch {
+              outputText = String(output ?? "")
+            }
+          }
           const hasFailure = FAILURE_INDICATORS.some(p => p.test(outputText))
 
           if (hasFailure) {
