@@ -432,6 +432,116 @@ describe('main', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Flag parsing (--flag=value syntax)
+// ---------------------------------------------------------------------------
+
+describe('flag parsing', () => {
+  test('supports --plugin=value syntax for agent', () => {
+    createFakePlugin(tmpDir, 'test-plugin');
+    const result = scaffoldAgent('eq-agent', ['--plugin=test-plugin'], tmpDir);
+    expect(result.success).toBe(true);
+    expect(result.files).toContain('plugins/test-plugin/agents/eq-agent.md');
+  });
+
+  test('supports --model=value syntax', () => {
+    createFakePlugin(tmpDir, 'test-plugin');
+    scaffoldAgent('model-agent', ['--plugin=test-plugin', '--model=haiku'], tmpDir);
+    const content = fs.readFileSync(
+      path.join(tmpDir, 'plugins', 'test-plugin', 'agents', 'model-agent.md'), 'utf8'
+    );
+    expect(content).toContain('model: haiku');
+  });
+
+  test('supports --description=value syntax', () => {
+    createFakePlugin(tmpDir, 'test-plugin');
+    scaffoldAgent('desc-agent', ['--plugin=test-plugin', '--description=Inline desc'], tmpDir);
+    const content = fs.readFileSync(
+      path.join(tmpDir, 'plugins', 'test-plugin', 'agents', 'desc-agent.md'), 'utf8'
+    );
+    expect(content).toContain('Inline desc');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Template content validation
+// ---------------------------------------------------------------------------
+
+describe('template content', () => {
+  test('command template includes codex-description', () => {
+    createFakePlugin(tmpDir, 'test-plugin');
+    scaffoldCommand('tmpl-cmd', ['--plugin', 'test-plugin'], tmpDir);
+    const content = fs.readFileSync(
+      path.join(tmpDir, 'plugins', 'test-plugin', 'commands', 'tmpl-cmd.md'), 'utf8'
+    );
+    expect(content).toContain('codex-description:');
+  });
+
+  test('skill template references $ARGUMENTS', () => {
+    createFakePlugin(tmpDir, 'test-plugin');
+    scaffoldSkill('tmpl-skill', ['--plugin', 'test-plugin'], tmpDir);
+    const content = fs.readFileSync(
+      path.join(tmpDir, 'plugins', 'test-plugin', 'skills', 'tmpl-skill', 'SKILL.md'), 'utf8'
+    );
+    expect(content).toContain('$ARGUMENTS');
+  });
+
+  test('agent template includes workflow and output format sections', () => {
+    createFakePlugin(tmpDir, 'test-plugin');
+    scaffoldAgent('tmpl-agent', ['--plugin', 'test-plugin'], tmpDir);
+    const content = fs.readFileSync(
+      path.join(tmpDir, 'plugins', 'test-plugin', 'agents', 'tmpl-agent.md'), 'utf8'
+    );
+    expect(content).toContain('## Workflow');
+    expect(content).toContain('## Output Format');
+  });
+
+  test('plugin.json includes author block', () => {
+    scaffoldPlugin('author-test', tmpDir);
+    const pkg = JSON.parse(fs.readFileSync(
+      path.join(tmpDir, 'plugins', 'author-test', '.claude-plugin', 'plugin.json'), 'utf8'
+    ));
+    expect(pkg.author).toEqual({
+      name: 'Avi Fenesh',
+      email: '[email protected]',
+      url: 'https://github.com/avifenesh'
+    });
+    expect(pkg.homepage).toBe('https://github.com/avifenesh/awesome-slash#author-test');
+    expect(pkg.repository).toBe('https://github.com/avifenesh/awesome-slash');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Module structure
+// ---------------------------------------------------------------------------
+
+describe('scaffold module structure', () => {
+  const modulePath = path.join(__dirname, '..', 'scripts', 'scaffold.js');
+  const source = fs.readFileSync(modulePath, 'utf8');
+
+  test('has shebang', () => {
+    expect(source.startsWith('#!/usr/bin/env node')).toBe(true);
+  });
+
+  test('has require.main guard', () => {
+    expect(source).toContain('require.main === module');
+  });
+
+  test('exports all expected functions', () => {
+    expect(typeof main).toBe('function');
+    expect(typeof scaffoldPlugin).toBe('function');
+    expect(typeof scaffoldAgent).toBe('function');
+    expect(typeof scaffoldSkill).toBe('function');
+    expect(typeof scaffoldCommand).toBe('function');
+    expect(typeof validateName).toBe('function');
+  });
+
+  test('uses execFileSync not execSync for security', () => {
+    expect(source).toContain('execFileSync');
+    expect(source).not.toMatch(/\bexecSync\b/);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // dev-cli integration
 // ---------------------------------------------------------------------------
 
