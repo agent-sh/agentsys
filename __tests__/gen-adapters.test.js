@@ -60,6 +60,19 @@ describe('adapter-transforms', () => {
       expect(result).toContain('not executable in OpenCode');
     });
 
+    test('transforms multiple Task() calls in one code block', () => {
+      const input = '```javascript\nawait Task({ subagent_type: "next-task:exploration-agent" });\nawait Task({ subagent_type: "next-task:planning-agent" });\n```';
+      const result = transforms.transformBodyForOpenCode(input, REPO_ROOT);
+      expect(result).toContain('@exploration-agent');
+      expect(result).toContain('@planning-agent');
+    });
+
+    test('extracts startPhase calls from code blocks', () => {
+      const input = '```javascript\nworkflowState.startPhase(\'exploration\');\n```';
+      const result = transforms.transformBodyForOpenCode(input, REPO_ROOT);
+      expect(result).toContain('exploration');
+    });
+
     test('removes standalone require statements', () => {
       const input = 'const foo = require("bar");\nlet { baz } = require("qux");';
       const result = transforms.transformBodyForOpenCode(input, REPO_ROOT);
@@ -157,6 +170,20 @@ describe('adapter-transforms', () => {
       expect(result).toContain('bash: ask');
       expect(result).toContain('glob: deny');
       expect(result).toContain('grep: deny');
+    });
+
+    test('handles agent with no tools field', () => {
+      const input = '---\nname: simple-agent\ndescription: A simple agent\nmodel: sonnet\n---\nBody content';
+      const result = transforms.transformAgentFrontmatterForOpenCode(input, { stripModels: true });
+      expect(result).toContain('name: simple-agent');
+      expect(result).toContain('mode: subagent');
+      expect(result).not.toContain('permission');
+    });
+
+    test('unknown model name falls through unmapped', () => {
+      const input = '---\nname: test-agent\ndescription: Test\nmodel: gpt-4\ntools:\n  - Read\n---\nBody';
+      const result = transforms.transformAgentFrontmatterForOpenCode(input, { stripModels: false });
+      expect(result).toContain('model: gpt-4');
     });
   });
 
@@ -336,6 +363,13 @@ describe('gen-adapters', () => {
     test('--check mode returns a number (exit code)', () => {
       const result = genAdapters.main(['--check']);
       expect(typeof result).toBe('number');
+    });
+
+    test('--check returns 0 when adapters are fresh', () => {
+      // First generate to ensure fresh state
+      genAdapters.main([]);
+      const result = genAdapters.main(['--check']);
+      expect(result).toBe(0);
     });
 
     test('--dry-run mode returns result object without writing', () => {

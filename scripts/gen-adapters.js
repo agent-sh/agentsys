@@ -108,7 +108,10 @@ function computeAdapters() {
 
   const staleFiles = [];
   for (const [relPath, newContent] of files) {
-    const absPath = path.join(ROOT_DIR, relPath);
+    const absPath = path.resolve(ROOT_DIR, relPath);
+    if (!absPath.startsWith(path.join(ROOT_DIR, 'adapters'))) {
+      throw new Error('Path traversal detected: ' + relPath);
+    }
     if (!fs.existsSync(absPath)) {
       staleFiles.push(relPath);
       continue;
@@ -148,7 +151,10 @@ function main(args) {
   const changedFiles = [];
 
   for (const [relPath, content] of files) {
-    const absPath = path.join(ROOT_DIR, relPath);
+    const absPath = path.resolve(ROOT_DIR, relPath);
+    if (!absPath.startsWith(path.join(ROOT_DIR, 'adapters'))) {
+      throw new Error('Path traversal detected: ' + relPath);
+    }
     const dir = path.dirname(absPath);
 
     // Check if file needs updating

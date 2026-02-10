@@ -23,9 +23,12 @@ function transformBodyForOpenCode(content, repoRoot) {
   content = content.replace(/\.claude"/g, '.opencode"');
   content = content.replace(/\.claude`/g, '.opencode`');
 
-  const pluginNames = discovery.discoverPlugins(repoRoot).join('|');
-  content = content.replace(new RegExp('`(' + pluginNames + '):([a-z-]+)`', 'g'), '`$2`');
-  content = content.replace(new RegExp('(' + pluginNames + '):([a-z-]+)', 'g'), '$2');
+  const plugins = discovery.discoverPlugins(repoRoot);
+  if (plugins.length > 0) {
+    const pluginNames = plugins.join('|');
+    content = content.replace(new RegExp('`(' + pluginNames + '):([a-z-]+)`', 'g'), '`$2`');
+    content = content.replace(new RegExp('(' + pluginNames + '):([a-z-]+)', 'g'), '$2');
+  }
 
   content = content.replace(
     /```(\w*)\n([\s\S]*?)```/g,
