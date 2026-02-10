@@ -24,6 +24,8 @@
     "preflight": "node bin/dev-cli.js preflight",
     "preflight:all": "node bin/dev-cli.js preflight --all",
     "preflight:release": "node bin/dev-cli.js preflight --release",
+    "gen-docs": "node bin/dev-cli.js gen-docs",
+    "gen-docs:check": "node bin/dev-cli.js gen-docs --check",
     "bump": "node bin/dev-cli.js bump",
     "detect": "node bin/dev-cli.js detect",
     "verify": "node bin/dev-cli.js verify",

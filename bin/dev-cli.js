@@ -313,6 +313,17 @@ const COMMANDS = {
       const { main } = require(path.join(ROOT_DIR, 'scripts', 'test-transform.js'));
       return main();
     }
+  },
+  'gen-docs': {
+    description: 'Auto-generate documentation sections from plugin source',
+    usage: 'gen-docs [--check] [--dry-run]',
+    handler: (args) => {
+      const { main } = require(path.join(ROOT_DIR, 'scripts', 'generate-docs.js'));
+      const result = main(args);
+      // --check mode returns a number (exit code)
+      if (typeof result === 'number') return result;
+      return 0;
+    }
   }
 };
 
@@ -409,6 +420,9 @@ Commands:
   test                    Run test suite
   migrate-opencode        Migrate commands for OpenCode
   test-transform          Test OpenCode transform
+  gen-docs                Auto-generate doc sections from source
+    --check               Validate freshness (exit 1 if stale)
+    --dry-run             Show changes without writing
 
 Aliases (npm scripts):
   npm run validate          = awesome-slash-dev validate
@@ -416,6 +430,8 @@ Aliases (npm scripts):
   npm run bump              = awesome-slash-dev bump
   npm run detect            = awesome-slash-dev detect
   npm run verify            = awesome-slash-dev verify
+  npm run gen-docs          = awesome-slash-dev gen-docs
+  npm run gen-docs:check    = awesome-slash-dev gen-docs --check
 `);
 }
 
