@@ -42,15 +42,15 @@ function parseFlags(args) {
     if (arg === '--plugin' && i + 1 < args.length) {
       flags.plugin = args[++i];
     } else if (arg.startsWith('--plugin=')) {
-      flags.plugin = arg.split('=')[1];
+      flags.plugin = arg.slice(arg.indexOf('=') + 1);
     } else if (arg === '--model' && i + 1 < args.length) {
       flags.model = args[++i];
     } else if (arg.startsWith('--model=')) {
-      flags.model = arg.split('=')[1];
+      flags.model = arg.slice(arg.indexOf('=') + 1);
     } else if (arg === '--description' && i + 1 < args.length) {
       flags.description = args[++i];
     } else if (arg.startsWith('--description=')) {
-      flags.description = arg.split('=')[1];
+      flags.description = arg.slice(arg.indexOf('=') + 1);
     }
   }
   return flags;
@@ -178,6 +178,12 @@ function scaffoldAgent(name, args, projectRoot) {
   const pluginCheck = validateName(flags.plugin, 'plugin');
   if (!pluginCheck.valid) {
     result.errors.push(`Invalid --plugin value: ${pluginCheck.error}`);
+    return result;
+  }
+
+  const allowedModels = ['opus', 'sonnet', 'haiku'];
+  if (flags.model && !allowedModels.includes(flags.model)) {
+    result.errors.push(`Invalid --model value: ${flags.model}. Allowed: ${allowedModels.join(', ')}`);
     return result;
   }
 
@@ -370,11 +376,13 @@ TODO: Add command implementation instructions.
 
 /**
  * Capitalize a hyphenated name: "my-agent" -> "My Agent"
+ * Strips trailing "-agent" before capitalizing to avoid double "Agent" in headings.
  * @param {string} name
  * @returns {string}
  */
 function capitalize(name) {
-  return name.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  let normalized = name.endsWith('-agent') ? name.slice(0, -6) : name;
+  return normalized.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 }
 
 /**

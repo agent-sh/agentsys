@@ -256,7 +256,8 @@ describe('scaffoldAgent', () => {
     const content = fs.readFileSync(
       path.join(tmpDir, 'plugins', 'test-plugin', 'agents', 'my-cool-agent.md'), 'utf8'
     );
-    expect(content).toContain('# My Cool Agent Agent');
+    expect(content).toContain('# My Cool Agent');
+    expect(content).not.toContain('# My Cool Agent Agent');
   });
 });
 
@@ -559,7 +560,7 @@ describe('dev-cli integration', () => {
   });
 
   test('each subcommand handler is a function', () => {
-    for (const [name, sub] of Object.entries(NEW_SUBCOMMANDS)) {
+    for (const sub of Object.values(NEW_SUBCOMMANDS)) {
       expect(typeof sub.handler).toBe('function');
       expect(typeof sub.description).toBe('string');
     }
