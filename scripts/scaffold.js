@@ -142,6 +142,16 @@ function scaffoldPlugin(name, projectRoot) {
   result.files.push(`plugins/${name}/commands/${name}.md`);
 
   // Run sync-lib.sh to copy shared lib into plugins/<name>/lib/
+  // Check bash availability on Windows
+  if (process.platform === 'win32') {
+    try {
+      require('child_process').execSync('where bash', { stdio: 'pipe' });
+    } catch {
+      result.errors.push('bash not found. Install Git Bash or WSL to run sync-lib. Run \'npx awesome-slash-dev sync-lib\' manually after installing bash.');
+      return result;
+    }
+  }
+
   try {
     execFileSync('bash', ['scripts/sync-lib.sh'], { cwd: projectRoot, stdio: 'pipe' });
   } catch (e) {
@@ -392,7 +402,7 @@ function capitalize(name) {
  */
 function main(args) {
   if (!args || args.length < 2) {
-    console.log('Usage: scaffold <type> <name> [options]');
+    console.log('Usage: awesome-slash-dev new <type> <name> [options]');
     console.log('');
     console.log('Types: plugin, agent, skill, command');
     console.log('');
@@ -402,10 +412,10 @@ function main(args) {
     console.log('  --description <text>  Description text');
     console.log('');
     console.log('Examples:');
-    console.log('  scaffold plugin my-plugin');
-    console.log('  scaffold agent my-agent --plugin enhance');
-    console.log('  scaffold skill my-skill --plugin enhance');
-    console.log('  scaffold command my-cmd --plugin enhance');
+    console.log('  awesome-slash-dev new plugin my-plugin');
+    console.log('  awesome-slash-dev new agent my-agent --plugin enhance');
+    console.log('  awesome-slash-dev new skill my-skill --plugin enhance');
+    console.log('  awesome-slash-dev new command my-cmd --plugin enhance');
     return 1;
   }
 
