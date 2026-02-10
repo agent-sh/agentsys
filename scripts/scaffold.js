@@ -57,14 +57,27 @@ function parseFlags(args) {
 }
 
 /**
+ * Escape a string for safe inclusion in double-quoted YAML values.
+ * @param {string} str
+ * @returns {string}
+ */
+function escapeYaml(str) {
+  return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
+}
+
+/**
  * Get the project version from package.json.
  * @param {string} projectRoot
  * @returns {string}
  */
 function getVersion(projectRoot) {
-  const pkgPath = path.join(projectRoot, 'package.json');
-  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-  return pkg.version;
+  try {
+    const pkgPath = path.join(projectRoot, 'package.json');
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+    return pkg.version || '1.0.0';
+  } catch (e) {
+    return '1.0.0';
+  }
 }
 
 /**
@@ -160,6 +173,12 @@ function scaffoldAgent(name, args, projectRoot) {
     return result;
   }
 
+  const pluginCheck = validateName(flags.plugin, 'plugin');
+  if (!pluginCheck.valid) {
+    result.errors.push(`Invalid --plugin value: ${pluginCheck.error}`);
+    return result;
+  }
+
   const pluginDir = path.join(projectRoot, 'plugins', flags.plugin);
   if (!fs.existsSync(pluginDir)) {
     result.errors.push(`Plugin not found: plugins/${flags.plugin}`);
@@ -176,7 +195,7 @@ function scaffoldAgent(name, args, projectRoot) {
   }
 
   const model = flags.model || 'sonnet';
-  const description = flags.description || 'TODO: Add agent description. Use this agent when TODO: add trigger conditions.';
+  const description = escapeYaml(flags.description || 'TODO: Add agent description. Use this agent when TODO: add trigger conditions.');
 
   const content = `---
 name: ${name}
@@ -229,6 +248,12 @@ function scaffoldSkill(name, args, projectRoot) {
     return result;
   }
 
+  const pluginCheck = validateName(flags.plugin, 'plugin');
+  if (!pluginCheck.valid) {
+    result.errors.push(`Invalid --plugin value: ${pluginCheck.error}`);
+    return result;
+  }
+
   const pluginDir = path.join(projectRoot, 'plugins', flags.plugin);
   if (!fs.existsSync(pluginDir)) {
     result.errors.push(`Plugin not found: plugins/${flags.plugin}`);
@@ -243,7 +268,7 @@ function scaffoldSkill(name, args, projectRoot) {
 
   fs.mkdirSync(skillDir, { recursive: true });
 
-  const description = flags.description || 'TODO: Add skill description. Use when TODO: add triggers.';
+  const description = escapeYaml(flags.description || 'TODO: Add skill description. Use when TODO: add triggers.');
 
   const content = `---
 name: ${name}
@@ -292,6 +317,12 @@ function scaffoldCommand(name, args, projectRoot) {
   const flags = parseFlags(args);
   if (!flags.plugin) {
     result.errors.push('--plugin flag is required for command scaffolding');
+    return result;
+  }
+
+  const pluginCheck = validateName(flags.plugin, 'plugin');
+  if (!pluginCheck.valid) {
+    result.errors.push(`Invalid --plugin value: ${pluginCheck.error}`);
     return result;
   }
 
