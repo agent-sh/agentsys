@@ -144,6 +144,46 @@ describe('stampVersion', () => {
     const rootPlugin = JSON.parse(fs.readFileSync(path.join(root, '.claude-plugin', 'plugin.json'), 'utf8'));
     expect(rootPlugin.version).toBe('3.0.0-rc.1');
   });
+
+  test('throws error when target plugin.json is malformed', () => {
+    const root = createMockRepo('1.0.0');
+
+    // Corrupt a plugin.json file
+    const pluginJsonPath = path.join(root, 'plugins', 'mock-plugin', '.claude-plugin', 'plugin.json');
+    fs.writeFileSync(pluginJsonPath, '{ "name": "mock-plugin", "version": "0.0.0"'); // Missing closing brace
+
+    // Should throw when trying to update the malformed file
+    expect(() => {
+      stampVersion(root);
+    }).toThrow();
+  });
+
+  test('throws error when package.json is malformed', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'stamp-malformed-pkg-'));
+
+    try {
+      // Create malformed package.json
+      fs.writeFileSync(
+        path.join(root, 'package.json'),
+        '{ "name": "test", "version": "1.0.0"' // Missing closing brace
+      );
+
+      // Need lib/discovery stub
+      const libDir = path.join(root, 'lib', 'discovery');
+      fs.mkdirSync(libDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(libDir, 'index.js'),
+        `module.exports = { discoverPlugins: () => [] };`
+      );
+
+      // Should throw when trying to read malformed package.json
+      expect(() => {
+        stampVersion(root);
+      }).toThrow();
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
 });
 
 describe('updateJsonFile', () => {
@@ -161,6 +201,15 @@ describe('updateJsonFile', () => {
   test('returns false for missing file', () => {
     const result = updateJsonFile(path.join(tmpDir, 'nonexistent.json'), '1.0.0');
     expect(result).toBe(false);
+  });
+
+  test('throws error for malformed JSON', () => {
+    const filePath = path.join(tmpDir, 'malformed.json');
+    fs.writeFileSync(filePath, '{ "name": "test", "version": "1.0.0"'); // Missing closing brace
+
+    expect(() => {
+      updateJsonFile(filePath, '2.0.0');
+    }).toThrow();
   });
 });
 
