@@ -777,6 +777,20 @@ awesome-slash --development              # Dev mode (bypasses marketplace)
 
 [Full installation guide →](./docs/INSTALLATION.md)
 
+### Using the Core Library
+
+The shared library is published as `@awesome-slash/lib` for direct use:
+
+```bash
+npm install @awesome-slash/lib
+```
+
+```javascript
+const { platform, patterns, state, sources, xplat } = require('@awesome-slash/lib');
+```
+
+Zero dependencies, CommonJS, Node.js >= 18.
+
 ---
 
 ## Requirements

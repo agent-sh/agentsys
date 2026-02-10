@@ -72,7 +72,7 @@
 ## Architecture
 
 ```
-lib/          → Shared library (canonical source)
+lib/          → Shared library (published as @awesome-slash/lib, vendored to plugins)
 plugins/      → 11 plugins, 40 agents (30 file-based + 10 role-based), 26 skills
 adapters/     → Platform adapters (opencode-plugin/, opencode/, codex/)
 checklists/   → Action checklists (9 files)

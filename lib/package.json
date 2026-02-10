@@ -1,6 +1,6 @@
 {
   "name": "@awesome-slash/lib",
-  "version": "1.0.0-alpha.1",
+  "version": "4.2.0",
   "description": "Core library for awesome-slash: platform detection, pattern matching, workflow state, and utilities",
   "main": "index.js",
   "type": "commonjs",

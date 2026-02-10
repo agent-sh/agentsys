@@ -1,6 +1,6 @@
 {
   "name": "perf",
-  "version": "1.0.0-alpha.1",
+  "version": "4.2.0",
   "description": "Rigorous performance investigation workflow with baselines, profiling, and evidence-backed decisions",
   "author": {
     "name": "Avi Fenesh",
