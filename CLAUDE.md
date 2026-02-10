@@ -141,6 +141,8 @@ npx awesome-slash-dev test             # Run test suite
 npx awesome-slash-dev preflight         # Change-aware checklist enforcement
 npx awesome-slash-dev preflight --all   # Run all checks
 npx awesome-slash-dev preflight --release # All checks + release extras
+npx awesome-slash-dev gen-docs          # Auto-generate doc sections
+npx awesome-slash-dev gen-docs --check  # Validate docs are fresh (CI)
 npx awesome-slash-dev --help           # Show all commands
 
 # Alternative: direct invocation
@@ -152,6 +154,8 @@ npm run validate             # All validators via dev-cli
 npm run preflight            # Change-aware preflight checks
 npm run preflight:all        # All preflight checks
 npm run preflight:release    # Release preflight
+npm run gen-docs             # Auto-generate documentation
+npm run gen-docs:check       # Check if docs are stale
 npm run bump <version>       # Bump versions via dev-cli
 npm pack                     # Build package
 awesome-slash                # Run installer

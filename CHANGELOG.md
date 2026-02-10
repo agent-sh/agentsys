@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Auto-generate documentation** - `gen-docs` command reads plugin metadata, agent frontmatter, and skill frontmatter to auto-generate documentation sections between GEN:START/GEN:END markers
+  - `npx awesome-slash-dev gen-docs` writes generated sections to README.md, CLAUDE.md, AGENTS.md, docs/reference/AGENTS.md, site/content.json
+  - `npx awesome-slash-dev gen-docs --check` validates docs are fresh (for CI, exits 1 if stale)
+  - Enhanced `lib/discovery` with YAML array parsing and frontmatter in `discoverAgents()`/`discoverSkills()`
+  - Integrated into preflight as `gap:docs-freshness` check for new-agent, new-skill, new-command, and release checklists
+  - 34 tests for the generation system, 7 new discovery tests
 - **@awesome-slash/lib npm package** - Published shared library as standalone npm package
   - Enables external projects to use awesome-slash utilities via `require('@awesome-slash/lib')`
   - Zero dependencies, CommonJS, Node.js >= 18
