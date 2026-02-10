@@ -4,11 +4,6 @@
   "description": "Core library for awesome-slash: platform detection, pattern matching, workflow state, and utilities",
   "main": "index.js",
   "type": "commonjs",
-  "exports": {
-    ".": "./index.js",
-    "./*": "./*.js",
-    "./*/": "./*/"
-  },
   "engines": {
     "node": ">=18.0.0"
   },
