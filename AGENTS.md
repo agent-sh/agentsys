@@ -76,7 +76,7 @@
 <!-- GEN:START:claude-architecture -->
 ```
 lib/          → Shared library (published as @awesome-slash/lib, vendored to plugins)
-plugins/      → 11 plugins, 40 agents (30 file-based + 10 role-based), 26 skills
+plugins/      → 12 plugins, 41 agents (31 file-based + 10 role-based), 27 skills
 adapters/     → Platform adapters (opencode-plugin/, opencode/, codex/)
 checklists/   → Action checklists (9 files)
 bin/cli.js    → npm CLI installer
@@ -86,6 +86,7 @@ bin/cli.js    → npm CLI installer
 |--------|--------|--------|---------|
 | agnix | 1 | 1 | Agent config linting |
 | audit-project | 10 | 0 | Multi-agent code review |
+| consult | 1 | 1 | Cross-tool AI consultation |
 | deslop | 1 | 1 | AI slop cleanup |
 | drift-detect | 1 | 1 | Plan drift detection |
 | enhance | 8 | 9 | Code quality analyzers |

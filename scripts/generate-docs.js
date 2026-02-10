@@ -54,7 +54,8 @@ const CATEGORY_MAP = {
   'drift-detect': 'Analysis',
   'repo-map': 'Analysis',
   'learn': 'Learning',
-  'agnix': 'Linting'
+  'agnix': 'Linting',
+  'consult': 'Productivity'
 };
 
 // Purpose mapping for architecture table
@@ -69,7 +70,8 @@ const PURPOSE_MAP = {
   'repo-map': 'AST repo mapping',
   'sync-docs': 'Documentation sync',
   'learn': 'Topic research and learning guides',
-  'agnix': 'Agent config linting'
+  'agnix': 'Agent config linting',
+  'consult': 'Cross-tool AI consultation'
 };
 
 // ---------------------------------------------------------------------------

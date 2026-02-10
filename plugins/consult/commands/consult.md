@@ -1,0 +1,178 @@
+---
+description: Consult another AI CLI tool for a second opinion. Use when you want to cross-check ideas, get alternative approaches, or validate decisions with Gemini, Codex, Claude, OpenCode, or Copilot.
+codex-description: 'Use when user asks to "consult gemini", "ask codex", "get second opinion", "cross-check with claude", "consult another AI", "ask opencode", "copilot opinion". Queries another AI CLI tool and returns the response.'
+argument-hint: "[question] [--tool=gemini|codex|claude|opencode|copilot] [--effort=low|medium|high|max] [--model=MODEL] [--context=diff|file|none] [--continue]"
+allowed-tools: Task, Read, Glob, AskUserQuestion, Bash
+---
+
+# /consult - Cross-Tool AI Consultation
+
+Get a second opinion from another AI CLI tool without leaving your current session.
+
+## Arguments
+
+Parse from $ARGUMENTS:
+
+- **question**: What to ask the consulted tool (required)
+- **--tool**: Target tool: `gemini`, `codex`, `claude`, `opencode`, `copilot` (interactive picker if omitted)
+- **--effort**: Thinking effort: `low`, `medium` (default), `high`, `max`
+- **--model**: Specific model name (overrides effort-based selection). Free text.
+- **--context**: Auto-include context: `diff` (git diff), `file` (attach file), `none` (default)
+- **--continue**: Continue last consultation session, or `--continue=SESSION_ID` for specific session
+
+## Execution
+
+### Phase 1: Parse Arguments
+
+```javascript
+const args = '$ARGUMENTS';
+
+// Extract flags
+const toolMatch = args.match(/--tool=(gemini|codex|claude|opencode|copilot)/);
+const effortMatch = args.match(/--effort=(low|medium|high|max)/);
+const modelMatch = args.match(/--model=(\S+)/);
+const contextMatch = args.match(/--context=(diff|file|none)/);
+const continueMatch = args.match(/--continue(?:=(\S+))?/);
+
+const tool = toolMatch ? toolMatch[1] : null;
+const effort = effortMatch ? effortMatch[1] : 'medium';
+const model = modelMatch ? modelMatch[1] : null;
+const context = contextMatch ? contextMatch[1] : 'none';
+const continueSession = continueMatch ? (continueMatch[1] || true) : false;
+
+// Extract question (everything except flags)
+const question = args
+  .replace(/--tool=\S+/g, '')
+  .replace(/--effort=\S+/g, '')
+  .replace(/--model=\S+/g, '')
+  .replace(/--context=\S+/g, '')
+  .replace(/--continue(?:=\S+)?/g, '')
+  .trim();
+
+if (!question && !continueSession) {
+  return 'Usage: /consult "your question" [--tool=gemini|codex|claude|opencode|copilot] [--effort=low|medium|high|max]';
+}
+```
+
+### Phase 2: Detect Available Tools
+
+If `--tool` not specified, detect which tools are installed and let user pick.
+
+```javascript
+// Detection commands (cross-platform)
+const isWindows = process.platform === 'win32';
+const whichCmd = isWindows ? 'where.exe' : 'which';
+
+// Check each tool
+const checks = {
+  claude: `${whichCmd} claude`,
+  gemini: `${whichCmd} gemini`,
+  codex: `${whichCmd} codex`,
+  opencode: `${whichCmd} opencode`,
+  copilot: `${whichCmd} copilot`
+};
+```
+
+If no `--tool` flag, use AskUserQuestion:
+
+```javascript
+// Show only installed tools
+const choice = await AskUserQuestion({
+  questions: [{
+    question: 'Which AI tool should I consult?',
+    header: 'Tool',
+    options: availableTools.map(t => ({
+      label: t.name,
+      description: t.description
+    })),
+    multiSelect: false
+  }]
+});
+```
+
+Tool descriptions for picker:
+- **Claude**: Claude Code (Anthropic) - deep code reasoning
+- **Gemini**: Gemini CLI (Google) - fast multimodal analysis
+- **Codex**: Codex CLI (OpenAI) - agentic coding
+- **OpenCode**: OpenCode (multi-provider) - flexible model choice
+- **Copilot**: Copilot CLI (GitHub) - GitHub-integrated AI
+
+### Phase 3: Handle Continue Session
+
+If `--continue` is set, load last session from state file:
+
+```javascript
+const stateDir = process.env.AI_STATE_DIR || '.claude';
+const sessionFile = `${stateDir}/consult/last-session.json`;
+// Load and use saved tool + session_id
+```
+
+### Phase 4: Spawn Consult Agent
+
+```javascript
+const taskOutput = await Task({
+  subagent_type: "consult:consult-agent",
+  model: "sonnet",
+  prompt: `Consult another AI tool.
+
+Tool: ${selectedTool}
+Question: ${question}
+Effort: ${effort}
+Model: ${model || '(auto from effort)'}
+Context: ${context}
+Continue Session: ${continueSession}
+Session File: ${sessionFile}
+
+Execute the consultation and return the result between === CONSULT_RESULT === markers.`
+});
+```
+
+### Phase 5: Present Results
+
+```javascript
+function parseConsultResult(output) {
+  const match = output.match(/=== CONSULT_RESULT ===[\s\S]*?({[\s\S]*?})[\s\S]*?=== END_RESULT ===/);
+  return match ? JSON.parse(match[1]) : null;
+}
+
+const result = parseConsultResult(taskOutput);
+```
+
+Display:
+
+```markdown
+## Consultation Result
+
+**Tool**: {tool} ({model})
+**Effort**: {effort}
+**Duration**: {duration}s
+
+### Response
+
+{formatted response}
+
+### Session
+
+{session_id if continuable, with hint to use --continue}
+```
+
+## Error Handling
+
+| Error | Action |
+|-------|--------|
+| No question provided | Show usage help |
+| Tool not installed | Show install instructions for that tool |
+| Tool execution fails | Show error, suggest alternative tool |
+| Timeout (>120s) | Kill process, show partial output if any |
+| No tools available | Suggest installing at least one tool |
+| Session not found | Warn, start fresh consultation |
+
+## Example Usage
+
+```bash
+/consult "Is this the right approach for error handling?" --tool=gemini --effort=high
+/consult "Review this function for performance issues" --tool=codex
+/consult "What alternative patterns would you suggest?" --tool=claude --effort=max
+/consult "Suggest improvements" --tool=opencode --model=github-copilot/claude-opus-4-6
+/consult "Continue from where we left off" --continue
+```

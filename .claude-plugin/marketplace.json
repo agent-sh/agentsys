@@ -1,6 +1,6 @@
 {
   "name": "awesome-slash",
-  "description": "11 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, repo mapping, perf investigations, topic research, and agent config linting",
+  "description": "12 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, repo mapping, perf investigations, topic research, agent config linting, and cross-tool AI consultation",
   "version": "1.0.0-alpha.1",
   "owner": {
     "name": "Avi Fenesh",
@@ -98,6 +98,13 @@
       "description": "Lint agent configuration files (SKILL.md, CLAUDE.md, hooks, MCP) against 155 rules across 10+ AI tools",
       "version": "1.0.0-alpha.1",
       "category": "development"
+    },
+    {
+      "name": "consult",
+      "source": "./plugins/consult",
+      "description": "Cross-tool AI consultation: get second opinions from Gemini CLI, Codex CLI, Claude Code, OpenCode, or Copilot CLI with model and thinking effort control",
+      "version": "1.0.0-alpha.1",
+      "category": "productivity"
     }
   ]
 }

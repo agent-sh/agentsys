@@ -80,6 +80,7 @@ This came from testing on 1,000+ repositories.
 | [`/repo-map`](#repo-map) | AST symbol and import mapping via ast-grep |
 | [`/sync-docs`](#sync-docs) | Finds outdated references, stale examples, missing CHANGELOG entries |
 | [`/learn`](#learn) | Research any topic, gather online sources, create learning guide with RAG index |
+| [`/consult`](#consult) | Consult another AI CLI tool for a second opinion. Use when you want to cross-check ideas, get alternative approaches, or validate decisions with Gemini, Codex, Claude, OpenCode, or Copilot. |
 <!-- GEN:END:readme-commands -->
 
 Each command works standalone. Together, they form complete workflows.
@@ -89,7 +90,7 @@ Each command works standalone. Together, they form complete workflows.
 ## Skills
 
 <!-- GEN:START:readme-skills -->
-26 skills included across the plugins:
+27 skills included across the plugins:
 
 | Category | Skills |
 |----------|--------|

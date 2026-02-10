@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`gen-adapters` and `gen-adapters --check` dev-cli commands** with npm script aliases
 - **CI validation step for adapter freshness**
 - **Preflight integration for adapter freshness checks**
+- **`/consult` command** - Cross-tool AI consultation: query Gemini CLI, Codex CLI, Claude Code, OpenCode, or Copilot CLI from your current session (#198)
+  - Choose tool, model, and thinking effort (`--effort=low|medium|high|max`)
+  - Context packaging (`--context=diff|file|none`) and session continuity (`--continue`)
+  - Three invocation paths: `/consult` command, `Skill('consult')`, `Task({ subagent_type: 'consult:consult-agent' })`
+  - Provider detection, structured JSON output, and per-provider effort mapping
 - **Plugin scaffolding system** (`scripts/scaffold.js`) - Scaffold new plugins, agents, skills, and commands from templates (#184)
   - `npx awesome-slash-dev new plugin <name>` - full plugin directory with plugin.json, default command, and shared lib
   - `npx awesome-slash-dev new agent <name> --plugin=<plugin>` - agent .md with YAML frontmatter template
