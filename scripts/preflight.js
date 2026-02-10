@@ -939,9 +939,11 @@ function runGapChecks(relevantChecklists, changedFiles, options) {
     results.push(checkDocsFreshness());
   }
 
-  // template freshness: relevant to new-agent, release
+  // template freshness: relevant to new-agent, release, or when agent/snippet files change
+  const hasTemplateChanges = changedFiles.some(f =>
+    f.includes('templates/agent-snippets/') || f.match(/plugins\/.*\/agents\/.*\.md$/));
   if (runAll || relevantChecklists.has('new-agent') ||
-      relevantChecklists.has('release')) {
+      relevantChecklists.has('release') || hasTemplateChanges) {
     results.push(checkTemplateFreshness());
   }
 
