@@ -129,6 +129,9 @@ npx awesome-slash-dev validate plugins # Run single validator
 npx awesome-slash-dev bump <version>   # Bump all version files (e.g., 3.7.3)
 npx awesome-slash-dev sync-lib         # Sync lib/ to plugins/
 npx awesome-slash-dev test             # Run test suite
+npx awesome-slash-dev preflight         # Change-aware checklist enforcement
+npx awesome-slash-dev preflight --all   # Run all checks
+npx awesome-slash-dev preflight --release # All checks + release extras
 npx awesome-slash-dev --help           # Show all commands
 
 # Alternative: direct invocation
@@ -137,6 +140,9 @@ node bin/dev-cli.js <command>
 # npm aliases still work:
 npm test                     # Run tests (do before commits)
 npm run validate             # All validators via dev-cli
+npm run preflight            # Change-aware preflight checks
+npm run preflight:all        # All preflight checks
+npm run preflight:release    # Release preflight
 npm run bump <version>       # Bump versions via dev-cli
 npm pack                     # Build package
 awesome-slash                # Run installer
