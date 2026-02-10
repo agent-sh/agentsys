@@ -100,6 +100,13 @@ jobs:
             fi
           done
 
+          # Check lib/package.json
+          LIB_VERSION=$(node -p "require('./lib/package.json').version")
+          if [ "$LIB_VERSION" != "$VERSION" ]; then
+            echo "[ERROR] lib/package.json version ($LIB_VERSION) doesn't match release version ($VERSION)"
+            exit 1
+          fi
+
           echo "[OK] All version numbers match: $VERSION"
 
   test:
@@ -150,10 +157,37 @@ jobs:
           echo "[DRY-RUN] Skipping actual publish"
           npm publish --dry-run --tag "${{ needs.validate.outputs.npm_tag }}"
 
+  publish-lib:
+    name: Publish @awesome-slash/lib
+    runs-on: ubuntu-latest
+    needs: [validate, test]
+    environment: npm
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Publish lib package
+        if: ${{ !inputs.dry_run }}
+        working-directory: lib
+        run: npm publish --provenance --access public --tag "${{ needs.validate.outputs.npm_tag }}"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Dry run publish
+        if: ${{ inputs.dry_run }}
+        working-directory: lib
+        run: |
+          echo "[DRY-RUN] Skipping actual publish of @awesome-slash/lib"
+          npm publish --dry-run --tag "${{ needs.validate.outputs.npm_tag }}"
+
   create-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
-    needs: [validate, publish-npm]
+    needs: [validate, publish-npm, publish-lib]
     if: ${{ !inputs.dry_run }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
@@ -204,7 +238,7 @@ jobs:
   notify:
     name: Release Summary
     runs-on: ubuntu-latest
-    needs: [validate, publish-npm, create-release]
+    needs: [validate, publish-npm, publish-lib, create-release]
     if: always()
     steps:
       - name: Summary
@@ -220,6 +254,14 @@ jobs:
             echo "   - https://www.npmjs.com/package/awesome-slash" >> $GITHUB_STEP_SUMMARY
           else
             echo "[ERROR] **npm:** ${{ needs.publish-npm.result }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.publish-lib.result }}" = "success" ]; then
+            echo "[OK] **@awesome-slash/lib:** Published successfully" >> $GITHUB_STEP_SUMMARY
+            echo "   - https://www.npmjs.com/package/@awesome-slash/lib" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "[ERROR] **@awesome-slash/lib:** ${{ needs.publish-lib.result }}" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
 
