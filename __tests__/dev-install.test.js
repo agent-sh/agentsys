@@ -152,13 +152,14 @@ describe('dev-install script', () => {
   });
 
   describe('installation logic', () => {
-    test('strips models for OpenCode', () => {
-      // Should strip models by default
-      expect(devInstallSource.includes('Models are stripped by default')).toBe(true);
+    test('uses shared transforms for OpenCode', () => {
+      // Should use shared adapter-transforms module (stripModels: true by default)
+      expect(devInstallSource.includes('transforms.transformBodyForOpenCode')).toBe(true);
+      expect(devInstallSource.includes('transforms.transformAgentFrontmatterForOpenCode')).toBe(true);
     });
 
-    test('transforms frontmatter for OpenCode', () => {
-      expect(devInstallSource.includes('transformForOpenCode')).toBe(true);
+    test('uses shared transforms for commands', () => {
+      expect(devInstallSource.includes('transforms.transformCommandFrontmatterForOpenCode')).toBe(true);
     });
 
     test('removes marketplace for Claude', () => {

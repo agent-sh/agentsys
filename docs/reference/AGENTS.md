@@ -3,7 +3,7 @@
 Complete reference for all agents in awesome-slash.
 
 <!-- GEN:START:agents-counts -->
-**TL;DR:** 40 agents across 11 plugins (10 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 40 -->
+**TL;DR:** 41 agents across 11 plugins (10 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 41 -->
 <!-- GEN:END:agents-counts -->
 
 ---
@@ -17,7 +17,7 @@ Complete reference for all agents in awesome-slash.
 | audit-project | 10 | [code-quality-reviewer](#code-quality-reviewer), [security-expert](#security-expert), [performance-engineer](#performance-engineer), [test-quality-guardian](#test-quality-guardian), [architecture-reviewer](#architecture-reviewer), [database-specialist](#database-specialist), [api-designer](#api-designer), [frontend-specialist](#frontend-specialist), [backend-specialist](#backend-specialist), [devops-reviewer](#devops-reviewer) |
 | deslop | 1 | [deslop-agent](#deslop-agent) |
 | drift-detect | 1 | [plan-synthesizer](#plan-synthesizer) |
-| enhance | 8 | [agent-enhancer](#agent-enhancer), [claudemd-enhancer](#claudemd-enhancer), [cross-file-enhancer](#cross-file-enhancer), [docs-enhancer](#docs-enhancer), [hooks-enhancer](#hooks-enhancer), [plugin-enhancer](#plugin-enhancer), [prompt-enhancer](#prompt-enhancer), [skills-enhancer](#skills-enhancer) |
+| enhance | 9 | [_test-subst](#_test-subst), [agent-enhancer](#agent-enhancer), [claudemd-enhancer](#claudemd-enhancer), [cross-file-enhancer](#cross-file-enhancer), [docs-enhancer](#docs-enhancer), [hooks-enhancer](#hooks-enhancer), [plugin-enhancer](#plugin-enhancer), [prompt-enhancer](#prompt-enhancer), [skills-enhancer](#skills-enhancer) |
 | learn | 1 | [learn-agent](#learn-agent) |
 | next-task | 10 | [ci-fixer](#ci-fixer), [ci-monitor](#ci-monitor), [delivery-validator](#delivery-validator), [exploration-agent](#exploration-agent), [implementation-agent](#implementation-agent), [planning-agent](#planning-agent), [simple-fixer](#simple-fixer), [task-discoverer](#task-discoverer), [test-coverage-checker](#test-coverage-checker), [worktree-manager](#worktree-manager) |
 | perf | 6 | [perf-analyzer](#perf-analyzer), [perf-code-paths](#perf-code-paths), [perf-investigation-logger](#perf-investigation-logger), [perf-orchestrator](#perf-orchestrator), [perf-theory-gatherer](#perf-theory-gatherer), [perf-theory-tester](#perf-theory-tester) |
