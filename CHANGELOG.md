@@ -148,6 +148,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Previous Releases
 
-- [v3.x Changelog](changelogs/CHANGELOG-v3.md) (v3.0.0 - v3.9.0)
-- [v2.x Changelog](changelogs/CHANGELOG-v2.md) (v2.0.0 - v2.10.1)
-- [v1.x Changelog](changelogs/CHANGELOG-v1.md) (v1.0.0 - v1.1.0)
+- [v3.x Changelog](https://github.com/avifenesh/awesome-slash/blob/main/changelogs/CHANGELOG-v3.md) (v3.0.0 - v3.9.0)
+- [v2.x Changelog](https://github.com/avifenesh/awesome-slash/blob/main/changelogs/CHANGELOG-v2.md) (v2.0.0 - v2.10.1)
+- [v1.x Changelog](https://github.com/avifenesh/awesome-slash/blob/main/changelogs/CHANGELOG-v1.md) (v1.0.0 - v1.1.0)
