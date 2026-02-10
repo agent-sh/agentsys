@@ -49,6 +49,26 @@ const AGENT_THINKING_CONFIG: Record<string, { budget: number; description: strin
   "skills-enhancer": { budget: 16000, description: "Skill prompt review" },
 }
 
+// Project script patterns for failure detection
+const PROJECT_SCRIPT_PATTERNS: RegExp[] = [
+  /\bnpm\s+test\b/,
+  /\bnpm\s+run\s+/,
+  /\bnpm\s+build\b/,
+  /\bnode\s+scripts\//,
+  /\bnode\s+bin\/dev-cli\.js\b/,
+  /\bawesome-slash-dev\b/,
+]
+
+// Failure indicators in command output
+const FAILURE_INDICATORS: RegExp[] = [
+  /\bERR!\b/,
+  /\bFAIL\b/,
+  /\bELIFECYCLE\b/,
+  /\bError:/,
+  /\berror Command failed\b/,
+  /exit code [1-9]/,
+]
+
 // Workflow phases where certain actions are blocked
 const WORKFLOW_BLOCKED_ACTIONS: Record<string, string[]> = {
   "exploration": [],
@@ -258,6 +278,38 @@ Keep technical details accurate. The user will continue this workflow after comp
             await writeFile(flowPath, JSON.stringify(updatedState, null, 2))
           } catch {
             // Ignore write errors
+          }
+        }
+      }
+
+      // Detect project script failures
+      if (input.tool === "Bash") {
+        const command = (input.metadata?.command as string) || ""
+        const isProjectScript = PROJECT_SCRIPT_PATTERNS.some(p => p.test(command))
+
+        if (isProjectScript) {
+          const outputText = typeof output === "string" ? output : JSON.stringify(output || "")
+          const hasFailure = FAILURE_INDICATORS.some(p => p.test(outputText))
+
+          if (hasFailure) {
+            console.error(`[awesome-slash] Script failure detected: ${command}. Report to user before manual fallback.`)
+
+            // Record failure in flow.json for workflow tracking
+            try {
+              const stateDir = getStateDir(directory)
+              const flowPath = join(stateDir, "flow.json")
+
+              if (existsSync(flowPath)) {
+                const state = JSON.parse(await readFile(flowPath, "utf-8"))
+                state.lastScriptFailure = {
+                  command,
+                  timestamp: Date.now()
+                }
+                await writeFile(flowPath, JSON.stringify(state, null, 2))
+              }
+            } catch {
+              // Ignore state write errors
+            }
           }
         }
       }
