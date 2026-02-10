@@ -347,6 +347,37 @@ describe('gen-adapters', () => {
       const agentPaths = [...files.keys()].filter(p => p.startsWith('adapters/opencode/agents/'));
       expect(agentPaths.length).toBe(agents.length);
     });
+
+    test('detects orphaned files not in generated set', () => {
+      const { files, orphanedFiles } = genAdapters.computeAdapters();
+      expect(orphanedFiles).toBeDefined();
+      expect(Array.isArray(orphanedFiles)).toBe(true);
+      // All orphaned files should be .md files in adapters/opencode or adapters/codex
+      for (const orphan of orphanedFiles) {
+        expect(orphan).toMatch(/^adapters\/(opencode|codex)\/.+\.md$/);
+        expect(files.has(orphan)).toBe(false);
+      }
+    });
+
+    test('findOrphanedAdapters returns empty array when all files are generated', () => {
+      // First generate to ensure consistency
+      genAdapters.main([]);
+      const { files } = genAdapters.computeAdapters();
+      const orphans = genAdapters.findOrphanedAdapters(files);
+      expect(orphans).toEqual([]);
+    });
+
+    test('findOrphanedAdapters detects files not in generated map', () => {
+      const fakeMap = new Map();
+      fakeMap.set('adapters/opencode/commands/test.md', 'content');
+      const orphans = genAdapters.findOrphanedAdapters(fakeMap);
+      // Should find many orphans since we only included one file
+      expect(orphans.length).toBeGreaterThan(0);
+      // None of the orphans should be in the fake map
+      for (const orphan of orphans) {
+        expect(fakeMap.has(orphan)).toBe(false);
+      }
+    });
   });
 
   describe('checkFreshness', () => {
@@ -355,7 +386,9 @@ describe('gen-adapters', () => {
       expect(result).toHaveProperty('status');
       expect(result).toHaveProperty('message');
       expect(result).toHaveProperty('staleFiles');
+      expect(result).toHaveProperty('orphanedFiles');
       expect(Array.isArray(result.staleFiles)).toBe(true);
+      expect(Array.isArray(result.orphanedFiles)).toBe(true);
     });
   });
 
@@ -376,7 +409,9 @@ describe('gen-adapters', () => {
       const result = genAdapters.main(['--dry-run']);
       expect(result).toHaveProperty('changed');
       expect(result).toHaveProperty('files');
+      expect(result).toHaveProperty('deleted');
       expect(typeof result.changed).toBe('boolean');
+      expect(Array.isArray(result.deleted)).toBe(true);
     });
   });
 });

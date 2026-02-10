@@ -122,7 +122,47 @@ function computeAdapters() {
     }
   }
 
-  return { files, staleFiles };
+  // Check for orphaned adapter files
+  const orphanedFiles = findOrphanedAdapters(files);
+
+  return { files, staleFiles, orphanedFiles };
+}
+
+/**
+ * Find orphaned adapter files that exist on disk but have no corresponding source
+ * @param {Map<string, string>} generatedFiles - Map of generated file paths
+ * @returns {string[]} Array of relative paths to orphaned files
+ */
+function findOrphanedAdapters(generatedFiles) {
+  const orphans = [];
+
+  function scanDirectory(dir, relativeBase) {
+    if (!fs.existsSync(dir)) return;
+
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const absPath = path.join(dir, entry.name);
+      const relPath = path.join(relativeBase, entry.name);
+
+      if (entry.isDirectory()) {
+        scanDirectory(absPath, relPath);
+      } else if (entry.isFile() && entry.name.endsWith('.md')) {
+        // Check if this file is in the generated map
+        if (!generatedFiles.has(relPath)) {
+          orphans.push(relPath);
+        }
+      }
+    }
+  }
+
+  // Scan opencode/ and codex/ subdirectories
+  for (const subdir of ['opencode', 'codex']) {
+    const dir = path.join(ADAPTERS_DIR, subdir);
+    const relativeBase = path.join('adapters', subdir);
+    scanDirectory(dir, relativeBase);
+  }
+
+  return orphans;
 }
 
 function main(args) {
@@ -130,14 +170,27 @@ function main(args) {
   const checkMode = args.includes('--check');
   const dryRun = args.includes('--dry-run');
 
-  const { files, staleFiles } = computeAdapters();
+  const { files, staleFiles, orphanedFiles } = computeAdapters();
 
   if (checkMode) {
-    if (staleFiles.length > 0) {
+    const hasStale = staleFiles.length > 0;
+    const hasOrphans = orphanedFiles.length > 0;
+
+    if (hasStale) {
       console.log(`[ERROR] Stale adapters detected in ${staleFiles.length} file(s):`);
       for (const f of staleFiles) {
         console.log(`  - ${f}`);
       }
+    }
+
+    if (hasOrphans) {
+      console.log(`[ERROR] Orphaned adapter files detected in ${orphanedFiles.length} file(s):`);
+      for (const f of orphanedFiles) {
+        console.log(`  - ${f}`);
+      }
+    }
+
+    if (hasStale || hasOrphans) {
       console.log('\nRun: node scripts/gen-adapters.js');
       return 1;
     }
@@ -178,35 +231,66 @@ function main(args) {
     }
   }
 
+  // Handle orphaned files
+  const deletedFiles = [];
+  for (const relPath of orphanedFiles) {
+    const absPath = path.resolve(ROOT_DIR, relPath);
+    if (!absPath.startsWith(path.join(ROOT_DIR, 'adapters'))) {
+      throw new Error('Path traversal detected: ' + relPath);
+    }
+
+    deletedFiles.push(relPath);
+
+    if (dryRun) {
+      console.log(`[DELETE] Would delete orphan: ${relPath}`);
+    } else {
+      fs.unlinkSync(absPath);
+    }
+  }
+
   if (!dryRun) {
     if (changedFiles.length > 0) {
       console.log(`[OK] ${changedFiles.length} file(s) updated`);
       for (const f of changedFiles) {
         console.log(`  - ${f}`);
       }
-    } else {
+    }
+    if (deletedFiles.length > 0) {
+      console.log(`[OK] ${deletedFiles.length} orphaned file(s) deleted`);
+      for (const f of deletedFiles) {
+        console.log(`  - ${f}`);
+      }
+    }
+    if (changedFiles.length === 0 && deletedFiles.length === 0) {
       console.log('[OK] All adapters up to date');
     }
   }
 
-  return { changed: changedFiles.length > 0, files: changedFiles };
+  return {
+    changed: changedFiles.length > 0 || deletedFiles.length > 0,
+    files: changedFiles,
+    deleted: deletedFiles
+  };
 }
 
 function checkFreshness() {
-  const { staleFiles } = computeAdapters();
+  const { staleFiles, orphanedFiles } = computeAdapters();
 
-  if (staleFiles.length === 0) {
+  if (staleFiles.length === 0 && orphanedFiles.length === 0) {
     return {
       status: 'fresh',
       message: 'All generated adapters are up to date',
-      staleFiles: []
+      staleFiles: [],
+      orphanedFiles: []
     };
   }
 
+  const totalIssues = staleFiles.length + orphanedFiles.length;
   return {
     status: 'stale',
-    message: `${staleFiles.length} adapter file(s) are stale`,
-    staleFiles
+    message: `${staleFiles.length} adapter file(s) are stale, ${orphanedFiles.length} orphaned`,
+    staleFiles,
+    orphanedFiles
   };
 }
 
@@ -220,4 +304,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { main, checkFreshness, computeAdapters, GENERATED_HEADER };
+module.exports = { main, checkFreshness, computeAdapters, findOrphanedAdapters, GENERATED_HEADER };
