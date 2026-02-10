@@ -78,6 +78,7 @@
 <architecture>
 ## Architecture
 
+<!-- GEN:START:claude-architecture -->
 ```
 lib/          → Shared library (published as @awesome-slash/lib, vendored to plugins)
 plugins/      → 11 plugins, 40 agents (30 file-based + 10 role-based), 26 skills
@@ -99,6 +100,7 @@ bin/cli.js    → npm CLI installer
 | sync-docs | 1 | 1 | Documentation sync |
 | learn | 1 | 1 | Topic research and learning guides |
 | agnix | 1 | 1 | Agent config linting |
+<!-- GEN:END:claude-architecture -->
 
 **Pattern**: `Command → Agent → Skill` (orchestration → invocation → implementation)
 </architecture>

@@ -2,12 +2,15 @@
 
 Complete reference for all agents in awesome-slash.
 
+<!-- GEN:START:agents-counts -->
 **TL;DR:** 40 agents across 11 plugins (10 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 40 -->
+<!-- GEN:END:agents-counts -->
 
 ---
 
 ## Quick Navigation
 
+<!-- GEN:START:agents-nav -->
 | Plugin | Agents | Jump to |
 |--------|--------|---------|
 | next-task | 10 | [task-discoverer](#task-discoverer), [worktree-manager](#worktree-manager), [exploration-agent](#exploration-agent), [planning-agent](#planning-agent), [implementation-agent](#implementation-agent), [test-coverage-checker](#test-coverage-checker), [delivery-validator](#delivery-validator), [ci-monitor](#ci-monitor), [ci-fixer](#ci-fixer), [simple-fixer](#simple-fixer) |
@@ -20,6 +23,7 @@ Complete reference for all agents in awesome-slash.
 | sync-docs | 1 | [sync-docs-agent](#sync-docs-agent) |
 | learn | 1 | [learn-agent](#learn-agent) |
 | agnix | 1 | [agnix-agent](#agnix-agent) |
+<!-- GEN:END:agents-nav -->
 
 **Design principle:** Each agent has a single responsibility. Complex work is decomposed into specialized agents that do one thing extremely well, then orchestrated together.
 

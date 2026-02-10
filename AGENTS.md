@@ -73,9 +73,10 @@
 <architecture>
 ## Architecture
 
+<!-- GEN:START:claude-architecture -->
 ```
-lib/          → Shared library (canonical source)
-plugins/      → 9 plugins, 39 agents (29 file-based + 10 role-based), 25 skills
+lib/          → Shared library (published as @awesome-slash/lib, vendored to plugins)
+plugins/      → 11 plugins, 40 agents (30 file-based + 10 role-based), 26 skills
 adapters/     → Platform adapters (opencode-plugin/, opencode/, codex/)
 checklists/   → Action checklists (9 files)
 bin/cli.js    → npm CLI installer
@@ -84,7 +85,7 @@ bin/cli.js    → npm CLI installer
 | Plugin | Agents | Skills | Purpose |
 |--------|--------|--------|---------|
 | next-task | 10 | 3 | Master workflow orchestration |
-| enhance | 9 | 9 | Code quality analyzers |
+| enhance | 8 | 8 | Code quality analyzers |
 | ship | 0 | 0 | PR creation and deployment |
 | perf | 6 | 8 | Performance investigation |
 | audit-project | 10 | 0 | Multi-agent code review |
@@ -92,6 +93,9 @@ bin/cli.js    → npm CLI installer
 | drift-detect | 1 | 1 | Plan drift detection |
 | repo-map | 1 | 1 | AST repo mapping |
 | sync-docs | 1 | 1 | Documentation sync |
+| learn | 1 | 1 | Topic research and learning guides |
+| agnix | 1 | 1 | Agent config linting |
+<!-- GEN:END:claude-architecture -->
 
 **Pattern**: `Command → Agent → Skill` (orchestration → invocation → implementation)
 </architecture>

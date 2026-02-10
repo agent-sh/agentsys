@@ -66,6 +66,7 @@ This came from testing on 1,000+ repositories.
 
 ## Commands
 
+<!-- GEN:START:readme-commands -->
 | Command | What it does |
 |---------|--------------|
 | [`/next-task`](#next-task) | Task → exploration → plan → implementation → review → ship |
@@ -79,6 +80,7 @@ This came from testing on 1,000+ repositories.
 | [`/repo-map`](#repo-map) | AST symbol and import mapping via ast-grep |
 | [`/sync-docs`](#sync-docs) | Finds outdated references, stale examples, missing CHANGELOG entries |
 | [`/learn`](#learn) | Research any topic, gather online sources, create learning guide with RAG index |
+<!-- GEN:END:readme-commands -->
 
 Each command works standalone. Together, they form complete workflows.
 
@@ -86,6 +88,7 @@ Each command works standalone. Together, they form complete workflows.
 
 ## Skills
 
+<!-- GEN:START:readme-skills -->
 26 skills included across the plugins:
 
 | Category | Skills |
@@ -97,6 +100,7 @@ Each command works standalone. Together, they form complete workflows.
 | **Analysis** | `drift-detect:drift-analysis`, `repo-map:repo-mapping` |
 | **Learning** | `learn:learn` |
 | **Linting** | `agnix:agnix` |
+<!-- GEN:END:readme-skills -->
 
 Skills give your agents specialized capabilities. When you install a plugin, its skills become available to all agents in that session.
 
