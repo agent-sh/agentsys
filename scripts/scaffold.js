@@ -118,12 +118,13 @@ function scaffoldPlugin(name, projectRoot) {
     keywords: [name]
   };
 
-  // Create directory structure
+  // Create directory structure (lib/ must exist before sync-lib.sh runs)
   const dirs = [
     path.join(pluginDir, '.claude-plugin'),
     path.join(pluginDir, 'commands'),
     path.join(pluginDir, 'agents'),
-    path.join(pluginDir, 'skills')
+    path.join(pluginDir, 'skills'),
+    path.join(pluginDir, 'lib')
   ];
 
   for (const dir of dirs) {
@@ -140,11 +141,12 @@ function scaffoldPlugin(name, projectRoot) {
   fs.writeFileSync(commandPath, buildCommandTemplate(name));
   result.files.push(`plugins/${name}/commands/${name}.md`);
 
-  // Run sync-lib.sh to copy shared lib
+  // Run sync-lib.sh to copy shared lib into plugins/<name>/lib/
   try {
     execFileSync('bash', ['scripts/sync-lib.sh'], { cwd: projectRoot, stdio: 'pipe' });
   } catch (e) {
-    result.errors.push(`[WARN] sync-lib.sh failed: ${e.message}`);
+    result.errors.push(`sync-lib.sh failed: ${e.message}. Run 'npx awesome-slash-dev sync-lib' manually.`);
+    return result;
   }
 
   result.success = true;
