@@ -1,0 +1,500 @@
+{
+  "topic": "Programmatic & Non-Interactive Usage of AI CLI Tools (Claude Code, Codex CLI, OpenCode, Gemini CLI)",
+  "slug": "ai-cli-non-interactive-programmatic-usage",
+  "generated": "2026-02-10T00:00:00Z",
+  "depth": "deep",
+  "totalSources": 42,
+  "sources": [
+    {
+      "url": "https://code.claude.com/docs/en/cli-reference",
+      "title": "Claude Code CLI Reference - Complete Flag Reference",
+      "qualityScore": 98,
+      "scores": { "authority": 10, "recency": 10, "depth": 10, "examples": 10, "uniqueness": 8 },
+      "keyInsights": [
+        "Complete reference for all CLI flags including -p, --output-format, --session-id, --resume, --max-turns, --allowedTools",
+        "--json-schema flag enables validated structured output matching a JSON Schema",
+        "--agents flag accepts JSON to define custom subagents dynamically",
+        "--permission-mode supports plan, acceptEdits, bypassPermissions, dontAsk, delegate",
+        "System prompt flags: --system-prompt (replace), --append-system-prompt (append), and file variants"
+      ]
+    },
+    {
+      "url": "https://code.claude.com/docs/en/headless",
+      "title": "Run Claude Code Programmatically - Headless Mode Guide",
+      "qualityScore": 97,
+      "scores": { "authority": 10, "recency": 10, "depth": 10, "examples": 10, "uniqueness": 7 },
+      "keyInsights": [
+        "claude -p is the primary entry point for non-interactive usage",
+        "Session continuity via --continue and --resume with session ID capture",
+        "Structured output with --output-format json and --json-schema",
+        "Stream responses with --output-format stream-json --verbose --include-partial-messages",
+        "jq integration for parsing JSON output"
+      ]
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/agent-sdk/overview",
+      "title": "Claude Agent SDK Overview - Python and TypeScript SDK",
+      "qualityScore": 97,
+      "scores": { "authority": 10, "recency": 10, "depth": 10, "examples": 10, "uniqueness": 7 },
+      "keyInsights": [
+        "Full programmatic SDK available in Python (claude-agent-sdk) and TypeScript (@anthropic-ai/claude-agent-sdk)",
+        "query() function provides async iterator streaming of messages",
+        "Built-in tools: Read, Write, Edit, Bash, Glob, Grep, WebSearch, WebFetch",
+        "Supports hooks, subagents, MCP servers, permissions, and session management",
+        "SDK renamed from Claude Code SDK to Claude Agent SDK"
+      ]
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/agent-sdk/structured-outputs",
+      "title": "Agent SDK Structured Outputs - JSON Schema Validation",
+      "qualityScore": 96,
+      "scores": { "authority": 10, "recency": 10, "depth": 10, "examples": 10, "uniqueness": 6 },
+      "keyInsights": [
+        "outputFormat option with type: 'json_schema' enables validated structured output",
+        "Works with Zod (TypeScript) and Pydantic (Python) for type-safe schemas",
+        "Result message contains structured_output field with validated data",
+        "Error handling via subtype: 'error_max_structured_output_retries'",
+        "Structured output is not available during streaming"
+      ]
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/agent-sdk/sessions",
+      "title": "Agent SDK Session Management - Resume and Fork",
+      "qualityScore": 95,
+      "scores": { "authority": 10, "recency": 10, "depth": 10, "examples": 9, "uniqueness": 6 },
+      "keyInsights": [
+        "Session ID captured from 'init' subtype message",
+        "Resume sessions via resume option with session ID",
+        "Fork sessions with forkSession: true to create branches",
+        "Forked sessions preserve original, create new branch from resume point",
+        "Sessions maintain full conversation history including tool calls"
+      ]
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/agent-sdk/streaming-output",
+      "title": "Agent SDK Streaming Output - Real-Time Responses",
+      "qualityScore": 93,
+      "scores": { "authority": 10, "recency": 10, "depth": 9, "examples": 10, "uniqueness": 4 },
+      "keyInsights": [
+        "includePartialMessages option enables StreamEvent messages",
+        "Event types: message_start, content_block_start, content_block_delta, content_block_stop, message_delta, message_stop",
+        "Text streaming via text_delta events, tool streaming via input_json_delta events",
+        "Streaming incompatible with extended thinking and structured outputs",
+        "StreamEvent wraps raw Claude API events"
+      ]
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/agent-sdk/quickstart",
+      "title": "Agent SDK Quickstart - Build Your First Agent",
+      "qualityScore": 92,
+      "scores": { "authority": 10, "recency": 10, "depth": 8, "examples": 10, "uniqueness": 4 },
+      "keyInsights": [
+        "query() is the main entry point, returns async iterator",
+        "Permission modes: acceptEdits (auto-approve edits), bypassPermissions (skip all), default (needs callback)",
+        "Message types: AssistantMessage, ResultMessage, SystemMessage",
+        "Tool restriction via allowedTools option",
+        "Supports .env file for API key loading"
+      ]
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/agent-sdk/hosting",
+      "title": "Agent SDK Hosting - Production Deployment Patterns",
+      "qualityScore": 91,
+      "scores": { "authority": 10, "recency": 10, "depth": 9, "examples": 7, "uniqueness": 7 },
+      "keyInsights": [
+        "Four deployment patterns: Ephemeral, Long-Running, Hybrid, Single Container",
+        "Resource requirements: 1GiB RAM, 5GiB disk, 1 CPU per instance",
+        "Sandbox providers: Modal, Cloudflare, Daytona, E2B, Fly.io, Vercel",
+        "Sessions do not timeout; use maxTurns to prevent infinite loops",
+        "Dominant cost is tokens, container cost ~5 cents/hour"
+      ]
+    },
+    {
+      "url": "https://code.claude.com/docs/en/overview",
+      "title": "Claude Code Overview - Getting Started",
+      "qualityScore": 88,
+      "scores": { "authority": 10, "recency": 10, "depth": 7, "examples": 7, "uniqueness": 4 },
+      "keyInsights": [
+        "Claude Code available in terminal, IDE, desktop app, browser, and web",
+        "Pipe patterns: tail -f app.log | claude -p 'alert on anomalies'",
+        "CI/CD integration via GitHub Actions and GitLab CI/CD",
+        "MCP for connecting to external tools and data sources",
+        "Skills system for reusable workflows"
+      ]
+    },
+    {
+      "url": "https://code.claude.com/docs/en/sub-agents",
+      "title": "Claude Code Subagents - Custom AI Agent Teams",
+      "qualityScore": 90,
+      "scores": { "authority": 10, "recency": 10, "depth": 10, "examples": 8, "uniqueness": 2 },
+      "keyInsights": [
+        "--agents CLI flag accepts JSON to define custom subagents at runtime",
+        "Built-in subagents: Explore (haiku, read-only), Plan (inherit, read-only), General-purpose",
+        "Subagents can run foreground (blocking) or background (concurrent)",
+        "Resume subagents with full conversation history via agent ID",
+        "Persistent memory scopes: user, project, local"
+      ]
+    },
+    {
+      "url": "https://code.claude.com/docs/en/github-actions",
+      "title": "Claude Code GitHub Actions - CI/CD Integration",
+      "qualityScore": 90,
+      "scores": { "authority": 10, "recency": 10, "depth": 9, "examples": 9, "uniqueness": 3 },
+      "keyInsights": [
+        "anthropics/claude-code-action@v1 for GitHub Actions workflows",
+        "claude_args parameter passes any CLI arguments",
+        "Supports @claude mentions in PR/issue comments",
+        "Works with Anthropic API, AWS Bedrock, and Google Vertex AI",
+        "Cost optimization: set --max-turns, use concurrency controls"
+      ]
+    },
+    {
+      "url": "https://code.claude.com/docs/en/common-workflows",
+      "title": "Claude Code Common Workflows - Practical Patterns",
+      "qualityScore": 87,
+      "scores": { "authority": 10, "recency": 10, "depth": 8, "examples": 8, "uniqueness": 1 },
+      "keyInsights": [
+        "claude -p as Unix utility: pipe in, pipe out",
+        "Build script integration: npm scripts with claude -p linting",
+        "Session management: --continue for recent, --resume for specific, --from-pr for PR-linked",
+        "Git worktrees for parallel Claude Code sessions",
+        "--permission-mode plan for safe read-only analysis"
+      ]
+    },
+    {
+      "url": "https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/headless.md",
+      "title": "Gemini CLI Headless Mode - Complete Guide",
+      "qualityScore": 95,
+      "scores": { "authority": 10, "recency": 10, "depth": 10, "examples": 10, "uniqueness": 5 },
+      "keyInsights": [
+        "gemini -p for non-interactive mode, stdin piping supported",
+        "Three output formats: text, json (with stats/metadata), stream-json (JSONL events)",
+        "Six stream-json event types: init, message, tool_use, tool_result, error, result",
+        "JSON response includes stats.models (token counts), stats.tools (execution stats), stats.files",
+        "Batch processing pattern: loop over files with gemini -p per file"
+      ]
+    },
+    {
+      "url": "https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/cli-reference.md",
+      "title": "Gemini CLI Reference - Complete Flag List",
+      "qualityScore": 92,
+      "scores": { "authority": 10, "recency": 10, "depth": 9, "examples": 7, "uniqueness": 5 },
+      "keyInsights": [
+        "--prompt (-p) for headless, --prompt-interactive (-i) for execute-then-interactive",
+        "--resume for session continuation (latest, index, UUID)",
+        "--approval-mode: default, auto_edit, yolo",
+        "--sandbox for sandboxed execution",
+        "--allowed-tools for pre-approving specific tools"
+      ]
+    },
+    {
+      "url": "https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/session-management.md",
+      "title": "Gemini CLI Session Management - Persistence and Resumption",
+      "qualityScore": 91,
+      "scores": { "authority": 10, "recency": 10, "depth": 9, "examples": 8, "uniqueness": 5 },
+      "keyInsights": [
+        "Sessions auto-saved with prompts, responses, tool executions, token stats",
+        "Sessions stored in ~/.gemini/tmp/<project_hash>/chats/ (project-specific)",
+        "Resume by: --resume (latest), --resume 1 (index), --resume UUID",
+        "/resume command opens interactive session browser",
+        "Retention policies: maxAge and maxCount settings; maxSessionTurns for cost control"
+      ]
+    },
+    {
+      "url": "https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/settings.md",
+      "title": "Gemini CLI Settings - Configuration Reference",
+      "qualityScore": 85,
+      "scores": { "authority": 10, "recency": 10, "depth": 8, "examples": 5, "uniqueness": 3 },
+      "keyInsights": [
+        "Settings in ~/.gemini/settings.json (user) and .gemini/settings.json (workspace)",
+        "model.maxSessionTurns limits conversation turns (-1 = unlimited)",
+        "model.compressionThreshold controls context compression trigger",
+        "general.defaultApprovalMode sets default approval strategy",
+        "output.format can be text or json"
+      ]
+    },
+    {
+      "url": "https://github.com/google-gemini/gemini-cli",
+      "title": "Gemini CLI Repository - Overview",
+      "qualityScore": 88,
+      "scores": { "authority": 10, "recency": 10, "depth": 7, "examples": 7, "uniqueness": 4 },
+      "keyInsights": [
+        "-p flag for non-interactive, --output-format json for structured data",
+        "--output-format stream-json for newline-delimited JSON events",
+        "-m for model selection (gemini-2.5-flash, etc.)",
+        "--include-directories for multi-directory context",
+        "GitHub Action available for CI/CD workflows"
+      ]
+    },
+    {
+      "url": "https://github.com/openai/codex/blob/main/codex-cli/README.md",
+      "title": "Codex CLI README - Comprehensive Usage Guide",
+      "qualityScore": 90,
+      "scores": { "authority": 10, "recency": 10, "depth": 9, "examples": 8, "uniqueness": 4 },
+      "keyInsights": [
+        "-q/--quiet for non-interactive mode, --json for structured output",
+        "Three approval modes: suggest (default), auto-edit, full-auto",
+        "full-auto: network disabled, confined to working directory",
+        "Multi-provider support: OpenAI, Azure, Gemini, Ollama, Mistral, DeepSeek, etc.",
+        "CODEX_QUIET_MODE=1 and DEBUG=true environment variables for automation"
+      ]
+    },
+    {
+      "url": "https://github.com/openai/codex",
+      "title": "Codex CLI Repository - OpenAI's CLI Tool",
+      "qualityScore": 82,
+      "scores": { "authority": 10, "recency": 10, "depth": 6, "examples": 4, "uniqueness": 2 },
+      "keyInsights": [
+        "Official OpenAI CLI tool for AI-assisted coding",
+        "Installation via npm, Homebrew, or binary downloads",
+        "Authentication via ChatGPT sign-in or API key",
+        "Supports AGENTS.md for project-specific instructions"
+      ]
+    },
+    {
+      "url": "https://github.com/opencode-ai/opencode",
+      "title": "OpenCode Repository - Terminal AI Assistant (Archived)",
+      "qualityScore": 80,
+      "scores": { "authority": 8, "recency": 6, "depth": 8, "examples": 7, "uniqueness": 3 },
+      "keyInsights": [
+        "Archived September 2025, successor is 'Crush' by Charm team",
+        "-p for non-interactive, -f json for structured output, -q for quiet",
+        "All permissions auto-approved in non-interactive mode",
+        "SQLite session persistence",
+        "Multi-provider support: OpenAI, Anthropic, Google, Bedrock, Groq, Azure, etc."
+      ]
+    },
+    {
+      "url": "https://github.com/opencode-ai/opencode/blob/main/README.md",
+      "title": "OpenCode README - Complete Feature Reference",
+      "qualityScore": 82,
+      "scores": { "authority": 8, "recency": 6, "depth": 9, "examples": 7, "uniqueness": 2 },
+      "keyInsights": [
+        "Full CLI flag reference: -p, -f, -q, -d, -c",
+        "Configuration in $HOME/.opencode.json or ./.opencode.json",
+        "Bubble Tea TUI with Ctrl+A session switching, Ctrl+N new session",
+        "Auto-compact at 95% context usage",
+        "MCP and LSP integration for tool access"
+      ]
+    },
+    {
+      "url": "https://github.com/google-gemini/gemini-cli/tree/main/docs/cli",
+      "title": "Gemini CLI Documentation Index",
+      "qualityScore": 75,
+      "scores": { "authority": 10, "recency": 10, "depth": 4, "examples": 2, "uniqueness": 5 },
+      "keyInsights": [
+        "Documentation organized: headless.md, session-management.md, cli-reference.md, settings.md",
+        "Also covers: skills, custom-commands, authentication, token-caching, checkpointing",
+        "Tutorials subdirectory available",
+        "Sandbox documentation for safe execution"
+      ]
+    },
+    {
+      "url": "https://code.claude.com/docs/en/overview#pipe-script-and-automate-with-the-cli",
+      "title": "Claude Code - Pipe, Script, and Automate Section",
+      "qualityScore": 86,
+      "scores": { "authority": 10, "recency": 10, "depth": 6, "examples": 8, "uniqueness": 2 },
+      "keyInsights": [
+        "Unix-style composability: tail -f | claude -p, git diff | claude -p",
+        "CI/CD: translate strings, review files, monitor logs",
+        "Follows Unix philosophy of piping and composition"
+      ]
+    },
+    {
+      "url": "https://github.com/anthropics/claude-code",
+      "title": "Claude Code GitHub Repository",
+      "qualityScore": 78,
+      "scores": { "authority": 10, "recency": 10, "depth": 5, "examples": 4, "uniqueness": 2 },
+      "keyInsights": [
+        "Multiple installation methods: curl, Homebrew, WinGet, npm",
+        "Points to official docs at code.claude.com",
+        "Available as terminal CLI, VS Code extension, desktop app"
+      ]
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/agent-sdk/quickstart#key-concepts",
+      "title": "Agent SDK Key Concepts - Tools and Permissions",
+      "qualityScore": 88,
+      "scores": { "authority": 10, "recency": 10, "depth": 7, "examples": 8, "uniqueness": 3 },
+      "keyInsights": [
+        "Tool tiers: Read-only (Read, Glob, Grep), Modify (Read, Edit, Glob), Full (Read, Edit, Bash, Glob, Grep)",
+        "Permission modes: acceptEdits, bypassPermissions, default (with canUseTool callback)",
+        "Agent loop: query() returns async iterator, handles tool execution automatically"
+      ]
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/agent-sdk/overview#sessions",
+      "title": "Agent SDK Sessions Tab - Overview",
+      "qualityScore": 90,
+      "scores": { "authority": 10, "recency": 10, "depth": 8, "examples": 9, "uniqueness": 2 },
+      "keyInsights": [
+        "Capture session_id from init message, use resume option to continue",
+        "Context maintained across queries: files read, analysis done, conversation history",
+        "Fork sessions to explore different approaches from same starting point"
+      ]
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/agent-sdk/overview#hooks",
+      "title": "Agent SDK Hooks - Lifecycle Callbacks",
+      "qualityScore": 87,
+      "scores": { "authority": 10, "recency": 10, "depth": 8, "examples": 8, "uniqueness": 3 },
+      "keyInsights": [
+        "PreToolUse, PostToolUse, Stop, SessionStart, SessionEnd hooks",
+        "Hooks for validation, logging, blocking, transforming agent behavior",
+        "Python and TypeScript implementations with HookMatcher"
+      ]
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/agent-sdk/overview#mcp",
+      "title": "Agent SDK MCP Integration",
+      "qualityScore": 86,
+      "scores": { "authority": 10, "recency": 10, "depth": 7, "examples": 8, "uniqueness": 3 },
+      "keyInsights": [
+        "MCP servers configurable via mcpServers option in SDK",
+        "Example: Playwright MCP for browser automation",
+        "Connect to databases, browsers, APIs, and custom tools"
+      ]
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/agent-sdk/overview#subagents",
+      "title": "Agent SDK Subagents - Task Delegation",
+      "qualityScore": 85,
+      "scores": { "authority": 10, "recency": 10, "depth": 7, "examples": 8, "uniqueness": 3 },
+      "keyInsights": [
+        "Define custom agents with AgentDefinition class",
+        "Subagents have independent tools, prompts, and model settings",
+        "parent_tool_use_id tracks which messages belong to which subagent"
+      ]
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/agent-sdk/overview#permissions",
+      "title": "Agent SDK Permissions - Tool Control",
+      "qualityScore": 84,
+      "scores": { "authority": 10, "recency": 10, "depth": 7, "examples": 7, "uniqueness": 2 },
+      "keyInsights": [
+        "allowedTools for allowlist, permissionMode for overall policy",
+        "bypassPermissions for headless/CI use",
+        "Read-only agents: allow only Read, Glob, Grep"
+      ]
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/agent-sdk/overview#compare-agent-sdk-to-cli",
+      "title": "Agent SDK vs CLI Comparison",
+      "qualityScore": 83,
+      "scores": { "authority": 10, "recency": 10, "depth": 6, "examples": 4, "uniqueness": 5 },
+      "keyInsights": [
+        "CLI best for interactive dev and one-off tasks",
+        "SDK best for CI/CD, custom apps, production automation",
+        "Same capabilities, different interface",
+        "Workflows translate directly between CLI and SDK"
+      ]
+    },
+    {
+      "url": "https://code.claude.com/docs/en/sub-agents#built-in-subagents",
+      "title": "Claude Code Built-in Subagents Reference",
+      "qualityScore": 82,
+      "scores": { "authority": 10, "recency": 10, "depth": 8, "examples": 6, "uniqueness": 2 },
+      "keyInsights": [
+        "Explore: Haiku model, read-only, for fast codebase search",
+        "Plan: inherit model, read-only, for plan mode research",
+        "General-purpose: inherit model, all tools, for complex tasks",
+        "Background subagents run concurrently with pre-approved permissions"
+      ]
+    },
+    {
+      "url": "https://code.claude.com/docs/en/sub-agents#configure-subagents",
+      "title": "Claude Code Subagent Configuration",
+      "qualityScore": 84,
+      "scores": { "authority": 10, "recency": 10, "depth": 9, "examples": 7, "uniqueness": 2 },
+      "keyInsights": [
+        "Subagent scopes: CLI flag (session), .claude/agents/ (project), ~/.claude/agents/ (user), plugins",
+        "YAML frontmatter with name, description, tools, model, permissionMode, hooks, skills, memory",
+        "Persistent memory with user/project/local scopes",
+        "PreToolUse hooks for conditional validation"
+      ]
+    },
+    {
+      "url": "https://code.claude.com/docs/en/common-workflows#use-plan-mode-for-safe-code-analysis",
+      "title": "Claude Code Plan Mode - Safe Analysis",
+      "qualityScore": 80,
+      "scores": { "authority": 10, "recency": 10, "depth": 7, "examples": 6, "uniqueness": 3 },
+      "keyInsights": [
+        "Plan mode: read-only exploration, no modifications",
+        "claude --permission-mode plan -p 'analyze the system'",
+        "Safe for CI/CD where you only want analysis, not changes"
+      ]
+    },
+    {
+      "url": "https://code.claude.com/docs/en/common-workflows#control-output-format",
+      "title": "Claude Code Output Format Control",
+      "qualityScore": 79,
+      "scores": { "authority": 10, "recency": 10, "depth": 6, "examples": 7, "uniqueness": 1 },
+      "keyInsights": [
+        "--output-format text for simple integrations",
+        "--output-format json for full conversation log with metadata",
+        "--output-format stream-json for real-time processing"
+      ]
+    },
+    {
+      "url": "https://code.claude.com/docs/en/common-workflows#resume-previous-conversations",
+      "title": "Claude Code Session Resumption Patterns",
+      "qualityScore": 81,
+      "scores": { "authority": 10, "recency": 10, "depth": 7, "examples": 6, "uniqueness": 1 },
+      "keyInsights": [
+        "--continue for most recent conversation in current directory",
+        "--resume for specific session by name or ID",
+        "--from-pr for PR-linked sessions",
+        "/resume picker with keyboard shortcuts",
+        "Session naming with /rename for easy recall"
+      ]
+    },
+    {
+      "url": "https://code.claude.com/docs/en/github-actions#configuration-examples",
+      "title": "Claude Code GitHub Actions Configuration",
+      "qualityScore": 84,
+      "scores": { "authority": 10, "recency": 10, "depth": 7, "examples": 8, "uniqueness": 2 },
+      "keyInsights": [
+        "anthropics/claude-code-action@v1 with unified prompt interface",
+        "claude_args for CLI passthrough: --max-turns, --model, --mcp-config, --allowed-tools",
+        "Supports skills like /review as prompts",
+        "Bedrock and Vertex AI authentication via OIDC"
+      ]
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/agent-sdk/hosting#production-deployment-patterns",
+      "title": "Agent SDK Production Deployment Patterns",
+      "qualityScore": 87,
+      "scores": { "authority": 10, "recency": 10, "depth": 8, "examples": 6, "uniqueness": 5 },
+      "keyInsights": [
+        "Ephemeral: new container per task, destroy when complete",
+        "Long-running: persistent instances for proactive agents",
+        "Hybrid: ephemeral with session resumption for intermittent interaction",
+        "Single container: multiple SDK processes for agent collaboration"
+      ]
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/agent-sdk/streaming-output#build-a-streaming-ui",
+      "title": "Agent SDK Streaming UI Pattern",
+      "qualityScore": 83,
+      "scores": { "authority": 10, "recency": 10, "depth": 8, "examples": 9, "uniqueness": 3 },
+      "keyInsights": [
+        "Track in_tool flag to show status indicators during tool execution",
+        "content_block_start/delta/stop for tool call tracking",
+        "text_delta events for real-time text display",
+        "Combine text and tool streaming for cohesive UI"
+      ]
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/agent-sdk/sessions#forking-sessions",
+      "title": "Agent SDK Session Forking - Branch Conversations",
+      "qualityScore": 84,
+      "scores": { "authority": 10, "recency": 10, "depth": 8, "examples": 8, "uniqueness": 4 },
+      "keyInsights": [
+        "forkSession: true creates new session from resume point",
+        "Original session preserved unchanged",
+        "Useful for exploring alternatives, A/B testing approaches",
+        "Both forked and original can be resumed independently"
+      ]
+    }
+  ]
+}
