@@ -3,7 +3,7 @@ name: consult
 description: Consult another AI CLI tool for a second opinion. Use when you want to cross-check ideas, get alternative approaches, or validate decisions with Gemini, Codex, Claude, OpenCode, or Copilot.
 codex-description: 'Use when user asks to "consult gemini", "ask codex", "get second opinion", "cross-check with claude", "consult another AI", "ask opencode", "copilot opinion". Queries another AI CLI tool and returns the response.'
 argument-hint: "[question] [--tool=gemini|codex|claude|opencode|copilot] [--effort=low|medium|high|max] [--model=MODEL] [--context=diff|file=PATH|none] [--continue]"
-allowed-tools: Skill, Bash, Read, Write, AskUserQuestion
+allowed-tools: Skill, Bash(git:*), Bash(claude:*), Bash(gemini:*), Bash(codex:*), Bash(opencode:*), Bash(copilot:*), Bash(where.exe:*), Bash(which:*), Read, Write, AskUserQuestion
 ---
 
 # /consult - Cross-Tool AI Consultation
@@ -38,12 +38,12 @@ Parse from $ARGUMENTS:
 
 Extract these values from `$ARGUMENTS`:
 
-1. Look for `--tool=VALUE` or `--tool VALUE` where VALUE is one of: gemini, codex, claude, opencode, copilot
-2. Look for `--effort=VALUE` or `--effort VALUE` where VALUE is one of: low, medium, high, max
-3. Look for `--model=VALUE` or `--model VALUE` (any string)
+1. Look for `--tool=VALUE` or `--tool VALUE` where VALUE MUST be one of: gemini, codex, claude, opencode, copilot (reject others)
+2. Look for `--effort=VALUE` or `--effort VALUE` where VALUE MUST be one of: low, medium, high, max
+3. Look for `--model=VALUE` or `--model VALUE` (any string, including quoted strings like `"my model"`)
 4. Look for `--context=VALUE` where VALUE is: diff, file=PATH, or none
-5. Look for `--continue` (optionally followed by a session ID)
-6. Everything remaining after removing flags is the **question**
+5. Look for `--continue` (optionally `--continue=SESSION_ID`)
+6. Remove all matched flags (including their values) from `$ARGUMENTS`. Handle quoted flag values (e.g., `--model "gpt 4"`) by removing the entire quoted string. Everything remaining is the **question**.
 
 If no question text and no `--continue` flag found, show:
 ```
@@ -114,17 +114,11 @@ Skill: consult
 Args: "<question>" --tool=<tool> --effort=<effort> [--model=<model>] [--context=<context>] [--continue=<session_id>]
 ```
 
-The skill returns provider-specific configuration including: command template, model name for the effort level, output parsing method, and session management instructions.
+The skill handles the full consultation lifecycle: it resolves the model from the effort level, builds the CLI command, packages any context, executes the command via Bash with a 120-second timeout, and returns the result between `=== CONSULT_RESULT ===` markers.
 
-### Phase 4: Execute CLI Command
+### Phase 4: Parse Skill Output
 
-Follow the skill's instructions to:
-
-1. **Resolve model** from effort level (or use --model override)
-2. **Build the CLI command** using the provider's command template
-3. **Package context** if --context=diff (prepend `git diff` output) or --context=file=PATH (prepend file content)
-4. **Shell-escape** all user-provided values (quote strings, escape special characters)
-5. **Execute via Bash** with 120-second timeout
+The skill returns structured JSON between `=== CONSULT_RESULT ===` and `=== END_RESULT ===` markers containing: `tool`, `model`, `effort`, `duration_ms`, `response`, `session_id`, and `continuable`.
 
 ### Phase 5: Present Results
 
@@ -135,7 +129,7 @@ After the CLI command completes, extract the response text using the skill's pro
 
 **Tool**: {name of tool used} ({model name used})
 **Effort**: {effort level}
-**Duration**: {execution time in seconds}s
+**Duration**: {duration_ms}ms
 
 ### Response
 
