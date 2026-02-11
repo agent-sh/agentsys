@@ -35,7 +35,7 @@ const NON_CONTINUABLE_PROVIDERS = ['codex', 'opencode', 'copilot'];
 
 // ─── Helpers ────────────────────────────────────────────────────────
 function parseFrontmatter(content) {
-  const match = content.match(/^---\n([\s\S]*?)\n---/);
+  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) return null;
   const fm = {};
   const lines = match[1].split('\n');
@@ -278,7 +278,7 @@ describe('security constraints', () => {
       const lines = content.split('\n');
       for (const line of lines) {
         if (line.includes('--dangerously-skip-permissions') && !line.match(/NEVER|never|not|don't/i)) {
-          if (line.trim().startsWith('Command:') || line.trim().startsWith('```')) {
+          if (line.trim().match(/^(Command:|Skill:|Args:|Bash:|```)/)) {
             throw new Error(
               `Found --dangerously-skip-permissions in ${name} command template: ${line.trim()}`
             );
