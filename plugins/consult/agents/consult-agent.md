@@ -1,6 +1,6 @@
 ---
 name: consult-agent
-description: "Execute cross-tool AI consultations. Use when spawned to consult gemini, codex, claude, opencode, or copilot. Invoked by the consult command or directly via Task."
+description: "Execute cross-tool AI consultations. Standalone agent for direct Task spawning. The /consult command handles execution directly without this agent."
 tools:
   - Skill
   - Bash(claude:*)
@@ -22,7 +22,9 @@ model: sonnet
 
 ## Role
 
-You execute cross-tool AI consultations by invoking the consult skill, running the returned CLI command, and parsing the response.
+Standalone agent for cross-tool AI consultations. Execute via direct Task spawning when the /consult command is not available (e.g., from other agents or workflows).
+
+The /consult command handles execution directly and does NOT spawn this agent.
 
 ## Critical Constraints
 
@@ -41,11 +43,11 @@ Orchestration work: parse config, invoke skill, execute CLI command, parse outpu
 ### 1. Parse Input
 
 Extract from prompt:
-- **tool**: Target tool (claude, gemini, codex, opencode, copilot)
-- **question**: The consultation question
-- **effort**: Thinking effort level (low, medium, high, max)
+- **tool**: Target tool (claude, gemini, codex, opencode, copilot) - REQUIRED
+- **question**: The consultation question - REQUIRED
+- **effort**: Thinking effort level (low, medium, high, max) - default: medium
 - **model**: Specific model override (or null for auto)
-- **context**: Context mode (diff, file, none)
+- **context**: Context mode (diff, file, none) - default: none
 - **continueSession**: Session ID or true/false
 - **sessionFile**: Path to session state file
 
@@ -95,10 +97,3 @@ Write session state to the sessionFile path provided by the command for continui
 | JSON parse failure | Return raw text as response |
 | Session file missing | Start fresh (ignore --continue) |
 | Empty response | Return error suggesting retry with higher effort |
-
-## Critical Constraints (Repeat)
-
-- NEVER expose API keys in commands or output
-- NEVER run commands with `--dangerously-skip-permissions` or `bypassPermissions`
-- MUST invoke the `consult` skill before executing any command
-- MUST set a 120-second timeout on Bash execution

@@ -23,9 +23,9 @@ Get a second opinion from another AI CLI tool without leaving your current sessi
 
 Parse from $ARGUMENTS:
 
-- **question**: What to ask the consulted tool (required)
+- **question**: What to ask the consulted tool (required unless --continue)
 - **--tool**: Target tool: `gemini`, `codex`, `claude`, `opencode`, `copilot` (interactive picker if omitted)
-- **--effort**: Thinking effort: `low`, `medium` (default), `high`, `max`
+- **--effort**: Thinking effort: `low`, `medium`, `high`, `max` (interactive picker if omitted)
 - **--model**: Specific model name (overrides effort-based selection). Free text.
 - **--context**: Auto-include context: `diff` (git diff), `file=PATH` (attach specific file), `none` (default)
 - **--continue**: Continue last consultation session, or `--continue=SESSION_ID` for specific session
@@ -35,70 +35,110 @@ Parse from $ARGUMENTS:
 ### Phase 1: Parse Arguments
 
 Extract from `$ARGUMENTS`:
-- `--tool` flag for routing (or null for interactive picker)
-- `--continue` flag for session flow
-- Everything else passed through to the agent/skill
+
+```javascript
+const args = '$ARGUMENTS';
+// Extract flags
+const toolMatch = args.match(/--tool[=\s]+(\w+)/);
+const effortMatch = args.match(/--effort[=\s]+(low|medium|high|max)/);
+const modelMatch = args.match(/--model[=\s]+("[^"]+"|[\S]+)/);
+const contextMatch = args.match(/--context[=\s]+(diff|file=[^\s]+|none)/);
+const continueMatch = args.match(/--continue(?:[=\s]+(\S+))?/);
+// Question is everything except flags
+const question = args.replace(/--\w+[=\s]+\S+/g, '').replace(/--continue/g, '').trim();
+```
 
 If no question and no `--continue`:
 ```
 [ERROR] Usage: /consult "your question" [--tool=gemini|codex|claude|opencode|copilot] [--effort=low|medium|high|max]
 ```
 
-### Phase 2: Detect Available Tools
+### Phase 2: Interactive Parameter Selection
 
-If `--tool` not specified, detect which tools are installed and let user pick.
+Resolve missing parameters interactively. If ALL flags are provided, skip directly to Phase 3.
 
-Run cross-platform detection:
-- Windows: `where.exe <tool> 2>nul`
-- Unix: `which <tool> 2>/dev/null`
-
-If no `--tool` flag, use AskUserQuestion with only installed tools:
-
-Tool options for picker (labels must be under 30 chars for OpenCode):
-- **Claude**: Deep code reasoning
-- **Gemini**: Fast multimodal analysis
-- **Codex**: Agentic coding
-- **OpenCode**: Flexible model choice
-- **Copilot**: GitHub-integrated AI
-
-### Phase 3: Handle Continue Session
+#### Step 2a: Handle --continue
 
 If `--continue` is set, load last session state:
 
 ```javascript
-// Reference implementation - compute session file path
-// Actual path is platform-dependent. See consult skill for details.
 const stateDir = process.env.AI_STATE_DIR || '.claude';
 const sessionFile = `${stateDir}/consult/last-session.json`;
-// Load saved tool + session_id from file
+// Read session file. If found, restore tool + session_id + model.
+// If not found, warn and proceed as fresh consultation.
 ```
 
-### Phase 4: Spawn Consult Agent
+#### Step 2b: Tool Selection (if no --tool)
 
-Spawn `consult:consult-agent` (sonnet - orchestration only, no complex reasoning needed):
+Detect installed tools via Bash. Run **all 5 in parallel**:
 
-```javascript
-// Reference implementation - use Task tool to spawn agent
-Task({
-  subagent_type: "consult:consult-agent",
-  model: "sonnet",
-  prompt: `Consult another AI tool.
+- Windows: `where.exe claude 2>nul && echo FOUND || echo NOTFOUND`
+- Windows: `where.exe gemini 2>nul && echo FOUND || echo NOTFOUND`
+- Windows: `where.exe codex 2>nul && echo FOUND || echo NOTFOUND`
+- Windows: `where.exe opencode 2>nul && echo FOUND || echo NOTFOUND`
+- Windows: `where.exe copilot 2>nul && echo FOUND || echo NOTFOUND`
 
-Tool: ${selectedTool}
-Question: ${question}
-Effort: ${effort}
-Model: ${model || '(auto from effort)'}
-Context: ${context}
-Continue Session: ${continueSession}
-Session File: ${sessionFile}
+Unix equivalent: replace `where.exe` with `which`, `2>nul` with `2>/dev/null`.
 
-Execute the consultation and return the result between === CONSULT_RESULT === markers.`
-});
+Collect results. Build AskUserQuestion options using **only installed tools**:
+
 ```
+AskUserQuestion:
+  header: "AI Tool"
+  question: "Which AI tool should I consult?"
+  multiSelect: false
+  options (only if installed):
+    - label: "Claude"       description: "Deep code reasoning"
+    - label: "Gemini"       description: "Fast multimodal analysis"
+    - label: "Codex"        description: "Agentic coding"
+    - label: "OpenCode"     description: "Flexible model choice"
+    - label: "Copilot"      description: "GitHub-integrated AI"
+```
+
+If zero tools installed: `[ERROR] No AI CLI tools found. Install at least one: npm i -g @anthropic-ai/claude-code, npm i -g @openai/codex, npm i -g opencode-ai`
+
+Map user's choice to lowercase tool name (e.g. "Claude" -> "claude").
+
+#### Step 2c: Effort Selection (if no --effort)
+
+```
+AskUserQuestion:
+  header: "Effort"
+  question: "What thinking effort level?"
+  multiSelect: false
+  options:
+    - label: "Medium (Recommended)"  description: "Balanced speed and quality"
+    - label: "Low"                   description: "Fast, minimal reasoning"
+    - label: "High"                  description: "Thorough analysis"
+    - label: "Max"                   description: "Maximum reasoning depth"
+```
+
+Map user's choice: "Medium (Recommended)" -> "medium", "Low" -> "low", "High" -> "high", "Max" -> "max".
+
+### Phase 3: Invoke Consult Skill
+
+With all parameters resolved (tool, effort, question, model, context, continue), invoke the `consult` skill:
+
+```
+Skill: consult
+Args: "<question>" --tool=<tool> --effort=<effort> [--model=<model>] [--context=<context>] [--continue=<session_id>]
+```
+
+The skill provides provider-specific configuration: command template, model mapping, output parsing method, and session management.
+
+### Phase 4: Execute CLI Command
+
+Follow the skill's instructions to:
+
+1. **Resolve model** from effort level (or use --model override)
+2. **Build the CLI command** using the provider's command template
+3. **Package context** if --context=diff or --context=file=PATH
+4. **Shell-escape** all user-provided values
+5. **Execute via Bash** with 120-second timeout
 
 ### Phase 5: Present Results
 
-Parse the structured JSON from between `=== CONSULT_RESULT ===` and `=== END_RESULT ===` markers.
+Parse the tool's output per the skill's provider-specific parsing instructions.
 
 Display:
 
@@ -107,16 +147,18 @@ Display:
 
 **Tool**: {tool} ({model})
 **Effort**: {effort}
-**Duration**: {duration_ms}ms
+**Duration**: {duration}s
 
 ### Response
 
-{formatted response}
+{formatted response from the consulted tool}
 
 ### Session
 
-{session_id if continuable, with hint: "Use --continue to resume this session"}
+{if continuable: "Session: {session_id} - use `/consult --continue` to resume"}
 ```
+
+Save session state for continuable tools (Claude, Gemini) to `{AI_STATE_DIR}/consult/last-session.json`.
 
 On failure: `[ERROR] Consultation Failed: {error message}`
 
@@ -125,20 +167,12 @@ On failure: `[ERROR] Consultation Failed: {error message}`
 | Error | Action |
 |-------|--------|
 | No question provided | Show usage help |
-| Tool not installed | Show install instructions for that tool |
+| Tool not installed | Show install instructions (from skill) |
 | Tool execution fails | Show error, suggest alternative tool |
 | Timeout (>120s) | Kill process, show partial output if any |
-| No tools available | Suggest installing at least one tool |
+| No tools available | Show install instructions for all tools |
 | Session not found | Warn, start fresh consultation |
-
-## Success Criteria
-
-- Target tool detected and verified as installed
-- CLI command executed within 120s timeout
-- Response parsed from the tool's output format
-- Results presented in structured markdown with status markers
-- Session state saved for continuable tools (Claude, Gemini)
-- Errors produce actionable messages with install instructions
+| API key missing | Show tool-specific env var instructions (from skill) |
 
 ## Example Usage
 
