@@ -68,7 +68,7 @@ const existingGuide = await Glob({ pattern: `agent-knowledge/${slug}.md` });
 
 if (existingGuide.length > 0) {
   // Ask user: update existing or create fresh?
-  const choice = await AskUserQuestion({
+  const choice = await request_user_input({
     questions: [{
       question: `A guide for "${topic}" already exists. What would you like to do?`,
       header: 'Existing guide',
@@ -76,7 +76,6 @@ if (existingGuide.length > 0) {
         { label: 'Update existing', description: 'Add new sources and refresh content' },
         { label: 'Create fresh', description: 'Start over with new research' }
       ],
-      multiSelect: false
     }]
   });
 

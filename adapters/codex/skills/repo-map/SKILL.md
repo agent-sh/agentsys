@@ -51,7 +51,7 @@ const options = {
 const installed = await repoMap.checkAstGrepInstalled();
 if (!installed.found || !repoMap.installer.meetsMinimumVersion(installed.version)) {
   const suggestion = repoMap.getInstallInstructions();
-  const choice = await AskUserQuestion({
+  const choice = await request_user_input({
     questions: [{
       header: 'Install ast-grep?',
       question: 'ast-grep is required for repo-map. Install now?',

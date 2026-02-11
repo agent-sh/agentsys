@@ -146,7 +146,7 @@ Codex uses `request_user_input` tool with a JSON schema:
 
 ### Implication for awesome-slash
 
-Our `AskUserQuestion` format should work in Codex via the MCP server, but native Codex tools use `request_user_input`. The underlying AI model translates between formats.
+The `gen-adapters` script automatically transforms `AskUserQuestion` to `request_user_input` when generating Codex adapter files. It also removes `multiSelect` lines (unsupported in Codex) and injects a note about the required `id` field. Source files use `AskUserQuestion` as the canonical format; Codex compatibility is handled at build time.
 
 ---
 
@@ -460,7 +460,7 @@ Codex uses `.codex/` in projects. Our MCP server is configured with `AI_STATE_DI
 
 ### Question Format
 
-Native Codex uses `request_user_input`, but our agents use Claude's `AskUserQuestion`. The MCP server bridges this gap.
+Native Codex uses `request_user_input`. The `gen-adapters` script automatically transforms `AskUserQuestion` → `request_user_input` in all Codex adapter files, removes unsupported `multiSelect` lines, and adds notes about the required `id` field.
 
 ---
 

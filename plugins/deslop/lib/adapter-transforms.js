@@ -254,6 +254,18 @@ function transformForCodex(content, options) {
   content = content.replace(/\$\{PLUGIN_ROOT\}/g, pluginInstallPath);
   content = content.replace(/\$PLUGIN_ROOT/g, pluginInstallPath);
 
+  // Transform AskUserQuestion → request_user_input for Codex native tool
+  content = content.replace(/AskUserQuestion/g, 'request_user_input');
+
+  // Remove multiSelect lines (not supported in Codex)
+  content = content.replace(/^[ \t]*multiSelect:.*\n?/gm, '');
+
+  // Inject Codex note about required id field after request_user_input blocks
+  content = content.replace(
+    /^([ \t]*request_user_input:\s*)$/gm,
+    '$1\n> **Codex**: Each question MUST include a unique `id` field (e.g., `id: "q1"`).'
+  );
+
   return content;
 }
 

@@ -230,7 +230,7 @@ const openCount = remainingIssues.length;
 console.log(`Open issues: ${openCount}`);
 console.log(`Queue file: ${reviewQueuePath}`); // set in Phase 2 (audit-project-agents)
 
-const decision = await AskUserQuestion({
+const decision = await request_user_input({
   questions: [{
     header: "Audit Decision",
     question: "Review queue still open. What next?",
@@ -240,7 +240,6 @@ const decision = await AskUserQuestion({
       { label: "Update tech debt", description: "Stop and update TECHNICAL_DEBT.md" },
       { label: "Leave queue", description: "Stop and keep queue for resume" }
     ],
-    multiSelect: false
   }]
 });
 

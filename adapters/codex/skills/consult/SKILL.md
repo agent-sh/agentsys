@@ -6,7 +6,7 @@ description: "Use when user asks to \"consult gemini\", \"ask codex\", \"get sec
 
 # /consult - Cross-Tool AI Consultation
 
-Get a second opinion from another AI CLI tool without leaving your current session.
+You are executing the /consult command. Your job is to consult another AI CLI tool, get its response, and present the results to the user.
 
 ## Constraints
 
@@ -34,21 +34,16 @@ Parse from $ARGUMENTS:
 
 ### Phase 1: Parse Arguments
 
-Extract from `$ARGUMENTS`:
+Extract these values from `$ARGUMENTS`:
 
-```javascript
-const args = '$ARGUMENTS';
-// Extract flags
-const toolMatch = args.match(/--tool[=\s]+(\w+)/);
-const effortMatch = args.match(/--effort[=\s]+(low|medium|high|max)/);
-const modelMatch = args.match(/--model[=\s]+("[^"]+"|[\S]+)/);
-const contextMatch = args.match(/--context[=\s]+(diff|file=[^\s]+|none)/);
-const continueMatch = args.match(/--continue(?:[=\s]+(\S+))?/);
-// Question is everything except flags
-const question = args.replace(/--\w+[=\s]+\S+/g, '').replace(/--continue/g, '').trim();
-```
+1. Look for `--tool=VALUE` or `--tool VALUE` where VALUE is one of: gemini, codex, claude, opencode, copilot
+2. Look for `--effort=VALUE` or `--effort VALUE` where VALUE is one of: low, medium, high, max
+3. Look for `--model=VALUE` or `--model VALUE` (any string)
+4. Look for `--context=VALUE` where VALUE is: diff, file=PATH, or none
+5. Look for `--continue` (optionally followed by a session ID)
+6. Everything remaining after removing flags is the **question**
 
-If no question and no `--continue`:
+If no question text and no `--continue` flag found, show:
 ```
 [ERROR] Usage: /consult "your question" [--tool=gemini|codex|claude|opencode|copilot] [--effort=low|medium|high|max]
 ```
@@ -59,34 +54,27 @@ Resolve missing parameters interactively. If ALL flags are provided, skip direct
 
 #### Step 2a: Handle --continue
 
-If `--continue` is set, load last session state:
-
-```javascript
-const stateDir = process.env.AI_STATE_DIR || '.claude';
-const sessionFile = `${stateDir}/consult/last-session.json`;
-// Read session file. If found, restore tool + session_id + model.
-// If not found, warn and proceed as fresh consultation.
-```
+If `--continue` is present:
+1. Read the session file at `{AI_STATE_DIR}/consult/last-session.json` (where AI_STATE_DIR defaults to `.claude`)
+2. If the file exists, restore the saved tool, session_id, and model from it
+3. If the file does not exist, show `[WARN] No previous session found` and proceed as a fresh consultation
 
 #### Step 2b: Tool Selection (if no --tool)
 
-Detect installed tools via Bash. Run **all 5 in parallel**:
+Detect which tools are installed by running all 5 checks **in parallel** via Bash:
 
-- Windows: `where.exe claude 2>nul && echo FOUND || echo NOTFOUND`
-- Windows: `where.exe gemini 2>nul && echo FOUND || echo NOTFOUND`
-- Windows: `where.exe codex 2>nul && echo FOUND || echo NOTFOUND`
-- Windows: `where.exe opencode 2>nul && echo FOUND || echo NOTFOUND`
-- Windows: `where.exe copilot 2>nul && echo FOUND || echo NOTFOUND`
+- `where.exe <tool> 2>nul && echo FOUND || echo NOTFOUND` (Windows)
+- `which <tool> 2>/dev/null && echo FOUND || echo NOTFOUND` (Unix)
 
-Unix equivalent: replace `where.exe` with `which`, `2>nul` with `2>/dev/null`.
+Check for: claude, gemini, codex, opencode, copilot.
 
-Collect results. Build AskUserQuestion options using **only installed tools**:
+Then use request_user_input with **only the installed tools** as options:
 
 ```
-AskUserQuestion:
+request_user_input:
+> **Codex**: Each question MUST include a unique `id` field (e.g., `id: "q1"`).
   header: "AI Tool"
   question: "Which AI tool should I consult?"
-  multiSelect: false
   options (only if installed):
     - label: "Claude"       description: "Deep code reasoning"
     - label: "Gemini"       description: "Fast multimodal analysis"
@@ -95,17 +83,17 @@ AskUserQuestion:
     - label: "Copilot"      description: "GitHub-integrated AI"
 ```
 
-If zero tools installed: `[ERROR] No AI CLI tools found. Install at least one: npm i -g @anthropic-ai/claude-code, npm i -g @openai/codex, npm i -g opencode-ai`
+If zero tools are installed: `[ERROR] No AI CLI tools found. Install at least one: npm i -g @anthropic-ai/claude-code, npm i -g @openai/codex, npm i -g opencode-ai`
 
-Map user's choice to lowercase tool name (e.g. "Claude" -> "claude").
+Map the user's choice to lowercase: "Claude" -> "claude", "Codex" -> "codex", etc.
 
 #### Step 2c: Effort Selection (if no --effort)
 
 ```
-AskUserQuestion:
+request_user_input:
+> **Codex**: Each question MUST include a unique `id` field (e.g., `id: "q1"`).
   header: "Effort"
   question: "What thinking effort level?"
-  multiSelect: false
   options:
     - label: "Medium (Recommended)"  description: "Balanced speed and quality"
     - label: "Low"                   description: "Fast, minimal reasoning"
@@ -113,18 +101,18 @@ AskUserQuestion:
     - label: "Max"                   description: "Maximum reasoning depth"
 ```
 
-Map user's choice: "Medium (Recommended)" -> "medium", "Low" -> "low", "High" -> "high", "Max" -> "max".
+Map the user's choice: "Medium (Recommended)" -> "medium", "Low" -> "low", "High" -> "high", "Max" -> "max".
 
 ### Phase 3: Invoke Consult Skill
 
-With all parameters resolved (tool, effort, question, model, context, continue), invoke the `consult` skill:
+With all parameters resolved (tool, effort, question, and optionally model, context, continue), invoke the `consult` skill using the Skill tool:
 
 ```
 Skill: consult
 Args: "<question>" --tool=<tool> --effort=<effort> [--model=<model>] [--context=<context>] [--continue=<session_id>]
 ```
 
-The skill provides provider-specific configuration: command template, model mapping, output parsing method, and session management.
+The skill returns provider-specific configuration including: command template, model name for the effort level, output parsing method, and session management instructions.
 
 ### Phase 4: Execute CLI Command
 
@@ -132,47 +120,45 @@ Follow the skill's instructions to:
 
 1. **Resolve model** from effort level (or use --model override)
 2. **Build the CLI command** using the provider's command template
-3. **Package context** if --context=diff or --context=file=PATH
-4. **Shell-escape** all user-provided values
+3. **Package context** if --context=diff (prepend `git diff` output) or --context=file=PATH (prepend file content)
+4. **Shell-escape** all user-provided values (quote strings, escape special characters)
 5. **Execute via Bash** with 120-second timeout
 
 ### Phase 5: Present Results
 
-Parse the tool's output per the skill's provider-specific parsing instructions.
-
-Display:
+After the CLI command completes, extract the response text using the skill's provider-specific parsing method. Then display:
 
 ```markdown
 [OK] Consultation Complete
 
-**Tool**: {tool} ({model})
-**Effort**: {effort}
-**Duration**: {duration}s
+**Tool**: {name of tool used} ({model name used})
+**Effort**: {effort level}
+**Duration**: {execution time in seconds}s
 
 ### Response
 
-{formatted response from the consulted tool}
+{the consulted tool's response text}
 
 ### Session
 
-{if continuable: "Session: {session_id} - use `/consult --continue` to resume"}
+{for Claude/Gemini only: "Session: {session_id} - use `/consult --continue` to resume"}
 ```
 
 Save session state for continuable tools (Claude, Gemini) to `{AI_STATE_DIR}/consult/last-session.json`.
 
-On failure: `[ERROR] Consultation Failed: {error message}`
+On failure: `[ERROR] Consultation Failed: {specific error message}`
 
 ## Error Handling
 
-| Error | Action |
+| Error | Output |
 |-------|--------|
-| No question provided | Show usage help |
-| Tool not installed | Show install instructions (from skill) |
-| Tool execution fails | Show error, suggest alternative tool |
-| Timeout (>120s) | Kill process, show partial output if any |
-| No tools available | Show install instructions for all tools |
-| Session not found | Warn, start fresh consultation |
-| API key missing | Show tool-specific env var instructions (from skill) |
+| No question provided | `[ERROR] Usage: /consult "your question" [--tool=gemini\|codex\|claude\|opencode\|copilot] [--effort=low\|medium\|high\|max]` |
+| Tool not installed | `[ERROR] {tool} is not installed. Install with: {install command from skill}` |
+| Tool execution fails | `[ERROR] {tool} failed: {error}. Try a different tool with --tool=<other>` |
+| Timeout (>120s) | `[ERROR] {tool} timed out after 120s. Try --effort=low for faster response` |
+| No tools available | `[ERROR] No AI CLI tools found. Install: npm i -g @anthropic-ai/claude-code` |
+| Session not found | `[WARN] No previous session found. Starting fresh consultation.` |
+| API key missing | `[ERROR] {tool} requires API key. Set {env var} (see skill for details)` |
 
 ## Example Usage
 

@@ -110,7 +110,7 @@ The workflow never auto-resumes. It always asks first.
 <opencode-constraint>
 ## OpenCode Label Limit
 
-All AskUserQuestion option labels must be ≤30 characters. Put details in `description`, not `label`.
+All request_user_input option labels must be ≤30 characters. Put details in `description`, not `label`.
 </opencode-constraint>
 
 ## State Management
@@ -167,7 +167,7 @@ if (args.includes('--resume')) {
 <phase-1>
 ## Phase 1: Policy Selection
 
-No agent needed. Use AskUserQuestion tool with ALL 3 questions from `lib/sources/policy-questions.js`.
+No agent needed. Use request_user_input tool with ALL 3 questions from `lib/sources/policy-questions.js`.
 
 **MANDATORY - Ask ALL 3 Questions:**
 
@@ -187,7 +187,7 @@ No agent needed. Use AskUserQuestion tool with ALL 3 questions from `lib/sources
 const { sources } = require(path.join(pluginRoot, 'lib'));
 const { questions, cachedPreference } = sources.getPolicyQuestions();
 // questions array contains all 3 questions above
-AskUserQuestion({ questions }); // Pass all 3 questions
+request_user_input({ questions }); // Pass all 3 questions
 const policy = sources.parseAndCachePolicy(responses);
 workflowState.updateFlow({ policy, phase: 'task-discovery' });
 ```

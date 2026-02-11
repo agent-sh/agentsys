@@ -198,11 +198,13 @@ AskUserQuestion({
 
 | Aspect | Claude Code | OpenCode | Codex |
 |--------|-------------|----------|-------|
-| Multi-select | `multiSelect: true` | `multiple: true` | Not documented |
+| Multi-select | `multiSelect: true` | `multiple: true` | Not supported |
 | Custom input | Always available | `custom: true` | "Other" option |
 | Max questions | 4 | Unlimited | 5 |
 | Header max | 12 chars | 30 chars | No limit |
 | **Label max** | No limit | **30 chars** | No limit |
+| **Tool name** | `AskUserQuestion` | `AskUserQuestion` | `request_user_input` (auto-transformed by gen-adapters) |
+| **`id` field** | Not required | Not required | **Required** (gen-adapters injects reminder note) |
 
 ---
 

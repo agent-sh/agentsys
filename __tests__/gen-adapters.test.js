@@ -240,6 +240,54 @@ describe('adapter-transforms', () => {
       expect(result).toMatch(/^---\nname: test\n/);
       expect(result).toContain('# No frontmatter');
     });
+
+    test('replaces AskUserQuestion with request_user_input', () => {
+      const input = '---\ndescription: x\n---\nUse AskUserQuestion to pick.\nAskUserQuestion({ questions })';
+      const result = transforms.transformForCodex(input, {
+        skillName: 'test',
+        description: 'test',
+        pluginInstallPath: '/tmp'
+      });
+      expect(result).not.toContain('AskUserQuestion');
+      expect(result).toContain('request_user_input');
+      expect(result).toContain('Use request_user_input to pick.');
+      expect(result).toContain('request_user_input({ questions })');
+    });
+
+    test('removes multiSelect lines', () => {
+      const input = '---\ndescription: x\n---\noptions:\n  multiSelect: false\n  header: "Test"\n    multiSelect: true\n  question: "?"';
+      const result = transforms.transformForCodex(input, {
+        skillName: 'test',
+        description: 'test',
+        pluginInstallPath: '/tmp'
+      });
+      expect(result).not.toContain('multiSelect');
+      expect(result).toContain('header: "Test"');
+      expect(result).toContain('question: "?"');
+    });
+
+    test('injects Codex note about required id field', () => {
+      const input = '---\ndescription: x\n---\nrequest_user_input:\n  header: "Test"';
+      const result = transforms.transformForCodex(input, {
+        skillName: 'test',
+        description: 'test',
+        pluginInstallPath: '/tmp'
+      });
+      expect(result).toContain('Codex');
+      expect(result).toContain('id');
+    });
+
+    test('handles content with no AskUserQuestion', () => {
+      const input = '---\ndescription: x\n---\nJust regular content here.';
+      const result = transforms.transformForCodex(input, {
+        skillName: 'test',
+        description: 'test',
+        pluginInstallPath: '/tmp'
+      });
+      expect(result).not.toContain('AskUserQuestion');
+      expect(result).not.toContain('request_user_input');
+      expect(result).toContain('Just regular content here.');
+    });
   });
 });
 
@@ -316,6 +364,15 @@ describe('gen-adapters', () => {
         // Should NOT contain literal CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT variables
         expect(content).not.toContain('${CLAUDE_PLUGIN_ROOT}');
         expect(content).not.toContain('$CLAUDE_PLUGIN_ROOT');
+      }
+    });
+
+    test('Codex skill files do not contain raw AskUserQuestion', () => {
+      const { files } = genAdapters.computeAdapters();
+      const codexPaths = [...files.keys()].filter(p => p.startsWith('adapters/codex/skills/'));
+      for (const codexPath of codexPaths) {
+        const content = files.get(codexPath);
+        expect(content).not.toContain('AskUserQuestion');
       }
     });
 
