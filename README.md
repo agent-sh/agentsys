@@ -622,6 +622,42 @@ agent-knowledge/
 
 ---
 
+### /consult
+
+**Purpose:** Get a second opinion from another AI CLI tool without leaving your current session.
+
+**What it does:**
+
+1. **Tool Detection** - Detects which AI CLI tools are installed (cross-platform)
+2. **Interactive Picker** - If no tool specified, shows only installed tools to choose from
+3. **Effort Mapping** - Maps effort levels to per-provider models and reasoning flags
+4. **Execution** - Runs the consultation with safe-mode defaults and 120s timeout
+5. **Session Continuity** - Saves session state for Claude and Gemini (supports `--continue`)
+
+**Supported tools:**
+
+| Tool | Default Model (high) | Reasoning Control |
+|------|---------------------|-------------------|
+| Claude | opus | max-turns |
+| Gemini | gemini-3-pro-preview | built-in |
+| Codex | gpt-5.3-codex | model_reasoning_effort |
+| OpenCode | github-copilot/claude-opus-4-6 | --variant |
+| Copilot | (default) | none |
+
+**Usage:**
+
+```bash
+/consult "Is this the right approach?" --tool=gemini --effort=high
+/consult "Review for performance issues" --tool=codex
+/consult "Suggest alternatives" --tool=claude --effort=max
+/consult "Continue from where we left off" --continue
+/consult "Explain this error" --context=diff --tool=gemini
+```
+
+**Agent:** consult-agent (sonnet model for orchestration)
+
+---
+
 ## How Commands Work Together
 
 **Standalone use:**
