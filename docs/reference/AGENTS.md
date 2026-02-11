@@ -35,7 +35,7 @@ Complete reference for all agents in awesome-slash.
 
 ## Overview
 
-awesome-slash uses 39 specialized agents across 10 plugins (9 have agents - ship uses commands only). Each agent is optimized for a specific task and assigned a model based on complexity:
+awesome-slash uses 41 specialized agents across 12 plugins (11 have agents - ship uses commands only). Each agent is optimized for a specific task and assigned a model based on complexity:
 
 | Model | Use Case | Cost |
 |-------|----------|------|

@@ -185,7 +185,7 @@ After successful consultation, save to `{AI_STATE_DIR}/consult/last-session.json
 }
 ```
 
-`AI_STATE_DIR` defaults to `.opencode` for Claude Code, `.opencode` for OpenCode, `.codex` for Codex.
+`AI_STATE_DIR` uses the platform state directory. See State Files section in project memory for platform defaults.
 
 ### Load Session
 

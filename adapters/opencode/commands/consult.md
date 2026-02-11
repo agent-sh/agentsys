@@ -90,7 +90,7 @@ Display:
 
 **Tool**: {tool} ({model})
 **Effort**: {effort}
-**Duration**: {duration}s
+**Duration**: {duration_ms}ms
 
 ### Response
 
