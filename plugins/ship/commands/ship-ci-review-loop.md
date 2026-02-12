@@ -1,5 +1,5 @@
 ---
-description: "Reference for CI monitoring and review loop in /ship. Details mandatory wait periods, auto-reviewer handling, and comment resolution."
+description: "Use when monitoring CI and handling review comments during /ship. Details mandatory wait periods, auto-reviewer handling, and comment resolution."
 ---
 
 <ci-review-loop>
