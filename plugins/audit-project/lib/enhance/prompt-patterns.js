@@ -29,7 +29,7 @@ const LOOKS_LIKE_JSON_CONTENT = /[:,]/;
 const NOT_JSON_KEYWORDS = /(function|const|let|var|if|for|while|class)\b/;
 // JS patterns require syntax context (not just keywords that might appear in JSON strings)
 const LOOKS_LIKE_JS = /\b(function\s*\(|const\s+\w+\s*=|let\s+\w+\s*=|var\s+\w+\s*=|=>\s*[{(]|async\s+function|await\s+\w|class\s+\w+\s*{|import\s+\{|export\s+(const|function|class|default)|require\s*\()/;
-const LOOKS_LIKE_PYTHON = /\b(def\s+\w+|import\s+\w+|from\s+\w+\s+import|class\s+\w+:|if\s+[^\n]*:|\s{4}|print\()\b/;
+const LOOKS_LIKE_PYTHON = /\b(def\s+\w+|import\s+\w+|from\s+\w+\s+import|class\s+\w+:|if[ \t]+[^\n]*:|\s{4}|print\()\b/;
 
 // Memoization caches for performance (keyed by content hash)
 let _lastContent = null;
@@ -220,7 +220,7 @@ const promptPatterns = {
         // Skip lines listing vague terms as documentation
         if (/vague\s*(instructions?|terms?|language|patterns?)\s*[:"]/.test(trimmed)) return false;
         // Skip lines with quoted lists of vague words
-        if (/["']usually["'].{0,200}["']sometimes["']/.test(trimmed)) return false;
+        if (trimmed.includes('usually') && trimmed.includes('sometimes') && /["']/.test(trimmed)) return false;
         return true;
       });
       const filteredContent = lines.join('\n');
@@ -331,7 +331,11 @@ const promptPatterns = {
       if (!content || typeof content !== 'string') return null;
 
       // Skip workflow orchestrators that spawn agents/skills rather than produce output directly
-      const isOrchestrator = /##\s*Phase\s+\d+|Task\(\{|spawn[^\n]{0,100}agent|subagent_type|await Task\(|invoke[^\n]{0,100}skill|Skill\s*tool/i.test(content);
+      const lc = content.toLowerCase();
+      const isOrchestrator = /##\s*Phase\s+\d+/i.test(content) || content.includes('Task({') ||
+        (lc.includes('spawn') && lc.includes('agent')) || content.includes('subagent_type') ||
+        content.includes('await Task(') || (lc.includes('invoke') && lc.includes('skill')) ||
+        (/\bSkill\b/.test(content) && lc.includes('tool'));
       if (isOrchestrator) return null;
 
       // Skip reference docs and hooks (not prompts that produce conversational output)
@@ -590,7 +594,9 @@ const promptPatterns = {
       if (isNonPrompt) return null;
 
       // Skip workflow orchestrators and command files
-      const isOrchestrator = /##\s*Phase\s+\d+|Task\(\{|spawn[^\n]{0,100}agent|subagent_type/i.test(content);
+      const lc2 = content.toLowerCase();
+      const isOrchestrator = /##\s*Phase\s+\d+/i.test(content) || content.includes('Task({') ||
+        (lc2.includes('spawn') && lc2.includes('agent')) || content.includes('subagent_type');
       if (isOrchestrator) return null;
 
       // Check for example indicators
@@ -793,12 +799,12 @@ const promptPatterns = {
         /\b(?:highest|lowest)\s+priority\b/i,
         /\b(?:first|second|third)\s+priority\b/i,
         // Numbered rules section (implicit priority order)
-        /##\s*(?:critical|important)\s*rules?\s*\n+[ \t]*1\.\s/i,
+        /##[ \t]*(?:critical|important)[ \t]*rules?[ \t]*\n[ \t]*1\.\s/i,
         // Precedence language
         /\btakes?\s+precedence\b/i,
         /\boverride[sd]?\b/i,
         // Ordered constraint list
-        /##\s*constraints?\s*\n+[ \t]*1\.\s/i
+        /##[ \t]*constraints?[ \t]*\n[ \t]*1\.\s/i
       ];
 
       for (const pattern of priorityIndicators) {
@@ -846,7 +852,8 @@ const promptPatterns = {
 
       // Skip if this is documentation ABOUT CoT (describes the anti-pattern)
       // These files explain why step-by-step is redundant, not actually use it
-      if (/step[- ]by[- ]step.{0,100}(?:is\s+)?redundant|redundant.{0,100}step[- ]by[- ]step/i.test(content)) {
+      const lcContent = content.toLowerCase();
+      if (/step[- ]by[- ]step/i.test(content) && lcContent.includes('redundant')) {
         return null;
       }
 
@@ -961,7 +968,7 @@ const promptPatterns = {
       // Check if requests JSON (exclude CLI flags and function descriptions)
       // Exclude: "--output json", "analyzer returns JSON", "function returns JSON"
       const requestsJson = (
-        (/\b(?:respond|output|return)\s+(?:(?:with|in|as)[ \t])?JSON\b/i.test(content) &&
+        (/\b(?:respond|output|return)[ \t]+(?:(?:with|in|as)[ \t]+)?JSON\b/i.test(content) &&
          !/--output\s+json/i.test(content) &&
          !/(?:analyzer|function|method)\s+returns?\s+JSON/i.test(content))
       ) ||
@@ -971,18 +978,18 @@ const promptPatterns = {
 
       // Check if provides schema or example
       const hasSchema = /\bproperties\b.{1,200}\btype\b/is.test(content) ||
-                       /```json[ \t]*\n[ \t]*\{/i.test(content) ||
+                       (content.includes('```json') && content.includes('{')) ||
                        /<json[_-]?schema>/i.test(content) ||
                        // JSON in JavaScript/TypeScript code blocks (quoted keys)
-                       /```(?:javascript|js|typescript|ts)[ \t]*\n[\s\S]{0,2000}?\{[ \t]*\n?[ \t]*"[a-zA-Z]+"/i.test(content) ||
+                       (/```(?:javascript|js|typescript|ts)\b/.test(content) && /\{\s*"[a-zA-Z]+"/i.test(content)) ||
                        // JavaScript object literal assignment (const x = { prop: ... })
-                       /(?:const|let|var)\s+\w+[ \t]*=[ \t]*\{[ \t]*\n[ \t]*[a-zA-Z_]+[ \t]*:/i.test(content) ||
+                       /(?:const|let|var)\s+\w+\s*=\s*\{/.test(content) ||
                        // JSON example with quoted property names in prose
-                       /\{[ \t]*\n?[ \t]*"[a-zA-Z_]+"[ \t]*:[ \t]*["\[\{]/i.test(content) ||
+                       /\{(?:\n[ \t]*)?"[a-zA-Z_]+"[ \t]*:/i.test(content) ||
                        // Inline schema description: { prop, prop, prop } or { prop: type, ... }
-                       /\{\s*[a-zA-Z_]+\s*,\s*[a-zA-Z_]+\s*,\s*[a-zA-Z_]+/i.test(content) ||
+                       /\{[ \t]*[a-zA-Z_]+[ \t]*,[ \t]*[a-zA-Z_]+[ \t]*,[ \t]*[a-zA-Z_]+/i.test(content) ||
                        // Interface-style: { prop: value } patterns with multiple lines
-                       /\{[ \t]*\n[ \t]+[a-zA-Z_]+[ \t]*:[ \t]*[\[\{"']/i.test(content);
+                       /\{\n[ \t]+[a-zA-Z_]+[ \t]*:[ \t]*[\[\{"']/i.test(content);
 
       if (!hasSchema) {
         return {
@@ -1136,10 +1143,10 @@ const promptPatterns = {
       const patternRefs = [
         /\blike\s+\S+\b/i,
         /\bsimilar\s+to\b/i,
-        /\bfollow(?:ing)?\s+(?:the\s+)?(?:same\s+)?pattern\b/i,
-        /\bsee\s+\S+\s+(?:for|as)\s+(?:an?\s+)?example\b/i,
+        /\bfollow(?:ing)?[ \t]+(?:the[ \t]+)?(?:same[ \t]+)?pattern\b/i,
+        /\bsee[ \t]+\S+[ \t]+(?:for|as)[ \t]+(?:an?[ \t]+)?example\b/i,
         /\blook\s+at\s+(?:how|the)\b/i,
-        /\S+\.(?:js|ts|py)\s+(?:is|as)\s+(?:a\s+)?(?:good )?example/i
+        /\S+\.(?:js|ts|py)[ \t]+(?:is|as)[ \t]+(?:a[ \t]+)?(?:good[ \t]+)?example/i
       ];
 
       for (const pattern of patternRefs) {
@@ -1386,7 +1393,7 @@ const promptPatterns = {
         if (codeBlockLines.has(lineNum)) continue;
 
         const line = lines[i];
-        const match = line.match(/^(#{1,6})[ \t]+(.+)$/);
+        const match = line.match(/^(#{1,6})[ \t]+(\S.*)$/);
         if (match) {
           headings.push({
             level: match[1].length,

@@ -27,7 +27,7 @@ const securityPatterns = {
       if (!frontmatterMatch) return null;
 
       const frontmatter = frontmatterMatch[1];
-      const toolsMatch = frontmatter.match(/^tools:[ \t]*(.*)$/m);
+      const toolsMatch = frontmatter.match(/^tools:[ \t]*(\S.*)?$/m);
       if (!toolsMatch) return null;
 
       const tools = toolsMatch[1];
@@ -60,8 +60,8 @@ const securityPatterns = {
 
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-        // Look for shell commands with interpolation
-        if (/(?:exec|spawn|system|shell|`|Bash)\s*[(`][^\n]{0,200}\$\{/.test(line)) {
+        // Look for shell commands with interpolation (string checks avoid ReDoS)
+        if (/\b(?:exec|spawn|system|shell)\b|`|Bash/i.test(line) && /[(`]/.test(line) && line.includes('${')) {
           issues.push({
             issue: 'Command injection risk via string interpolation',
             fix: 'Validate and escape user input before shell execution',
@@ -91,8 +91,8 @@ const securityPatterns = {
 
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-        // Look for user-controlled paths with ../
-        if (/(?:path|file|dir)[^\n]{0,200}\$[^\n]{0,200}\.\.\/|\.\.\/[^\n]{0,200}\$/.test(line)) {
+        // Look for user-controlled paths with ../ (string checks avoid ReDoS)
+        if (/\b(?:path|file|dir)\b/i.test(line) && line.includes('$') && line.includes('../')) {
           issues.push({
             issue: 'Path traversal risk - user input may contain ../',
             fix: 'Validate paths and use path.resolve() with base directory check',
@@ -181,7 +181,7 @@ const securityPatterns = {
       if (!frontmatterMatch) return null;
 
       const frontmatter = frontmatterMatch[1];
-      const toolsMatch = frontmatter.match(/^tools:[ \t]*(.*)$/m);
+      const toolsMatch = frontmatter.match(/^tools:[ \t]*(\S.*)?$/m);
       if (!toolsMatch) return null;
 
       const tools = toolsMatch[1];

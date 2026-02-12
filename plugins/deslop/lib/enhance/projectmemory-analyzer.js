@@ -43,17 +43,25 @@ function extractFileReferences(content) {
 
   const references = [];
 
-  // Match markdown links: [text](path)
-  const linkMatches = content.match(/\[([^\]]{1,500})\]\(([^)]{1,500})\)/g) || [];
-  for (const match of linkMatches) {
-    const pathMatch = match.match(/\]\(([^)]{1,500})\)/);
-    if (pathMatch && pathMatch[1]) {
-      const href = pathMatch[1];
-      // Skip URLs and anchors
-      if (!href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto:')) {
-        references.push(href.split('#')[0]); // Remove anchor
+  // Extract markdown links [text](path) using indexOf scanning (ReDoS-safe)
+  let pos = 0;
+  while (pos < content.length) {
+    const openBracket = content.indexOf('[', pos);
+    if (openBracket === -1) break;
+    const closeBracket = content.indexOf(']', openBracket + 1);
+    if (closeBracket === -1) break;
+    if (content[closeBracket + 1] === '(') {
+      const closeParen = content.indexOf(')', closeBracket + 2);
+      if (closeParen !== -1 && closeParen - closeBracket - 2 <= 500) {
+        const href = content.substring(closeBracket + 2, closeParen);
+        if (!href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto:')) {
+          references.push(href.split('#')[0]); // Remove anchor
+        }
+        pos = closeParen + 1;
+        continue;
       }
     }
+    pos = openBracket + 1;
   }
 
   // Match backtick paths: `path/to/file.ext` or `file.ext` (root files)

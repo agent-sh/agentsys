@@ -179,7 +179,7 @@ function applyAtPath(obj, pathStr, fixFn) {
     const part = parts[i];
     if (part.includes('[')) {
       // Array access
-      const match = part.match(/(\w+)\[(\d{1,10})\]/);
+      const match = part.match(/^((?!__proto__|constructor|prototype)[a-zA-Z_]\w*)\[(\d{1,10})\]$/);
       if (match) {
         current = current[match[1]][parseInt(match[2], 10)];
       }
@@ -190,7 +190,7 @@ function applyAtPath(obj, pathStr, fixFn) {
 
   const lastPart = parts[parts.length - 1];
   if (lastPart.includes('[')) {
-    const match = lastPart.match(/(\w+)\[(\d{1,10})\]/);
+    const match = lastPart.match(/^((?!__proto__|constructor|prototype)[a-zA-Z_]\w*)\[(\d{1,10})\]$/);
     if (match) {
       current[match[1]][parseInt(match[2], 10)] = fixFn(current[match[1]][parseInt(match[2], 10)]);
     }
@@ -403,7 +403,7 @@ function fixInconsistentHeadings(content) {
 
     if (inCodeBlock) continue;
 
-    const headingMatch = line.match(/^(#{1,6})[ \t]+(.+)$/);
+    const headingMatch = line.match(/^(#{1,6})[ \t]+(\S.*)$/);
     if (headingMatch) {
       const currentLevel = headingMatch[1].length;
       const headingText = headingMatch[2];
@@ -536,6 +536,37 @@ Why bad: [explanation]
 }
 
 /**
+ * Wrap a markdown section (heading to next heading/separator) in XML tags.
+ * Uses line-by-line scanning to avoid ReDoS from [\s\S]*? with lookaheads.
+ */
+function wrapSection(text, headingPattern, tagName) {
+  const lines = text.split('\n');
+  let sectionStart = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (sectionStart === -1) {
+      if (headingPattern.test(lines[i])) {
+        sectionStart = i;
+      }
+    } else {
+      // End section at next heading or horizontal rule
+      if (/^#{1,6}\s/.test(lines[i]) || /^---/.test(lines[i])) {
+        const before = lines.slice(0, sectionStart);
+        const section = lines.slice(sectionStart, i);
+        const after = lines.slice(i);
+        return [...before, `<${tagName}>`, ...section, `</${tagName}>`, ...after].join('\n');
+      }
+    }
+  }
+  // Section runs to end of content
+  if (sectionStart !== -1) {
+    const before = lines.slice(0, sectionStart);
+    const section = lines.slice(sectionStart);
+    return [...before, `<${tagName}>`, ...section, `</${tagName}>`].join('\n');
+  }
+  return text;
+}
+
+/**
  * Add XML structure tags to complex prompt
  * @param {string} content - Prompt content
  * @returns {string} Fixed content
@@ -551,17 +582,11 @@ function fixMissingXmlStructure(content) {
   // Wrap role section if exists
   let result = content;
 
-  // Find and wrap role section
-  result = result.replace(
-    /^(##[ \t]*(?:your\s+)?role[ \t]*\n)([\s\S]{0,10000}?)(?=\n##|\n---|\Z)/im,
-    '<role>\n$1$2</role>\n'
-  );
+  // Find and wrap role section (use non-regex approach to avoid ReDoS)
+  result = wrapSection(result, /^##[ \t]*(?:your[ \t]+)?role[ \t]*$/im, 'role');
 
   // Find and wrap constraints section
-  result = result.replace(
-    /^(##[ \t]*(?:constraints?|rules?)[ \t]*\n)([\s\S]{0,10000}?)(?=\n##|\n---|\Z)/im,
-    '<constraints>\n$1$2</constraints>\n'
-  );
+  result = wrapSection(result, /^##[ \t]*(?:constraints?|rules?)[ \t]*$/im, 'constraints');
 
   return result;
 }
@@ -622,7 +647,7 @@ function fixMissingTriggerPhrase(content) {
     // Check if already has trigger phrase
     if (!/use when user asks/i.test(descLine)) {
       // Extract current description
-      const match = descLine.match(/^description:[ \t]*(.+)$/);
+      const match = descLine.match(/^description:[ \t]*(\S.*)$/);
       if (match) {
         const currentDesc = match[1].trim();
         // Add trigger phrase
