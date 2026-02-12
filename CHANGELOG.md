@@ -14,6 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.2.2] - 2026-02-12
+
+### Fixed
+- Added missing frontmatter descriptions to 3 command reference files (`audit-project-agents`, `ship-ci-review-loop`, `ship-deployment`) that caused Codex adapter skills to install with empty descriptions
+- Added build-time validation in `gen-adapters.js` to error on empty Codex skill descriptions
+- Added install-time guard in `bin/cli.js` to skip skills with missing descriptions
+
 ## [4.2.1] - 2026-02-11
 
 ### Fixed

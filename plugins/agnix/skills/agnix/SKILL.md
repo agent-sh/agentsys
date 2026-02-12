@@ -1,7 +1,7 @@
 ---
 name: agnix
 description: "Use when user asks to 'lint agent configs', 'validate skills', 'check CLAUDE.md', 'validate hooks', 'lint MCP'. Validates agent configuration files against 155 rules across 10+ AI tools."
-version: 4.2.1
+version: 4.2.2
 argument-hint: "[path] [--fix] [--strict] [--target=claude-code|cursor|codex]"
 ---
 

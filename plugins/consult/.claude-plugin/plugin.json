@@ -1,6 +1,6 @@
 {
   "name": "consult",
-  "version": "4.2.1",
+  "version": "4.2.2",
   "description": "Cross-tool AI consultation: get second opinions from Gemini, Codex, Claude, OpenCode, or Copilot CLI",
   "author": {
     "name": "Avi Fenesh",

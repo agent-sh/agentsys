@@ -2,7 +2,7 @@
 ---
 name: enhance-claude-memory
 description: "Use when improving CLAUDE.md or AGENTS.md project memory files."
-version: 4.2.1
+version: 4.2.2
 ---
 
 > **OpenCode Note**: Invoke agents using `@agent-name` syntax.

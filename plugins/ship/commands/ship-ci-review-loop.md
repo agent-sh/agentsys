@@ -1,5 +1,6 @@
 ---
 description: "Use when monitoring CI and handling review comments during /ship. Details mandatory wait periods, auto-reviewer handling, and comment resolution."
+codex-description: "Use when monitoring CI and handling review comments during /ship. Details mandatory wait periods, auto-reviewer handling, and comment resolution."
 ---
 
 <ci-review-loop>

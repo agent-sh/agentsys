@@ -1,7 +1,7 @@
 ---
 name: discover-tasks
 description: "Use when discovering and prioritizing tasks from configured sources. Handles GitHub, GitLab, local files, and custom sources."
-version: 4.2.1
+version: 4.2.2
 ---
 
 # discover-tasks
