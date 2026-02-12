@@ -96,7 +96,11 @@ function computeAdapters() {
     }
   }
 
+  const emptyDescSkills = [];
   for (const [skillName, plugin, sourceFile, description] of codexSkillMappings) {
+    if (!description) {
+      emptyDescSkills.push(skillName);
+    }
     const srcPath = path.join(ROOT_DIR, 'plugins', plugin, 'commands', sourceFile);
     if (!fs.existsSync(srcPath)) continue;
 
@@ -109,6 +113,12 @@ function computeAdapters() {
 
     const relPath = normalizePath(path.join('adapters', 'codex', 'skills', skillName, 'SKILL.md'));
     files.set(relPath, GENERATED_HEADER + content);
+  }
+
+  if (emptyDescSkills.length > 0) {
+    console.error(`[ERROR] Codex skills with empty description: ${emptyDescSkills.join(', ')}`);
+    console.error('  Add a description (or codex-description) to the source command frontmatter.');
+    process.exit(1);
   }
 
   const staleFiles = [];

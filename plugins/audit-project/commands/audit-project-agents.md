@@ -1,3 +1,7 @@
+---
+description: "Use when coordinating multi-agent review passes in /audit-project. Details agent specialization, file filtering, and review queue handling."
+---
+
 # Phase 2: Multi-Agent Review - Reference
 
 This file contains detailed agent coordination for `/audit-project`.

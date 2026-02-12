@@ -480,6 +480,10 @@ function installForCodex(installDir) {
   const skillMappings = discovery.getCodexSkillMappings(installDir);
 
   for (const [skillName, plugin, sourceFile, description] of skillMappings) {
+    if (!description) {
+      console.log(`  [WARN] Skipping skill ${skillName}: missing description`);
+      continue;
+    }
     const srcPath = path.join(installDir, 'plugins', plugin, 'commands', sourceFile);
     const skillDir = path.join(skillsDir, skillName);
     const destPath = path.join(skillDir, 'SKILL.md');
