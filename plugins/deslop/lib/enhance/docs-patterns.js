@@ -418,7 +418,7 @@ const docsPatterns = {
       }
 
       // Check for very long lists that could be tables
-      const longLists = content.match(/(?:^[-*]\s+.+\n){10,}/gm);
+      const longLists = content.match(/(?:^[-*][ \t]+[^\n]+\n){10,}/gm);
       if (longLists) {
         suggestions.push('Long lists (10+ items) might be more efficient as tables');
       }

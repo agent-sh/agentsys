@@ -44,9 +44,9 @@ function extractFileReferences(content) {
   const references = [];
 
   // Match markdown links: [text](path)
-  const linkMatches = content.match(/\[([^\]]+)\]\(([^)]+)\)/g) || [];
+  const linkMatches = content.match(/\[([^\]]{1,500})\]\(([^)]{1,500})\)/g) || [];
   for (const match of linkMatches) {
-    const pathMatch = match.match(/\]\(([^)]+)\)/);
+    const pathMatch = match.match(/\]\(([^)]{1,500})\)/);
     if (pathMatch && pathMatch[1]) {
       const href = pathMatch[1];
       // Skip URLs and anchors

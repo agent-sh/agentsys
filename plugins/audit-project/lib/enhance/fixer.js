@@ -179,7 +179,7 @@ function applyAtPath(obj, pathStr, fixFn) {
     const part = parts[i];
     if (part.includes('[')) {
       // Array access
-      const match = part.match(/(\w+)\[(\d+)\]/);
+      const match = part.match(/(\w+)\[(\d{1,10})\]/);
       if (match) {
         current = current[match[1]][parseInt(match[2], 10)];
       }
@@ -190,7 +190,7 @@ function applyAtPath(obj, pathStr, fixFn) {
 
   const lastPart = parts[parts.length - 1];
   if (lastPart.includes('[')) {
-    const match = lastPart.match(/(\w+)\[(\d+)\]/);
+    const match = lastPart.match(/(\w+)\[(\d{1,10})\]/);
     if (match) {
       current[match[1]][parseInt(match[2], 10)] = fixFn(current[match[1]][parseInt(match[2], 10)]);
     }
@@ -403,7 +403,7 @@ function fixInconsistentHeadings(content) {
 
     if (inCodeBlock) continue;
 
-    const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
+    const headingMatch = line.match(/^(#{1,6})[ \t]+(.+)$/);
     if (headingMatch) {
       const currentLevel = headingMatch[1].length;
       const headingText = headingMatch[2];
@@ -553,13 +553,13 @@ function fixMissingXmlStructure(content) {
 
   // Find and wrap role section
   result = result.replace(
-    /^(##\s*(?:your\s+)?role\s*\n)([\s\S]*?)(?=\n##|\n---|\Z)/im,
+    /^(##[ \t]*(?:your\s+)?role[ \t]*\n)([\s\S]{0,10000}?)(?=\n##|\n---|\Z)/im,
     '<role>\n$1$2</role>\n'
   );
 
   // Find and wrap constraints section
   result = result.replace(
-    /^(##\s*(?:constraints?|rules?)\s*\n)([\s\S]*?)(?=\n##|\n---|\Z)/im,
+    /^(##[ \t]*(?:constraints?|rules?)[ \t]*\n)([\s\S]{0,10000}?)(?=\n##|\n---|\Z)/im,
     '<constraints>\n$1$2</constraints>\n'
   );
 
@@ -622,7 +622,7 @@ function fixMissingTriggerPhrase(content) {
     // Check if already has trigger phrase
     if (!/use when user asks/i.test(descLine)) {
       // Extract current description
-      const match = descLine.match(/^description:\s*(.+)$/);
+      const match = descLine.match(/^description:[ \t]*(.+)$/);
       if (match) {
         const currentDesc = match[1].trim();
         // Add trigger phrase
