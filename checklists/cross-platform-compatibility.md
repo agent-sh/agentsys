@@ -214,7 +214,7 @@ AskUserQuestion({
 ```json
 {
   "mcpServers": {
-    "awesome-slash": {
+    "agentsys": {
       "command": "node",
       "args": ["path/to/mcp-server/index.js"],
       "env": {
@@ -229,7 +229,7 @@ AskUserQuestion({
 ```json
 {
   "mcp": {
-    "awesome-slash": {
+    "agentsys": {
       "type": "local",
       "command": ["node", "path/to/mcp-server/index.js"],
       "environment": {
@@ -244,11 +244,11 @@ AskUserQuestion({
 
 ### Codex CLI
 ```toml
-[mcp_servers.awesome-slash]
+[mcp_servers.agentsys]
 command = "node"
 args = ["path/to/mcp-server/index.js"]
 
-[mcp_servers.awesome-slash.env]
+[mcp_servers.agentsys.env]
 PLUGIN_ROOT = "path/to/plugin"
 AI_STATE_DIR = ".codex"
 ```
@@ -259,13 +259,13 @@ AI_STATE_DIR = ".codex"
 
 ### Claude Code (via Marketplace)
 ```
-~/.awesome-slash/           # Package copy
+~/.agentsys/           # Package copy
 Plugin loaded via marketplace
 ```
 
 ### OpenCode
 ```
-~/.awesome-slash/                      # Package copy
+~/.agentsys/                      # Package copy
 ~/.config/opencode/commands/    # Transformed commands
 ~/.config/opencode/agents/                    # Transformed agents (22 files)
 ~/.config/opencode/opencode.json       # MCP config added
@@ -273,7 +273,7 @@ Plugin loaded via marketplace
 
 ### Codex CLI
 ```
-~/.awesome-slash/           # Package copy
+~/.agentsys/           # Package copy
 ~/.codex/skills/            # Transformed skills (9 directories)
 ~/.codex/config.toml        # MCP config added
 ```
@@ -373,7 +373,7 @@ No additional Codex work needed for most agents.
 
 - [ ] Update `lib/{module}/`
 - [ ] Export from `lib/index.js`
-- [ ] Run `./scripts/sync-lib.sh` (or `awesome-slash-dev sync-lib`) to copy to all plugins
+- [ ] Run `./scripts/sync-lib.sh` (or `agentsys-dev sync-lib`) to copy to all plugins
 - [ ] Test on all platforms
 
 ---

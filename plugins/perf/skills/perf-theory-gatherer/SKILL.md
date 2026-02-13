@@ -1,7 +1,7 @@
 ---
 name: perf-theory-gatherer
 description: "Use when generating performance hypotheses backed by git history and code evidence."
-version: 4.2.2
+version: 5.0.0
 ---
 
 # perf-theory-gatherer

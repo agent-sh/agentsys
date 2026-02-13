@@ -605,5 +605,5 @@ Every finding includes:
 ## Next Steps
 
 - **Start with**: `/deslop report` - safest command, immediate value
-- **For issues**: https://github.com/avifenesh/awesome-slash/issues
+- **For issues**: https://github.com/avifenesh/agentsys/issues
 - **Contributing**: See [CONTRIBUTING.md](../CONTRIBUTING.md)

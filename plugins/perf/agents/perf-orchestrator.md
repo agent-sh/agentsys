@@ -99,7 +99,7 @@ If a phase cannot proceed, explain why and request only the minimum missing info
 ## Setup Phase (Implementation Guidance)
 
 ```javascript
-const { getPluginRoot } = require('@awesome-slash/lib/cross-platform');
+const { getPluginRoot } = require('@agentsys/lib/cross-platform');
 const pluginRoot = getPluginRoot('perf');
 if (!pluginRoot) { console.error('Error: Could not locate perf plugin root'); process.exit(1); }
 const investigationState = require(`${pluginRoot}/lib/perf/investigation-state.js`);
@@ -113,7 +113,7 @@ const investigationState = require(`${pluginRoot}/lib/perf/investigation-state.j
 Use the perf helpers to store baseline data and log evidence:
 
 ```javascript
-const { getPluginRoot } = require('@awesome-slash/lib/cross-platform');
+const { getPluginRoot } = require('@agentsys/lib/cross-platform');
 const pluginRoot = getPluginRoot('perf');
 if (!pluginRoot) { console.error('Error: Could not locate perf plugin root'); process.exit(1); }
 const investigationState = require(`${pluginRoot}/lib/perf/investigation-state.js`);
@@ -143,7 +143,7 @@ investigationState.appendBaselineLog({
 ## Breaking-Point Phase (Implementation Guidance)
 
 ```javascript
-const { getPluginRoot } = require('@awesome-slash/lib/cross-platform');
+const { getPluginRoot } = require('@agentsys/lib/cross-platform');
 const pluginRoot = getPluginRoot('perf');
 if (!pluginRoot) { console.error('Error: Could not locate perf plugin root'); process.exit(1); }
 const investigationState = require(`${pluginRoot}/lib/perf/investigation-state.js`);
@@ -167,7 +167,7 @@ investigationState.updateInvestigation({
 ## Constraint Phase (Implementation Guidance)
 
 ```javascript
-const { getPluginRoot } = require('@awesome-slash/lib/cross-platform');
+const { getPluginRoot } = require('@agentsys/lib/cross-platform');
 const pluginRoot = getPluginRoot('perf');
 if (!pluginRoot) { console.error('Error: Could not locate perf plugin root'); process.exit(1); }
 const investigationState = require(`${pluginRoot}/lib/perf/investigation-state.js`);
@@ -191,7 +191,7 @@ investigationState.updateInvestigation({
 ## Profiling Phase (Implementation Guidance)
 
 ```javascript
-const { getPluginRoot } = require('@awesome-slash/lib/cross-platform');
+const { getPluginRoot } = require('@agentsys/lib/cross-platform');
 const pluginRoot = getPluginRoot('perf');
 if (!pluginRoot) { console.error('Error: Could not locate perf plugin root'); process.exit(1); }
 const investigationState = require(`${pluginRoot}/lib/perf/investigation-state.js`);
@@ -228,7 +228,7 @@ checkpoint.commitCheckpoint({
 ## Optimization Phase (Implementation Guidance)
 
 ```javascript
-const { getPluginRoot } = require('@awesome-slash/lib/cross-platform');
+const { getPluginRoot } = require('@agentsys/lib/cross-platform');
 const pluginRoot = getPluginRoot('perf');
 if (!pluginRoot) { console.error('Error: Could not locate perf plugin root'); process.exit(1); }
 const optimizationRunner = require(`${pluginRoot}/lib/perf/optimization-runner.js`);
@@ -245,7 +245,7 @@ const result = optimizationRunner.runOptimizationExperiment({
 ## Decision Phase (Implementation Guidance)
 
 ```javascript
-const { getPluginRoot } = require('@awesome-slash/lib/cross-platform');
+const { getPluginRoot } = require('@agentsys/lib/cross-platform');
 const pluginRoot = getPluginRoot('perf');
 if (!pluginRoot) { console.error('Error: Could not locate perf plugin root'); process.exit(1); }
 const investigationState = require(`${pluginRoot}/lib/perf/investigation-state.js`);
@@ -275,7 +275,7 @@ checkpoint.commitCheckpoint({
 ## Consolidation Phase (Implementation Guidance)
 
 ```javascript
-const { getPluginRoot } = require('@awesome-slash/lib/cross-platform');
+const { getPluginRoot } = require('@agentsys/lib/cross-platform');
 const pluginRoot = getPluginRoot('perf');
 if (!pluginRoot) { console.error('Error: Could not locate perf plugin root'); process.exit(1); }
 const consolidation = require(`${pluginRoot}/lib/perf/consolidation.js`);
@@ -307,7 +307,7 @@ checkpoint.commitCheckpoint({
 Invoke after EVERY phase once the investigation log is updated.
 
 ```javascript
-const { getPluginRoot } = require('@awesome-slash/lib/cross-platform');
+const { getPluginRoot } = require('@agentsys/lib/cross-platform');
 const pluginRoot = getPluginRoot('perf');
 if (!pluginRoot) { console.error('Error: Could not locate perf plugin root'); process.exit(1); }
 const checkpoint = require(`${pluginRoot}/lib/perf/checkpoint.js`);

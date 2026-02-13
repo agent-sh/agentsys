@@ -1,14 +1,14 @@
 {
   "name": "drift-detect",
-  "version": "4.2.2",
+  "version": "5.0.0",
   "description": "Deep repository analysis to realign project plans with actual code reality - discovers drift, gaps, and produces prioritized reconstruction plans",
   "author": {
     "name": "Avi Fenesh",
     "email": "[email protected]",
     "url": "https://github.com/avifenesh"
   },
-  "homepage": "https://github.com/avifenesh/awesome-slash#drift-detect",
-  "repository": "https://github.com/avifenesh/awesome-slash",
+  "homepage": "https://github.com/avifenesh/agentsys#drift-detect",
+  "repository": "https://github.com/avifenesh/agentsys",
   "license": "MIT",
   "keywords": [
     "planning",

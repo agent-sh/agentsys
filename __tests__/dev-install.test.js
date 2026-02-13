@@ -43,8 +43,8 @@ describe('dev-install script', () => {
       expect(devInstallSource.includes('function cleanAll()')).toBe(true);
     });
 
-    test('defines copyToAwesomeSlash function', () => {
-      expect(devInstallSource.includes('function copyToAwesomeSlash()')).toBe(true);
+    test('defines copyToAgentSys function', () => {
+      expect(devInstallSource.includes('function copyToAgentSys()')).toBe(true);
     });
   });
 
@@ -86,9 +86,9 @@ describe('dev-install script', () => {
       expect(devInstallSource.includes(".codex'")).toBe(true);
     });
 
-    test('defines AWESOME_SLASH_DIR', () => {
-      expect(devInstallSource.includes('AWESOME_SLASH_DIR')).toBe(true);
-      expect(devInstallSource.includes(".awesome-slash'")).toBe(true);
+    test('defines AGENTSYS_DIR', () => {
+      expect(devInstallSource.includes('AGENTSYS_DIR')).toBe(true);
+      expect(devInstallSource.includes(".agentsys'")).toBe(true);
     });
   });
 
@@ -166,8 +166,8 @@ describe('dev-install script', () => {
       expect(devInstallSource.includes('plugin marketplace remove')).toBe(true);
     });
 
-    test('copies to ~/.awesome-slash for OpenCode/Codex', () => {
-      expect(devInstallSource.includes('copyToAwesomeSlash')).toBe(true);
+    test('copies to ~/.agentsys for OpenCode/Codex', () => {
+      expect(devInstallSource.includes('copyToAgentSys')).toBe(true);
     });
   });
 

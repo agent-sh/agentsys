@@ -101,9 +101,9 @@ describe('script failure enforcement hooks', () => {
       'npm build',
       'node scripts/preflight.js',
       'node scripts/validate-plugins.js',
-      'npx awesome-slash-dev test',
-      'npx awesome-slash-dev validate',
-      'awesome-slash-dev status',
+      'npx agentsys-dev test',
+      'npx agentsys-dev validate',
+      'agentsys-dev status',
       'node bin/dev-cli.js validate',
       'node bin/dev-cli.js bump 4.2.0',
     ];
@@ -197,10 +197,10 @@ describe('script failure enforcement hooks', () => {
       expect(claudeContent).toContain('Report script failures before manual fallback');
     });
 
-    test('rule references npm/scripts/awesome-slash-dev patterns', () => {
+    test('rule references npm/scripts/agentsys-dev patterns', () => {
       expect(claudeContent).toContain('npm test/run/build');
       expect(claudeContent).toContain('scripts/*');
-      expect(claudeContent).toContain('awesome-slash-dev');
+      expect(claudeContent).toContain('agentsys-dev');
       expect(claudeContent).toContain('node bin/dev-cli.js');
     });
 
@@ -237,7 +237,7 @@ describe('script failure enforcement hooks', () => {
       /\bnpm\s+build\b/,
       /\bnode\s+scripts\//,
       /\bnode\s+bin\/dev-cli\.js\b/,
-      /\bawesome-slash-dev\b/,
+      /\bagentsys-dev\b/,
     ];
 
     const FAILURE_INDICATORS = [
@@ -258,8 +258,8 @@ describe('script failure enforcement hooks', () => {
         'npm build',
         'node scripts/preflight.js',
         'node scripts/validate-plugins.js',
-        'npx awesome-slash-dev test',
-        'awesome-slash-dev status',
+        'npx agentsys-dev test',
+        'agentsys-dev status',
         'node bin/dev-cli.js validate',
         'node bin/dev-cli.js bump 4.2.0',
       ];
@@ -330,7 +330,7 @@ describe('script failure enforcement hooks', () => {
       expect(pluginContent).toContain('PROJECT_SCRIPT_PATTERNS');
       expect(pluginContent).toContain('FAILURE_INDICATORS');
       expect(pluginContent).toContain('npm');
-      expect(pluginContent).toContain('awesome-slash-dev');
+      expect(pluginContent).toContain('agentsys-dev');
       expect(pluginContent).toContain('scripts');
       expect(pluginContent).toContain('dev-cli');
     });

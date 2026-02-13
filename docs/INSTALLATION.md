@@ -22,26 +22,26 @@ One codebase works across three platforms—Claude Code, OpenCode, and Codex CLI
 Add the marketplace and install plugins directly in Claude Code:
 
 ```bash
-/plugin marketplace add avifenesh/awesome-slash
-/plugin install next-task@awesome-slash
-/plugin install ship@awesome-slash
-/plugin install deslop@awesome-slash
-/plugin install audit-project@awesome-slash
-/plugin install drift-detect@awesome-slash
-/plugin install repo-map@awesome-slash
-/plugin install enhance@awesome-slash
-/plugin install perf@awesome-slash
-/plugin install sync-docs@awesome-slash
-/plugin install learn@awesome-slash
+/plugin marketplace add avifenesh/agentsys
+/plugin install next-task@agentsys
+/plugin install ship@agentsys
+/plugin install deslop@agentsys
+/plugin install audit-project@agentsys
+/plugin install drift-detect@agentsys
+/plugin install repo-map@agentsys
+/plugin install enhance@agentsys
+/plugin install perf@agentsys
+/plugin install sync-docs@agentsys
+/plugin install learn@agentsys
 ```
 
 **Scopes** (optional):
 ```bash
 # User scope (default) - available in all projects
-/plugin install next-task@awesome-slash
+/plugin install next-task@agentsys
 
 # Project scope - shared with team
-/plugin install next-task@awesome-slash --scope project
+/plugin install next-task@agentsys --scope project
 ```
 
 ---
@@ -51,8 +51,8 @@ Add the marketplace and install plugins directly in Claude Code:
 Interactive installer for Claude Code, OpenCode, and Codex CLI:
 
 ```bash
-npm install -g awesome-slash@latest
-awesome-slash
+npm install -g agentsys@latest
+agentsys
 ```
 
 Select one or more platforms when prompted:
@@ -72,13 +72,13 @@ Use flags for CI/scripts or when you know what you want:
 
 ```bash
 # Single tool
-awesome-slash --tool claude
-awesome-slash --tool opencode
-awesome-slash --tool codex
+agentsys --tool claude
+agentsys --tool opencode
+agentsys --tool codex
 
 # Multiple tools
-awesome-slash --tools "claude,opencode"
-awesome-slash --tools claude,opencode,codex
+agentsys --tools "claude,opencode"
+agentsys --tools claude,opencode,codex
 ```
 
 ### CLI Flags
@@ -101,9 +101,9 @@ Use `--no-strip` or `-ns` to include models if your OpenCode setup has proper mo
 
 **Commands:**
 ```bash
-npm update -g awesome-slash       # Update
-npm uninstall -g awesome-slash    # Remove npm package
-awesome-slash --remove            # Clean up configs
+npm update -g agentsys       # Update
+npm uninstall -g agentsys    # Remove npm package
+agentsys --remove            # Clean up configs
 ```
 
 ---
@@ -115,14 +115,14 @@ awesome-slash --remove            # Clean up configs
 For testing RC versions or local changes, use development mode:
 
 ```bash
-awesome-slash --development
+agentsys --development
 ```
 
 This bypasses the marketplace and installs plugins directly to `~/.claude/plugins/`. To revert to the marketplace version:
 
 ```bash
-rm -rf ~/.claude/plugins/*@awesome-slash
-awesome-slash --tool claude
+rm -rf ~/.claude/plugins/*@agentsys
+agentsys --tool claude
 ```
 
 ### Local Development (Plugin Directory)
@@ -130,8 +130,8 @@ awesome-slash --tool claude
 For testing or development, load plugins directly:
 
 ```bash
-git clone https://github.com/avifenesh/awesome-slash.git
-claude --plugin-dir ./awesome-slash/plugins/next-task
+git clone https://github.com/avifenesh/agentsys.git
+claude --plugin-dir ./agentsys/plugins/next-task
 ```
 
 ### Quick Dev Install (Contributors)
@@ -151,8 +151,8 @@ This script uses local source files (not npm package), installs Claude in develo
 Use the npm installer (recommended):
 
 ```bash
-npm install -g awesome-slash@latest
-awesome-slash
+npm install -g agentsys@latest
+agentsys
 ```
 
 Select your platform when prompted. The installer configures:
@@ -246,35 +246,35 @@ These tools are detected automatically if present:
 ### Update Marketplace
 
 ```bash
-/plugin marketplace update awesome-slash
+/plugin marketplace update agentsys
 ```
 
 ### Update Plugins
 
 ```bash
-/plugin update next-task@awesome-slash
+/plugin update next-task@agentsys
 ```
 
 ### Disable/Enable
 
 ```bash
-/plugin disable next-task@awesome-slash
-/plugin enable next-task@awesome-slash
+/plugin disable next-task@agentsys
+/plugin enable next-task@agentsys
 ```
 
 ### Uninstall
 
 ```bash
-/plugin uninstall next-task@awesome-slash
+/plugin uninstall next-task@agentsys
 
 # Or remove marketplace entirely
-/plugin marketplace remove awesome-slash
+/plugin marketplace remove agentsys
 ```
 
 ### Local Installation Update
 
 ```bash
-cd path/to/awesome-slash
+cd path/to/agentsys
 git pull origin main
 ```
 
@@ -309,7 +309,7 @@ gh auth status
 
 Try adding the full GitHub URL:
 ```bash
-/plugin marketplace add https://github.com/avifenesh/awesome-slash.git
+/plugin marketplace add https://github.com/avifenesh/agentsys.git
 ```
 
 ### "GitHub CLI not found"
@@ -345,11 +345,11 @@ gh auth login
 
 ## Getting Help
 
-- **Issues:** https://github.com/avifenesh/awesome-slash/issues
-- **Discussions:** https://github.com/avifenesh/awesome-slash/discussions
+- **Issues:** https://github.com/avifenesh/agentsys/issues
+- **Discussions:** https://github.com/avifenesh/agentsys/discussions
 
 ```bash
-gh issue create --repo avifenesh/awesome-slash \
+gh issue create --repo avifenesh/agentsys \
   --title "Installation: [description]" \
   --body "Environment: [Claude Code/OpenCode/Codex], OS: [...]"
 ```

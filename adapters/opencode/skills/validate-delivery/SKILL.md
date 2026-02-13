@@ -2,7 +2,7 @@
 ---
 name: validate-delivery
 description: "Use when validating task completion before shipping. Runs tests, build, and requirement checks. Returns pass/fail with fix instructions."
-version: 4.2.2
+version: 5.0.0
 ---
 
 # validate-delivery

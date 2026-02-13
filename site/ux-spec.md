@@ -1,4 +1,4 @@
-# awesome-slash Site UX Specification
+# AgentSys Site UX Specification
 
 Version: 1.0
 Last updated: 2026-02-08
@@ -11,7 +11,7 @@ Last updated: 2026-02-08
 
 The entire site is one HTML file with section anchors. All navigation is smooth-scroll to sections within the page. This keeps the build zero-dependency (no static site generator, no framework) and makes the site feel fast and cohesive.
 
-**URL:** `https://avifenesh.github.io/awesome-slash/`
+**URL:** `https://avifenesh.github.io/agentsys/`
 
 **File structure:**
 ```
@@ -61,7 +61,7 @@ Scroll order with rationale for each section. All sections are full-width, alter
 - **Padding:** 0 24px
 
 ### Elements (left to right)
-- **Logo area (left):** Project name "awesome-slash" in the heading font, 18px, font-weight 600, white. No image logo for v1. Clicking scrolls to `#hero`.
+- **Logo area (left):** Project name "AgentSys" in the heading font, 18px, font-weight 600, white. No image logo for v1. Clicking scrolls to `#hero`.
 - **Section links (center-right):** "Commands", "How It Works", "Install" -- these are the 3 most actionable sections. Fewer links = less decision fatigue.
   - Font: 14px, font-weight 500, `rgba(255, 255, 255, 0.65)` default
   - Hover: `rgba(255, 255, 255, 1.0)`, transition 0.2s ease
@@ -205,9 +205,9 @@ Done. Task to merged PR in 12 minutes.
 ### Content
 - **Heading:** "AI models write code. That's not the hard part anymore."
   - Font: 36px desktop, 28px mobile, font-weight 700, white
-- **Body:** "The hard part is everything else. Picking what to work on. Managing branches. Reviewing output. Cleaning up AI artifacts. Handling CI. Addressing reviewer comments. Deploying. awesome-slash automates all of it."
+- **Body:** "The hard part is everything else. Picking what to work on. Managing branches. Reviewing output. Cleaning up AI artifacts. Handling CI. Addressing reviewer comments. Deploying. AgentSys automates all of it."
   - Font: 18px, line-height 1.7, `rgba(255, 255, 255, 0.55)`
-  - "awesome-slash automates all of it." in white, font-weight 600
+  - "AgentSys automates all of it." in white, font-weight 600
 
 ### Entry Animation
 - Heading: fade-in + translateY(20px to 0), 0.6s ease-out, triggered at 20% intersection threshold
@@ -399,22 +399,22 @@ Tab styling matches Commands section tab bar but smaller scale:
 
 **Claude Code tab:**
 ```bash
-/plugin marketplace add avifenesh/awesome-slash
-/plugin install next-task@awesome-slash
-/plugin install ship@awesome-slash
+/plugin marketplace add avifenesh/agentsys
+/plugin install next-task@agentsys
+/plugin install ship@agentsys
 ```
 
 **npm tab:**
 ```bash
-npm install -g awesome-slash && awesome-slash
+npm install -g agentsys && agentsys
 ```
 Below the code block: "Interactive installer for Claude Code, OpenCode, and Codex CLI." in 14px, `rgba(255, 255, 255, 0.5)`.
 
 **Manual tab:**
 ```bash
 # Clone and install
-git clone https://github.com/avifenesh/awesome-slash.git
-cd awesome-slash
+git clone https://github.com/avifenesh/agentsys.git
+cd agentsys
 npm install
 ```
 
@@ -444,7 +444,7 @@ npm install
 ### Content (3 columns on desktop, stacked on mobile)
 
 **Column 1 (left):** Brand
-- "awesome-slash" in 16px, font-weight 600, white
+- "AgentSys" in 16px, font-weight 600, white
 - "AI workflow automation toolkit" in 14px, `rgba(255, 255, 255, 0.4)`
 - "MIT License" in 13px, `rgba(255, 255, 255, 0.3)`
 
@@ -553,14 +553,14 @@ Add a website badge to the existing badge row in `README.md`, positioned after t
 
 **New line 8 (insert after):**
 ```markdown
-[![Website](https://img.shields.io/badge/Website-awesome--slash-blue?style=flat&logo=github)](https://avifenesh.github.io/awesome-slash/)
+[![Website](https://img.shields.io/badge/Website-AgentSys-blue?style=flat&logo=github)](https://avifenesh.github.io/agentsys/)
 ```
 
 This uses:
 - shields.io static badge
 - Blue color to differentiate from existing badges (npm is green, CI is dynamic, stars is social, license is yellow)
 - GitHub logo since it's GitHub Pages
-- Escaped hyphen in "awesome--slash" (shields.io requires double-dash for literal hyphen)
+- "AgentSys" label text (no special escaping needed)
 - Links directly to the GitHub Pages URL
 
 ### No Other README Changes
@@ -618,7 +618,7 @@ This disables:
 - Stats counters have `aria-live="polite"` so the final values are announced
 - Tab panels have `aria-labelledby` referencing their tab
 - Copy buttons have `aria-label="Copy code to clipboard"`
-- GitHub CTA in nav has `aria-label="View awesome-slash on GitHub"`
+- GitHub CTA in nav has `aria-label="View AgentSys on GitHub"`
 
 ---
 
@@ -649,23 +649,23 @@ This disables:
 
 ### Head Content
 ```html
-<title>awesome-slash - AI Workflow Automation Toolkit</title>
+<title>AgentSys - AI Workflow Automation Toolkit</title>
 <meta name="description" content="11 plugins, 40 agents, 26 skills. Automate the entire dev workflow from task selection to merged PR. Works with Claude Code, OpenCode, and Codex CLI.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0a0a0f">
 
 <!-- Open Graph -->
-<meta property="og:title" content="awesome-slash">
+<meta property="og:title" content="AgentSys">
 <meta property="og:description" content="AI workflow automation. 11 plugins, 40 agents, 26 skills. Task to merged PR.">
-<meta property="og:image" content="https://avifenesh.github.io/awesome-slash/assets/og-image.png">
-<meta property="og:url" content="https://avifenesh.github.io/awesome-slash/">
+<meta property="og:image" content="https://avifenesh.github.io/agentsys/assets/og-image.png">
+<meta property="og:url" content="https://avifenesh.github.io/agentsys/">
 <meta property="og:type" content="website">
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="awesome-slash">
+<meta name="twitter:title" content="AgentSys">
 <meta name="twitter:description" content="AI workflow automation. 11 plugins, 40 agents, 26 skills.">
-<meta name="twitter:image" content="https://avifenesh.github.io/awesome-slash/assets/og-image.png">
+<meta name="twitter:image" content="https://avifenesh.github.io/agentsys/assets/og-image.png">
 ```
 
 ---

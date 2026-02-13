@@ -5,8 +5,8 @@
 const path = require('path');
 
 // Import modules under test
-const crossFilePatterns = require('@awesome-slash/lib/enhance/cross-file-patterns');
-const crossFileAnalyzer = require('@awesome-slash/lib/enhance/cross-file-analyzer');
+const crossFilePatterns = require('@agentsys/lib/enhance/cross-file-patterns');
+const crossFileAnalyzer = require('@agentsys/lib/enhance/cross-file-analyzer');
 
 describe('Cross-File Patterns', () => {
   describe('tool_not_in_allowed_list', () => {

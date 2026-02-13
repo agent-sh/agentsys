@@ -1,7 +1,7 @@
 {
-  "name": "@awesome-slash/lib",
+  "name": "@agentsys/lib",
   "version": "4.2.0",
-  "description": "Core library for awesome-slash: platform detection, pattern matching, workflow state, and utilities",
+  "description": "Core library for AgentSys: platform detection, pattern matching, workflow state, and utilities",
   "main": "index.js",
   "type": "commonjs",
   "engines": {
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/avifenesh/awesome-slash.git",
+    "url": "git+https://github.com/avifenesh/agentsys.git",
     "directory": "lib"
   },
   "files": [

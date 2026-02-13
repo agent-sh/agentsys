@@ -1,6 +1,6 @@
 # Manual Testing Guide
 
-Use this checklist to validate awesome-slash commands in a real repo.
+Use this checklist to validate AgentSys commands in a real repo.
 
 ---
 
@@ -20,11 +20,11 @@ Follow [INSTALLATION.md](./INSTALLATION.md). For local testing:
 
 ```bash
 # Clone this repository
-git clone https://github.com/avifenesh/awesome-slash.git
-cd awesome-slash
+git clone https://github.com/avifenesh/agentsys.git
+cd agentsys
 
 # Install into Claude Code
-claude plugin add npm:awesome-slash
+claude plugin add npm:agentsys
 # or
 ./scripts/install/claude.sh
 ```
@@ -256,7 +256,7 @@ gh auth status
 ### "Module not found"
 
 ```bash
-cd /path/to/awesome-slash
+cd /path/to/agentsys
 npm run detect
 ```
 
@@ -314,7 +314,7 @@ If you find bugs during manual testing:
 2. Report on GitHub:
 
 ```bash
-gh issue create --repo avifenesh/awesome-slash \
+gh issue create --repo avifenesh/agentsys \
   --title "Bug: Command X failed" \
   --body "Detailed description with steps to reproduce"
 ```

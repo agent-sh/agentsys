@@ -1,7 +1,7 @@
 ---
 name: enhance-orchestrator
 description: "Use when coordinating multiple enhancers for /enhance command. Runs analyzers in parallel and produces unified report."
-version: 4.2.2
+version: 5.0.0
 argument-hint: "[path] [--apply] [--focus=TYPE]"
 ---
 

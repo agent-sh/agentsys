@@ -1,14 +1,14 @@
 {
   "name": "repo-map",
-  "version": "4.2.2",
+  "version": "5.0.0",
   "description": "AST-based repository map generator using ast-grep for symbol and import extraction with incremental updates",
   "author": {
     "name": "Avi Fenesh",
     "email": "[email protected]",
     "url": "https://github.com/avifenesh"
   },
-  "homepage": "https://github.com/avifenesh/awesome-slash#repo-map",
-  "repository": "https://github.com/avifenesh/awesome-slash",
+  "homepage": "https://github.com/avifenesh/agentsys#repo-map",
+  "repository": "https://github.com/avifenesh/agentsys",
   "license": "MIT",
   "keywords": [
     "repo-map",

@@ -24,7 +24,7 @@ body:
     id: version
     attributes:
       label: Version
-      description: Run `npm list awesome-slash` or check package.json
+      description: Run `npm list agentsys` or check package.json
       placeholder: "3.0.0"
     validations:
       required: true

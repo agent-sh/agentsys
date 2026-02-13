@@ -112,8 +112,8 @@ function scaffoldPlugin(name, projectRoot) {
       email: '[email protected]',
       url: 'https://github.com/avifenesh'
     },
-    homepage: `https://github.com/avifenesh/awesome-slash#${name}`,
-    repository: 'https://github.com/avifenesh/awesome-slash',
+    homepage: `https://github.com/avifenesh/agentsys#${name}`,
+    repository: 'https://github.com/avifenesh/agentsys',
     license: 'MIT',
     keywords: [name]
   };
@@ -147,7 +147,7 @@ function scaffoldPlugin(name, projectRoot) {
     try {
       execFileSync('where', ['bash'], { stdio: 'pipe' });
     } catch {
-      result.errors.push('bash not found. Install Git Bash or WSL to run sync-lib. Run \'npx awesome-slash-dev sync-lib\' manually after installing bash.');
+      result.errors.push('bash not found. Install Git Bash or WSL to run sync-lib. Run \'npx agentsys-dev sync-lib\' manually after installing bash.');
       return result;
     }
   }
@@ -155,7 +155,7 @@ function scaffoldPlugin(name, projectRoot) {
   try {
     execFileSync('bash', ['scripts/sync-lib.sh'], { cwd: projectRoot, stdio: 'pipe' });
   } catch (e) {
-    result.errors.push(`sync-lib.sh failed: ${e.message}. Run 'npx awesome-slash-dev sync-lib' manually.`);
+    result.errors.push(`sync-lib.sh failed: ${e.message}. Run 'npx agentsys-dev sync-lib' manually.`);
     return result;
   }
 
@@ -402,7 +402,7 @@ function capitalize(name) {
  */
 function main(args) {
   if (!args || args.length < 2) {
-    console.log('Usage: awesome-slash-dev new <type> <name> [options]');
+    console.log('Usage: agentsys-dev new <type> <name> [options]');
     console.log('');
     console.log('Types: plugin, agent, skill, command');
     console.log('');
@@ -412,10 +412,10 @@ function main(args) {
     console.log('  --description <text>  Description text');
     console.log('');
     console.log('Examples:');
-    console.log('  awesome-slash-dev new plugin my-plugin');
-    console.log('  awesome-slash-dev new agent my-agent --plugin enhance');
-    console.log('  awesome-slash-dev new skill my-skill --plugin enhance');
-    console.log('  awesome-slash-dev new command my-cmd --plugin enhance');
+    console.log('  agentsys-dev new plugin my-plugin');
+    console.log('  agentsys-dev new agent my-agent --plugin enhance');
+    console.log('  agentsys-dev new skill my-skill --plugin enhance');
+    console.log('  agentsys-dev new command my-cmd --plugin enhance');
     return 1;
   }
 

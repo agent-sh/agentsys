@@ -1,5 +1,5 @@
 /* ==========================================================================
- * AWESOME-SLASH SITE - Main JavaScript
+ * AGENTSYS SITE - Main JavaScript
  * Vanilla JS, no dependencies. Handles:
  * - Scroll-triggered animations (IntersectionObserver)
  * - Navigation state (scroll, active section, mobile menu)

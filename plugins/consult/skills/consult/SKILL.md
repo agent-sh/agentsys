@@ -1,7 +1,7 @@
 ---
 name: consult
 description: "Cross-tool AI consultation. Use when user asks to 'consult gemini', 'ask codex', 'get second opinion', 'cross-check with claude', 'consult another AI', 'ask opencode', 'copilot opinion', or wants a second opinion from a different AI tool."
-version: 4.2.2
+version: 5.0.0
 argument-hint: "[question] [--tool] [--effort] [--model] [--context] [--continue]"
 ---
 

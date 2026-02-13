@@ -210,7 +210,7 @@ If tool not listed, respond: "Tool not available"
 ```json
 {
   "mcp": {
-    "awesome-slash": {
+    "agentsys": {
       "type": "local",
       "command": ["node", "/path/to/mcp-server/index.js"],
       "environment": {
@@ -227,7 +227,7 @@ If tool not listed, respond: "Tool not available"
 ### Codex CLI (`~/.codex/config.toml`)
 
 ```toml
-[mcp_servers.awesome-slash]
+[mcp_servers.agentsys]
 command = "node"
 args = ["/path/to/mcp-server/index.js"]
 env = { PLUGIN_ROOT = "/path/to/plugin", AI_STATE_DIR = ".codex" }

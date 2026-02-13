@@ -3,7 +3,7 @@
  * Tests for generateOrchestratorReport and deduplicateOrchestratorFindings
  */
 
-const reporter = require('@awesome-slash/lib/enhance/reporter');
+const reporter = require('@agentsys/lib/enhance/reporter');
 
 describe('Orchestrator Reporter', () => {
   describe('generateOrchestratorReport', () => {

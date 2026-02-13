@@ -1,14 +1,16 @@
 # Multi-Tool Adapters
 
-This directory contains adapters for using awesome-slash commands with different AI coding tools.
+This directory contains adapters for using agentsys commands with different AI coding tools.
 
 ## Supported Tools
 
 ### Claude Code (Native)
 The primary target. Install via marketplace:
 ```bash
-claude plugin marketplace add avifenesh/awesome-slash
-claude plugin install awesome-slash@awesome-slash
+claude plugin marketplace add avifenesh/agentsys
+# Install specific plugins (e.g., next-task, ship, enhance)
+claude plugin install next-task@agentsys
+claude plugin install ship@agentsys
 ```
 
 See main [README.md](../README.md) for details.
@@ -20,8 +22,8 @@ OpenAI's Codex command-line interface.
 
 **Installation:**
 ```bash
-git clone https://github.com/avifenesh/awesome-slash.git
-cd awesome-slash
+git clone https://github.com/avifenesh/agentsys.git
+cd agentsys
 ./adapters/codex/install.sh
 ```
 
@@ -42,8 +44,8 @@ Open-source AI coding assistant.
 
 **Installation:**
 ```bash
-git clone https://github.com/avifenesh/awesome-slash.git
-cd awesome-slash
+git clone https://github.com/avifenesh/agentsys.git
+cd agentsys
 ./adapters/opencode/install.sh
 ```
 
@@ -82,7 +84,7 @@ node ${CLAUDE_PLUGIN_ROOT}/lib/platform/detect-platform.js
 
 **Codex CLI:**
 ```bash
-node ~/.codex/prompts/awesome-slash/lib/platform/detect-platform.js
+node ~/.codex/skills/agentsys/lib/platform/detect-platform.js
 ```
 
 **OpenCode:**
@@ -129,8 +131,8 @@ Installers automatically handle these substitutions.
 ### Claude Code
 ```bash
 # Via marketplace (easiest)
-claude plugin marketplace add avifenesh/awesome-slash
-claude plugin install awesome-slash@awesome-slash
+claude plugin marketplace add avifenesh/agentsys
+claude plugin install next-task@agentsys
 ```
 
 **Pros:**
@@ -193,7 +195,7 @@ Automatic via marketplace updates.
 
 ### Codex CLI & OpenCode
 ```bash
-cd /path/to/awesome-slash
+cd /path/to/agentsys
 git pull origin main
 ./adapters/codex/install.sh    # Or ./adapters/opencode/install.sh
 ```
@@ -204,7 +206,7 @@ git pull origin main
 
 ### Command not found
 **Codex CLI:**
-- Check `~/.codex/prompts/awesome-slash/commands/`
+- Check `~/.codex/skills/*/SKILL.md`
 - Restart Codex CLI
 
 **OpenCode:**
@@ -235,7 +237,7 @@ gh auth login
 
 Found a bug or want to add support for another tool?
 
-1. Open an issue: https://github.com/avifenesh/awesome-slash/issues
+1. Open an issue: https://github.com/avifenesh/agentsys/issues
 2. Submit a PR with:
    - New adapter directory: `adapters/[tool-name]/`
    - Installation script: `install.sh`
@@ -249,7 +251,7 @@ Found a bug or want to add support for another tool?
 - [Claude Code Documentation](https://code.claude.com/docs)
 - [Codex CLI Documentation](https://developers.openai.com/codex/cli)
 - [OpenCode Documentation](https://opencode.ai/docs)
-- [awesome-slash Repository](https://github.com/avifenesh/awesome-slash)
+- [agentsys Repository](https://github.com/avifenesh/agentsys)
 
 ---
 

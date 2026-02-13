@@ -1,24 +1,24 @@
 {
   "meta": {
-    "title": "awesome-slash",
+    "title": "agentsys",
     "description": "Production-ready skills, agents, and commands for Claude Code, OpenCode, and Codex CLI. 12 plugins that automate the entire AI development workflow, not just the coding.",
-    "url": "https://avifenesh.github.io/awesome-slash",
-    "repo": "https://github.com/avifenesh/awesome-slash",
-    "npm": "https://www.npmjs.com/package/awesome-slash",
-    "version": "4.2.2",
+    "url": "https://avifenesh.github.io/agentsys",
+    "repo": "https://github.com/avifenesh/agentsys",
+    "npm": "https://www.npmjs.com/package/agentsys",
+    "version": "5.0.0",
     "author": "Avi Fenesh",
     "author_url": "https://github.com/avifenesh"
   },
   "hero": {
     "title": "Automate the entire workflow, not just the coding",
-    "subtitle": "AI models can write code. That's not the hard part anymore. The hard part is everything else -- picking tasks, managing branches, reviewing output, handling CI, addressing comments, deploying. awesome-slash automates all of it.",
+    "subtitle": "AI models can write code. That's not the hard part anymore. The hard part is everything else -- picking tasks, managing branches, reviewing output, handling CI, addressing comments, deploying. AgentSys automates all of it.",
     "cta_primary": {
       "text": "Get Started",
       "url": "#installation"
     },
     "cta_secondary": {
       "text": "View on GitHub",
-      "url": "https://github.com/avifenesh/awesome-slash"
+      "url": "https://github.com/avifenesh/agentsys"
     }
   },
   "stats": [
@@ -208,9 +208,9 @@
         "Install the plugins you need"
       ],
       "commands": [
-        "/plugin marketplace add avifenesh/awesome-slash",
-        "/plugin install next-task@awesome-slash",
-        "/plugin install ship@awesome-slash"
+        "/plugin marketplace add avifenesh/agentsys",
+        "/plugin install next-task@agentsys",
+        "/plugin install ship@agentsys"
       ]
     },
     "npm": {
@@ -222,8 +222,8 @@
         "Select your platforms"
       ],
       "commands": [
-        "npm install -g awesome-slash",
-        "awesome-slash"
+        "npm install -g agentsys",
+        "agentsys"
       ]
     },
     "platforms": {
@@ -445,9 +445,9 @@
   "footer": {
     "license": "MIT",
     "author": "Avi Fenesh",
-    "github_url": "https://github.com/avifenesh/awesome-slash",
-    "npm_url": "https://www.npmjs.com/package/awesome-slash",
-    "issues_url": "https://github.com/avifenesh/awesome-slash/issues",
-    "discussions_url": "https://github.com/avifenesh/awesome-slash/discussions"
+    "github_url": "https://github.com/avifenesh/agentsys",
+    "npm_url": "https://www.npmjs.com/package/agentsys",
+    "issues_url": "https://github.com/avifenesh/agentsys/issues",
+    "discussions_url": "https://github.com/avifenesh/agentsys/discussions"
   }
 }

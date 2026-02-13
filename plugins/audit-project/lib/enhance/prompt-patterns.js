@@ -1034,7 +1034,7 @@ const promptPatterns = {
       // Design decision: Skip commands that delegate to agents
       // When a command uses Task({ subagent_type: ... }), verification responsibility
       // belongs to the spawned agent, not the orchestrating command.
-      // This is project-specific syntax for awesome-slash plugin system.
+      // This is project-specific syntax for AgentSys plugin system.
       if (/Task\s*\(/i.test(content) && /subagent_type/i.test(content)) return null;
 
       // Check for implementation/action indicators

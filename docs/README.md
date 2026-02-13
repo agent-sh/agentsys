@@ -1,6 +1,6 @@
 # Documentation
 
-AI models can write code. The bottleneck is everything else—picking tasks, managing branches, reviewing output, handling CI, addressing comments, deploying. These docs show how awesome-slash automates the full workflow, not just the coding part.
+AI models can write code. The bottleneck is everything else—picking tasks, managing branches, reviewing output, handling CI, addressing comments, deploying. These docs show how AgentSys automates the full workflow, not just the coding part.
 
 **New here?** Start with [USAGE.md](./USAGE.md) to see commands in action.
 
@@ -120,6 +120,6 @@ npm run verify   # Tool availability + versions
 
 ## Getting Help
 
-- **Issues:** [github.com/avifenesh/awesome-slash/issues](https://github.com/avifenesh/awesome-slash/issues)
-- **Discussions:** [github.com/avifenesh/awesome-slash/discussions](https://github.com/avifenesh/awesome-slash/discussions)
+- **Issues:** [github.com/avifenesh/agentsys/issues](https://github.com/avifenesh/agentsys/issues)
+- **Discussions:** [github.com/avifenesh/agentsys/discussions](https://github.com/avifenesh/agentsys/discussions)
 - **Main README:** [../README.md](../README.md)

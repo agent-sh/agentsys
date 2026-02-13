@@ -1,12 +1,12 @@
 {
-  "name": "awesome-slash",
-  "version": "4.2.2",
-  "description": "12 specialized plugins for AI workflow automation (drift detection + AST repo maps + topic research + agent config linting) - works with Claude Code, OpenCode, and Codex CLI",
+  "name": "agentsys",
+  "version": "5.0.0",
+  "description": "A modular runtime and orchestration system for AI agents - works with Claude Code, OpenCode, and Codex CLI",
   "main": "lib/platform/detect-platform.js",
   "type": "commonjs",
   "bin": {
-    "awesome-slash": "./bin/cli.js",
-    "awesome-slash-dev": "./bin/dev-cli.js"
+    "agentsys": "./bin/cli.js",
+    "agentsys-dev": "./bin/dev-cli.js"
   },
   "scripts": {
     "dev": "node bin/dev-cli.js",
@@ -42,7 +42,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/avifenesh/awesome-slash.git"
+    "url": "git+https://github.com/avifenesh/agentsys.git"
   },
   "keywords": [
     "ai",
@@ -74,14 +74,13 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/avifenesh/awesome-slash/issues"
+    "url": "https://github.com/avifenesh/agentsys/issues"
   },
-  "homepage": "https://github.com/avifenesh/awesome-slash#readme",
+  "homepage": "https://github.com/avifenesh/agentsys#readme",
   "engines": {
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "awesome-slash": "^3.9.0-rc.3",
     "js-yaml": "^4.1.1"
   },
   "devDependencies": {

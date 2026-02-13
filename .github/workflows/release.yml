@@ -217,7 +217,7 @@ jobs:
 
           if [ "${{ needs.publish-npm.result }}" = "success" ]; then
             echo "[OK] **npm:** Published successfully" >> $GITHUB_STEP_SUMMARY
-            echo "   - https://www.npmjs.com/package/awesome-slash" >> $GITHUB_STEP_SUMMARY
+            echo "   - https://www.npmjs.com/package/agentsys" >> $GITHUB_STEP_SUMMARY
           else
             echo "[ERROR] **npm:** ${{ needs.publish-npm.result }}" >> $GITHUB_STEP_SUMMARY
           fi

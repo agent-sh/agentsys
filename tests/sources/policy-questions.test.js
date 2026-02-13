@@ -3,17 +3,17 @@
  * Tests for policy question building, parsing, and caching
  */
 
-const policyQuestions = require('@awesome-slash/lib/sources/policy-questions');
-const sourceCache = require('@awesome-slash/lib/sources/source-cache');
-const customHandler = require('@awesome-slash/lib/sources/custom-handler');
+const policyQuestions = require('@agentsys/lib/sources/policy-questions');
+const sourceCache = require('@agentsys/lib/sources/source-cache');
+const customHandler = require('@agentsys/lib/sources/custom-handler');
 
 // Mock dependencies
-jest.mock('@awesome-slash/lib/sources/source-cache', () => ({
+jest.mock('@agentsys/lib/sources/source-cache', () => ({
   getPreference: jest.fn(),
   savePreference: jest.fn()
 }));
 
-jest.mock('@awesome-slash/lib/sources/custom-handler', () => ({
+jest.mock('@agentsys/lib/sources/custom-handler', () => ({
   getCustomTypeQuestion: jest.fn(() => ({
     header: 'Source Type',
     question: 'What type of source is this?',

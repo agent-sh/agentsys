@@ -507,8 +507,8 @@ describe('template content', () => {
       email: '[email protected]',
       url: 'https://github.com/avifenesh'
     });
-    expect(pkg.homepage).toBe('https://github.com/avifenesh/awesome-slash#author-test');
-    expect(pkg.repository).toBe('https://github.com/avifenesh/awesome-slash');
+    expect(pkg.homepage).toBe('https://github.com/avifenesh/agentsys#author-test');
+    expect(pkg.repository).toBe('https://github.com/avifenesh/agentsys');
   });
 });
 

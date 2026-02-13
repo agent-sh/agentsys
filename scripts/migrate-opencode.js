@@ -2,7 +2,7 @@
 /**
  * OpenCode Migration Tool
  *
- * Migrates awesome-slash commands for OpenCode compatibility:
+ * Migrates agentsys commands for OpenCode compatibility:
  * 1. Creates native OpenCode agent definitions in .opencode/agents/
  * 2. Updates command files to use @ mention syntax instead of Task tool
  * 3. Validates label lengths for OpenCode's 30-char limit

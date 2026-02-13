@@ -1,7 +1,7 @@
 {
-  "name": "awesome-slash-opencode-plugin",
+  "name": "agentsys-opencode-plugin",
   "version": "1.0.0",
-  "description": "Native OpenCode plugin for awesome-slash workflow automation",
+  "description": "Native OpenCode plugin for AgentSys workflow automation",
   "main": "index.ts",
   "type": "module",
   "dependencies": {
@@ -13,7 +13,7 @@
   "keywords": [
     "opencode",
     "plugin",
-    "awesome-slash",
+    "agentsys",
     "workflow"
   ],
   "author": "Avi Fenesh",

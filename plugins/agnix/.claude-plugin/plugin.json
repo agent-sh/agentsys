@@ -1,6 +1,6 @@
 {
   "name": "agnix",
-  "version": "4.2.2",
+  "version": "5.0.0",
   "description": "Lint agent configurations before they break your workflow. Validates Skills, Hooks, MCP, Memory, Plugins.",
   "author": {
     "name": "Avi Fenesh",
@@ -8,7 +8,7 @@
     "url": "https://github.com/avifenesh"
   },
   "homepage": "https://github.com/avifenesh/agnix",
-  "repository": "https://github.com/avifenesh/awesome-slash",
+  "repository": "https://github.com/avifenesh/agentsys",
   "license": "MIT",
   "keywords": [
     "linting",

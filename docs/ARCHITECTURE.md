@@ -20,7 +20,7 @@ The design principle: write tools once, run everywhere. AI models already have t
 
 ## Overview
 
-awesome-slash supports three AI coding assistants through a unified architecture:
+AgentSys supports three AI coding assistants through a unified architecture:
 
 1. **Claude Code** - Anthropic's official CLI (primary target)
 2. **OpenCode** - Multi-model AI coding assistant
@@ -29,8 +29,8 @@ awesome-slash supports three AI coding assistants through a unified architecture
 ## Quick Install
 
 ```bash
-npm install -g awesome-slash
-awesome-slash
+npm install -g agentsys
+agentsys
 # Select platforms: 1,2,3 for all
 ```
 
@@ -39,7 +39,7 @@ awesome-slash
 ### Core Components
 
 ```text
-awesome-slash/
+agentsys/
 ├── lib/                          # Shared library
 │   ├── cross-platform/           # Platform utilities
 │   │   ├── index.js              # Platform detection, MCP helpers
@@ -87,7 +87,7 @@ awesome-slash/
 Provides unified utilities for all platforms:
 
 ```javascript
-const { xplat } = require('awesome-slash/lib');
+const { xplat } = require('agentsys/lib');
 
 // Platform detection
 xplat.detectPlatform();  // 'claude-code' | 'opencode' | 'codex-cli'
@@ -146,28 +146,28 @@ The package provides these capabilities through commands, agents, and skills:
 
 ```bash
 # Via marketplace (recommended)
-/plugin marketplace add avifenesh/awesome-slash
-/plugin install next-task@awesome-slash
+/plugin marketplace add avifenesh/agentsys
+/plugin install next-task@agentsys
 
 # Via CLI installer
-awesome-slash  # Select option 1
+agentsys  # Select option 1
 ```
 
-**Location:** `~/.claude/plugins/awesome-slash/`
+**Location:** `~/.claude/plugins/agentsys/`
 
 **Commands:** `/next-task`, `/ship`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-map`, `/enhance`, `/perf`, `/sync-docs`
 
 ### OpenCode
 
 ```bash
-awesome-slash  # Select option 2
+agentsys  # Select option 2
 ```
 
 **Locations:**
 - Commands: `~/.config/opencode/commands/`
 - Agents: `~/.config/opencode/agents/`
 - Skills: `~/.config/opencode/skills/`
-- Native plugin: `~/.config/opencode/plugins/awesome-slash.ts`
+- Native plugin: `~/.config/opencode/plugins/agentsys.ts`
 
 **Commands:** `/next-task`, `/ship`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-map`, `/enhance`, `/perf`, `/sync-docs`
 
@@ -179,7 +179,7 @@ awesome-slash  # Select option 2
 ### Codex CLI
 
 ```bash
-awesome-slash  # Select option 3
+agentsys  # Select option 3
 ```
 
 **Locations:**
@@ -254,14 +254,14 @@ Research documents informing the implementation (in `agent-docs/`):
 
 **Update workflow:**
 1. Edit files in `lib/` (canonical source)
-2. Run `./scripts/sync-lib.sh` (or `awesome-slash-dev sync-lib`) to copy to plugins
+2. Run `./scripts/sync-lib.sh` (or `agentsys-dev sync-lib`) to copy to plugins
 3. Commit both source and copies
 4. Publish: `npm version patch && npm publish`
 
 **User update:**
 ```bash
-npm update -g awesome-slash
-awesome-slash  # Re-run installer
+npm update -g agentsys
+agentsys  # Re-run installer
 ```
 
 ## Design Decisions

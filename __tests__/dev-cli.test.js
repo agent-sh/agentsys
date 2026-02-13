@@ -172,7 +172,7 @@ describe('route', () => {
   test('--version prints version', () => {
     const code = route({ version: true, help: false, command: null, subcommand: null, rest: [] });
     expect(code).toBe(0);
-    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('awesome-slash-dev v'));
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('agentsys-dev v'));
   });
 
   test('--help with no command prints help', () => {
@@ -325,7 +325,7 @@ describe('error handling', () => {
   test('status handler returns 0', () => {
     const code = COMMANDS['status'].handler([]);
     expect(code).toBe(0);
-    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('awesome-slash v'));
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('agentsys v'));
   });
 
   test('bump handler with no version returns help (exits 0)', () => {

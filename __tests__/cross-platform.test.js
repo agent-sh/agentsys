@@ -180,7 +180,7 @@ describe('cross-platform', () => {
     it('should search plugin cache directories when PLUGIN_ROOT not set', () => {
       delete process.env.PLUGIN_ROOT;
       const home = os.homedir();
-      const searchPath = path.join(home, '.claude', 'plugins', 'cache', 'awesome-slash', 'enhance');
+      const searchPath = path.join(home, '.claude', 'plugins', 'cache', 'agentsys', 'enhance');
 
       fs.existsSync.mockReturnValue(true);
       fs.readdirSync.mockReturnValue(['1.0.0', '2.0.0', '1.5.0']);
@@ -250,15 +250,15 @@ describe('cross-platform', () => {
 
       getPluginRoot();
 
-      const expectedPath = path.join(home, '.claude', 'plugins', 'cache', 'awesome-slash', 'enhance');
+      const expectedPath = path.join(home, '.claude', 'plugins', 'cache', 'agentsys', 'enhance');
       expect(fs.existsSync).toHaveBeenCalledWith(expectedPath);
     });
 
     it('should search secondary path when primary not found', () => {
       delete process.env.PLUGIN_ROOT;
       const home = os.homedir();
-      const primaryPath = path.join(home, '.claude', 'plugins', 'cache', 'awesome-slash', 'enhance');
-      const secondaryPath = path.join(home, '.claude', 'plugins', 'awesome-slash', 'enhance');
+      const primaryPath = path.join(home, '.claude', 'plugins', 'cache', 'agentsys', 'enhance');
+      const secondaryPath = path.join(home, '.claude', 'plugins', 'agentsys', 'enhance');
 
       fs.existsSync.mockImplementation((p) => p === secondaryPath);
       fs.readdirSync.mockReturnValue(['1.0.0']);
@@ -695,7 +695,7 @@ describe('cross-platform', () => {
 
       expect(result).toEqual({
         mcp: {
-          'awesome-slash': {
+          'agentsys': {
             type: 'local',
             command: ['node', serverPath],
             environment: {
@@ -714,8 +714,8 @@ describe('cross-platform', () => {
       const serverPath = '/path/to/server.js';
       const result = getOpenCodeConfig(serverPath, { CUSTOM_VAR: 'value' });
 
-      expect(result.mcp['awesome-slash'].environment.CUSTOM_VAR).toBe('value');
-      expect(result.mcp['awesome-slash'].environment.AI_STATE_DIR).toBe('.opencode');
+      expect(result.mcp['agentsys'].environment.CUSTOM_VAR).toBe('value');
+      expect(result.mcp['agentsys'].environment.AI_STATE_DIR).toBe('.opencode');
     });
 
     it('should calculate PLUGIN_ROOT as grandparent of serverPath', () => {
@@ -724,7 +724,7 @@ describe('cross-platform', () => {
       const serverPath = '/project/mcp-server/index.js';
       const result = getOpenCodeConfig(serverPath);
 
-      expect(result.mcp['awesome-slash'].environment.PLUGIN_ROOT).toBe('/project');
+      expect(result.mcp['agentsys'].environment.PLUGIN_ROOT).toBe('/project');
     });
   });
 
@@ -733,7 +733,7 @@ describe('cross-platform', () => {
       const serverPath = '/path/to/mcp-server/index.js';
       const result = getCodexConfig(serverPath);
 
-      expect(result).toContain('[mcp_servers.awesome-slash]');
+      expect(result).toContain('[mcp_servers.agentsys]');
       expect(result).toContain('command = "node"');
       expect(result).toContain(`args = ["${serverPath}"]`);
       expect(result).toContain('AI_STATE_DIR = ".codex"');

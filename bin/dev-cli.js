@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * awesome-slash-dev - Unified developer CLI
+ * agentsys-dev - Unified developer CLI
  *
  * Single entry point for all development scripts:
- *   awesome-slash-dev validate         Run all validators
- *   awesome-slash-dev validate plugins  Run single validator
- *   awesome-slash-dev bump 4.2.0       Bump version
- *   awesome-slash-dev status           Project health overview
- *   awesome-slash-dev --help           Show all commands
+ *   agentsys-dev validate         Run all validators
+ *   agentsys-dev validate plugins  Run single validator
+ *   agentsys-dev bump 4.2.0       Bump version
+ *   agentsys-dev status           Project health overview
+ *   agentsys-dev --help           Show all commands
  *
  * All existing npm run commands and direct script invocations still work.
  */
@@ -281,7 +281,7 @@ const COMMANDS = {
         // Not in a git repo
       }
 
-      console.log(`awesome-slash v${VERSION}`);
+      console.log(`agentsys v${VERSION}`);
       console.log(`Branch: ${branch}`);
       console.log(`Plugins: ${counts.plugins}`);
       console.log(`Agents:  ${counts.totalAgents} (${counts.fileBasedAgents} file-based + ${counts.roleBasedAgents} role-based)`);
@@ -379,7 +379,7 @@ const COMMANDS = {
     handler: (args) => {
       // If no subcommand, show available types
       console.log('Available types: plugin, agent, skill, command');
-      console.log('Usage: awesome-slash-dev new <type> <name> [options]');
+      console.log('Usage: agentsys-dev new <type> <name> [options]');
       return 1;
     }
   }
@@ -436,12 +436,12 @@ function parseArgs(args) {
 
 function printHelp() {
   console.log(`
-awesome-slash-dev v${VERSION} - Developer CLI
+agentsys-dev v${VERSION} - Developer CLI
 
 Usage:
-  awesome-slash-dev <command> [options]
-  awesome-slash-dev --help
-  awesome-slash-dev --version
+  agentsys-dev <command> [options]
+  agentsys-dev --help
+  agentsys-dev --version
 
 Commands:
   validate                Run all validators
@@ -487,26 +487,26 @@ Scaffolding:
   new command <name>      Scaffold a new command (--plugin required)
 
 Aliases (npm scripts):
-  npm run new:plugin        = awesome-slash-dev new plugin
-  npm run new:agent         = awesome-slash-dev new agent
-  npm run new:skill         = awesome-slash-dev new skill
-  npm run new:command       = awesome-slash-dev new command
-  npm run validate          = awesome-slash-dev validate
-  npm run validate:plugins  = awesome-slash-dev validate plugins
-  npm run bump              = awesome-slash-dev bump
-  npm run detect            = awesome-slash-dev detect
-  npm run verify            = awesome-slash-dev verify
-  npm run gen-docs          = awesome-slash-dev gen-docs
-  npm run gen-docs:check    = awesome-slash-dev gen-docs --check
-  npm run expand-templates  = awesome-slash-dev expand-templates
-  npm run expand-templates:check = awesome-slash-dev expand-templates --check
-  npm run gen-adapters      = awesome-slash-dev gen-adapters
-  npm run gen-adapters:check = awesome-slash-dev gen-adapters --check
+  npm run new:plugin        = agentsys-dev new plugin
+  npm run new:agent         = agentsys-dev new agent
+  npm run new:skill         = agentsys-dev new skill
+  npm run new:command       = agentsys-dev new command
+  npm run validate          = agentsys-dev validate
+  npm run validate:plugins  = agentsys-dev validate plugins
+  npm run bump              = agentsys-dev bump
+  npm run detect            = agentsys-dev detect
+  npm run verify            = agentsys-dev verify
+  npm run gen-docs          = agentsys-dev gen-docs
+  npm run gen-docs:check    = agentsys-dev gen-docs --check
+  npm run expand-templates  = agentsys-dev expand-templates
+  npm run expand-templates:check = agentsys-dev expand-templates --check
+  npm run gen-adapters      = agentsys-dev gen-adapters
+  npm run gen-adapters:check = agentsys-dev gen-adapters --check
 `);
 }
 
 function printCommandHelp(cmdName, cmd) {
-  console.log(`\nawesome-slash-dev ${cmd.usage || cmdName}\n`);
+  console.log(`\nagentsys-dev ${cmd.usage || cmdName}\n`);
   console.log(`  ${cmd.description}`);
   if (cmd.subcommands) {
     console.log('\nSubcommands:');
@@ -520,7 +520,7 @@ function printCommandHelp(cmdName, cmd) {
 function route(parsed) {
   // Global flags
   if (parsed.version) {
-    console.log(`awesome-slash-dev v${VERSION}`);
+    console.log(`agentsys-dev v${VERSION}`);
     return 0;
   }
 
@@ -537,7 +537,7 @@ function route(parsed) {
 
   if (!cmd) {
     console.error(`[ERROR] Unknown command: ${parsed.command}`);
-    console.error(`Run 'awesome-slash-dev --help' for available commands.`);
+    console.error(`Run 'agentsys-dev --help' for available commands.`);
     return 1;
   }
 
@@ -551,12 +551,12 @@ function route(parsed) {
     const sub = cmd.subcommands[parsed.subcommand];
     if (!sub) {
       console.error(`[ERROR] Unknown subcommand: ${parsed.command} ${parsed.subcommand}`);
-      console.error(`Run 'awesome-slash-dev ${parsed.command} --help' for subcommands.`);
+      console.error(`Run 'agentsys-dev ${parsed.command} --help' for subcommands.`);
       return 1;
     }
 
     if (parsed.help) {
-      console.log(`\nawesome-slash-dev ${sub.usage || parsed.command + ' ' + parsed.subcommand}\n`);
+      console.log(`\nagentsys-dev ${sub.usage || parsed.command + ' ' + parsed.subcommand}\n`);
       console.log(`  ${sub.description}\n`);
       return 0;
     }

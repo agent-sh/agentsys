@@ -349,7 +349,7 @@ describe('validateManifestFile', () => {
     const result = validateManifestFile(manifestPath);
     expect(result.valid).toBe(true);
     expect(result.manifest).toBeDefined();
-    expect(result.manifest.name).toBe('awesome-slash');
+    expect(result.manifest.name).toBe('agentsys');
   });
 
   test('returns error for nonexistent file', () => {

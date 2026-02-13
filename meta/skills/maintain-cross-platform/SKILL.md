@@ -1,6 +1,6 @@
 ---
 name: maintain-cross-platform
-description: "Use when preparing releases, validating cross-platform compatibility, or updating installation infrastructure. Meta-skill for maintaining awesome-slash's 3-platform architecture."
+description: "Use when preparing releases, validating cross-platform compatibility, or updating installation infrastructure. Meta-skill for maintaining AgentSys's 3-platform architecture."
 metadata:
   short-description: "Meta-skill: maintain 3-platform architecture"
   scope: local
@@ -9,7 +9,7 @@ metadata:
 
 # Maintain Cross-Platform Architecture
 
-**Purpose:** Comprehensive knowledge of awesome-slash's cross-platform infrastructure for release preparation, validation, and maintenance.
+**Purpose:** Comprehensive knowledge of AgentSys's cross-platform infrastructure for release preparation, validation, and maintenance.
 
 **Scope:** LOCAL skill for this repository only. Contains specific file locations, transformation rules, and automation patterns for maintaining Claude Code + OpenCode + Codex CLI compatibility.
 
@@ -49,8 +49,8 @@ metadata:
 | Platform | Package Copy | Commands | Agents | Skills | Config |
 |----------|--------------|----------|--------|--------|--------|
 | Claude Code | Via marketplace | Plugin bundled | Plugin bundled | Plugin bundled | N/A |
-| OpenCode | `~/.awesome-slash/` | `~/.config/opencode/commands/` | `~/.config/opencode/agents/` (29 files) | N/A | `~/.config/opencode/opencode.json` |
-| Codex CLI | `~/.awesome-slash/` | N/A | N/A | `~/.codex/skills/` (9 directories) | `~/.codex/config.toml` |
+| OpenCode | `~/.agentsys/` | `~/.config/opencode/commands/` | `~/.config/opencode/agents/` (29 files) | N/A | `~/.config/opencode/opencode.json` |
+| Codex CLI | `~/.agentsys/` | N/A | N/A | `~/.codex/skills/` (9 directories) | `~/.codex/config.toml` |
 
 ### Frontmatter Differences
 
@@ -226,7 +226,7 @@ git push origin main --tags
 **Step 5: Verify**
 ```bash
 # Wait for GitHub Actions
-npm view awesome-slash@rc version  # Should show 3.6.0-rc.1
+npm view agentsys@rc version  # Should show 3.6.0-rc.1
 ```
 
 ### Production Release (3.X.0)
@@ -253,7 +253,7 @@ Same as RC but:
 1. **Convention-based discovery** - Plugins auto-discovered from `plugins/*/` with `.claude-plugin/plugin.json`
 2. **Commands auto-discovered** - From `plugins/*/commands/*.md` files
 3. **Codex trigger phrases** - Use `codex-description` frontmatter in command files
-4. **docs/INSTALLATION.md** - Add `/plugin install <name>@awesome-slash` line
+4. **docs/INSTALLATION.md** - Add `/plugin install <name>@agentsys` line
 5. **.claude-plugin/marketplace.json** - Add plugin entry to `plugins` array
 6. **README.md** - Add to commands table
 7. **Validation will catch** - If counts don't match (plugins count)
@@ -280,7 +280,7 @@ Same as RC but:
 
 1. **lib/{module}/** - Make changes
 2. **lib/index.js** - Export if new module
-3. **Run sync** - `./scripts/sync-lib.sh` (or `awesome-slash-dev sync-lib`) copies lib/ to all 9 plugins
+3. **Run sync** - `./scripts/sync-lib.sh` (or `agentsys-dev sync-lib`) copies lib/ to all 9 plugins
 4. **Commit both** - Source in lib/ AND copies in plugins/*/lib/
 
 ---
@@ -480,8 +480,8 @@ If pushing version tag (v*):
 ### Interactive Flow
 
 1. **Platform Selection** - Multi-select: Claude Code, OpenCode, Codex CLI
-2. **Clean Old Installation** - Removes `~/.awesome-slash/` if exists
-3. **Copy Package** - From npm global to `~/.awesome-slash/`
+2. **Clean Old Installation** - Removes `~/.agentsys/` if exists
+3. **Copy Package** - From npm global to `~/.agentsys/`
 4. **Install Dependencies** - Runs `npm install --production` in package and mcp-server
 5. **Per-Platform Installation:**
    - Claude Code: Adds marketplace, installs 9 plugins
@@ -491,12 +491,12 @@ If pushing version tag (v*):
 ### Key Functions
 
 **installForClaude()** - Line 116
-- Adds marketplace: `claude plugin marketplace add avifenesh/awesome-slash`
-- Installs 9 plugins: `claude plugin install {plugin}@awesome-slash`
+- Adds marketplace: `claude plugin marketplace add avifenesh/agentsys`
+- Installs 9 plugins: `claude plugin install {plugin}@agentsys`
 - Commands: /next-task, /ship, /deslop, /audit-project, /drift-detect, /enhance, /perf, /sync-docs, /repo-map
 
 **installForOpenCode(installDir, options)** - Line 165
-- Creates dirs: `~/.config/opencode/commands/`, `~/.config/opencode/plugins/awesome-slash.ts`
+- Creates dirs: `~/.config/opencode/commands/`, `~/.config/opencode/plugins/agentsys.ts`
 - Copies native plugin from `adapters/opencode-plugin/`
 - Transforms commands using `OPENCODE_COMMAND_MAPPINGS`
 - Transforms agents (tools → permissions, strips models if --strip-models)
@@ -875,8 +875,8 @@ Blocks push if "N"
 5. **Test cross-platform install:**
    ```bash
    npm pack
-   npm install -g ./awesome-slash-*.tgz
-   echo "1 2 3" | awesome-slash  # Test installer
+   npm install -g ./agentsys-*.tgz
+   echo "1 2 3" | agentsys  # Test installer
    ```
 
 6. **Commit and tag:**
@@ -890,8 +890,8 @@ Blocks push if "N"
 7. **Verify npm publish:**
    ```bash
    # Wait for GitHub Actions release workflow
-   npm view awesome-slash@rc version  # For RC
-   npm view awesome-slash version     # For production
+   npm view agentsys@rc version  # For RC
+   npm view agentsys version     # For production
    ```
 
 ### Update Misalignments
@@ -1012,7 +1012,7 @@ When using this skill, output:
 
 **Skill Version:** 1.0.0
 **Last Updated:** 2026-01-30
-**Covers:** awesome-slash v3.5.0 architecture
+**Covers:** AgentSys v5.0.0 architecture
 
 **Update this skill when:**
 - New platform added

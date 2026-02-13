@@ -32,10 +32,10 @@ Codex CLI is OpenAI's terminal-based AI coding assistant with unique features:
 
 ## What Our Installer Does
 
-When user runs `awesome-slash` and selects Codex:
+When user runs `agentsys` and selects Codex:
 
 ```
-~/.awesome-slash/           # Full package copy
+~/.agentsys/           # Full package copy
 
 ~/.codex/skills/            # 24 skills installed
 ├── next-task/SKILL.md
@@ -144,7 +144,7 @@ Codex uses `request_user_input` tool with a JSON schema:
 | Custom input | Always available | "Other" option |
 | Max questions | 4 | ~5 |
 
-### Implication for awesome-slash
+### Implication for AgentSys
 
 The `gen-adapters` script automatically transforms `AskUserQuestion` to `request_user_input` when generating Codex adapter files. It also removes `multiSelect` lines (unsupported in Codex) and injects a note about the required `id` field. Source files use `AskUserQuestion` as the canonical format; Codex compatibility is handled at build time.
 
@@ -205,7 +205,7 @@ description: Master workflow orchestrator  # No trigger phrases!
 | SKILL.md body | Core instructions | <500 lines (loaded on trigger) |
 | references/ | Detailed docs | Unlimited (loaded as needed) |
 
-**Note:** Some awesome-slash skills exceed 500 lines. Future improvement: split into references/.
+**Note:** Some AgentSys skills exceed 500 lines. Future improvement: split into references/.
 
 ### Invoking Skills
 
@@ -303,7 +303,7 @@ codex mcp get my-server
 codex mcp remove my-server
 ```
 
-Note: awesome-slash uses native Codex skills (in `~/.codex/skills/`) instead of MCP for better integration.
+Note: AgentSys uses native Codex skills (in `~/.codex/skills/`) instead of MCP for better integration.
 
 ---
 

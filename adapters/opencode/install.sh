@@ -2,13 +2,13 @@
 set -e
 
 # [DEPRECATED] This script is outdated and uses old plugin names.
-# Use instead: awesome-slash --tool opencode
+# Use instead: agentsys --tool opencode
 # Or: node scripts/dev-install.js opencode
 
-# OpenCode Installer for awesome-slash commands
+# OpenCode Installer for agentsys commands
 # This script installs all 5 slash commands for use with OpenCode
 
-echo "[INSTALL] Installing awesome-slash commands for OpenCode..."
+echo "[INSTALL] Installing agentsys commands for OpenCode..."
 echo
 
 # Configuration
@@ -138,7 +138,7 @@ echo
 echo "[ENV] Creating environment setup..."
 cat > "$OPENCODE_COMMANDS_DIR/env.sh" << 'EOF'
 #!/usr/bin/env bash
-# Environment variables for awesome-slash commands in OpenCode
+# Environment variables for agentsys commands in OpenCode
 
 # Set the root directory for commands to find libraries
 export OPENCODE_COMMANDS_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -147,8 +147,8 @@ export OPENCODE_COMMANDS_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 export NODE_PATH="${OPENCODE_COMMANDS_ROOT}/lib:${NODE_PATH}"
 
 # Platform detection helpers
-export AWESOME_SLASH_PLATFORM_SCRIPT="${OPENCODE_COMMANDS_ROOT}/lib/platform/detect-platform.js"
-export AWESOME_SLASH_TOOLS_SCRIPT="${OPENCODE_COMMANDS_ROOT}/lib/platform/verify-tools.js"
+export AGENTSYS_PLATFORM_SCRIPT="${OPENCODE_COMMANDS_ROOT}/lib/platform/detect-platform.js"
+export AGENTSYS_TOOLS_SCRIPT="${OPENCODE_COMMANDS_ROOT}/lib/platform/verify-tools.js"
 EOF
 
 chmod +x "$OPENCODE_COMMANDS_DIR/env.sh"
@@ -158,7 +158,7 @@ echo
 # Install native OpenCode plugin (auto-thinking, workflow enforcement, compaction)
 echo "[PLUGIN] Installing native plugin..."
 PLUGIN_DIR="${OPENCODE_CONFIG_DIR}/plugins"
-PLUGIN_DEST="${PLUGIN_DIR}/awesome-slash.ts"
+PLUGIN_DEST="${PLUGIN_DIR}/agentsys.ts"
 PLUGIN_SRC="${REPO_ROOT}/adapters/opencode-plugin"
 
 if [ -d "$PLUGIN_SRC" ]; then
@@ -173,9 +173,9 @@ echo
 
 # Create README
 cat > "$OPENCODE_COMMANDS_DIR/README.md" << 'EOF'
-# awesome-slash for OpenCode
+# agentsys for OpenCode
 
-This directory contains the awesome-slash commands adapted for OpenCode.
+This directory contains the agentsys commands adapted for OpenCode.
 
 ## Available Commands
 
@@ -228,14 +228,14 @@ Commands use the shared library at:
 
 To update commands, re-run the installer:
 ```bash
-cd /path/to/awesome-slash
+cd /path/to/agentsys
 ./adapters/opencode/install.sh
 ```
 
 ## Support
 
-- Repository: https://github.com/avifenesh/awesome-slash
-- Issues: https://github.com/avifenesh/awesome-slash/issues
+- Repository: https://github.com/avifenesh/agentsys
+- Issues: https://github.com/avifenesh/agentsys/issues
 EOF
 
 echo "  [OK] Created README"
@@ -253,19 +253,19 @@ echo
 
 # Clean up legacy paths (~/.opencode/ - incorrect, pre-XDG location)
 echo "[CLEANUP] Checking for legacy installations..."
-LEGACY_COMMANDS_DIR="${LEGACY_OPENCODE_DIR}/commands/awesome-slash"
-LEGACY_PLUGINS_DIR="${LEGACY_OPENCODE_DIR}/plugins/awesome-slash"
+LEGACY_COMMANDS_DIR="${LEGACY_OPENCODE_DIR}/commands/agentsys"
+LEGACY_PLUGINS_DIR="${LEGACY_OPENCODE_DIR}/plugins/agentsys"
 LEGACY_AGENTS_DIR="${LEGACY_OPENCODE_DIR}/agents"
 
 cleaned_legacy=false
 if [ -d "$LEGACY_COMMANDS_DIR" ]; then
   rm -rf "$LEGACY_COMMANDS_DIR"
-  echo "  [DEL] Removed legacy ~/.opencode/commands/awesome-slash"
+  echo "  [DEL] Removed legacy ~/.opencode/commands/agentsys"
   cleaned_legacy=true
 fi
 if [ -d "$LEGACY_PLUGINS_DIR" ]; then
   rm -rf "$LEGACY_PLUGINS_DIR"
-  echo "  [DEL] Removed legacy ~/.opencode/plugins/awesome-slash"
+  echo "  [DEL] Removed legacy ~/.opencode/plugins/agentsys"
   cleaned_legacy=true
 fi
 if [ -d "$LEGACY_AGENTS_DIR" ]; then

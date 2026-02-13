@@ -78,10 +78,10 @@ Update relevant sections:
 npx tsc --noEmit adapters/opencode-plugin/index.ts
 
 # Install locally and test
-awesome-slash  # Select OpenCode
+agentsys  # Select OpenCode
 
 # Verify plugin copied
-ls ~/.config/opencode/plugins/awesome-slash.ts
+ls ~/.config/opencode/plugins/agentsys.ts
 ```
 
 ## 4. Version Coordination

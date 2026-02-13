@@ -1,13 +1,13 @@
 /**
- * awesome-slash Native OpenCode Plugin
+ * agentsys Native OpenCode Plugin
  *
  * Provides deep integration with OpenCode features:
  * - Auto-thinking selection based on agent complexity
  * - Workflow enforcement via permission hooks
  * - Session compaction with workflow state preservation
  *
- * Install: Automatically installed by `awesome-slash` CLI when selecting OpenCode
- * Location: ~/.config/opencode/plugins/awesome-slash.ts (or $XDG_CONFIG_HOME/opencode/plugins/awesome-slash.ts)
+ * Install: Automatically installed by `agentsys` CLI when selecting OpenCode
+ * Location: ~/.config/opencode/plugins/agentsys.ts (or $XDG_CONFIG_HOME/opencode/plugins/agentsys.ts)
  */
 
 import type { Plugin } from "@opencode-ai/plugin"
@@ -56,7 +56,7 @@ const PROJECT_SCRIPT_PATTERNS: RegExp[] = [
   /\bnpm\s+build\b/,
   /\bnode\s+scripts\//,
   /\bnode\s+bin\/dev-cli\.js\b/,
-  /\bawesome-slash-dev\b/,
+  /\bagentsys-dev\b/,
 ]
 
 // Failure indicators in command output
@@ -123,7 +123,7 @@ async function saveCompactionContext(directory: string, context: string[]): Prom
   }
 }
 
-export const AwesomeSlashPlugin: Plugin = async (ctx) => {
+export const AgentSysPlugin: Plugin = async (ctx) => {
   const { directory } = ctx
 
   return {
@@ -206,8 +206,8 @@ export const AwesomeSlashPlugin: Plugin = async (ctx) => {
           output.status = "deny"
 
           // Log why it was blocked (for debugging)
-          console.error(`[awesome-slash] Blocked "${blocked}" during ${state.phase} phase`)
-          console.error(`[awesome-slash] Use /ship to properly push and create PR`)
+          console.error(`[agentsys] Blocked "${blocked}" during ${state.phase} phase`)
+          console.error(`[agentsys] Use /ship to properly push and create PR`)
           return
         }
       }
@@ -302,7 +302,7 @@ Keep technical details accurate. The user will continue this workflow after comp
           const hasFailure = FAILURE_INDICATORS.some(p => p.test(outputText))
 
           if (hasFailure) {
-            console.error(`[awesome-slash] Script failure detected: ${command}. Report to user before manual fallback.`)
+            console.error(`[agentsys] Script failure detected: ${command}. Report to user before manual fallback.`)
 
             // Record failure in flow.json for workflow tracking
             try {
@@ -335,7 +335,7 @@ Keep technical details accurate. The user will continue this workflow after comp
       if (event.type === "session.error") {
         const state = await getWorkflowState(directory)
         if (state?.phase) {
-          console.error(`[awesome-slash] Error during ${state.phase} phase:`, event.properties)
+          console.error(`[agentsys] Error during ${state.phase} phase:`, event.properties)
         }
       }
     }
@@ -343,4 +343,4 @@ Keep technical details accurate. The user will continue this workflow after comp
 }
 
 // Default export for OpenCode plugin loader
-export default AwesomeSlashPlugin
+export default AgentSysPlugin
