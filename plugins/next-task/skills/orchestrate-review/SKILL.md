@@ -1,6 +1,6 @@
 ---
 name: orchestrate-review
-description: "Use when user asks to \"deep review the code\", \"thorough code review\", \"multi-pass review\", or when orchestrating the Phase 9 review loop. Provides review pass definitions, signal detection patterns, and iteration algorithms."
+description: "Use when user asks to \"deep review the code\", \"thorough code review\", \"multi-pass review\", or when orchestrating the Phase 9 review loop. Provides review pass definitions (code quality, security, performance, test coverage), signal detection patterns, and iteration algorithms."
 metadata:
   short-description: "Multi-pass code review orchestration"
 ---
