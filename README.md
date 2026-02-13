@@ -1,20 +1,20 @@
 <p align="center">
-  <img src="site/assets/logo.png" alt="awesome-slash" width="120">
+  <img src="site/assets/logo.png" alt="AgentSys" width="120">
 </p>
 
-<h1 align="center">awesome-slash</h1>
+<h1 align="center">AgentSys</h1>
 
 <p align="center">
   <strong>Automate the entire dev workflow. Not just the coding.</strong>
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/awesome-slash"><img src="https://img.shields.io/npm/v/awesome-slash.svg" alt="npm version"></a>
-  <a href="https://www.npmjs.com/package/awesome-slash"><img src="https://img.shields.io/npm/dm/awesome-slash.svg" alt="npm downloads"></a>
-  <a href="https://github.com/avifenesh/awesome-slash/actions/workflows/ci.yml"><img src="https://github.com/avifenesh/awesome-slash/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://github.com/avifenesh/awesome-slash/stargazers"><img src="https://img.shields.io/github/stars/avifenesh/awesome-slash?style=social" alt="GitHub stars"></a>
+  <a href="https://www.npmjs.com/package/agentsys"><img src="https://img.shields.io/npm/v/agentsys.svg" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/agentsys"><img src="https://img.shields.io/npm/dm/agentsys.svg" alt="npm downloads"></a>
+  <a href="https://github.com/avifenesh/agentsys/actions/workflows/ci.yml"><img src="https://github.com/avifenesh/agentsys/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/avifenesh/agentsys/stargazers"><img src="https://img.shields.io/github/stars/avifenesh/agentsys?style=social" alt="GitHub stars"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <a href="https://avifenesh.github.io/awesome-slash/"><img src="https://img.shields.io/badge/Website-awesome--slash-blue?style=flat&logo=github" alt="Website"></a>
+  <a href="https://avifenesh.github.io/agentsys/"><img src="https://img.shields.io/badge/Website-AgentSys-blue?style=flat&logo=github" alt="Website"></a>
 </p>
 
 <p align="center">
@@ -22,7 +22,7 @@
 </p>
 
 <p align="center">
-  <a href="#commands">Commands</a> · <a href="#installation">Installation</a> · <a href="https://avifenesh.github.io/awesome-slash/">Website</a> · <a href="https://github.com/avifenesh/awesome-slash/discussions">Discussions</a>
+  <a href="#commands">Commands</a> · <a href="#installation">Installation</a> · <a href="https://avifenesh.github.io/agentsys/">Website</a> · <a href="https://github.com/avifenesh/agentsys/discussions">Discussions</a>
 </p>
 
 <p align="center">
@@ -36,7 +36,7 @@
 
 ---
 
-AI models can write code. That's not the hard part anymore. The hard part is everything else—picking what to work on, managing branches, reviewing output, cleaning up artifacts, handling CI, addressing comments, deploying. **awesome-slash automates the entire workflow**, not just the coding.
+AI models can write code. That's not the hard part anymore. The hard part is everything else—picking what to work on, managing branches, reviewing output, cleaning up artifacts, handling CI, addressing comments, deploying. **AgentSys automates the entire workflow**, not just the coding.
 
 ---
 > Building custom skills, agents, hooks, or MCP tools? [agnix](https://github.com/avifenesh/agnix) is the CLI + LSP linter that catches config errors before they fail silently - real-time IDE validation, auto suggestions, auto-fix, and 155 rules for Cursor, Claude Code, Cline, Copilot, Codex, Windsurf, and more.
@@ -806,24 +806,24 @@ Every command works standalone. [`/deslop`](#deslop) cleans code without needing
 ### Claude Code (Recommended way)
 
 ```bash
-/plugin marketplace add avifenesh/awesome-slash
-/plugin install next-task@awesome-slash
-/plugin install ship@awesome-slash
+/plugin marketplace add avifenesh/agentsys
+/plugin install next-task@agentsys
+/plugin install ship@agentsys
 ```
 
 ### All Platforms (npm)
 
 ```bash
-npm install -g awesome-slash && awesome-slash
+npm install -g agentsys && agentsys
 ```
 
 Interactive installer for Claude Code, OpenCode, and Codex CLI.
 
 ```bash
 # Non-interactive install
-awesome-slash --tool claude              # Single tool
-awesome-slash --tools "claude,opencode"  # Multiple tools
-awesome-slash --development              # Dev mode (bypasses marketplace)
+agentsys --tool claude              # Single tool
+agentsys --tools "claude,opencode"  # Multiple tools
+agentsys --development              # Dev mode (bypasses marketplace)
 ```
 
 [Full installation guide →](./docs/INSTALLATION.md)
@@ -908,8 +908,8 @@ This project is built on research, not guesswork.
 
 ## Support
 
-- **Issues:** [github.com/avifenesh/awesome-slash/issues](https://github.com/avifenesh/awesome-slash/issues)
-- **Discussions:** [github.com/avifenesh/awesome-slash/discussions](https://github.com/avifenesh/awesome-slash/discussions)
+- **Issues:** [github.com/avifenesh/agentsys/issues](https://github.com/avifenesh/agentsys/issues)
+- **Discussions:** [github.com/avifenesh/agentsys/discussions](https://github.com/avifenesh/agentsys/discussions)
 
 ---
 

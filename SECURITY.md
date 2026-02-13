@@ -7,7 +7,7 @@
 If you discover a security vulnerability:
 
 1. **Do not** open a public issue
-2. Use [GitHub Security Advisories](https://github.com/avifenesh/awesome-slash/security/advisories) to report privately
+2. Use [GitHub Security Advisories](https://github.com/avifenesh/agentsys/security/advisories) to report privately
 3. Include steps to reproduce and potential impact
 
 ## User Responsibility
@@ -37,7 +37,7 @@ These measures reduce risk but do not guarantee security.
 
 ## Scope
 
-This policy covers the awesome-slash plugin code only.
+This policy covers the AgentSys plugin code only.
 
 **Not covered:**
 - Claude Code itself (report to Anthropic)

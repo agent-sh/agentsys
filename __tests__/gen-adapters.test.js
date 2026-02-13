@@ -224,10 +224,10 @@ describe('adapter-transforms', () => {
       const result = transforms.transformForCodex(input, {
         skillName: 'test',
         description: 'test',
-        pluginInstallPath: '/home/user/.awesome-slash/plugins/test'
+        pluginInstallPath: '/home/user/.agentsys/plugins/test'
       });
-      expect(result).toContain('/home/user/.awesome-slash/plugins/test/lib');
-      expect(result).toContain('/home/user/.awesome-slash/plugins/test/scripts');
+      expect(result).toContain('/home/user/.agentsys/plugins/test/lib');
+      expect(result).toContain('/home/user/.agentsys/plugins/test/scripts');
     });
 
     test('adds frontmatter to files without it', () => {

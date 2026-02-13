@@ -37,7 +37,7 @@ Create a temporary review queue file in the platform state dir. Review passes ap
 ```javascript
 const path = require('path');
 const fs = require('fs');
-const { getPluginRoot } = require('@awesome-slash/lib/cross-platform');
+const { getPluginRoot } = require('@agentsys/lib/cross-platform');
 const pluginRoot = getPluginRoot('audit-project');
 if (!pluginRoot) { console.error('Error: Could not locate audit-project plugin root'); process.exit(1); }
 const { getStateDirPath } = require(`${pluginRoot}/lib/platform/state-dir.js`);

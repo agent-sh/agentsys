@@ -298,7 +298,7 @@ if [ -n "$TASK_ID" ] && [ "$TASK_SOURCE" = "github" ]; then
 - Merged successfully
 
 ---
-_This issue was automatically processed by awesome-slash /next-task workflow._
+_This issue was automatically processed by AgentSys /next-task workflow._
 _Closing issue as the work has been completed and merged._
 EOF
 )"

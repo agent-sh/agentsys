@@ -40,7 +40,7 @@ All behavior must follow:
 ## Phase 1: Initialize Investigation State
 
 ```javascript
-const { getPluginRoot } = require('@awesome-slash/lib/cross-platform');
+const { getPluginRoot } = require('@agentsys/lib/cross-platform');
 const pluginRoot = getPluginRoot('perf');
 if (!pluginRoot) { console.error('Error: Could not locate perf plugin root'); process.exit(1); }
 const investigationState = require(`${pluginRoot}/lib/perf/investigation-state.js`);

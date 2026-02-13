@@ -1,11 +1,11 @@
 /**
- * Awesome-Slash Core Library
+ * AgentSys Core Library
  *
  * Unified entry point for all core library modules.
  * Provides platform detection, pattern matching, workflow state management,
  * configuration management, and context optimization utilities.
  *
- * @module awesome-slash/lib
+ * @module agentsys/lib
  * @author Avi Fenesh
  * @license MIT
  */

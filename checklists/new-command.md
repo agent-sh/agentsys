@@ -135,8 +135,8 @@ npm test
 npm pack
 
 # Test installation
-npm install -g ./awesome-slash-*.tgz
-echo "1 2 3" | awesome-slash  # Install all platforms
+npm install -g ./agentsys-*.tgz
+echo "1 2 3" | agentsys  # Install all platforms
 
 # Verify command exists
 # Claude Code: /new-command
@@ -148,7 +148,7 @@ echo "1 2 3" | awesome-slash  # Install all platforms
 
 ```bash
 ./scripts/sync-lib.sh
-# Or: awesome-slash-dev sync-lib
+# Or: agentsys-dev sync-lib
 ```
 
 ## Quick Reference

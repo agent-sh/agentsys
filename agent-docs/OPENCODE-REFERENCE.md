@@ -31,10 +31,10 @@ OpenCode has significant features Claude Code doesn't have:
 
 ## What Our Installer Does
 
-When user runs `awesome-slash` and selects OpenCode:
+When user runs `agentsys` and selects OpenCode:
 
 ```
-~/.awesome-slash/                    # Full package copy
+~/.agentsys/                    # Full package copy
 
 ~/.config/opencode/commands/         # 10 commands (global)
 ├── next-task.md
@@ -63,7 +63,7 @@ When user runs `awesome-slash` and selects OpenCode:
 └── ...
 
 ~/.config/opencode/plugins/          # Native plugin (global)
-└── awesome-slash.ts
+└── agentsys.ts
 ```
 
 **Native Plugin Features:**
@@ -172,7 +172,7 @@ Your selection: _
 }
 ```
 
-### Implication for awesome-slash
+### Implication for AgentSys
 
 Our agents use `AskUserQuestion` which works in both platforms, but:
 - Claude Code: Beautiful checkbox UI
@@ -308,7 +308,7 @@ OpenCode supports MCP (Model Context Protocol) for external tool integration.
 }
 ```
 
-Note: awesome-slash uses native OpenCode commands, agents, and skills instead of MCP for better integration and features like auto-thinking selection.
+Note: AgentSys uses native OpenCode commands, agents, and skills instead of MCP for better integration and features like auto-thinking selection.
 
 ---
 
@@ -460,7 +460,7 @@ workflow_status
 ### Verify Commands
 
 ```bash
-# Should list awesome-slash commands
+# Should list AgentSys commands
 /next-task
 /deslop
 /ship
@@ -880,7 +880,7 @@ OpenCode has a pub-sub event system for all operations.
 
 ## Global Thinking Model Configuration
 
-### Proposal for awesome-slash
+### Proposal for AgentSys
 
 Add to user's `opencode.json`:
 

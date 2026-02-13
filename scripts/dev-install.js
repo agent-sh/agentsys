@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Development installer for awesome-slash
+ * Development installer for AgentSys
  *
  * Installs the current local version to all tools at once for quick testing.
  * Use this during development to test changes before publishing.
@@ -45,7 +45,7 @@ const OPENCODE_CONFIG_DIR = getOpenCodeConfigDir();
 // Legacy path - kept for cleanup of old installations
 const LEGACY_OPENCODE_DIR = path.join(HOME, '.opencode');
 const CODEX_DIR = path.join(HOME, '.codex');
-const AWESOME_SLASH_DIR = path.join(HOME, '.awesome-slash');
+const AGENTSYS_DIR = path.join(HOME, '.agentsys');
 
 // Discover plugins from filesystem
 const PLUGINS = discovery.discoverPlugins(SOURCE_DIR);
@@ -68,7 +68,7 @@ function cleanAll() {
 
   // Clean Claude plugins
   for (const plugin of PLUGINS) {
-    const pluginDir = path.join(CLAUDE_PLUGINS_DIR, `${plugin}@awesome-slash`);
+    const pluginDir = path.join(CLAUDE_PLUGINS_DIR, `${plugin}@agentsys`);
     if (fs.existsSync(pluginDir)) {
       fs.rmSync(pluginDir, { recursive: true, force: true });
       log(`  Removed Claude plugin: ${plugin}`);
@@ -108,13 +108,13 @@ function cleanAll() {
   }
 
   // Clean plugin file
-  const pluginFile = path.join(opencodePluginDir, 'awesome-slash.ts');
+  const pluginFile = path.join(opencodePluginDir, 'agentsys.ts');
   if (fs.existsSync(pluginFile)) {
     fs.unlinkSync(pluginFile);
     log('  Removed OpenCode plugin');
   }
 
-  // Clean agent files installed by us - only known awesome-slash agents
+  // Clean agent files installed by us - only known agentsys agents
   if (fs.existsSync(opencodeAgentsDir)) {
     let removedCount = 0;
     for (const file of knownAgents) {
@@ -130,17 +130,17 @@ function cleanAll() {
   }
 
   // Clean legacy OpenCode paths (~/.opencode/ - incorrect, pre-XDG)
-  const legacyCommandsDir = path.join(LEGACY_OPENCODE_DIR, 'commands', 'awesome-slash');
-  const legacyPluginDir = path.join(LEGACY_OPENCODE_DIR, 'plugins', 'awesome-slash');
+  const legacyCommandsDir = path.join(LEGACY_OPENCODE_DIR, 'commands', 'agentsys');
+  const legacyPluginDir = path.join(LEGACY_OPENCODE_DIR, 'plugins', 'agentsys');
   const legacyAgentsDir = path.join(LEGACY_OPENCODE_DIR, 'agents');
 
   if (fs.existsSync(legacyCommandsDir)) {
     fs.rmSync(legacyCommandsDir, { recursive: true, force: true });
-    log('  Removed legacy ~/.opencode/commands/awesome-slash');
+    log('  Removed legacy ~/.opencode/commands/agentsys');
   }
   if (fs.existsSync(legacyPluginDir)) {
     fs.rmSync(legacyPluginDir, { recursive: true, force: true });
-    log('  Removed legacy ~/.opencode/plugins/awesome-slash');
+    log('  Removed legacy ~/.opencode/plugins/agentsys');
   }
   if (fs.existsSync(legacyAgentsDir)) {
     let removedCount = 0;
@@ -170,10 +170,10 @@ function cleanAll() {
     }
   }
 
-  // Clean ~/.awesome-slash
-  if (fs.existsSync(AWESOME_SLASH_DIR)) {
-    fs.rmSync(AWESOME_SLASH_DIR, { recursive: true, force: true });
-    log('  Removed ~/.awesome-slash');
+  // Clean ~/.agentsys
+  if (fs.existsSync(AGENTSYS_DIR)) {
+    fs.rmSync(AGENTSYS_DIR, { recursive: true, force: true });
+    log('  Removed ~/.agentsys');
   }
 
   log('Clean complete.');
@@ -189,7 +189,7 @@ function installClaude() {
 
   // Remove marketplace plugins first
   try {
-    execSync('claude plugin marketplace remove avifenesh/awesome-slash', { stdio: 'pipe' });
+    execSync('claude plugin marketplace remove avifenesh/agentsys', { stdio: 'pipe' });
     log('  Removed marketplace');
   } catch {
     // May not exist
@@ -198,7 +198,7 @@ function installClaude() {
   for (const plugin of PLUGINS) {
     if (!/^[a-z0-9][a-z0-9-]*$/.test(plugin)) continue;
     try {
-      execSync(`claude plugin uninstall ${plugin}@awesome-slash`, { stdio: 'pipe' });
+      execSync(`claude plugin uninstall ${plugin}@agentsys`, { stdio: 'pipe' });
     } catch {
       // May not be installed
     }
@@ -211,7 +211,7 @@ function installClaude() {
   const installedPlugins = {};
   for (const plugin of PLUGINS) {
     const srcDir = path.join(SOURCE_DIR, 'plugins', plugin);
-    const destDir = path.join(CLAUDE_PLUGINS_DIR, `${plugin}@awesome-slash`);
+    const destDir = path.join(CLAUDE_PLUGINS_DIR, `${plugin}@agentsys`);
 
     if (fs.existsSync(srcDir)) {
       if (fs.existsSync(destDir)) {
@@ -227,7 +227,7 @@ function installClaude() {
       });
 
       // Register the plugin
-      installedPlugins[`${plugin}@awesome-slash`] = {
+      installedPlugins[`${plugin}@agentsys`] = {
         source: 'local',
         installedAt: new Date().toISOString()
       };
@@ -249,7 +249,7 @@ function installClaude() {
       const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
       settings.enabledPlugins = settings.enabledPlugins || {};
       for (const plugin of PLUGINS) {
-        settings.enabledPlugins[`${plugin}@awesome-slash`] = true;
+        settings.enabledPlugins[`${plugin}@agentsys`] = true;
       }
       fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
       log('  [OK] Enabled in settings.json');
@@ -276,25 +276,25 @@ function installOpenCode() {
   fs.mkdirSync(agentsDir, { recursive: true });
 
   // Clean up legacy paths (~/.opencode/) if they exist
-  const legacyCommandsDir = path.join(LEGACY_OPENCODE_DIR, 'commands', 'awesome-slash');
-  const legacyPluginDir = path.join(LEGACY_OPENCODE_DIR, 'plugins', 'awesome-slash');
+  const legacyCommandsDir = path.join(LEGACY_OPENCODE_DIR, 'commands', 'agentsys');
+  const legacyPluginDir = path.join(LEGACY_OPENCODE_DIR, 'plugins', 'agentsys');
   if (fs.existsSync(legacyCommandsDir)) {
     fs.rmSync(legacyCommandsDir, { recursive: true, force: true });
-    log('  Cleaned up legacy ~/.opencode/commands/awesome-slash');
+    log('  Cleaned up legacy ~/.opencode/commands/agentsys');
   }
   if (fs.existsSync(legacyPluginDir)) {
     fs.rmSync(legacyPluginDir, { recursive: true, force: true });
-    log('  Cleaned up legacy ~/.opencode/plugins/awesome-slash');
+    log('  Cleaned up legacy ~/.opencode/plugins/agentsys');
   }
 
-  // Copy to ~/.awesome-slash first (OpenCode needs local files)
-  copyToAwesomeSlash();
+  // Copy to ~/.agentsys first (OpenCode needs local files)
+  copyToAgentSys();
 
   // Copy native plugin (OpenCode expects plugins as single .ts files in ~/.config/opencode/plugins/)
   const pluginSrcDir = path.join(SOURCE_DIR, 'adapters', 'opencode-plugin');
   if (fs.existsSync(pluginSrcDir)) {
     const srcPath = path.join(pluginSrcDir, 'index.ts');
-    const destPath = path.join(pluginDir, 'awesome-slash.ts');
+    const destPath = path.join(pluginDir, 'agentsys.ts');
     if (fs.existsSync(srcPath)) {
       fs.copyFileSync(srcPath, destPath);
       log('  [OK] Native plugin');
@@ -349,8 +349,8 @@ function installCodex() {
   fs.mkdirSync(configDir, { recursive: true });
   fs.mkdirSync(skillsDir, { recursive: true });
 
-  // Copy to ~/.awesome-slash first
-  copyToAwesomeSlash();
+  // Copy to ~/.agentsys first
+  copyToAgentSys();
 
   // Discover skill mappings from filesystem (descriptions from codex-description frontmatter)
   const skillMappings = discovery.getCodexSkillMappings(SOURCE_DIR);
@@ -367,7 +367,7 @@ function installCodex() {
       fs.mkdirSync(skillDir, { recursive: true });
 
       let content = fs.readFileSync(srcPath, 'utf8');
-      const pluginInstallPath = path.join(AWESOME_SLASH_DIR, 'plugins', plugin);
+      const pluginInstallPath = path.join(AGENTSYS_DIR, 'plugins', plugin);
       content = transforms.transformForCodex(content, {
         skillName,
         description,
@@ -383,17 +383,17 @@ function installCodex() {
   return true;
 }
 
-let awesomeSlashCopied = false;
-function copyToAwesomeSlash() {
-  if (awesomeSlashCopied) return;
+let agentSysCopied = false;
+function copyToAgentSys() {
+  if (agentSysCopied) return;
 
-  log('Copying to ~/.awesome-slash...');
+  log('Copying to ~/.agentsys...');
 
-  if (fs.existsSync(AWESOME_SLASH_DIR)) {
-    fs.rmSync(AWESOME_SLASH_DIR, { recursive: true, force: true });
+  if (fs.existsSync(AGENTSYS_DIR)) {
+    fs.rmSync(AGENTSYS_DIR, { recursive: true, force: true });
   }
 
-  fs.cpSync(SOURCE_DIR, AWESOME_SLASH_DIR, {
+  fs.cpSync(SOURCE_DIR, AGENTSYS_DIR, {
     recursive: true,
     filter: (src) => {
       const basename = path.basename(src);
@@ -403,16 +403,16 @@ function copyToAwesomeSlash() {
 
   // Install dependencies
   log('  Installing dependencies...');
-  execSync('npm install --production', { cwd: AWESOME_SLASH_DIR, stdio: 'pipe' });
+  execSync('npm install --production', { cwd: AGENTSYS_DIR, stdio: 'pipe' });
 
-  awesomeSlashCopied = true;
-  log('  [OK] ~/.awesome-slash');
+  agentSysCopied = true;
+  log('  [OK] ~/.agentsys');
 }
 
 function main() {
   const args = process.argv.slice(2);
 
-  console.log(`\n[dev-install] awesome-slash v${VERSION}\n`);
+  console.log(`\n[dev-install] agentsys v${VERSION}\n`);
 
   // Handle --clean flag
   if (args.includes('--clean')) {
@@ -457,7 +457,7 @@ function main() {
   }
   console.log();
   log('To clean all: node scripts/dev-install.js --clean');
-  log('To revert Claude to marketplace: awesome-slash --tool claude');
+  log('To revert Claude to marketplace: agentsys --tool claude');
   console.log();
 }
 

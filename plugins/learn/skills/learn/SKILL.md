@@ -1,7 +1,7 @@
 ---
 name: learn
 description: "Research any topic online and create learning guides. Use when user asks to 'learn about', 'research topic', 'create learning guide', 'build knowledge base', or 'study subject'."
-version: 4.2.2
+version: 5.0.0
 argument-hint: "[topic] [--depth=brief|medium|deep]"
 ---
 

@@ -1,4 +1,4 @@
-# Contributing to Awesome Slash Commands
+# Contributing to AgentSys
 
 ## Approval Process
 
@@ -51,7 +51,7 @@ vim lib/patterns/pipeline.js
 
 # Sync to all plugins
 ./scripts/sync-lib.sh
-# Or: awesome-slash-dev sync-lib
+# Or: agentsys-dev sync-lib
 
 # Commit both
 git add lib/ plugins/*/lib/
@@ -67,7 +67,7 @@ After changing plugins, regenerate adapters:
 
 ```bash
 npm run gen-adapters
-# Or: npx awesome-slash-dev gen-adapters
+# Or: npx agentsys-dev gen-adapters
 ```
 
 CI validates adapter freshness on every push.
@@ -158,5 +158,5 @@ Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`
 
 ## Getting Help
 
-- **Questions**: [Discussions](https://github.com/avifenesh/awesome-slash/discussions)
-- **Bugs**: [Issues](https://github.com/avifenesh/awesome-slash/issues)
+- **Questions**: [Discussions](https://github.com/avifenesh/agentsys/discussions)
+- **Bugs**: [Issues](https://github.com/avifenesh/agentsys/issues)

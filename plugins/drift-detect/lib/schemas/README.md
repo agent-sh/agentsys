@@ -99,7 +99,7 @@ describe('Plugin Manifest', () => {
 Validates `plugin.json` files with the following rules:
 
 **Required fields:**
-- `name` - Kebab-case identifier (e.g., "awesome-slash")
+- `name` - Kebab-case identifier (e.g., "agentsys")
 - `version` - Semantic version (e.g., "1.0.0")
 - `description` - 10-500 characters
 - `author` - Object with `name` field
@@ -124,7 +124,7 @@ Validates `plugin.json` files with the following rules:
 
 ```json
 {
-  "name": "awesome-slash",
+  "name": "agentsys",
   "version": "3.0.0",
   "description": "Professional-grade slash commands for Claude Code",
   "author": {
@@ -132,8 +132,8 @@ Validates `plugin.json` files with the following rules:
     "email": "[email protected]",
     "url": "https://github.com/avifenesh"
   },
-  "homepage": "https://github.com/avifenesh/awesome-slash",
-  "repository": "https://github.com/avifenesh/awesome-slash",
+  "homepage": "https://github.com/avifenesh/agentsys",
+  "repository": "https://github.com/avifenesh/agentsys",
   "license": "MIT",
   "keywords": ["workflow", "automation", "productivity"],
   "minClaudeVersion": "1.0.0"

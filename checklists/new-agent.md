@@ -144,8 +144,8 @@ npm test
 
 ```bash
 # Rebuild and install
-npm pack && npm install -g ./awesome-slash-*.tgz
-echo "1 2 3" | awesome-slash
+npm pack && npm install -g ./agentsys-*.tgz
+echo "1 2 3" | agentsys
 
 # Verify agent is installed for OpenCode
 ls ~/.config/opencode/agents/ | grep new-agent

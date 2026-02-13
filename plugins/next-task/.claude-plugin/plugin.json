@@ -1,14 +1,14 @@
 {
   "name": "next-task",
-  "version": "4.2.2",
+  "version": "5.0.0",
   "description": "Master workflow orchestrator with autonomous task-to-production automation, quality gates, and multi-agent review",
   "author": {
     "name": "Avi Fenesh",
     "email": "[email protected]",
     "url": "https://github.com/avifenesh"
   },
-  "homepage": "https://github.com/avifenesh/awesome-slash#next-task",
-  "repository": "https://github.com/avifenesh/awesome-slash",
+  "homepage": "https://github.com/avifenesh/agentsys#next-task",
+  "repository": "https://github.com/avifenesh/agentsys",
   "license": "MIT",
   "keywords": [
     "task-management",

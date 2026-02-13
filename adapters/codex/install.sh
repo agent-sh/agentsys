@@ -2,20 +2,20 @@
 set -e
 
 # [DEPRECATED] This script is outdated and uses old plugin names.
-# Use instead: awesome-slash --tool codex
+# Use instead: agentsys --tool codex
 # Or: node scripts/dev-install.js codex
 
-# Codex CLI Installer for awesome-slash commands
+# Codex CLI Installer for agentsys commands
 # This script installs all 5 slash commands for use with OpenAI Codex CLI
 
-echo "[INSTALL] Installing awesome-slash commands for Codex CLI..."
+echo "[INSTALL] Installing agentsys commands for Codex CLI..."
 echo
 
 # Configuration
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 CODEX_CONFIG_DIR="${HOME}/.codex"
 CODEX_SKILLS_DIR="${CODEX_CONFIG_DIR}/skills"
-CODEX_LIB_DIR="${CODEX_CONFIG_DIR}/awesome-slash/lib"
+CODEX_LIB_DIR="${CODEX_CONFIG_DIR}/agentsys/lib"
 
 # Detect OS and normalize paths
 if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
@@ -25,7 +25,7 @@ if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
   # Replace backslashes with forward slashes
   CODEX_CONFIG_DIR="${CODEX_CONFIG_DIR//\\//}"
   CODEX_SKILLS_DIR="${CODEX_CONFIG_DIR}/skills"
-  CODEX_LIB_DIR="${CODEX_CONFIG_DIR}/awesome-slash/lib"
+  CODEX_LIB_DIR="${CODEX_CONFIG_DIR}/agentsys/lib"
 else
   IS_WINDOWS=false
 fi
@@ -186,8 +186,8 @@ fi
 echo
 
 # Create README
-cat > "$CODEX_CONFIG_DIR/AWESOME_SLASH_README.md" << 'EOF'
-# awesome-slash for Codex CLI
+cat > "$CODEX_CONFIG_DIR/AGENTSYS_README.md" << 'EOF'
+# agentsys for Codex CLI
 
 Skills installed for OpenAI Codex CLI.
 
@@ -216,19 +216,19 @@ Or type `$` to see available skills.
 
 ## Libraries
 
-Shared libraries at: ~/.codex/awesome-slash/lib/
+Shared libraries at: ~/.codex/agentsys/lib/
 
 ## Updates
 
 ```bash
-cd /path/to/awesome-slash
+cd /path/to/agentsys
 ./adapters/codex/install.sh
 ```
 
 ## Support
 
-- Repository: https://github.com/avifenesh/awesome-slash
-- Issues: https://github.com/avifenesh/awesome-slash/issues
+- Repository: https://github.com/avifenesh/agentsys
+- Issues: https://github.com/avifenesh/agentsys/issues
 EOF
 
 echo "  [OK] Created README"
@@ -250,7 +250,7 @@ echo "[NEXT] Next Steps:"
 echo "  1. Start Codex CLI: codex"
 echo "  2. Type: \$ (shows available skills)"
 echo "  3. Select a skill or type: \$next-task"
-echo "  4. See help: cat $CODEX_CONFIG_DIR/AWESOME_SLASH_README.md"
+echo "  4. See help: cat $CODEX_CONFIG_DIR/AGENTSYS_README.md"
 echo
 echo "[TIP] Pro Tip: Type \$ to see all available skills"
 echo

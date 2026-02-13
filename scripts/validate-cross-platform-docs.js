@@ -281,7 +281,7 @@ function validateInstallationInstructions() {
   }
 
   // Check that npm install command is consistent (with optional @latest)
-  const npmPattern = /npm install -g awesome-slash(@latest)?/;
+  const npmPattern = /npm install -g agentsys(@latest)?/;
   const docs = { 'README.md': readme, 'docs/INSTALLATION.md': installDoc, 'docs/CROSS_PLATFORM.md': crossPlatform };
 
   Object.entries(docs).forEach(([file, content]) => {

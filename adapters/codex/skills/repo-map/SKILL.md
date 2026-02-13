@@ -27,7 +27,7 @@ Examples:
 ### 1) Load Repo Map Module
 
 ```javascript
-const { getPluginRoot } = require('@awesome-slash/lib/cross-platform');
+const { getPluginRoot } = require('@agentsys/lib/cross-platform');
 const pluginRoot = getPluginRoot('repo-map');
 if (!pluginRoot) { console.error('Error: Could not locate repo-map plugin root'); process.exit(1); }
 const repoMap = require(`${pluginRoot}/lib/repo-map`);

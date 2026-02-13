@@ -9,12 +9,12 @@ Single command stamps version into all files (`package.json` is the source of tr
 ```bash
 # Bump version everywhere (package.json, package-lock.json, all plugin.json,
 # marketplace.json, site/content.json) via npm lifecycle + stamp-version.js
-npx awesome-slash-dev bump X.Y.Z
+npx agentsys-dev bump X.Y.Z
 # or: npm version X.Y.Z --no-git-tag-version
 ```
 
 - [ ] Run the bump command above
-- [ ] Verify with: `npx awesome-slash-dev validate consistency`
+- [ ] Verify with: `npx agentsys-dev validate consistency`
 
 ## New Plugin Checklist
 
@@ -22,7 +22,7 @@ If adding a NEW plugin (not just updating):
 
 - [ ] Plugin follows conventions: `plugins/<name>/.claude-plugin/plugin.json` exists
 - [ ] Plugin has `commands/<name>.md` with `codex-description` frontmatter
-- [ ] `docs/INSTALLATION.md` → Add `/plugin install <name>@awesome-slash` commands
+- [ ] `docs/INSTALLATION.md` → Add `/plugin install <name>@agentsys` commands
 - [ ] `.claude-plugin/marketplace.json` → Add new plugin entry to `plugins` array
 - [ ] `plugins/<name>/.claude-plugin/plugin.json` → Create plugin manifest
 
@@ -46,8 +46,8 @@ git status                  # No uncommitted changes
 ```bash
 # Build and install for all platforms
 npm pack
-npm install -g ./awesome-slash-*.tgz
-echo "1 2 3" | awesome-slash
+npm install -g ./agentsys-*.tgz
+echo "1 2 3" | agentsys
 ```
 
 ### Verify Each Platform
@@ -87,6 +87,6 @@ git push origin main --tags
 
 ## Post-Release Verification
 
-- [ ] `npm view awesome-slash version` shows new version
+- [ ] `npm view agentsys version` shows new version
 - [ ] GitHub Releases page has new release
-- [ ] `awesome-slash --version` shows new version after `npm update -g`
+- [ ] `agentsys --version` shows new version after `npm update -g`

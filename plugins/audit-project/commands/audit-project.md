@@ -40,7 +40,7 @@ Otherwise create a new queue file. See `audit-project-agents.md` for queue handl
 
 ```bash
 # Get plugin root using Node.js helper
-PLUGIN_ROOT=$(node -e "const { getPluginRoot } = require('@awesome-slash/lib/cross-platform'); const root = getPluginRoot('audit-project'); if (!root) { console.error('Error: Could not locate audit-project plugin root'); process.exit(1); } console.log(root);")
+PLUGIN_ROOT=$(node -e "const { getPluginRoot } = require('@agentsys/lib/cross-platform'); const root = getPluginRoot('audit-project'); if (!root) { console.error('Error: Could not locate audit-project plugin root'); process.exit(1); } console.log(root);")
 PLATFORM=$(node "$PLUGIN_ROOT/lib/platform/detect-platform.js")
 TOOLS=$(node "$PLUGIN_ROOT/lib/platform/verify-tools.js")
 

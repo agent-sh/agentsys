@@ -1,12 +1,12 @@
 {
-  "name": "awesome-slash",
+  "name": "agentsys",
   "description": "12 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, repo mapping, perf investigations, topic research, agent config linting, and cross-tool AI consultation",
-  "version": "4.2.2",
+  "version": "5.0.0",
   "owner": {
     "name": "Avi Fenesh",
     "url": "https://github.com/avifenesh"
   },
-  "repository": "https://github.com/avifenesh/awesome-slash",
+  "repository": "https://github.com/avifenesh/agentsys",
   "keywords": [
     "ai",
     "llm",
@@ -26,84 +26,84 @@
       "name": "next-task",
       "source": "./plugins/next-task",
       "description": "Master workflow orchestrator: autonomous workflow with model optimization (opus/sonnet/haiku), two-file state management, workflow enforcement gates, 14 specialist agents",
-      "version": "4.2.2",
+      "version": "5.0.0",
       "category": "productivity"
     },
     {
       "name": "ship",
       "source": "./plugins/ship",
       "description": "Complete PR workflow: commit to production, skips review when called from next-task, removes task from registry on cleanup, automatic rollback",
-      "version": "4.2.2",
+      "version": "5.0.0",
       "category": "deployment"
     },
     {
       "name": "deslop",
       "source": "./plugins/deslop",
       "description": "3-phase AI slop detection: regex patterns (HIGH), multi-pass analyzers (MEDIUM), CLI tools (LOW)",
-      "version": "4.2.2",
+      "version": "5.0.0",
       "category": "development"
     },
     {
       "name": "audit-project",
       "source": "./plugins/audit-project",
       "description": "Multi-agent iterative code review until zero issues remain",
-      "version": "4.2.2",
+      "version": "5.0.0",
       "category": "development"
     },
     {
       "name": "drift-detect",
       "source": "./plugins/drift-detect",
       "description": "Deep repository analysis to realign project plans with code reality - detects drift, gaps, and creates prioritized reconstruction plans",
-      "version": "4.2.2",
+      "version": "5.0.0",
       "category": "productivity"
     },
     {
       "name": "enhance",
       "source": "./plugins/enhance",
       "description": "Master enhancement orchestrator: parallel analyzer execution for plugins, agents, docs, CLAUDE.md, and prompts with unified reporting",
-      "version": "4.2.2",
+      "version": "5.0.0",
       "category": "development"
     },
     {
       "name": "sync-docs",
       "source": "./plugins/sync-docs",
       "description": "Standalone documentation sync: find outdated refs, update CHANGELOG, flag stale examples based on code changes",
-      "version": "4.2.2",
+      "version": "5.0.0",
       "category": "development"
     },
     {
       "name": "repo-map",
       "source": "./plugins/repo-map",
       "description": "AST-based repository map generation using ast-grep with incremental updates for faster drift analysis",
-      "version": "4.2.2",
+      "version": "5.0.0",
       "category": "development"
     },
     {
       "name": "perf",
       "source": "./plugins/perf",
       "description": "Rigorous performance investigation workflow with baselines, profiling, hypotheses, and evidence-backed decisions",
-      "version": "4.2.2",
+      "version": "5.0.0",
       "category": "development"
     },
     {
       "name": "learn",
       "source": "./plugins/learn",
       "description": "Research topics online and create comprehensive learning guides with RAG-optimized indexes",
-      "version": "4.2.2",
+      "version": "5.0.0",
       "category": "productivity"
     },
     {
       "name": "agnix",
       "source": "./plugins/agnix",
       "description": "Lint agent configuration files (SKILL.md, CLAUDE.md, hooks, MCP) against 155 rules across 10+ AI tools",
-      "version": "4.2.2",
+      "version": "5.0.0",
       "category": "development"
     },
     {
       "name": "consult",
       "source": "./plugins/consult",
       "description": "Cross-tool AI consultation: get second opinions from Gemini CLI, Codex CLI, Claude Code, OpenCode, or Copilot CLI with model and thinking effort control",
-      "version": "4.2.2",
+      "version": "5.0.0",
       "category": "productivity"
     }
   ]

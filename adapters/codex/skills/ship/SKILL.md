@@ -74,7 +74,7 @@ Parse from $ARGUMENTS:
 ## State Integration
 
 ```javascript
-const { getPluginRoot } = require('@awesome-slash/lib/cross-platform');
+const { getPluginRoot } = require('@agentsys/lib/cross-platform');
 const pluginRoot = getPluginRoot('ship');
 if (!pluginRoot) { console.error('Error: Could not locate ship plugin root'); process.exit(1); }
 
@@ -96,7 +96,7 @@ function updatePhase(phase, result) {
 
 ```bash
 # Detect platform and project configuration
-PLUGIN_PATH=$(node -e "const { getPluginRoot, normalizePathForRequire } = require('@awesome-slash/lib/cross-platform'); const root = getPluginRoot('ship'); if (!root) { console.error('Error: Could not locate ship plugin root'); process.exit(1); } console.log(normalizePathForRequire(root));")
+PLUGIN_PATH=$(node -e "const { getPluginRoot, normalizePathForRequire } = require('@agentsys/lib/cross-platform'); const root = getPluginRoot('ship'); if (!root) { console.error('Error: Could not locate ship plugin root'); process.exit(1); } console.log(normalizePathForRequire(root));")
 PLATFORM=$(node "$PLUGIN_PATH/lib/platform/detect-platform.js")
 TOOLS=$(node "$PLUGIN_PATH/lib/platform/verify-tools.js")
 
@@ -356,7 +356,7 @@ git checkout $MAIN_BRANCH
 git pull origin $MAIN_BRANCH
 
 # Update repo-map if it exists (non-blocking)
-node -e "const { getPluginRoot } = require('@awesome-slash/lib/cross-platform'); const pluginRoot = getPluginRoot('ship'); if (!pluginRoot) { console.log('Plugin root not found, skipping repo-map'); process.exit(0); } const repoMap = require(\`\${pluginRoot}/lib/repo-map\`); if (repoMap.exists(process.cwd())) { repoMap.update(process.cwd(), {}).then(() => console.log('[OK] Repo-map updated')).catch((e) => console.log('[WARN] Repo-map update failed: ' + e.message)); } else { console.log('Repo-map not found, skipping'); }" || true
+node -e "const { getPluginRoot } = require('@agentsys/lib/cross-platform'); const pluginRoot = getPluginRoot('ship'); if (!pluginRoot) { console.log('Plugin root not found, skipping repo-map'); process.exit(0); } const repoMap = require(\`\${pluginRoot}/lib/repo-map\`); if (repoMap.exists(process.cwd())) { repoMap.update(process.cwd(), {}).then(() => console.log('[OK] Repo-map updated')).catch((e) => console.log('[WARN] Repo-map update failed: ' + e.message)); } else { console.log('Repo-map not found, skipping'); }" || true
 MERGE_SHA=$(git rev-parse HEAD)
 echo "[OK] Merged PR #$PR_NUMBER at $MERGE_SHA"
 ```
@@ -403,7 +403,7 @@ if [ -n "$TASK_ID" ] && [ "$TASK_SOURCE" = "github" ]; then
 - Merged successfully
 
 ---
-_This issue was automatically processed by awesome-slash /next-task workflow._
+_This issue was automatically processed by AgentSys /next-task workflow._
 _Closing issue as the work has been completed and merged._
 EOF
 )"

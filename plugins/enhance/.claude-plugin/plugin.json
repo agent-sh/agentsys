@@ -1,14 +1,14 @@
 {
   "name": "enhance",
-  "version": "4.2.2",
+  "version": "5.0.0",
   "description": "Plugin structure and tool use analyzer - validates plugin.json, MCP tools, and security patterns",
   "author": {
     "name": "Avi Fenesh",
     "email": "[email protected]",
     "url": "https://github.com/avifenesh"
   },
-  "homepage": "https://github.com/avifenesh/awesome-slash#enhance",
-  "repository": "https://github.com/avifenesh/awesome-slash",
+  "homepage": "https://github.com/avifenesh/agentsys#enhance",
+  "repository": "https://github.com/avifenesh/agentsys",
   "license": "MIT",
   "keywords": [
     "plugin-analyzer",

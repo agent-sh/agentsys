@@ -48,21 +48,21 @@ For OpenCode and Codex CLI, the installer adapts the platform argument handling 
 
 ```bash
 # Add the marketplace
-/plugin marketplace add avifenesh/awesome-slash
+/plugin marketplace add avifenesh/agentsys
 
 # Install plugins
-/plugin install next-task@awesome-slash
-/plugin install ship@awesome-slash
+/plugin install next-task@agentsys
+/plugin install ship@agentsys
 ```
 
 ### Option 2: npm Global Install
 
 ```bash
-npm install -g awesome-slash@latest
-awesome-slash  # Select option 1 for Claude Code
+npm install -g agentsys@latest
+agentsys  # Select option 1 for Claude Code
 
 # Or non-interactive:
-awesome-slash --tool claude
+agentsys --tool claude
 ```
 
 ### Option 3: Development Mode (Testing RC Versions)
@@ -70,13 +70,13 @@ awesome-slash --tool claude
 Install directly to `~/.claude/plugins/` bypassing the marketplace:
 
 ```bash
-awesome-slash --development
+agentsys --development
 ```
 
 ### Option 4: Plugin Directory (Local Development)
 
 ```bash
-claude --plugin-dir /path/to/awesome-slash/plugins/next-task
+claude --plugin-dir /path/to/agentsys/plugins/next-task
 ```
 
 ### Available Commands
@@ -159,17 +159,17 @@ Conditional: architecture-reviewer, database-specialist, api-designer, frontend-
 ### Option 1: npm Global Install (Recommended)
 
 ```bash
-npm install -g awesome-slash@latest
-awesome-slash  # Select option 2 for OpenCode
+npm install -g agentsys@latest
+agentsys  # Select option 2 for OpenCode
 
 # Or non-interactive:
-awesome-slash --tool opencode
+agentsys --tool opencode
 ```
 
 By default, model specifications (sonnet/opus/haiku) are stripped from agents. This prevents errors when your OpenCode setup doesn't have matching model aliases. If you have proper model mappings configured, use `--no-strip` to include them:
 
 ```bash
-awesome-slash --tool opencode --no-strip
+agentsys --tool opencode --no-strip
 ```
 
 This installs:
@@ -178,7 +178,7 @@ This installs:
 
 ### Native Plugin Features
 
-The native plugin (`~/.config/opencode/plugins/awesome-slash.ts`) provides deep integration:
+The native plugin (`~/.config/opencode/plugins/agentsys.ts`) provides deep integration:
 
 | Feature | Description |
 |---------|-------------|
@@ -247,11 +247,11 @@ When invoked, you should:
 ### Option 1: npm Global Install (Recommended)
 
 ```bash
-npm install -g awesome-slash@latest
-awesome-slash  # Select option 3 for Codex CLI
+npm install -g agentsys@latest
+agentsys  # Select option 3 for Codex CLI
 
 # Or non-interactive:
-awesome-slash --tool codex
+agentsys --tool codex
 ```
 
 This installs skills to `~/.codex/skills/` (`$next-task`, `$ship`, `$deslop`, `$audit-project`, `$repo-map`, `$sync-docs`).
@@ -325,7 +325,7 @@ The plugin auto-detects the platform and uses the appropriate directory. Overrid
 - Slash commands in `~/.config/opencode/commands/`
 - Agents in `~/.config/opencode/agents/` (31 agents)
 - Skills in `~/.config/opencode/skills/` (27 skills)
-- Native plugin in `~/.config/opencode/plugins/awesome-slash.ts`
+- Native plugin in `~/.config/opencode/plugins/agentsys.ts`
 - **Native plugin features:**
   - Auto-thinking selection (adjusts budget per agent)
   - Workflow enforcement (blocks git push until /ship)
@@ -341,13 +341,13 @@ The plugin auto-detects the platform and uses the appropriate directory. Overrid
 
 ### From Claude Code to OpenCode
 
-1. Run: `npm install -g awesome-slash && awesome-slash --tool opencode`
+1. Run: `npm install -g agentsys && agentsys --tool opencode`
 2. State files will be created fresh in `.opencode/`
 3. Or copy state: `cp -r .claude/* .opencode/`
 
 ### From Claude Code to Codex
 
-1. Run: `npm install -g awesome-slash && awesome-slash --tool codex`
+1. Run: `npm install -g agentsys && agentsys --tool codex`
 2. State files will be created fresh in `.codex/`
 3. Or copy state: `cp -r .claude/* .codex/`
 

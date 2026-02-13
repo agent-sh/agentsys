@@ -99,10 +99,10 @@ function getPluginRoot(pluginName = 'enhance') {
   const stateDir = getStateDir();
   const home = os.homedir();
 
-  // Search pattern: ~/.{stateDir}/plugins/cache/awesome-slash/{pluginName}/{version}
+  // Search pattern: ~/.{stateDir}/plugins/cache/agentsys/{pluginName}/{version}
   const searchPaths = [
-    path.join(home, stateDir, 'plugins', 'cache', 'awesome-slash', pluginName),
-    path.join(home, stateDir, 'plugins', 'awesome-slash', pluginName)
+    path.join(home, stateDir, 'plugins', 'cache', 'agentsys', pluginName),
+    path.join(home, stateDir, 'plugins', 'agentsys', pluginName)
   ];
 
   for (const searchPath of searchPaths) {
@@ -439,7 +439,7 @@ function normalizePathForRequire(p) {
 function getOpenCodeConfig(serverPath, env = {}) {
   return {
     mcp: {
-      'awesome-slash': {
+      'agentsys': {
         type: 'local',
         command: ['node', serverPath],
         environment: {
@@ -469,7 +469,7 @@ function getCodexConfig(serverPath, env = {}) {
   }).map(([k, v]) => `${k} = "${v}"`).join(', ');
 
   return `
-[mcp_servers.awesome-slash]
+[mcp_servers.agentsys]
 command = "node"
 args = ["${serverPath}"]
 env = { ${envEntries} }

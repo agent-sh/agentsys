@@ -32,7 +32,7 @@ Example: `/drift-detect --sources github,docs --depth quick --output file`
 ## Phase 1: Parse Arguments and Collect Data
 
 ```javascript
-const { getPluginRoot } = require('@awesome-slash/lib/cross-platform');
+const { getPluginRoot } = require('@agentsys/lib/cross-platform');
 const pluginRoot = getPluginRoot('drift-detect');
 if (!pluginRoot) { console.error('Error: Could not locate drift-detect plugin root'); process.exit(1); }
 const collectors = require(`${pluginRoot}/lib/drift-detect/collectors.js`);

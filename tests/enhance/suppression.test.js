@@ -3,7 +3,7 @@
  * Tests for loadConfig, shouldSuppress, filterFindings with auto-learning integration
  */
 
-const suppression = require('@awesome-slash/lib/enhance/suppression');
+const suppression = require('@agentsys/lib/enhance/suppression');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');

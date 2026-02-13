@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * awesome-slash CLI installer
+ * AgentSys CLI installer
  *
- * Install:  npm install -g awesome-slash@latest
- * Run:      awesome-slash
- * Update:   npm update -g awesome-slash
- * Remove:   npm uninstall -g awesome-slash && awesome-slash --remove
+ * Install:  npm install -g agentsys@latest
+ * Run:      agentsys
+ * Update:   npm update -g agentsys
+ * Remove:   npm uninstall -g agentsys && agentsys --remove
  */
 
 const { execSync } = require('child_process');
@@ -24,7 +24,7 @@ const VALID_TOOLS = ['claude', 'opencode', 'codex'];
 
 function getInstallDir() {
   const home = process.env.HOME || process.env.USERPROFILE;
-  return path.join(home, '.awesome-slash');
+  return path.join(home, '.agentsys');
 }
 
 function getClaudePluginsDir() {
@@ -125,7 +125,7 @@ function parseArgs(args) {
   }
 
   // Environment variable override for strip models (legacy support)
-  if (['0', 'false', 'no'].includes((process.env.AWESOME_SLASH_STRIP_MODELS || '').toLowerCase())) {
+  if (['0', 'false', 'no'].includes((process.env.AGENTSYS_STRIP_MODELS || '').toLowerCase())) {
     result.stripModels = false;
   }
 
@@ -174,8 +174,8 @@ function cleanOldInstallation(installDir) {
 }
 
 function copyFromPackage(installDir) {
-  console.log('Installing awesome-slash files...');
-  // Copy from npm package to ~/.awesome-slash
+  console.log('Installing AgentSys files...');
+  // Copy from npm package to ~/.agentsys
   fs.cpSync(PACKAGE_DIR, installDir, {
     recursive: true,
     filter: (src) => {
@@ -198,8 +198,8 @@ function installForClaude() {
     console.log('[WARN]  Claude Code CLI not detected.');
     console.log('   Install it first: https://claude.ai/code\n');
     console.log('   Then run in Claude Code:');
-    console.log('   /plugin marketplace add avifenesh/awesome-slash');
-    console.log('   /plugin install next-task@awesome-slash\n');
+    console.log('   /plugin marketplace add avifenesh/agentsys');
+    console.log('   /plugin install next-task@agentsys\n');
     return false;
   }
 
@@ -207,7 +207,7 @@ function installForClaude() {
     // Add GitHub marketplace
     console.log('Adding marketplace...');
     try {
-      execSync('claude plugin marketplace add avifenesh/awesome-slash', { stdio: 'pipe' });
+      execSync('claude plugin marketplace add avifenesh/agentsys', { stdio: 'pipe' });
     } catch {
       // May already exist
     }
@@ -220,11 +220,11 @@ function installForClaude() {
       console.log(`  Installing ${plugin}...`);
       try {
         // Try install first
-        execSync(`claude plugin install ${plugin}@awesome-slash`, { stdio: 'pipe' });
+        execSync(`claude plugin install ${plugin}@agentsys`, { stdio: 'pipe' });
       } catch {
         // If install fails (already installed), try update
         try {
-          execSync(`claude plugin update ${plugin}@awesome-slash`, { stdio: 'pipe' });
+          execSync(`claude plugin update ${plugin}@agentsys`, { stdio: 'pipe' });
         } catch {
           // Ignore if update also fails
         }
@@ -236,8 +236,8 @@ function installForClaude() {
     return true;
   } catch (err) {
     console.log('[ERROR] Auto-install failed. Manual installation:');
-    console.log('   /plugin marketplace add avifenesh/awesome-slash');
-    console.log('   /plugin install next-task@awesome-slash');
+    console.log('   /plugin marketplace add avifenesh/agentsys');
+    console.log('   /plugin install next-task@agentsys');
     return false;
   }
 }
@@ -257,7 +257,7 @@ function installForClaudeDevelopment() {
   // Remove marketplace plugins first
   console.log('Removing marketplace plugins...');
   try {
-    execSync('claude plugin marketplace remove avifenesh/awesome-slash', { stdio: 'pipe' });
+    execSync('claude plugin marketplace remove avifenesh/agentsys', { stdio: 'pipe' });
     console.log('  [OK] Removed marketplace');
   } catch {
     // May not exist
@@ -267,7 +267,7 @@ function installForClaudeDevelopment() {
     // Validate plugin name before shell use (prevents injection)
     if (!/^[a-z0-9][a-z0-9-]*$/.test(plugin)) continue;
     try {
-      execSync(`claude plugin uninstall ${plugin}@awesome-slash`, { stdio: 'pipe' });
+      execSync(`claude plugin uninstall ${plugin}@agentsys`, { stdio: 'pipe' });
       console.log(`  [OK] Uninstalled ${plugin}`);
     } catch {
       // May not be installed
@@ -281,7 +281,7 @@ function installForClaudeDevelopment() {
   console.log('\nCopying plugins from package...');
   for (const plugin of plugins) {
     const srcDir = path.join(PACKAGE_DIR, 'plugins', plugin);
-    const destDir = path.join(pluginsDir, `${plugin}@awesome-slash`);
+    const destDir = path.join(pluginsDir, `${plugin}@agentsys`);
 
     if (fs.existsSync(srcDir)) {
       // Remove existing
@@ -305,8 +305,8 @@ function installForClaudeDevelopment() {
   console.log('  Plugins installed to: ' + pluginsDir);
   console.log('  Commands: ' + plugins.map(p => '/' + p).join(', '));
   console.log('\n[NOTE] To revert to marketplace version:');
-  console.log('  rm -rf ~/.claude/plugins/*@awesome-slash');
-  console.log('  awesome-slash --tool claude');
+  console.log('  rm -rf ~/.claude/plugins/*@agentsys');
+  console.log('  agentsys --tool claude');
   return true;
 }
 
@@ -334,7 +334,7 @@ function installForOpenCode(installDir, options = {}) {
   if (fs.existsSync(pluginSrcDir)) {
     // OpenCode loads plugin files directly from the plugins directory.
     const srcPath = path.join(pluginSrcDir, 'index.ts');
-    const destPath = path.join(pluginDir, 'awesome-slash.ts');
+    const destPath = path.join(pluginDir, 'agentsys.ts');
     if (fs.existsSync(srcPath)) {
       fs.copyFileSync(srcPath, destPath);
       console.log('  [OK] Installed native plugin (auto-thinking, workflow enforcement)');
@@ -342,12 +342,12 @@ function installForOpenCode(installDir, options = {}) {
   }
 
   // Clean up the legacy (pre-XDG) install location if it exists.
-  // This location is not used by OpenCode and was used by older awesome-slash versions.
-  const legacyCommandsDir = path.join(home, '.opencode', 'commands', 'awesome-slash');
+  // This location is not used by OpenCode and was used by older agentsys versions.
+  const legacyCommandsDir = path.join(home, '.opencode', 'commands', 'agentsys');
   if (fs.existsSync(legacyCommandsDir)) {
     fs.rmSync(legacyCommandsDir, { recursive: true, force: true });
   }
-  const legacyPluginDir = path.join(home, '.opencode', 'plugins', 'awesome-slash');
+  const legacyPluginDir = path.join(home, '.opencode', 'plugins', 'agentsys');
   if (fs.existsSync(legacyPluginDir)) {
     fs.rmSync(legacyPluginDir, { recursive: true, force: true });
   }
@@ -520,42 +520,42 @@ function removeInstallation() {
   const installDir = getInstallDir();
 
   if (!fs.existsSync(installDir)) {
-    console.log('Nothing to remove. awesome-slash is not installed.');
+    console.log('Nothing to remove. agentsys is not installed.');
     return;
   }
 
-  console.log('Removing awesome-slash...');
+  console.log('Removing agentsys...');
   fs.rmSync(installDir, { recursive: true, force: true });
 
-  console.log('\n[OK] Removed ~/.awesome-slash');
+  console.log('\n[OK] Removed ~/.agentsys');
   console.log('\nTo fully uninstall, also remove:');
-  console.log('  - Claude: /plugin marketplace remove awesome-slash');
-  console.log('  - OpenCode: Remove files under ~/.config/opencode/ (commands/*.md, agents/*.md, skills/*/SKILL.md) and ~/.config/opencode/plugins/awesome-slash.ts');
+  console.log('  - Claude: /plugin marketplace remove agentsys');
+  console.log('  - OpenCode: Remove files under ~/.config/opencode/ (commands/*.md, agents/*.md, skills/*/SKILL.md) and ~/.config/opencode/plugins/agentsys.ts');
   console.log('  - Codex: Remove ~/.codex/skills/*/');
 }
 
 function printHelp() {
   console.log(`
-awesome-slash v${VERSION} - Workflow automation for AI coding assistants
+agentsys v${VERSION} - Workflow automation for AI coding assistants
 
 Usage:
-  awesome-slash                    Interactive installer (select platforms)
-  awesome-slash --tool <name>      Install for single tool (claude, opencode, codex)
-  awesome-slash --tools <list>     Install for multiple tools (comma-separated)
-  awesome-slash --development      Development mode: install to ~/.claude/plugins
-  awesome-slash --no-strip, -ns    Include model specifications (stripped by default)
-  awesome-slash --remove           Remove local installation
-  awesome-slash --version, -v      Show version
-  awesome-slash --help, -h         Show this help
+  agentsys                    Interactive installer (select platforms)
+  agentsys --tool <name>      Install for single tool (claude, opencode, codex)
+  agentsys --tools <list>     Install for multiple tools (comma-separated)
+  agentsys --development      Development mode: install to ~/.claude/plugins
+  agentsys --no-strip, -ns    Include model specifications (stripped by default)
+  agentsys --remove           Remove local installation
+  agentsys --version, -v      Show version
+  agentsys --help, -h         Show this help
 
 Non-Interactive Examples:
-  awesome-slash --tool claude              # Install for Claude Code only
-  awesome-slash --tool opencode            # Install for OpenCode only
-  awesome-slash --tools "claude,opencode"  # Install for both
-  awesome-slash --tools claude,opencode,codex  # Install for all three
+  agentsys --tool claude              # Install for Claude Code only
+  agentsys --tool opencode            # Install for OpenCode only
+  agentsys --tools "claude,opencode"  # Install for both
+  agentsys --tools claude,opencode,codex  # Install for all three
 
 Development Mode:
-  awesome-slash --development      # Install plugins directly to ~/.claude/plugins
+  agentsys --development      # Install plugins directly to ~/.claude/plugins
                                    # Bypasses marketplace for testing RC versions
 
 Model Handling:
@@ -564,18 +564,18 @@ Model Handling:
   required model mappings configured. Use --no-strip or -ns to include models.
 
 Environment Variables:
-  AWESOME_SLASH_STRIP_MODELS=0     Same as --no-strip
+  AGENTSYS_STRIP_MODELS=0     Same as --no-strip
 
 Supported Platforms:
   claude   - Claude Code (marketplace install or development mode)
   opencode - OpenCode (local commands + native plugin)
   codex    - Codex CLI (local skills)
 
-Install:  npm install -g awesome-slash && awesome-slash
-Update:   npm update -g awesome-slash && awesome-slash
-Remove:   npm uninstall -g awesome-slash && awesome-slash --remove
+Install:  npm install -g agentsys && agentsys
+Update:   npm update -g agentsys && agentsys
+Remove:   npm uninstall -g agentsys && agentsys --remove
 
-Docs: https://github.com/avifenesh/awesome-slash
+Docs: https://github.com/avifenesh/agentsys
 `);
 }
 
@@ -590,7 +590,7 @@ async function main() {
 
   // Handle --version
   if (args.version) {
-    console.log(`awesome-slash v${VERSION}`);
+    console.log(`agentsys v${VERSION}`);
     return;
   }
 
@@ -613,7 +613,7 @@ async function main() {
 
   // If no tools specified via flags, show interactive prompt
   if (selected.length === 0) {
-    const title = `awesome-slash v${VERSION}`;
+    const title = `agentsys v${VERSION}`;
     const subtitle = 'Workflow automation for AI assistants';
     const width = Math.max(title.length, subtitle.length) + 6;
     const pad = (str) => {
@@ -645,14 +645,14 @@ async function main() {
     if (selected.length === 0) {
       console.log('\nNo platforms selected. Exiting.');
       console.log('\nFor Claude Code, you can also install directly:');
-      console.log('  /plugin marketplace add avifenesh/awesome-slash');
+      console.log('  /plugin marketplace add avifenesh/agentsys');
       process.exit(0);
     }
   }
 
   console.log(`\nInstalling for: ${selected.join(', ')}\n`);
 
-  // Only copy to ~/.awesome-slash if OpenCode or Codex selected (they need local files)
+  // Only copy to ~/.agentsys if OpenCode or Codex selected (they need local files)
   const needsLocalInstall = selected.includes('opencode') || selected.includes('codex');
   let installDir = null;
 
@@ -686,9 +686,9 @@ async function main() {
   if (installDir) {
     console.log(`\nInstallation directory: ${installDir}`);
   }
-  console.log('\nTo update:  npm update -g awesome-slash');
-  console.log('To remove:  npm uninstall -g awesome-slash && awesome-slash --remove');
-  console.log('\nDocs: https://github.com/avifenesh/awesome-slash');
+  console.log('\nTo update:  npm update -g agentsys');
+  console.log('To remove:  npm uninstall -g agentsys && agentsys --remove');
+  console.log('\nDocs: https://github.com/avifenesh/agentsys');
 }
 
 // Export for testing when required as module

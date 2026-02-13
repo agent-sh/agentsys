@@ -57,7 +57,7 @@ Before creating a tag:
 - [ ] All tests pass (`npm test`)
 - [ ] No uncommitted changes
 - [ ] CHANGELOG.md updated with new version entry
-- [ ] Version bumped with `npx awesome-slash-dev bump X.Y.Z` (auto-updates 15+ files)
+- [ ] Version bumped with `npx agentsys-dev bump X.Y.Z` (auto-updates 15+ files)
 - [ ] README.md "What's New" section updated
 
 ---
@@ -68,7 +68,7 @@ Version bumping is **fully automated**. `package.json` is the single source of t
 
 ```bash
 # Single command updates ALL 15+ version locations
-npx awesome-slash-dev bump X.Y.Z
+npx agentsys-dev bump X.Y.Z
 # Or: npm version X.Y.Z --no-git-tag-version
 ```
 
@@ -84,7 +84,7 @@ npx awesome-slash-dev bump X.Y.Z
 
 **Verify versions:**
 ```bash
-npx awesome-slash-dev validate consistency
+npx agentsys-dev validate consistency
 ```
 
 ---
@@ -176,10 +176,10 @@ Provenance requires:
 
 The workflow provides a summary, but you can also verify manually:
 
-- [ ] npm package published: `npm view awesome-slash version`
+- [ ] npm package published: `npm view agentsys version`
 - [ ] GitHub release created: check Releases page
 - [ ] Provenance visible on npm package page
-- [ ] Claude Code can install: `claude plugin add npm:awesome-slash`
+- [ ] Claude Code can install: `claude plugin add npm:agentsys`
 
 ---
 
@@ -196,7 +196,7 @@ Update any mismatched files.
 ### npm publish fails
 
 - Verify `NPM_TOKEN` secret is set and valid
-- Check npm account has publish access to `awesome-slash`
+- Check npm account has publish access to `agentsys`
 - For scoped packages, ensure `--access public` is set
 
 ### Tag already exists

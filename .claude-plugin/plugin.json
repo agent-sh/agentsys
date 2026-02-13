@@ -1,6 +1,6 @@
 {
-  "name": "awesome-slash",
-  "version": "4.2.2",
+  "name": "agentsys",
+  "version": "5.0.0",
   "description": "Professional-grade slash commands for Claude Code with cross-platform support",
   "keywords": [
     "workflow",
@@ -15,6 +15,6 @@
     "name": "Avi Fenesh",
     "url": "https://github.com/avifenesh"
   },
-  "repository": "https://github.com/avifenesh/awesome-slash",
+  "repository": "https://github.com/avifenesh/agentsys",
   "license": "MIT"
 }

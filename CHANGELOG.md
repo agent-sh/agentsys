@@ -1,5 +1,7 @@
 # Changelog
 
+> **Migration Note:** This project was renamed from `awesome-slash` to `agentsys` in v5.0.0. All npm packages, CLI commands, and GitHub references now use the new name. Previous versions are archived under the old name.
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
@@ -24,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.2.1] - 2026-02-11
 
 ### Fixed
-- Removed unused `@awesome-slash/lib` publish job from release workflow
+- Removed unused `@agentsys/lib` publish job from release workflow
 - Cleaned up all references to lib as a standalone npm package (docs, scripts, tests, configs)
 
 ## [4.2.0] - 2026-02-11
@@ -41,17 +43,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Three invocation paths: `/consult` command, `Skill('consult')`, `Task({ subagent_type: 'consult:consult-agent' })`
   - Provider detection, structured JSON output, and per-provider effort mapping
 - **Plugin scaffolding system** (`scripts/scaffold.js`) - Scaffold new plugins, agents, skills, and commands from templates (#184)
-  - `npx awesome-slash-dev new plugin <name>` - full plugin directory with plugin.json, default command, and shared lib
-  - `npx awesome-slash-dev new agent <name> --plugin=<plugin>` - agent .md with YAML frontmatter template
-  - `npx awesome-slash-dev new skill <name> --plugin=<plugin>` - skill directory with SKILL.md
-  - `npx awesome-slash-dev new command <name> --plugin=<plugin>` - command .md with frontmatter
+  - `npx agentsys-dev new plugin <name>` - full plugin directory with plugin.json, default command, and shared lib
+  - `npx agentsys-dev new agent <name> --plugin=<plugin>` - agent .md with YAML frontmatter template
+  - `npx agentsys-dev new skill <name> --plugin=<plugin>` - skill directory with SKILL.md
+  - `npx agentsys-dev new command <name> --plugin=<plugin>` - command .md with frontmatter
   - Name validation, collision detection, path traversal protection, YAML injection prevention
   - npm script aliases: `new:plugin`, `new:agent`, `new:skill`, `new:command`
   - 56 scaffold tests + 11 dev-cli integration tests
 - **Shared agent template system** - Build-time template expansion (`expand-templates` command) with 3 shared snippets, replacing duplicated sections across 6 enhance agents with TEMPLATE markers and CI freshness validation (#187)
 - **Auto-generate documentation** - `gen-docs` command reads plugin metadata, agent frontmatter, and skill frontmatter to auto-generate documentation sections between GEN:START/GEN:END markers
-  - `npx awesome-slash-dev gen-docs` writes generated sections to README.md, CLAUDE.md, AGENTS.md, docs/reference/AGENTS.md, site/content.json
-  - `npx awesome-slash-dev gen-docs --check` validates docs are fresh (for CI, exits 1 if stale)
+  - `npx agentsys-dev gen-docs` writes generated sections to README.md, CLAUDE.md, AGENTS.md, docs/reference/AGENTS.md, site/content.json
+  - `npx agentsys-dev gen-docs --check` validates docs are fresh (for CI, exits 1 if stale)
   - Enhanced `lib/discovery` with YAML array parsing and frontmatter in `discoverAgents()`/`discoverSkills()`
   - Integrated into preflight as `gap:docs-freshness` check for new-agent, new-skill, new-command, and release checklists
   - 34 tests for the generation system, 7 new discovery tests
@@ -59,12 +61,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Detects changed files and runs only relevant checklist validators
   - Includes 7 existing validators + 7 new gap checks (CHANGELOG, labels, codex triggers, lib exports, lib sync, test existence, staged files)
   - Pre-push hook now delegates to preflight for validation
-- **Unified Dev CLI** (`awesome-slash-dev`) - Single discoverable entry point for all dev scripts
-  - `awesome-slash-dev validate` runs all 7 validators sequentially
-  - `awesome-slash-dev validate <sub>` runs individual validators (plugins, cross-platform, consistency, etc.)
-  - `awesome-slash-dev status` shows project health (version, plugin/agent/skill counts, git branch)
-  - `awesome-slash-dev bump <version>`, `sync-lib`, `setup-hooks`, `detect`, `verify`, `test`
-  - `awesome-slash-dev --help` lists all commands with descriptions
+- **Unified Dev CLI** (`agentsys-dev`) - Single discoverable entry point for all dev scripts
+  - `agentsys-dev validate` runs all 7 validators sequentially
+  - `agentsys-dev validate <sub>` runs individual validators (plugins, cross-platform, consistency, etc.)
+  - `agentsys-dev status` shows project health (version, plugin/agent/skill counts, git branch)
+  - `agentsys-dev bump <version>`, `sync-lib`, `setup-hooks`, `detect`, `verify`, `test`
+  - `agentsys-dev --help` lists all commands with descriptions
   - All existing `npm run` commands still work (now delegate through dev-cli)
   - All direct `node scripts/foo.js` invocations still work (require.main guards)
   - No external CLI framework dependencies - hand-rolled parsing matching bin/cli.js style
@@ -83,7 +85,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed `validate-counts.js` plugin.json path resolution bug
   - Added `package-lock.json` and `site/content.json` to version validation
   - Fixed stale versions in `site/content.json` and `package-lock.json`
-  - Single command updates all 15+ version locations: `npx awesome-slash-dev bump X.Y.Z`
+  - Single command updates all 15+ version locations: `npx agentsys-dev bump X.Y.Z`
 - **Plugin Discovery** - Convention-based filesystem scanning replaces 14+ hardcoded registration lists (#182)
   - New `lib/discovery/` module auto-discovers plugins, commands, agents, and skills
   - `bin/cli.js`, `scripts/dev-install.js`, `scripts/bump-version.js` use discovery calls
@@ -183,6 +185,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Previous Releases
 
-- [v3.x Changelog](https://github.com/avifenesh/awesome-slash/blob/main/changelogs/CHANGELOG-v3.md) (v3.0.0 - v3.9.0)
-- [v2.x Changelog](https://github.com/avifenesh/awesome-slash/blob/main/changelogs/CHANGELOG-v2.md) (v2.0.0 - v2.10.1)
-- [v1.x Changelog](https://github.com/avifenesh/awesome-slash/blob/main/changelogs/CHANGELOG-v1.md) (v1.0.0 - v1.1.0)
+- [v3.x Changelog](https://github.com/avifenesh/agentsys/blob/main/changelogs/CHANGELOG-v3.md) (v3.0.0 - v3.9.0)
+- [v2.x Changelog](https://github.com/avifenesh/agentsys/blob/main/changelogs/CHANGELOG-v2.md) (v2.0.0 - v2.10.1)
+- [v1.x Changelog](https://github.com/avifenesh/agentsys/blob/main/changelogs/CHANGELOG-v1.md) (v1.0.0 - v1.1.0)

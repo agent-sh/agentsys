@@ -40,7 +40,7 @@ fi
 IS_PROJECT_SCRIPT=false
 
 case "$COMMAND" in
-  *npm\ test*|*npm\ run\ *|*npm\ build*|*node\ scripts/*|*node\ bin/dev-cli.js*|*awesome-slash-dev*)
+  *npm\ test*|*npm\ run\ *|*npm\ build*|*node\ scripts/*|*node\ bin/dev-cli.js*|*agentsys-dev*)
     IS_PROJECT_SCRIPT=true
     ;;
 esac

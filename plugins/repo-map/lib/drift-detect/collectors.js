@@ -3,7 +3,7 @@
  * Pure JavaScript data collection - no LLM needed
  *
  * BACKWARD COMPATIBILITY: This module re-exports from lib/collectors.
- * For new code, use: const { collectors } = require('@awesome-slash/lib');
+ * For new code, use: const { collectors } = require('@agentsys/lib');
  *
  * Replaces three LLM agents (issue-scanner, doc-analyzer, code-explorer)
  * with deterministic JavaScript functions.

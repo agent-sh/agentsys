@@ -1,6 +1,6 @@
 # Agent Reference
 
-Complete reference for all agents in awesome-slash.
+Complete reference for all agents in AgentSys.
 
 <!-- GEN:START:agents-counts -->
 **TL;DR:** 41 agents across 12 plugins (11 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 41 -->
@@ -35,7 +35,7 @@ Complete reference for all agents in awesome-slash.
 
 ## Overview
 
-awesome-slash uses 41 specialized agents across 12 plugins (11 have agents - ship uses commands only). Each agent is optimized for a specific task and assigned a model based on complexity:
+AgentSys uses 41 specialized agents across 12 plugins (11 have agents - ship uses commands only). Each agent is optimized for a specific task and assigned a model based on complexity:
 
 | Model | Use Case | Cost |
 |-------|----------|------|

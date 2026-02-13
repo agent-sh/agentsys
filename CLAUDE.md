@@ -1,4 +1,4 @@
-# Project Memory: awesome-slash
+# Project Memory: AgentSys
 
 > **Cross-tool compatible**: This file works as CLAUDE.md (Claude Code) and can be copied to AGENTS.md for OpenCode, Codex, and other AI tools.
 
@@ -67,7 +67,7 @@
    - No test is someone else's problem
    *WHY: Skipping failures erodes test trust. Every green run must mean everything works.*
 
-13. **Report script failures before manual fallback** - When any project script fails (npm test/run/build, scripts/*, awesome-slash-dev, node bin/dev-cli.js), you MUST:
+13. **Report script failures before manual fallback** - When any project script fails (npm test/run/build, scripts/*, agentsys-dev, node bin/dev-cli.js), you MUST:
    - Report the failure with exact error output to the user
    - Diagnose the root cause of the failure
    - Fix the script/tooling issue, not work around it manually
@@ -132,25 +132,25 @@ bin/cli.js    → npm CLI installer
 
 ### Dev Commands
 ```bash
-# Local dev CLI (when developing awesome-slash itself)
-npx awesome-slash-dev status           # Project health (version, counts, branch)
-npx awesome-slash-dev validate         # Run all validators
-npx awesome-slash-dev validate plugins # Run single validator
-npx awesome-slash-dev bump <version>   # Bump all version files (e.g., 3.7.3)
-npx awesome-slash-dev sync-lib         # Sync lib/ to plugins/
-npx awesome-slash-dev test             # Run test suite
-npx awesome-slash-dev preflight         # Change-aware checklist enforcement
-npx awesome-slash-dev preflight --all   # Run all checks
-npx awesome-slash-dev preflight --release # All checks + release extras
-npx awesome-slash-dev gen-docs          # Auto-generate doc sections
-npx awesome-slash-dev gen-docs --check  # Validate docs are fresh (CI)
-npx awesome-slash-dev expand-templates  # Expand template markers in agents
-npx awesome-slash-dev expand-templates --check # Validate templates are fresh (CI)
-npx awesome-slash-dev new plugin <name>  # Scaffold new plugin
-npx awesome-slash-dev new agent <name> --plugin=<plugin>  # Scaffold new agent
-npx awesome-slash-dev new skill <name> --plugin=<plugin>  # Scaffold new skill
-npx awesome-slash-dev new command <name> --plugin=<plugin>  # Scaffold new command
-npx awesome-slash-dev --help           # Show all commands
+# Local dev CLI (when developing agentsys itself)
+npx agentsys-dev status           # Project health (version, counts, branch)
+npx agentsys-dev validate         # Run all validators
+npx agentsys-dev validate plugins # Run single validator
+npx agentsys-dev bump <version>   # Bump all version files (e.g., 3.7.3)
+npx agentsys-dev sync-lib         # Sync lib/ to plugins/
+npx agentsys-dev test             # Run test suite
+npx agentsys-dev preflight         # Change-aware checklist enforcement
+npx agentsys-dev preflight --all   # Run all checks
+npx agentsys-dev preflight --release # All checks + release extras
+npx agentsys-dev gen-docs          # Auto-generate doc sections
+npx agentsys-dev gen-docs --check  # Validate docs are fresh (CI)
+npx agentsys-dev expand-templates  # Expand template markers in agents
+npx agentsys-dev expand-templates --check # Validate templates are fresh (CI)
+npx agentsys-dev new plugin <name>  # Scaffold new plugin
+npx agentsys-dev new agent <name> --plugin=<plugin>  # Scaffold new agent
+npx agentsys-dev new skill <name> --plugin=<plugin>  # Scaffold new skill
+npx agentsys-dev new command <name> --plugin=<plugin>  # Scaffold new command
+npx agentsys-dev --help           # Show all commands
 
 # Alternative: direct invocation
 node bin/dev-cli.js <command>
@@ -171,7 +171,7 @@ npm run new:skill            # Scaffold new skill
 npm run new:command          # Scaffold new command
 npm run bump <version>       # Bump versions via dev-cli
 npm pack                     # Build package
-awesome-slash                # Run installer
+agentsys                # Run installer
 ```
 </commands>
 

@@ -1,7 +1,7 @@
 ---
 name: drift-analysis
 description: Use when the user asks about plan drift, reality check, comparing docs to code, project state analysis, roadmap alignment, implementation gaps, or needs guidance on identifying discrepancies between documented plans and actual implementation state.
-version: 4.2.2
+version: 5.0.0
 ---
 
 # Drift Analysis

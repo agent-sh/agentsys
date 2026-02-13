@@ -1,5 +1,5 @@
 /**
- * @awesome-slash/lib Workspace Tests
+ * @agentsys/lib Workspace Tests
  *
  * Validates the lib workspace structure, exports, and require resolution
  * via npm workspaces symlink.
@@ -10,7 +10,7 @@ const fs = require('fs');
 
 const ROOT_DIR = path.resolve(__dirname, '..');
 
-describe('@awesome-slash/lib workspace', () => {
+describe('@agentsys/lib workspace', () => {
   let libPkg;
 
   beforeAll(() => {
@@ -19,7 +19,7 @@ describe('@awesome-slash/lib workspace', () => {
 
   describe('package.json structure', () => {
     it('should have correct package name', () => {
-      expect(libPkg.name).toBe('@awesome-slash/lib');
+      expect(libPkg.name).toBe('@agentsys/lib');
     });
 
     it('should use index.js as main entry point', () => {
@@ -36,14 +36,14 @@ describe('@awesome-slash/lib workspace', () => {
   });
 
   describe('require resolution', () => {
-    it('should resolve root require(@awesome-slash/lib)', () => {
-      const lib = require('@awesome-slash/lib');
+    it('should resolve root require(@agentsys/lib)', () => {
+      const lib = require('@agentsys/lib');
       expect(lib).toBeDefined();
       expect(typeof lib).toBe('object');
     });
 
     it('should export expected top-level keys', () => {
-      const lib = require('@awesome-slash/lib');
+      const lib = require('@agentsys/lib');
       const expectedKeys = [
         'platform', 'patterns', 'state', 'utils', 'config',
         'sources', 'xplat', 'enhance', 'repoMap', 'perf',
@@ -55,26 +55,26 @@ describe('@awesome-slash/lib workspace', () => {
       }
     });
 
-    it('should resolve subpath require(@awesome-slash/lib/cross-platform)', () => {
-      const crossPlatform = require('@awesome-slash/lib/cross-platform');
+    it('should resolve subpath require(@agentsys/lib/cross-platform)', () => {
+      const crossPlatform = require('@agentsys/lib/cross-platform');
       expect(crossPlatform).toBeDefined();
       expect(crossPlatform.PLATFORMS).toBeDefined();
     });
 
-    it('should resolve nested subpath require(@awesome-slash/lib/enhance/agent-patterns)', () => {
-      const agentPatterns = require('@awesome-slash/lib/enhance/agent-patterns');
+    it('should resolve nested subpath require(@agentsys/lib/enhance/agent-patterns)', () => {
+      const agentPatterns = require('@agentsys/lib/enhance/agent-patterns');
       expect(agentPatterns).toBeDefined();
       expect(agentPatterns.agentPatterns).toBeDefined();
     });
 
-    it('should resolve require(@awesome-slash/lib/sources/custom-handler)', () => {
-      const customHandler = require('@awesome-slash/lib/sources/custom-handler');
+    it('should resolve require(@agentsys/lib/sources/custom-handler)', () => {
+      const customHandler = require('@agentsys/lib/sources/custom-handler');
       expect(customHandler).toBeDefined();
       expect(customHandler.SOURCE_TYPES).toBeDefined();
     });
 
-    it('should resolve require(@awesome-slash/lib/collectors)', () => {
-      const collectors = require('@awesome-slash/lib/collectors');
+    it('should resolve require(@agentsys/lib/collectors)', () => {
+      const collectors = require('@agentsys/lib/collectors');
       expect(collectors).toBeDefined();
       expect(typeof collectors.collect).toBe('function');
     });

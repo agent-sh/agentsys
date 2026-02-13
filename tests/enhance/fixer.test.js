@@ -6,7 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const fixer = require('@awesome-slash/lib/enhance/fixer');
+const fixer = require('@agentsys/lib/enhance/fixer');
 
 describe('Fixer Module', () => {
   let tempDir;

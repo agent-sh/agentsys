@@ -1,12 +1,12 @@
-# awesome-slash for OpenCode
+# agentsys for OpenCode
 
 Professional-grade slash commands adapted for OpenCode.
 
 ## Quick Install
 
 ```bash
-git clone https://github.com/avifenesh/awesome-slash.git
-cd awesome-slash
+git clone https://github.com/avifenesh/agentsys.git
+cd agentsys
 ./adapters/opencode/install.sh
 ```
 
@@ -106,7 +106,7 @@ opencode
 
 ## OpenCode-Specific Features
 
-OpenCode provides additional features you can combine with awesome-slash commands:
+OpenCode provides additional features you can combine with agentsys commands:
 
 ### File Includes with `@`
 
@@ -232,7 +232,7 @@ Node.js · Python · Rust · Go · Java
 To update commands:
 
 ```bash
-cd /path/to/awesome-slash
+cd /path/to/agentsys
 git pull origin main
 ./adapters/opencode/install.sh
 ```
@@ -284,8 +284,8 @@ gh auth status
 
 ## Support
 
-- **Repository**: https://github.com/avifenesh/awesome-slash
-- **Issues**: https://github.com/avifenesh/awesome-slash/issues
+- **Repository**: https://github.com/avifenesh/agentsys
+- **Issues**: https://github.com/avifenesh/agentsys/issues
 - **OpenCode Docs**: https://opencode.ai/docs
 
 ---
@@ -294,7 +294,7 @@ gh auth status
 
 - [OpenCode Commands](https://opencode.ai/docs/commands/)
 - [OpenCode CLI](https://opencode.ai/docs/cli/)
-- [awesome-slash Main README](../../README.md)
+- [agentsys Main README](../../README.md)
 - [Multi-Tool Adapters](../README.md)
 
 ---
