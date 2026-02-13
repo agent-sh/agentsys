@@ -905,3 +905,5 @@ This project is built on research, not guesswork.
 ---
 
 MIT License | Made by [Avi Fenesh](https://github.com/avifenesh)
+
+Follow [@avi_fenesh](https://x.com/avi_fenesh) on X for live updates and new releases.
