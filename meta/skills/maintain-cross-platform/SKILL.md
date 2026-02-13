@@ -1012,7 +1012,7 @@ When using this skill, output:
 
 **Skill Version:** 1.0.0
 **Last Updated:** 2026-01-30
-**Covers:** AgentSys v3.5.0 architecture
+**Covers:** AgentSys v5.0.0 architecture
 
 **Update this skill when:**
 - New platform added

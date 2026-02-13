@@ -130,8 +130,11 @@ function cleanAll() {
   }
 
   // Clean legacy OpenCode paths (~/.opencode/ - incorrect, pre-XDG)
+  // Also clean pre-rename paths (awesome-slash) for users upgrading from v4.x
   const legacyCommandsDir = path.join(LEGACY_OPENCODE_DIR, 'commands', 'agentsys');
   const legacyPluginDir = path.join(LEGACY_OPENCODE_DIR, 'plugins', 'agentsys');
+  const preRenameCommandsDir = path.join(LEGACY_OPENCODE_DIR, 'commands', 'awesome-slash');
+  const preRenamePluginDir = path.join(LEGACY_OPENCODE_DIR, 'plugins', 'awesome-slash');
   const legacyAgentsDir = path.join(LEGACY_OPENCODE_DIR, 'agents');
 
   if (fs.existsSync(legacyCommandsDir)) {
@@ -141,6 +144,14 @@ function cleanAll() {
   if (fs.existsSync(legacyPluginDir)) {
     fs.rmSync(legacyPluginDir, { recursive: true, force: true });
     log('  Removed legacy ~/.opencode/plugins/agentsys');
+  }
+  if (fs.existsSync(preRenameCommandsDir)) {
+    fs.rmSync(preRenameCommandsDir, { recursive: true, force: true });
+    log('  Removed pre-rename ~/.opencode/commands/awesome-slash');
+  }
+  if (fs.existsSync(preRenamePluginDir)) {
+    fs.rmSync(preRenamePluginDir, { recursive: true, force: true });
+    log('  Removed pre-rename ~/.opencode/plugins/awesome-slash');
   }
   if (fs.existsSync(legacyAgentsDir)) {
     let removedCount = 0;

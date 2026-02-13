@@ -8,7 +8,7 @@ This directory contains adapters for using agentsys commands with different AI c
 The primary target. Install via marketplace:
 ```bash
 claude plugin marketplace add avifenesh/agentsys
-claude plugin install agentsys@agentsys
+claude plugin install next-task@agentsys
 ```
 
 See main [README.md](../README.md) for details.
@@ -82,7 +82,7 @@ node ${CLAUDE_PLUGIN_ROOT}/lib/platform/detect-platform.js
 
 **Codex CLI:**
 ```bash
-node ~/.codex/prompts/agentsys/lib/platform/detect-platform.js
+node ~/.codex/skills/agentsys/lib/platform/detect-platform.js
 ```
 
 **OpenCode:**
@@ -130,7 +130,7 @@ Installers automatically handle these substitutions.
 ```bash
 # Via marketplace (easiest)
 claude plugin marketplace add avifenesh/agentsys
-claude plugin install agentsys@agentsys
+claude plugin install next-task@agentsys
 ```
 
 **Pros:**

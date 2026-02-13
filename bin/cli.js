@@ -335,6 +335,11 @@ function installForOpenCode(installDir, options = {}) {
     // OpenCode loads plugin files directly from the plugins directory.
     const srcPath = path.join(pluginSrcDir, 'index.ts');
     const destPath = path.join(pluginDir, 'agentsys.ts');
+    // Remove legacy plugin file from pre-rename installs to prevent dual loading
+    const legacyPluginFile = path.join(pluginDir, 'awesome-slash.ts');
+    if (fs.existsSync(legacyPluginFile)) {
+      fs.unlinkSync(legacyPluginFile);
+    }
     if (fs.existsSync(srcPath)) {
       fs.copyFileSync(srcPath, destPath);
       console.log('  [OK] Installed native plugin (auto-thinking, workflow enforcement)');
@@ -342,7 +347,7 @@ function installForOpenCode(installDir, options = {}) {
   }
 
   // Clean up the legacy (pre-XDG) install location if it exists.
-  // This location is not used by OpenCode and was used by older agentsys versions.
+  // This location is not used by OpenCode and was used by older versions.
   const legacyCommandsDir = path.join(home, '.opencode', 'commands', 'agentsys');
   if (fs.existsSync(legacyCommandsDir)) {
     fs.rmSync(legacyCommandsDir, { recursive: true, force: true });
@@ -350,6 +355,15 @@ function installForOpenCode(installDir, options = {}) {
   const legacyPluginDir = path.join(home, '.opencode', 'plugins', 'agentsys');
   if (fs.existsSync(legacyPluginDir)) {
     fs.rmSync(legacyPluginDir, { recursive: true, force: true });
+  }
+  // Also clean pre-rename paths (awesome-slash) for users upgrading from v4.x
+  const preRenameCommandsDir = path.join(home, '.opencode', 'commands', 'awesome-slash');
+  if (fs.existsSync(preRenameCommandsDir)) {
+    fs.rmSync(preRenameCommandsDir, { recursive: true, force: true });
+  }
+  const preRenamePluginDir = path.join(home, '.opencode', 'plugins', 'awesome-slash');
+  if (fs.existsSync(preRenamePluginDir)) {
+    fs.rmSync(preRenamePluginDir, { recursive: true, force: true });
   }
 
   // Discover command mappings from filesystem

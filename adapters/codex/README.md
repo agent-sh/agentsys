@@ -106,7 +106,7 @@ codex
 ## Installation Details
 
 The installer:
-1. Creates `~/.codex/prompts/agentsys/`
+1. Creates `~/.codex/skills/<skill>/SKILL.md` for each skill
 2. Copies command files with path adjustments
 3. Installs shared libraries (platform detection, patterns)
 4. Creates environment setup scripts
@@ -114,8 +114,8 @@ The installer:
 ### File Structure
 
 ```
-~/.codex/prompts/agentsys/
-├── commands/
+~/.codex/skills/
+├── next-task/
 │   ├── deslop.md
 │   ├── next-task.md
 │   ├── audit-project.md
@@ -230,7 +230,7 @@ git pull origin main
 
 ### Commands not showing up
 1. Restart Codex CLI
-2. Check installation: `ls ~/.codex/prompts/agentsys/commands/`
+2. Check installation: `ls ~/.codex/skills/`
 3. Re-run installer
 
 ### Path errors
