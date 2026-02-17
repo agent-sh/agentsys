@@ -90,7 +90,7 @@ Models: gpt-5.1-codex-mini, gpt-5-codex, gpt-5.1-codex, gpt-5.2-codex, gpt-5.3-c
 
 **Parse output**: `JSON.parse(stdout).message` or raw text
 **Session ID**: Codex prints a resume hint at session end (e.g., `codex resume SESSION_ID`). Extract the session ID from stdout or from `JSON.parse(stdout).session_id` if available.
-**Continuable**: Yes (via `codex resume`). Sessions are stored as JSONL rollout files at `~/.codex/sessions/`. Resume uses a subcommand (`codex resume SESSION_ID`) rather than a flag.
+**Continuable**: Yes, but interactive only. Sessions are stored as JSONL rollout files at `~/.codex/sessions/`. The `codex resume SESSION_ID` subcommand resumes in TUI mode -- it does not support `-q` for non-interactive use. For non-interactive continuation, prepend prior conversation context to the new question text instead.
 
 ### OpenCode
 
@@ -155,8 +155,8 @@ Use the command template from the provider's configuration section. Substitute Q
 
 If continuing a session:
 - **Claude or Gemini**: append `--resume SESSION_ID` to the command.
-- **Codex**: use `codex resume SESSION_ID` as the base command instead of `codex -q`. Append `-q "$(cat ...)"` for the follow-up question.
-- **OpenCode**: append `--session SESSION_ID` to the command.
+- **Codex**: no non-interactive resume flag exists. Prepend the prior Q&A context to the new question text before passing to `codex -q`.
+- **OpenCode**: append `--session SESSION_ID` to the command. If no session_id is saved, use `--continue` instead (resumes most recent session).
 If OpenCode at max effort: append `--thinking`.
 
 ### Step 3: Context Packaging
@@ -185,9 +185,10 @@ User-provided question text MUST NOT be interpolated into shell command strings.
 | Gemini | `gemini -p - --output-format json -m "MODEL" < "{AI_STATE_DIR}/consult/question.tmp"` |
 | Gemini (resume) | `gemini -p - --output-format json -m "MODEL" --resume "SESSION_ID" < "{AI_STATE_DIR}/consult/question.tmp"` |
 | Codex | `codex -q "$(cat "{AI_STATE_DIR}/consult/question.tmp")" --json -m "MODEL" -a suggest` (Codex lacks stdin mode -- cat reads from platform-controlled path, not user input) |
-| Codex (resume) | `codex resume "SESSION_ID" -q "$(cat "{AI_STATE_DIR}/consult/question.tmp")" --json -m "MODEL" -a suggest` |
+| Codex (continue) | No non-interactive resume. Prepend prior context to question, then use standard Codex command above. |
 | OpenCode | `opencode run - --format json --model "MODEL" --variant "VARIANT" < "{AI_STATE_DIR}/consult/question.tmp"` |
-| OpenCode (resume) | `opencode run - --format json --model "MODEL" --variant "VARIANT" --session "SESSION_ID" < "{AI_STATE_DIR}/consult/question.tmp"` |
+| OpenCode (resume by ID) | `opencode run - --format json --model "MODEL" --variant "VARIANT" --session "SESSION_ID" < "{AI_STATE_DIR}/consult/question.tmp"` |
+| OpenCode (resume latest) | `opencode run - --format json --model "MODEL" --variant "VARIANT" --continue < "{AI_STATE_DIR}/consult/question.tmp"` |
 | Copilot | `copilot -p - < "{AI_STATE_DIR}/consult/question.tmp"` |
 
 3. **Delete the temp file** after the command completes (success or failure). Always clean up to prevent accumulation.
