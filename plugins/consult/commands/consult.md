@@ -57,6 +57,8 @@ After removing flags, parse the remaining text for these patterns:
 - "{N} instances" -> count=N
 - "few instances" / "multiple" / "several" -> count=ambiguous (ask user in Phase 2)
 
+**Count validation**: After extracting count (from flags or NLP), validate: 1 <= count <= 5. If count < 1 or count > 5, show `[ERROR] Instance count must be 1-5. Got: {count}` and stop.
+
 **Effort extraction**:
 - "quick" / "fast" / "brief" -> effort=low
 - "thorough" / "deep" / "carefully" / "detailed" -> effort=high
@@ -78,6 +80,8 @@ If no question text and no `--continue` flag found after both steps:
 MUST resolve ALL missing parameters interactively. ONLY skip this phase if ALL required params (tool, effort, model) are resolved AND either a question exists or --continue is present. Do NOT silently default any parameter.
 
 #### Step 2a: Handle --continue
+
+**Note:** `--continue` and `--count > 1` are mutually exclusive. Session resume applies to a single tool session. If both are present, show `[ERROR] Cannot use --continue with --count > 1. Use --continue for single session resume.` and stop.
 
 If `--continue` is present:
 1. Read the session file at `{AI_STATE_DIR}/consult/last-session.json`
@@ -133,6 +137,7 @@ AskUserQuestion:
         - label: "1 (Single)"             description: "Standard single consultation"
         - label: "2 (Compare)"            description: "Two responses to compare"
         - label: "3 (Panel)"              description: "Three perspectives"
+        - label: "5 (Full spread)"        description: "Five diverse perspectives"
 ```
 
 ONLY show the Instances question if:

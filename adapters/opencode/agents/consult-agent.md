@@ -54,6 +54,8 @@ If any required parameter is missing, return an error as plain JSON:
 
 ### 2. Route: Single vs Multi-Instance
 
+Validate count: if provided, must be 1-5. If out of range, return `{"error": "Instance count must be 1-5. Got: [count]"}`.
+
 If `count` is 1 (or not provided), follow the **Single Instance** path (Step 3).
 If `count` is 2-5, follow the **Multi-Instance** path (Step 4).
 
