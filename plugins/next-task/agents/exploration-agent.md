@@ -8,7 +8,7 @@ tools:
   - Bash(git:*)
   - LSP
   - Task
-model: opus
+model: sonnet
 ---
 
 # Exploration Agent

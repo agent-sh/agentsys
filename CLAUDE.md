@@ -183,8 +183,8 @@ agentsys                # Run installer
 
 | Model | Agents | Use Case |
 |-------|--------|----------|
-| **opus** | exploration, planning, implementation, perf-orchestrator | Complex reasoning, analysis |
-| **sonnet** | task-discoverer, delivery-validator, ci-fixer, deslop-agent, reporters | Validation, pattern matching |
+| **opus** | planning, implementation, perf-orchestrator, debate-orchestrator | Complex reasoning, judgment |
+| **sonnet** | exploration, learn, task-discoverer, delivery-validator, ci-fixer, deslop-agent, reporters | Validation, pattern matching |
 | **haiku** | worktree-manager, ci-monitor, simple-fixer | Mechanical execution |
 
 See [README.md](./README.md#command-details) and [docs/reference/AGENTS.md](./docs/reference/AGENTS.md) for full agent list.

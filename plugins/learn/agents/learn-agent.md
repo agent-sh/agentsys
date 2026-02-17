@@ -9,7 +9,7 @@ tools:
   - Write
   - Glob
   - Grep
-model: opus
+model: sonnet
 ---
 
 # Learn Agent
