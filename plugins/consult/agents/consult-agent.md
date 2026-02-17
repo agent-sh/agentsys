@@ -179,7 +179,7 @@ If some instances failed but others succeeded, show the successful responses and
   "model": "gpt-5.3-codex",
   "effort": "high",
   "count": 3,
-  "timestamp": "2026-02-17T12:00:00Z",
+  "timestamp": "{ISO 8601 timestamp of execution}",
   "question": "original question text",
   "sessions": [
     {"session_id": "abc-123", "continuable": true},
