@@ -1,6 +1,7 @@
 agnix
 audit-project
 consult
+debate
 deslop
 drift-detect
 enhance

@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <b>12 plugins · 41 agents · 27 skills · 26k lines of lib code · 3,357 tests · 3 platforms</b>
+  <b>13 plugins · 42 agents · 28 skills · 26k lines of lib code · 3,357 tests · 3 platforms</b>
 </p>
 
 <p align="center">
@@ -46,7 +46,7 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 
 ## What This Is
 
-An agent orchestration system — 12 plugins, 41 agents, and 27 skills that compose into structured pipelines for software development.
+An agent orchestration system — 13 plugins, 42 agents, and 28 skills that compose into structured pipelines for software development.
 
 Each agent has a single responsibility, a specific model assignment, and defined inputs/outputs. Pipelines enforce phase gates so agents can't skip steps. State persists across sessions so work survives interruptions.
 
@@ -91,6 +91,7 @@ This came from testing on 1,000+ repositories.
 | [`/sync-docs`](#sync-docs) | Finds outdated references, stale examples, missing CHANGELOG entries |
 | [`/learn`](#learn) | Research any topic, gather online sources, create learning guide with RAG index |
 | [`/consult`](#consult) | Consult another AI CLI tool for a second opinion. Use when you want to cross-check ideas, get alternative approaches, or validate decisions with Gemini, Codex, Claude, OpenCode, or Copilot. |
+| [`/debate`](#debate) | Structured debate between two AI tools to stress-test ideas. Proposer/Challenger format with a verdict. |
 <!-- GEN:END:readme-commands -->
 
 Each command works standalone. Together, they compose into end-to-end pipelines.
@@ -100,7 +101,7 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 ## Skills
 
 <!-- GEN:START:readme-skills -->
-27 skills included across the plugins:
+28 skills included across the plugins:
 
 | Category | Skills |
 |----------|--------|
@@ -108,7 +109,7 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 | **Enhancement** | `enhance:enhance-agent-prompts`, `enhance:enhance-claude-memory`, `enhance:enhance-cross-file`, `enhance:enhance-docs`, `enhance:enhance-hooks`, `enhance:enhance-orchestrator`, `enhance:enhance-plugins`, `enhance:enhance-prompts`, `enhance:enhance-skills` |
 | **Workflow** | `next-task:discover-tasks`, `next-task:orchestrate-review`, `next-task:validate-delivery` |
 | **Cleanup** | `deslop:deslop`, `sync-docs:sync-docs` |
-| **Analysis** | `drift-detect:drift-analysis`, `repo-map:repo-mapping` |
+| **Analysis** | `debate:debate`, `drift-detect:drift-analysis`, `repo-map:repo-mapping` |
 | **Productivity** | `consult:consult` |
 | **Learning** | `learn:learn` |
 | **Linting** | `agnix:agnix` |
@@ -124,7 +125,7 @@ Skills are the reusable implementation units. Agents invoke skills; commands orc
 |---------|--------------|
 | [The Approach](#the-approach) | Why it's built this way |
 | [Commands](#commands) | All 12 commands overview |
-| [Skills](#skills) | 27 skills across plugins |
+| [Skills](#skills) | 28 skills across plugins |
 | [Command Details](#command-details) | Deep dive into each command |
 | [How Commands Work Together](#how-commands-work-together) | Standalone vs integrated |
 | [Design Philosophy](#design-philosophy) | The thinking behind the architecture |

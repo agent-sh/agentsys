@@ -227,8 +227,8 @@ describe('generate-docs', () => {
       const agents = discovery.discoverAgents(REPO_ROOT);
       const plugins = discovery.discoverPlugins(REPO_ROOT);
       const counts = genDocs.generateAgentCounts(agents, plugins);
-      // 11 plugins have agents (all except ship)
-      expect(counts).toContain('11 have agents');
+      // 12 plugins have agents (all except ship)
+      expect(counts).toContain('12 have agents');
     });
   });
 

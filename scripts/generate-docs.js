@@ -55,7 +55,8 @@ const CATEGORY_MAP = {
   'repo-map': 'Analysis',
   'learn': 'Learning',
   'agnix': 'Linting',
-  'consult': 'Productivity'
+  'consult': 'Productivity',
+  'debate': 'Analysis'
 };
 
 // Purpose mapping for architecture table
@@ -71,7 +72,8 @@ const PURPOSE_MAP = {
   'sync-docs': 'Documentation sync',
   'learn': 'Topic research and learning guides',
   'agnix': 'Agent config linting',
-  'consult': 'Cross-tool AI consultation'
+  'consult': 'Cross-tool AI consultation',
+  'debate': 'Multi-perspective debate analysis'
 };
 
 // ---------------------------------------------------------------------------

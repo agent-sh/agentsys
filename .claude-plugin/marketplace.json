@@ -1,6 +1,6 @@
 {
   "name": "agentsys",
-  "description": "12 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, repo mapping, perf investigations, topic research, agent config linting, and cross-tool AI consultation",
+  "description": "13 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, repo mapping, perf investigations, topic research, agent config linting, cross-tool AI consultation, and structured AI debate",
   "version": "5.0.3",
   "owner": {
     "name": "Avi Fenesh",
@@ -103,6 +103,13 @@
       "name": "consult",
       "source": "./plugins/consult",
       "description": "Cross-tool AI consultation: get second opinions from Gemini CLI, Codex CLI, Claude Code, OpenCode, or Copilot CLI with model and thinking effort control",
+      "version": "5.0.3",
+      "category": "productivity"
+    },
+    {
+      "name": "debate",
+      "source": "./plugins/debate",
+      "description": "Structured multi-round debate between AI tools with proposer/challenger roles and verdict",
       "version": "5.0.3",
       "category": "productivity"
     }

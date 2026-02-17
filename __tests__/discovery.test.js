@@ -9,15 +9,15 @@ beforeEach(() => {
 
 describe('discovery module', () => {
   describe('discoverPlugins', () => {
-    test('discovers exactly 12 plugins', () => {
+    test('discovers exactly 13 plugins', () => {
       const plugins = discovery.discoverPlugins(REPO_ROOT);
-      expect(plugins.length).toBe(12);
+      expect(plugins.length).toBe(13);
     });
 
     test('discovers all known plugin names', () => {
       const plugins = discovery.discoverPlugins(REPO_ROOT);
       const expected = [
-        'agnix', 'audit-project', 'consult', 'deslop', 'drift-detect', 'enhance',
+        'agnix', 'audit-project', 'consult', 'debate', 'deslop', 'drift-detect', 'enhance',
         'learn', 'next-task', 'perf', 'repo-map', 'ship', 'sync-docs'
       ];
       expect(plugins).toEqual(expected);
@@ -36,9 +36,9 @@ describe('discovery module', () => {
   });
 
   describe('discoverCommands', () => {
-    test('discovers exactly 18 commands', () => {
+    test('discovers exactly 19 commands', () => {
       const commands = discovery.discoverCommands(REPO_ROOT);
-      expect(commands.length).toBe(18);
+      expect(commands.length).toBe(19);
     });
 
     test('each command has name, plugin, file, and frontmatter', () => {
@@ -67,9 +67,9 @@ describe('discovery module', () => {
   });
 
   describe('discoverAgents', () => {
-    test('discovers exactly 31 file-based agents', () => {
+    test('discovers exactly 32 file-based agents', () => {
       const agents = discovery.discoverAgents(REPO_ROOT);
-      expect(agents.length).toBe(31);
+      expect(agents.length).toBe(32);
     });
 
     test('each agent has name, plugin, file, and frontmatter', () => {
@@ -118,9 +118,9 @@ describe('discovery module', () => {
   });
 
   describe('discoverSkills', () => {
-    test('discovers exactly 27 skills', () => {
+    test('discovers exactly 28 skills', () => {
       const skills = discovery.discoverSkills(REPO_ROOT);
-      expect(skills.length).toBe(27);
+      expect(skills.length).toBe(28);
     });
 
     test('each skill has name, plugin, dir, and frontmatter', () => {
@@ -137,7 +137,7 @@ describe('discovery module', () => {
   describe('getCommandMappings', () => {
     test('returns tuples of [targetFile, plugin, sourceFile]', () => {
       const mappings = discovery.getCommandMappings(REPO_ROOT);
-      expect(mappings.length).toBe(18);
+      expect(mappings.length).toBe(19);
       for (const [target, plugin, source] of mappings) {
         expect(target).toMatch(/\.md$/);
         expect(typeof plugin).toBe('string');
@@ -149,7 +149,7 @@ describe('discovery module', () => {
   describe('getCodexSkillMappings', () => {
     test('returns tuples of [name, plugin, file, description]', () => {
       const mappings = discovery.getCodexSkillMappings(REPO_ROOT);
-      expect(mappings.length).toBe(18);
+      expect(mappings.length).toBe(19);
       for (const [name, plugin, file, desc] of mappings) {
         expect(typeof name).toBe('string');
         expect(typeof plugin).toBe('string');
@@ -252,10 +252,10 @@ describe('discovery module', () => {
   describe('discoverAll', () => {
     test('returns all discovery results', () => {
       const all = discovery.discoverAll(REPO_ROOT);
-      expect(all.plugins.length).toBe(12);
-      expect(all.commands.length).toBe(18);
-      expect(all.agents.length).toBe(31);
-      expect(all.skills.length).toBe(27);
+      expect(all.plugins.length).toBe(13);
+      expect(all.commands.length).toBe(19);
+      expect(all.agents.length).toBe(32);
+      expect(all.skills.length).toBe(28);
     });
   });
 });

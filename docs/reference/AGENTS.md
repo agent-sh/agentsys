@@ -3,7 +3,7 @@
 Complete reference for all agents in AgentSys.
 
 <!-- GEN:START:agents-counts -->
-**TL;DR:** 41 agents across 12 plugins (11 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 41 -->
+**TL;DR:** 42 agents across 13 plugins (12 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 42 -->
 <!-- GEN:END:agents-counts -->
 
 ---
@@ -16,6 +16,7 @@ Complete reference for all agents in AgentSys.
 | agnix | 1 | [agnix-agent](#agnix-agent) |
 | audit-project | 10 | [code-quality-reviewer](#code-quality-reviewer), [security-expert](#security-expert), [performance-engineer](#performance-engineer), [test-quality-guardian](#test-quality-guardian), [architecture-reviewer](#architecture-reviewer), [database-specialist](#database-specialist), [api-designer](#api-designer), [frontend-specialist](#frontend-specialist), [backend-specialist](#backend-specialist), [devops-reviewer](#devops-reviewer) |
 | consult | 1 | [consult-agent](#consult-agent) |
+| debate | 1 | [debate-orchestrator](#debate-orchestrator) |
 | deslop | 1 | [deslop-agent](#deslop-agent) |
 | drift-detect | 1 | [plan-synthesizer](#plan-synthesizer) |
 | enhance | 8 | [agent-enhancer](#agent-enhancer), [claudemd-enhancer](#claudemd-enhancer), [cross-file-enhancer](#cross-file-enhancer), [docs-enhancer](#docs-enhancer), [hooks-enhancer](#hooks-enhancer), [plugin-enhancer](#plugin-enhancer), [prompt-enhancer](#prompt-enhancer), [skills-enhancer](#skills-enhancer) |
@@ -44,7 +45,7 @@ AgentSys uses 41 specialized agents across 12 plugins (11 have agents - ship use
 | haiku | Mechanical execution, no judgment | Low |
 
 **Agent types:**
-- **File-based agents** (31) - Defined in `plugins/*/agents/*.md` with frontmatter <!-- AGENT_COUNT_FILE_BASED: 31 -->
+- **File-based agents** (32) - Defined in `plugins/*/agents/*.md` with frontmatter <!-- AGENT_COUNT_FILE_BASED: 32 -->
 - **Role-based agents** (10) - Defined inline via Task tool with specialized prompts <!-- AGENT_COUNT_ROLE_BASED: 10 -->
 
 ---
