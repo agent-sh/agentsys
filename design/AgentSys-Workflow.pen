@@ -1,0 +1,29 @@
+// AgentSys — Full System Pencil script
+// Paste this into Pencil's script/console (Pencil extension) to create the canvas instantly.
+
+root=I(document, {type: "frame", name: "AgentSys — Full System", layout: "vertical", padding: 28, width: 1200, height: 820})
+title=I(root, {type: "text", content: "AgentSys — Full system workflow", fontSize: 26, fontWeight: 700})
+columns=I(root, {type: "frame", layout: "horizontal", gap: 20, placeholder: true})
+
+orchestration=I(columns, {type: "frame", layout: "vertical", width: 380, gap: 12})
+ledger=I(columns, {type: "frame", layout: "vertical", width: 360, gap: 12})
+integrations=I(columns, {type: "frame", layout: "vertical", width: 360, gap: 12})
+
+I(orchestration, {type: "frame", padding: 12, fill: "#FEF9C3", children: [{type: "text", content: "CLI → next-task / aos-workflows", fontSize: 13, fontWeight: 600}]})
+I(orchestration, {type: "frame", padding: 12, fill: "#E8F5E9", children: [{type: "text", content: "Next-task orchestrator", fontSize: 12}]})
+I(orchestration, {type: "frame", padding: 12, fill: "#FFF7ED", children: [{type: "text", content: "aos-workflows — Loop / Scanner / Verifier", fontSize: 12}]})
+
+skillsFrame=I(orchestration, {type: "frame", padding: 10, layout: "horizontal", gap: 8, placeholder: true})
+I(skillsFrame, {type: "frame", padding: 8, width: 120, fill: "#EFF6FF", children: [{type: "text", content: "heartbeat-check", fontSize: 11}]})
+I(skillsFrame, {type: "frame", padding: 8, width: 120, fill: "#EFF6FF", children: [{type: "text", content: "agents-ledger", fontSize: 11}]})
+I(skillsFrame, {type: "frame", padding: 8, width: 120, fill: "#EFF6FF", children: [{type: "text", content: "session-handoff / pickup", fontSize: 11}]})
+I(skillsFrame, {type: "frame", padding: 8, width: 120, fill: "#EFF6FF", children: [{type: "text", content: "verify-green / autonomous-loop", fontSize: 11}]})
+
+I(ledger, {type: "frame", padding: 12, fill: "#ECFEF6", children: [{type: "text", content: "AGENTS.csv (canonical ledger)\n(legacy fallback supported)", fontSize: 12}]})
+I(ledger, {type: "frame", padding: 12, fill: "#EEF2FF", children: [{type: "text", content: "repo-map/updater & lib/*", fontSize: 12}]})
+
+I(integrations, {type: "frame", padding: 12, fill: "#F0F9FF", children: [{type: "text", content: "OpenClaw runtime (adapter/PoC)", fontSize: 12}]})
+I(integrations, {type: "frame", padding: 12, fill: "#FEF2F2", children: [{type: "text", content: "sync-docs → marketplace / AGENTS.md", fontSize: 12}]})
+I(integrations, {type: "frame", padding: 12, fill: "#F8FAFC", children: [{type: "text", content: "ship → GitHub / CI", fontSize: 12}]})
+
+footer=I(root, {type: "text", content: "Legend: CLI → Orchestrator → Loop → Skills → Ledger → Runtimes", fontSize: 11, fill: "transparent"})
