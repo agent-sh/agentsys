@@ -66,22 +66,23 @@ Command: gemini -p "QUESTION" --output-format json -m "MODEL"
 Session resume: --resume "SESSION_ID"
 ```
 
-Models: gemini-2.5-flash, gemini-2.5-pro, gemini-3-flash-preview, gemini-3-pro-preview
+Models: gemini-2.5-flash, gemini-2.5-pro, gemini-3-flash, gemini-3-pro
 
 | Effort | Model |
 |--------|-------|
 | low | gemini-2.5-flash |
-| medium | gemini-2.5-pro |
-| high | gemini-3-flash-preview |
-| max | gemini-3-pro-preview |
+| medium | gemini-3-flash |
+| high | gemini-3-pro |
+| max | gemini-3-pro |
 
 **Parse output**: `JSON.parse(stdout).response`
+**Session ID**: `JSON.parse(stdout).session_id`
 **Continuable**: Yes (via `--resume`)
 
 ### Codex
 
 ```
-Command: codex exec "QUESTION" --json -m "MODEL" -a suggest -c model_reasoning_effort="LEVEL"
+Command: codex exec "QUESTION" --json -m "MODEL" -c model_reasoning_effort="LEVEL"
 Session resume: codex exec resume SESSION_ID "QUESTION" --json
 Session resume (latest): codex exec resume --last "QUESTION" --json
 ```
@@ -193,7 +194,7 @@ User-provided question text MUST NOT be interpolated into shell command strings.
 | Claude (resume) | `claude -p - --output-format json --model "MODEL" --max-turns TURNS --allowedTools "Read,Glob,Grep" --resume "SESSION_ID" < "{AI_STATE_DIR}/consult/question.tmp"` |
 | Gemini | `gemini -p - --output-format json -m "MODEL" < "{AI_STATE_DIR}/consult/question.tmp"` |
 | Gemini (resume) | `gemini -p - --output-format json -m "MODEL" --resume "SESSION_ID" < "{AI_STATE_DIR}/consult/question.tmp"` |
-| Codex | `codex exec "$(cat "{AI_STATE_DIR}/consult/question.tmp")" --json -m "MODEL" -a suggest` (Codex exec lacks stdin mode -- cat reads from platform-controlled path, not user input) |
+| Codex | `codex exec "$(cat "{AI_STATE_DIR}/consult/question.tmp")" --json -m "MODEL" -c model_reasoning_effort="LEVEL"` (Codex exec lacks stdin mode -- cat reads from platform-controlled path, not user input) |
 | Codex (resume) | `codex exec resume SESSION_ID "$(cat "{AI_STATE_DIR}/consult/question.tmp")" --json -m "MODEL"` |
 | Codex (resume latest) | `codex exec resume --last "$(cat "{AI_STATE_DIR}/consult/question.tmp")" --json -m "MODEL"` |
 | OpenCode | `opencode run - --format json --model "MODEL" --variant "VARIANT" < "{AI_STATE_DIR}/consult/question.tmp"` |
@@ -266,7 +267,7 @@ Return a plain JSON object to stdout (no markers or wrappers):
 ```json
 {
   "tool": "gemini",
-  "model": "gemini-3-pro-preview",
+  "model": "gemini-3-pro",
   "effort": "high",
   "duration_ms": 12300,
   "response": "The AI's response text here...",

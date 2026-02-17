@@ -26,6 +26,10 @@ Parse from `$ARGUMENTS`:
 - **--model-proposer**: Specific model for proposer (optional)
 - **--model-challenger**: Specific model for challenger (optional)
 
+## Universal Rules
+
+ALL participants (proposer AND challenger) MUST support claims with specific evidence (file path, code pattern, benchmark, or documented behavior). Unsupported claims from either side will be flagged by the other participant and noted in the verdict. This applies to every round.
+
 ## Prompt Templates
 
 ### Round 1: Proposer Opening
@@ -35,7 +39,9 @@ You are participating in a structured debate as the PROPOSER.
 
 Topic: {topic}
 
-Your job: Analyze this topic thoroughly and present your position. Be specific, cite concrete reasons, and consider tradeoffs. Do not hedge excessively - take a clear stance.
+Your job: Analyze this topic thoroughly and present your position. Take a clear stance. Do not hedge excessively.
+
+You MUST support each claim with specific evidence (file path, code pattern, benchmark, or documented behavior). Unsupported claims will be challenged. "I think" or "generally speaking" without evidence is not acceptable.
 
 Provide your analysis:
 ```
@@ -60,6 +66,9 @@ Rules:
 - Lead with what's WRONG or MISSING, then acknowledge what's right
 - If you genuinely agree on a point, explain what RISK remains despite the agreement
 - Propose at least one concrete alternative approach
+- You MUST address at least these categories: correctness, security implications, and developer experience
+- Do NOT agree with ANY claim unless you can cite specific evidence (file path, code pattern, or documented behavior) that supports the agreement. Unsupported agreement is not allowed.
+- If the proposer makes a claim without evidence, call it out: "This claim is unsupported."
 
 Provide your challenge:
 ```
@@ -81,8 +90,10 @@ The CHALLENGER ({challenger_tool}) raised these points in round {round-1}:
 
 Your job: Address each challenge directly. For each point:
 - If they're right, concede explicitly and explain how your position evolves
-- If they're wrong, explain why with specific reasoning
-- If it's a tradeoff, acknowledge the tradeoff and explain why you still favor your approach
+- If they're wrong, explain why with specific evidence (file path, code pattern, benchmark, or documented behavior)
+- If it's a tradeoff, acknowledge the tradeoff and explain why you still favor your approach with evidence
+
+Every claim you make -- whether concession, rebuttal, or new argument -- MUST cite specific evidence. The challenger will reject unsupported claims.
 
 Do NOT simply restate your original position. Your response must show you engaged with the specific challenges raised.
 
@@ -91,29 +102,7 @@ Provide your defense:
 
 ### Round 2+: Challenger Follow-up
 
-```
-You are the CHALLENGER in round {round} of a structured debate.
-
-Topic: {topic}
-
-{context_summary}
-
-The PROPOSER ({proposer_tool}) responded to your challenges:
-
----
-{proposer_previous_response}
----
-
-Your job: Evaluate the proposer's defense. For each point they addressed:
-- Did they adequately address your concern? If so, acknowledge it
-- Did they dodge or superficially address it? Call it out specifically
-- Are there NEW weaknesses in their revised position?
-
-If you're genuinely convinced on a point, say so - but explain what convinced you.
-If you see new problems, raise them.
-
-Provide your follow-up:
-```
+*(JavaScript reference - not executable in OpenCode)*
 
 ## Context Assembly
 
@@ -148,11 +137,12 @@ Round {N-1} - Challenger ({challenger_tool}):
 {full response}
 ```
 
-The orchestrator agent (opus) generates the summary. It should preserve:
+The orchestrator agent (opus) generates the summary. Target: 500-800 tokens. MUST preserve:
 - Each side's core position
-- Points of agreement (resolved)
+- All concessions (verbatim quotes, not paraphrased)
+- All evidence citations that support agreements
 - Points of disagreement (unresolved)
-- Any concessions made
+- Any contradictions between rounds (e.g., proposer concedes in round 1 but walks it back in round 2 -- note both explicitly)
 
 ## Synthesis Format
 
@@ -165,14 +155,22 @@ After all rounds complete, the orchestrator produces this structured output:
 **Proposer**: {proposer_tool} ({proposer_model})
 **Challenger**: {challenger_tool} ({challenger_model})
 **Rounds**: {rounds_completed}
+**Rigor**: Structured perspective comparison (prompt-enforced adversarial rules, no deterministic verification)
 
 ### Verdict
 
 {winner_tool} had the stronger argument because: {specific reasoning citing debate evidence}
 
+### Debate Quality
+
+Rate the debate on these dimensions:
+- **Genuine disagreement**: Did the challenger maintain independent positions, or converge toward the proposer? (high/medium/low)
+- **Evidence quality**: Did both sides cite specific examples, or argue from generalities? (high/medium/low)
+- **Challenge depth**: Were the challenges substantive, or surface-level? (high/medium/low)
+
 ### Key Agreements
-- {agreed point 1}
-- {agreed point 2}
+- {agreed point 1} (evidence: {what supports this agreement})
+- {agreed point 2} (evidence: {what supports this agreement})
 
 ### Key Disagreements
 - {point}: {proposer_tool} argues {X}, {challenger_tool} argues {Y}

@@ -120,9 +120,9 @@ Run N Bash commands **in parallel** (multiple Bash tool calls in a single messag
 
 Example for 3 parallel Codex calls:
 ```
-Bash: codex exec "$(cat "{AI_STATE_DIR}/consult/question-1.tmp")" --json -m "gpt-5.3-codex" -a suggest
-Bash: codex exec "$(cat "{AI_STATE_DIR}/consult/question-2.tmp")" --json -m "gpt-5.3-codex" -a suggest
-Bash: codex exec "$(cat "{AI_STATE_DIR}/consult/question-3.tmp")" --json -m "gpt-5.3-codex" -a suggest
+Bash: codex exec "$(cat "{AI_STATE_DIR}/consult/question-1.tmp")" --json -m "gpt-5.3-codex" -c model_reasoning_effort="high"
+Bash: codex exec "$(cat "{AI_STATE_DIR}/consult/question-2.tmp")" --json -m "gpt-5.3-codex" -c model_reasoning_effort="high"
+Bash: codex exec "$(cat "{AI_STATE_DIR}/consult/question-3.tmp")" --json -m "gpt-5.3-codex" -c model_reasoning_effort="high"
 ```
 
 #### 4d. Parse and Format Results

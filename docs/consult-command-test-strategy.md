@@ -172,9 +172,9 @@ describe('Model Selection', () => {
   describe('Gemini models', () => {
     it('should map effort levels correctly', () => {
       expect(getGeminiModel('low')).toBe('gemini-2.5-flash');
-      expect(getGeminiModel('medium')).toBe('gemini-3-flash-preview');
-      expect(getGeminiModel('high')).toBe('gemini-3-pro-preview');
-      expect(getGeminiModel('max')).toBe('gemini-3-pro-preview');
+      expect(getGeminiModel('medium')).toBe('gemini-3-flash');
+      expect(getGeminiModel('high')).toBe('gemini-3-pro');
+      expect(getGeminiModel('max')).toBe('gemini-3-pro');
     });
   });
 
@@ -244,7 +244,7 @@ describe('Session Management', () => {
     it('should include question in saved session', () => {
       const session = {
         tool: 'gemini',
-        model: 'gemini-3-pro-preview',
+        model: 'gemini-3-pro',
         effort: 'medium',
         session_id: 'xyz-789',
         timestamp: new Date().toISOString(),
@@ -458,7 +458,7 @@ describe('Session Continuation', () => {
     it('should restore tool from saved session', () => {
       const session = {
         tool: 'gemini',
-        model: 'gemini-3-pro-preview',
+        model: 'gemini-3-pro',
         effort: 'medium',
         session_id: 'session-456',
         timestamp: new Date().toISOString(),
@@ -672,18 +672,18 @@ describe('Command Building', () => {
 
   describe('Gemini Command', () => {
     it('should build basic command', () => {
-      const { command, flags } = buildGeminiCommand('question', 'gemini-3-pro-preview');
+      const { command, flags } = buildGeminiCommand('question', 'gemini-3-pro');
       expect(command).toBe('gemini');
       expect(flags).toContain('-p');
       expect(flags).toContain('"question"');
       expect(flags).toContain('--output-format');
       expect(flags).toContain('json');
       expect(flags).toContain('-m');
-      expect(flags).toContain('gemini-3-pro-preview');
+      expect(flags).toContain('gemini-3-pro');
     });
 
     it('should append session resume for continuation', () => {
-      const { flags } = buildGeminiCommand('question', 'gemini-3-pro-preview', 'session-456', true);
+      const { flags } = buildGeminiCommand('question', 'gemini-3-pro', 'session-456', true);
       expect(flags).toContain('--resume');
       expect(flags).toContain('session-456');
     });
@@ -939,7 +939,7 @@ describe('Full Consultation Flow', () => {
       jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(JSON.stringify({
         tool: 'gemini',
         session_id: 'session-456',
-        model: 'gemini-3-pro-preview',
+        model: 'gemini-3-pro',
         effort: 'medium',
         timestamp: new Date().toISOString(),
         question: 'continue',
@@ -1139,7 +1139,7 @@ describe('Mocked Tool Outputs', () => {
   const mockGeminiOutput = `=== CONSULT_RESULT ===
 {
   "tool": "gemini",
-  "model": "gemini-3-pro-preview",
+  "model": "gemini-3-pro",
   "effort": "medium",
   "duration_ms": 23400,
   "response": "Based on my analysis, the approach seems sound but could benefit from error handling for edge cases.",
@@ -1175,7 +1175,7 @@ describe('Mocked Tool Outputs', () => {
     it('should parse structured output correctly', () => {
       const result = parseMockOutput(mockGeminiOutput, 'gemini');
       expect(result.tool).toBe('gemini');
-      expect(result.model).toBe('gemini-3-pro-preview');
+      expect(result.model).toBe('gemini-3-pro');
       expect(result.duration_ms).toBe(23400);
       expect(result.session_id).toBe('session-xyz-789');
     });
