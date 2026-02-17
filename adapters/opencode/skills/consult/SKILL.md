@@ -103,7 +103,7 @@ Models: gpt-5.1-codex-mini, gpt-5-codex, gpt-5.1-codex, gpt-5.2-codex, gpt-5.3-c
 
 ```
 Command: opencode run "QUESTION" --format json --model "MODEL" --variant "VARIANT"
-Session resume: opencode run "QUESTION" --continue (most recent) or --session "SESSION_ID"
+Session resume: opencode run "QUESTION" --format json --model "MODEL" --variant "VARIANT" --continue (most recent) or --session "SESSION_ID"
 With thinking: add --thinking flag
 ```
 
