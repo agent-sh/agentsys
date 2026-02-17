@@ -209,9 +209,9 @@ The results of the consultation are:
 {response}
 ```
 
-For continuable tools (Claude/Gemini), also display: `Session: {session_id} - use /consult --continue to resume`
+For continuable tools (Claude, Gemini, Codex, OpenCode), also display: `Session: {session_id} - use /consult --continue to resume`
 
-Save session state for continuable tools (Claude, Gemini) to `{AI_STATE_DIR}/consult/last-session.json`.
+Save session state for continuable tools (Claude, Gemini, Codex, OpenCode) to `{AI_STATE_DIR}/consult/last-session.json`.
 
 Platform state directory:
 - Claude Code: `.claude/`

@@ -75,7 +75,7 @@ The results of the consultation are:
 {response}
 ```
 
-Set `continuable: true` only for Claude and Gemini (tools with session resumption support).
+Set `continuable: true` for Claude, Gemini, Codex, and OpenCode (tools with session resumption support). Only Copilot is non-continuable.
 
 ### 5. Save Session State
 
