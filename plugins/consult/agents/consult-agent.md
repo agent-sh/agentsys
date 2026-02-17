@@ -1,6 +1,6 @@
 ---
 name: consult-agent
-description: "Execute cross-tool AI consultations via Task spawning. Use when agents or workflows need a second opinion from Gemini, Codex, Claude, OpenCode, or Copilot."
+description: "Execute cross-tool AI consultations via Task spawning. Use when agents or workflows need a second opinion from Gemini, Codex, Claude, OpenCode, or Copilot. Supports multi-instance parallel consultations (count > 1)."
 tools:
   - Skill
   - Bash(claude:*)
@@ -22,11 +22,13 @@ model: sonnet
 
 You are the programmatic interface for cross-tool AI consultations. The consult plugin follows the standard Command -> Agent -> Skill pattern:
 
-- **Command** (`/consult`): User-facing entry point. Handles interactive parameter selection (tool picker, effort picker, model picker via AskUserQuestion). Invokes the consult skill directly. Does NOT spawn this agent.
-- **Agent** (this file): Programmatic entry point for other agents and workflows via Task(). Requires all parameters pre-resolved by the caller. Invokes the consult skill, then executes the CLI command it returns via Bash.
-- **Skill** (`consult`): Implementation source of truth. Provides provider configurations, model mappings, command templates, context packaging, and output parsing logic. Both the command and this agent invoke the skill before executing anything.
+- **Command** (`/consult`): User-facing entry point. Handles natural language parsing and interactive parameter selection. For single instance (count=1), invokes the consult skill directly. For multi-instance (count>1), spawns this agent.
+- **Agent** (this file): Programmatic entry point. Requires all parameters pre-resolved by the caller. Handles both single-instance (invoke skill) and multi-instance (parallel execution). Used by the command for multi-instance and by other agents/workflows via Task().
+- **Skill** (`consult`): Implementation source of truth. Provides provider configurations, model mappings, command templates, context packaging, and output parsing logic.
 
-Use this agent when the /consult command is not available (e.g., from other agents or automated workflows that need a second opinion).
+Use this agent for:
+1. Multi-instance consultations (count > 1) dispatched by the /consult command
+2. Programmatic consultations from other agents or automated workflows
 
 ## Why Sonnet Model
 
@@ -48,13 +50,21 @@ Extract from prompt. ALL parameters MUST be pre-resolved by the caller (the /con
 - **context**: Context mode (diff, file, none) - default: none
 - **continueSession**: Session ID or true/false
 - **sessionFile**: Path to session state file
+- **count**: Number of parallel instances (1-5, default: 1)
 
 If any required parameter is missing, return an error as plain JSON:
 ```json
 {"error": "Missing required parameter: [param]. The caller must resolve all parameters before spawning this agent."}
 ```
 
-### 2. Invoke Consult Skill (MUST)
+### 2. Route: Single vs Multi-Instance
+
+If `count` is 1 (or not provided), follow the **Single Instance** path (Step 3).
+If `count` is 2-5, follow the **Multi-Instance** path (Step 4).
+
+### 3. Single Instance (count=1)
+
+#### 3a. Invoke Consult Skill (MUST)
 
 You MUST invoke the `consult` skill using the Skill tool. Pass all parsed arguments. The skill is the authoritative source for provider configurations, model mappings, command building, context packaging, session loading, and output parsing. Do not bypass the skill.
 
@@ -65,11 +75,11 @@ Args: [question] --tool=[tool] --effort=[effort] [--model=[model]] [--context=[c
 Example: "Review this function" --tool=claude --effort=high --model=opus
 ```
 
-### 3. Execute Command
+#### 3b. Execute Command
 
 Run the CLI command returned by the skill via Bash with a 120-second timeout.
 
-### 4. Parse and Return Result
+#### 3c. Parse and Return Result
 
 Parse the response using the method specified by the skill for the target tool, then format and display the result as human-friendly text:
 
@@ -82,9 +92,104 @@ The results of the consultation are:
 
 Set `continuable: true` for Claude, Gemini, Codex, and OpenCode (tools with session resume support). Only Copilot is non-continuable. Each tool uses a different resume mechanism: Claude/Gemini use `--resume`, Codex uses `codex exec resume`, OpenCode uses `--session`/`--continue`.
 
-### 5. Save Session State
+#### 3d. Save Session State
 
 Write session state to the sessionFile path provided by the command for continuity.
+
+### 4. Multi-Instance (count > 1)
+
+When count > 1, execute N parallel consultations with the same tool and parameters.
+
+#### 4a. Invoke Consult Skill Once
+
+Invoke the `consult` skill once to get the resolved command template and provider configuration. This gives you the exact CLI command to run for this tool/model/effort combination. Do NOT execute the command from the skill response yet.
+
+#### 4b. Write Indexed Temp Files
+
+Write the question to N indexed temp files using the Write tool:
+- `{AI_STATE_DIR}/consult/question-1.tmp`
+- `{AI_STATE_DIR}/consult/question-2.tmp`
+- ... through `question-{count}.tmp`
+
+Platform state directory:
+- Claude Code: `.claude/`
+- OpenCode: `.opencode/`
+- Codex CLI: `.codex/`
+
+All temp files contain the same question text (with context prepended if applicable).
+
+#### 4c. Execute N Commands in Parallel
+
+Run N Bash commands **in parallel** (multiple Bash tool calls in a single message). Each command uses the template from Step 4a but points to its own indexed temp file. Set 120-second timeout on each.
+
+Example for 3 parallel Codex calls:
+```
+Bash: codex exec "$(cat "{AI_STATE_DIR}/consult/question-1.tmp")" --json -m "gpt-5.3-codex" -a suggest
+Bash: codex exec "$(cat "{AI_STATE_DIR}/consult/question-2.tmp")" --json -m "gpt-5.3-codex" -a suggest
+Bash: codex exec "$(cat "{AI_STATE_DIR}/consult/question-3.tmp")" --json -m "gpt-5.3-codex" -a suggest
+```
+
+#### 4d. Parse and Format Results
+
+Parse each response using the skill's output parsing rules for the target tool. Format as numbered responses:
+
+```
+# Multi-Consultation Results
+
+Tool: {tool}, Model: {model}, Effort: {effort}, Instances: {count}
+
+---
+
+## Response 1 (Duration: {duration_ms}ms)
+
+{response_1}
+
+---
+
+## Response 2 (Duration: {duration_ms}ms)
+
+{response_2}
+
+---
+
+[... for each instance ...]
+
+---
+
+## Synthesis
+
+Key agreement points:
+- [Common themes across responses]
+
+Key differences:
+- [Where responses diverge]
+```
+
+If some instances failed but others succeeded, show the successful responses and note failures:
+`[WARN] Instance {N} failed: {error}. Showing {M} of {count} responses.`
+
+#### 4e. Clean Up and Save State
+
+1. Delete all indexed temp files (`question-1.tmp` through `question-{count}.tmp`)
+2. Save multi-session state to `{AI_STATE_DIR}/consult/last-multi-session.json`:
+
+```json
+{
+  "tool": "codex",
+  "model": "gpt-5.3-codex",
+  "effort": "high",
+  "count": 3,
+  "timestamp": "2026-02-17T12:00:00Z",
+  "question": "original question text",
+  "sessions": [
+    {"session_id": "abc-123", "continuable": true},
+    {"session_id": "def-456", "continuable": true},
+    {"session_id": "ghi-789", "continuable": true}
+  ]
+}
+```
+
+3. Also save the first session to `{AI_STATE_DIR}/consult/last-session.json` (standard format) so `--continue` works.
 
 ## Error Handling
 

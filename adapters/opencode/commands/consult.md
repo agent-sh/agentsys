@@ -12,7 +12,7 @@ agent: general
 
 # /consult - Cross-Tool AI Consultation
 
-You are executing the /consult command. Your job is to consult another AI CLI tool, get its response, and present the results to the user.
+You are executing the /consult command. Your job is to parse the user's request (natural language or flags), resolve missing parameters interactively, and execute the consultation.
 
 ## Constraints
 
@@ -20,43 +20,66 @@ You are executing the /consult command. Your job is to consult another AI CLI to
 - NEVER run with permission-bypassing flags (`--dangerously-skip-permissions`, `bypassPermissions`)
 - MUST use safe-mode defaults (`-a suggest` for Codex, `--allowedTools "Read,Glob,Grep"` for Claude)
 - MUST enforce 120s timeout on all tool executions
-- MUST validate `--tool` against allow-list: gemini, codex, claude, opencode, copilot (reject all others)
+- MUST validate tool names against allow-list: gemini, codex, claude, opencode, copilot (reject all others)
 - MUST validate `--context=file=PATH` is within the project directory (reject absolute paths outside cwd)
 - MUST quote all user-provided values in shell commands to prevent injection
 - NEVER execute tools the user has not explicitly requested
 
-## Arguments
-
-Parse from $ARGUMENTS:
-
-- **question**: What to ask the consulted tool (required unless --continue)
-- **--tool**: Target tool: `gemini`, `codex`, `claude`, `opencode`, `copilot` (interactive picker if omitted)
-- **--effort**: Thinking effort: `low`, `medium`, `high`, `max` (interactive picker if omitted)
-- **--model**: Specific model name (interactive picker if omitted). Free text.
-- **--context**: Auto-include context: `diff` (git diff), `file=PATH` (attach specific file), `none` (default)
-- **--continue**: Continue last consultation session, or `--continue=SESSION_ID` for specific session
-
 ## Execution
 
-### Phase 1: Parse Arguments
+### Phase 1: Parse Input (Flags + Natural Language)
 
-Extract these values from `$ARGUMENTS`:
+Parse `$ARGUMENTS` using both explicit flags and natural language extraction. Flags always take priority over NLP when both provide the same parameter.
 
-1. Look for `--tool=VALUE` or `--tool VALUE` where VALUE MUST be one of: gemini, codex, claude, opencode, copilot (reject others)
-2. Look for `--effort=VALUE` or `--effort VALUE` where VALUE MUST be one of: low, medium, high, max
-3. Look for `--model=VALUE` or `--model VALUE` (any string, including quoted strings like `"my model"`)
-4. Look for `--context=VALUE` where VALUE is: diff, file=PATH, or none
-5. Look for `--continue` (optionally `--continue=SESSION_ID`)
-6. Remove all matched flags (including their values) from `$ARGUMENTS`. Handle quoted flag values (e.g., `--model "gpt 4"`) by removing the entire quoted string. Everything remaining is the **question**.
+#### Step 1a: Extract explicit flags
 
-If no question text and no `--continue` flag found, show:
+Look for and remove these flags from `$ARGUMENTS`:
+
+1. `--tool=VALUE` or `--tool VALUE` where VALUE is one of: gemini, codex, claude, opencode, copilot
+2. `--effort=VALUE` or `--effort VALUE` where VALUE is one of: low, medium, high, max
+3. `--model=VALUE` or `--model VALUE` (any string, including quoted)
+4. `--context=VALUE` where VALUE is: diff, file=PATH, or none
+5. `--continue` (optionally `--continue=SESSION_ID`)
+6. `--count=N` where N is 1-5
+
+Remove all matched flags and their values from `$ARGUMENTS`.
+
+#### Step 1b: Natural language extraction (on remaining text)
+
+After removing flags, parse the remaining text for these patterns:
+
+**Tool extraction** (case-insensitive):
+- "with {tool}" (e.g., "with codex") -> tool
+- "ask {tool}" (e.g., "ask gemini") -> tool
+- "consult {tool}" -> tool
+- "{tool} about" (e.g., "codex about") -> tool
+- Tool names: claude, gemini, codex, opencode, copilot
+
+**Count extraction**:
+- "ask {N} {tool}" (e.g., "ask 3 codex") -> count=N, tool
+- "{N} {tool}" (e.g., "3 codex") -> count=N, tool
+- "{N} instances" -> count=N
+- "few instances" / "multiple" / "several" -> count=ambiguous (ask user in Phase 2)
+
+**Effort extraction**:
+- "quick" / "fast" / "brief" -> effort=low
+- "thorough" / "deep" / "carefully" / "detailed" -> effort=high
+- "maximum" / "max effort" / "exhaustive" -> effort=max
+
+**Question extraction**:
+- Text after "about" is the question (e.g., "with codex about my auth approach" -> question="my auth approach")
+- If no "about" pattern, everything remaining after removing tool/count/effort markers is the question
+
+**Precedence rule**: Flags from Step 1a always override NLP from Step 1b.
+
+If no question text and no `--continue` flag found after both steps:
 ```
-[ERROR] Usage: /consult "your question" [--tool=gemini|codex|claude|opencode|copilot] [--effort=low|medium|high|max]
+[ERROR] Usage: /consult "your question" or /consult with gemini about your question
 ```
 
-### Phase 2: Interactive Parameter Selection
+### Phase 2: Interactive Parameter Resolution
 
-MUST resolve ALL missing parameters interactively before Phase 3. ONLY skip this phase if ALL of --tool, --effort, AND --model are explicitly provided by the user in $ARGUMENTS. Do NOT silently default any parameter.
+MUST resolve ALL missing parameters interactively. ONLY skip this phase if ALL required params (tool, effort, model) are resolved AND either a question exists or --continue is present. Do NOT silently default any parameter.
 
 #### Step 2a: Handle --continue
 
@@ -70,9 +93,9 @@ If `--continue` is present:
 2. If the file exists, restore the saved tool, session_id, and model from it
 3. If the file does not exist, show `[WARN] No previous session found` and proceed as a fresh consultation
 
-#### Step 2b: Batch Selection (tool + effort)
+#### Step 2b: Detect installed tools
 
-First, detect which tools are installed by running all 5 checks **in parallel** via Bash:
+Run all 5 checks **in parallel** via Bash:
 
 - `where.exe <tool> 2>nul && echo FOUND || echo NOTFOUND` (Windows)
 - `which <tool> 2>/dev/null && echo FOUND || echo NOTFOUND` (Unix)
@@ -81,12 +104,14 @@ Check for: claude, gemini, codex, opencode, copilot.
 
 If zero tools are installed: `[ERROR] No AI CLI tools found. Install at least one: npm i -g @anthropic-ai/claude-code, npm i -g @openai/codex, npm i -g opencode-ai`
 
-Then use a SINGLE AskUserQuestion call to ask all missing parameters at once. Include only the questions for parameters NOT already provided in $ARGUMENTS:
+#### Step 2c: Batch selection for missing params
+
+Use a SINGLE AskUserQuestion call to ask all missing parameters at once. Include ONLY questions for parameters NOT already resolved from Phase 1:
 
 ```
 AskUserQuestion:
   questions:
-    - header: "AI Tool"                          # SKIP if --tool provided
+    - header: "AI Tool"                          # SKIP if tool resolved
       question: "Which AI tool should I consult?"
       multiSelect: false
       options (only if installed):
@@ -96,7 +121,7 @@ AskUserQuestion:
         - label: "OpenCode"     description: "Flexible model choice"
         - label: "Copilot"      description: "GitHub-integrated AI"
 
-    - header: "Effort"                           # SKIP if --effort provided
+    - header: "Effort"                           # SKIP if effort resolved
       question: "What thinking effort level?"
       multiSelect: false
       options:
@@ -104,16 +129,28 @@ AskUserQuestion:
         - label: "Low"                   description: "Fast, minimal reasoning"
         - label: "High"                  description: "Thorough analysis"
         - label: "Max"                   description: "Maximum reasoning depth"
+
+    - header: "Instances"                        # SKIP if count resolved or not hinted
+      question: "How many parallel consultations?"
+      multiSelect: false
+      options:
+        - label: "1 (Single)"             description: "Standard single consultation"
+        - label: "2 (Compare)"            description: "Two responses to compare"
+        - label: "3 (Panel)"              description: "Three perspectives"
 ```
 
+ONLY show the Instances question if:
+- The user explicitly mentioned multiple instances (e.g., "few", "multiple", "several")
+- The count was set but ambiguous
+Do NOT show Instances question for simple single-tool requests. Default count=1 silently when no multi-instance intent detected.
+
 Map tool choice to lowercase: "Claude" -> "claude", "Codex" -> "codex", etc.
-Map effort choice: "Medium (Recommended)" -> "medium", "Low" -> "low", "High" -> "high", "Max" -> "max".
+Map effort choice: "Medium (Recommended)" -> "medium", "Low" -> "low", etc.
+Map count choice: "1 (Single)" -> 1, "2 (Compare)" -> 2, "3 (Panel)" -> 3.
 
-IMPORTANT: Do NOT skip any missing parameter. Do NOT silently default --effort to "medium" or --tool to any value. Present pickers for ALL unresolved parameters.
+#### Step 2d: Model selection (MUST ask if no --model)
 
-#### Step 2c: Model Selection (MUST ask if no --model)
-
-After tool is resolved (from Step 2b or $ARGUMENTS), present a model picker with options specific to the selected tool. The user can always type a custom model name via the "Other" option.
+After tool is resolved, present a model picker with options specific to the selected tool. The user can always type a custom model name via the "Other" option.
 
 **For Claude:**
 ```
@@ -180,17 +217,21 @@ AskUserQuestion:
       options:
         - label: "claude-sonnet-4-5"        description: "Default Copilot model"
         - label: "claude-opus-4-6"          description: "Most capable Claude model"
-        - label: "gpt-5.3-codex"              description: "OpenAI GPT-5.3 Codex"
+        - label: "gpt-5.3-codex"            description: "OpenAI GPT-5.3 Codex"
         - label: "gemini-3-pro"             description: "Google Gemini 3 Pro"
 ```
 
-Map the user's choice to the model string (strip " (Recommended)" suffix if present). Pass the selected model to the skill via `--model`.
+Map the user's choice to the model string (strip " (Recommended)" suffix if present).
 
-IMPORTANT: Do NOT skip this step. Do NOT silently use a default model. If --model was not explicitly provided in $ARGUMENTS, you MUST present this picker. The model lists above are current as of Feb 2026 - the user may type any model name supported by their tool via the "Other" option.
+IMPORTANT: Do NOT skip model selection. Do NOT silently use a default model. If --model was not explicitly provided, you MUST present this picker.
 
-### Phase 3: Invoke Consult Skill
+### Phase 3: Execute Consultation
 
-With all parameters resolved (tool, effort, model, question, and optionally context, continue), invoke the `consult` skill using the Skill tool:
+With all parameters resolved (tool, effort, model, question, count, and optionally context/continue):
+
+#### Single instance (count=1, the default)
+
+Invoke the `consult` skill directly using the Skill tool:
 
 ```
 Skill: consult
@@ -199,15 +240,35 @@ Args: "[question]" --tool=[tool] --effort=[effort] --model=[model] [--context=[c
 Example: "Is this the right approach?" --tool=gemini --effort=high --model=gemini-3-pro
 ```
 
-The skill handles the full consultation lifecycle: it resolves the model from the effort level, builds the CLI command, packages any context, executes the command via Bash with a 120-second timeout, and returns a plain JSON result.
+The skill handles the full consultation lifecycle: model resolution, command building, context packaging, execution with 120s timeout, and returns a plain JSON result.
 
-### Phase 4: Parse Skill Output
+#### Multi-instance (count > 1)
 
-The skill returns a plain JSON object containing: `tool`, `model`, `effort`, `duration_ms`, `response`, `session_id`, and `continuable`. Parse the JSON directly from the skill output.
+Spawn the `consult-agent` via the Task tool with all resolved parameters:
 
-### Phase 5: Present Results
+```
+Task:
+  subagent_type: "consult-agent"
+  prompt: |
+    Execute a multi-instance consultation with these pre-resolved parameters:
+    - tool: [tool]
+    - model: [model]
+    - effort: [effort]
+    - question: [question]
+    - count: [count]
+    - context: [context or none]
 
-After parsing the JSON, format and display the result as human-friendly text:
+    Run [count] parallel consultations with the same tool and parameters.
+    Return all responses formatted with numbered headers and a brief synthesis.
+```
+
+The agent handles parallel execution, temp file management, result parsing, and synthesis.
+
+### Phase 4: Present Results
+
+#### Single instance
+
+Parse the skill's plain JSON output and display:
 
 ```
 Tool: {tool}, Model: {model}, Effort: {effort}, Duration: {duration_ms}ms.
@@ -218,12 +279,11 @@ The results of the consultation are:
 
 For continuable tools (Claude, Gemini, Codex, OpenCode), display: `Session: {session_id} - use /consult --continue to resume`
 
-Save session state for continuable tools (Claude, Gemini, Codex, OpenCode) to `{AI_STATE_DIR}/consult/last-session.json`.
+Save session state to `{AI_STATE_DIR}/consult/last-session.json`.
 
-Platform state directory:
-- Claude Code: `.opencode/`
-- OpenCode: `.opencode/`
-- Codex CLI: `.codex/`
+#### Multi-instance
+
+Display the agent's formatted output directly. The agent returns numbered responses with a synthesis section.
 
 On failure: `[ERROR] Consultation Failed: {specific error message}`
 
@@ -231,22 +291,34 @@ On failure: `[ERROR] Consultation Failed: {specific error message}`
 
 | Error | Output |
 |-------|--------|
-| No question provided | `[ERROR] Usage: /consult "your question" [--tool=gemini\|codex\|claude\|opencode\|copilot] [--effort=low\|medium\|high\|max]` |
+| No question provided | `[ERROR] Usage: /consult "your question" or /consult with gemini about your question` |
 | Tool not installed | `[ERROR] {tool} is not installed. Install with: {install command from skill}` |
 | Tool execution fails | `[ERROR] {tool} failed: {error}. Try a different tool with --tool=[other]` |
 | Timeout (>120s) | `[ERROR] {tool} timed out after 120s. Try --effort=low for faster response` |
 | No tools available | `[ERROR] No AI CLI tools found. Install: npm i -g @anthropic-ai/claude-code` |
 | Session not found | `[WARN] No previous session found. Starting fresh consultation.` |
 | API key missing | `[ERROR] {tool} requires API key. Set {env var} (see skill for details)` |
+| Count out of range | `[ERROR] Instance count must be 1-5. Got: {count}` |
+| Multi-instance partial failure | Show successful responses, note failures |
 
 ## Example Usage
 
 ```bash
-/consult "Is this the right approach for error handling?" --tool=gemini --effort=high
-/consult "Review this function for performance issues" --tool=codex
-/consult "What alternative patterns would you suggest?" --tool=claude --effort=max
+# Natural language (NLP parsing)
+/consult with codex about my auth approach
+/consult ask 3 codex about this design
+/consult gemini should I use redis or postgres
+/consult thoroughly ask claude about error handling
+/consult codex few instances about performance
+
+# Explicit flags (backward compatible)
+/consult "Is this the right approach?" --tool=gemini --effort=high
+/consult "Review this function" --tool=codex --count=3
 /consult "Suggest improvements" --tool=opencode --model=github-copilot/claude-opus-4-6
-/consult "Continue from where we left off" --continue
+/consult --continue
 /consult "Explain this error" --context=diff --tool=gemini
 /consult "Review this file" --context=file=src/index.js --tool=claude
+
+# Mixed (flags + natural language)
+/consult with gemini --effort=max about database schema design
 ```

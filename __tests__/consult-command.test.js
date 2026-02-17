@@ -289,7 +289,7 @@ describe('security constraints', () => {
   });
 
   test('command validates --tool against allow-list', () => {
-    expect(commandContent).toMatch(/validate.*--tool.*allow-list|MUST be one of.*gemini.*codex.*claude/i);
+    expect(commandContent).toMatch(/validate.*tool.*against.*allow-list|allow-list.*gemini.*codex.*claude|one of.*gemini.*codex.*claude/i);
   });
 
   test('skill validates --context=file=PATH is within project', () => {
@@ -358,11 +358,11 @@ describe('interactive selection completeness', () => {
     expect(commandContent).toMatch(/AskUserQuestion[\s\S]*?header:\s*"Effort"/);
   });
 
-  test('Phase 2b has MUST enforcement language for effort', () => {
-    // Effort picker is in Step 2b (batch selection), model picker in Step 2c
-    expect(commandContent).toMatch(/Do NOT silently default --effort/);
-    expect(commandContent).toMatch(/Do NOT skip this step/);
-    expect(commandContent).toMatch(/Do NOT skip any missing parameter/);
+  test('Phase 2 has MUST enforcement language for parameters', () => {
+    // Check that the command enforces interactive resolution for missing params
+    expect(commandContent).toMatch(/Do NOT silently default any parameter|Do NOT silently use a default model/);
+    expect(commandContent).toMatch(/Do NOT skip model selection|Do NOT skip this/i);
+    expect(commandContent).toMatch(/MUST resolve ALL missing parameters/);
   });
 
   test('Phase 2 header has MUST language for all missing parameters', () => {
@@ -560,7 +560,7 @@ describe('codex AskUserQuestion transform compatibility', () => {
     // The picker should have structured options, not just plain text
     // Check that each tool option line has both label and description
     const toolPickerSection = commandContent.match(
-      /Step 2b[\s\S]*?Step 2c/
+      /Step 2c[\s\S]*?Step 2d/
     );
     expect(toolPickerSection).not.toBeNull();
 
@@ -573,9 +573,9 @@ describe('codex AskUserQuestion transform compatibility', () => {
   });
 
   test('effort selection options have label+description format', () => {
-    // Effort picker is in Step 2b (batch selection), not Step 2c (model selection)
+    // Effort picker is in Step 2c (batch selection), model picker in Step 2d
     const effortPickerSection = commandContent.match(
-      /Step 2b[\s\S]*?Step 2c/
+      /Step 2c[\s\S]*?Step 2d/
     );
     expect(effortPickerSection).not.toBeNull();
 
