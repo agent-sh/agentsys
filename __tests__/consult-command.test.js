@@ -324,27 +324,21 @@ describe('security constraints', () => {
     expect(skillContent).toMatch(/delete the temp file/i);
   });
 
-  test('agent has output sanitization with redaction patterns', () => {
+  test('agent references skill as canonical redaction source', () => {
     expect(agentContent).toMatch(/Output Sanitization/);
-    // Key patterns must be present
-    expect(agentContent).toMatch(/sk-\[a-zA-Z0-9/);
-    expect(agentContent).toMatch(/AIza\[a-zA-Z0-9/);
-    expect(agentContent).toMatch(/ghp_/);
-    expect(agentContent).toMatch(/Bearer/);
-    expect(agentContent).toMatch(/AKIA/);
-    expect(agentContent).toMatch(/REDACTED/);
+    // Agent should reference the skill, not maintain its own table
+    expect(agentContent).toMatch(/consult skill|SKILL\.md/i);
   });
 
-  test('agent redaction warning is conditional', () => {
-    expect(agentContent).toMatch(/if any redaction occurs/i);
-  });
-
-  test('skill has inline redaction pattern summary', () => {
-    // Skill should be self-contained with at least key patterns
-    expect(skillContent).toMatch(/sk-.*API key/i);
+  test('skill has full redaction pattern table (canonical source)', () => {
+    // Skill is the single source of truth for redaction patterns
+    expect(skillContent).toMatch(/Output Sanitization/);
+    expect(skillContent).toMatch(/sk-\[a-zA-Z0-9/);
+    expect(skillContent).toMatch(/AIza\[a-zA-Z0-9/);
     expect(skillContent).toMatch(/ghp_/);
     expect(skillContent).toMatch(/Bearer/);
     expect(skillContent).toMatch(/AKIA/);
+    expect(skillContent).toMatch(/REDACTED/);
   });
 });
 

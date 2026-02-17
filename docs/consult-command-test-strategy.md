@@ -180,7 +180,7 @@ describe('Model Selection', () => {
 
   describe('Codex models', () => {
     it('should map effort levels correctly', () => {
-      expect(getCodexModel('low')).toBe('gpt-5.1-codex-mini');
+      expect(getCodexModel('low')).toBe('gpt-5.3-codex-spark');
       expect(getCodexModel('medium')).toBe('gpt-5.2-codex');
       expect(getCodexModel('high')).toBe('gpt-5.3-codex');
       expect(getCodexModel('max')).toBe('gpt-5.3-codex');

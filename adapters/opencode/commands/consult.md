@@ -90,7 +90,7 @@ If `--continue` is present:
 1. Read the session file at `{AI_STATE_DIR}/consult/last-session.json`
 
    Platform state directory:
-   - Claude Code: `.opencode/`
+   - Claude Code: `.claude/`
    - OpenCode: `.opencode/`
    - Codex CLI: `.codex/`
 2. If the file exists, restore the saved tool, session_id, and model from it
@@ -194,7 +194,7 @@ AskUserQuestion:
         - label: "gpt-5.3-codex"        description: "Latest, most capable coding model"
         - label: "gpt-5.2-codex"        description: "Strong coding model"
         - label: "gpt-5.2"              description: "General purpose GPT-5.2"
-        - label: "gpt-5-codex-mini"     description: "Cost-effective, 4x more usage"
+        - label: "gpt-5.3-codex-spark"   description: "Cost-effective, 4x more usage"
 ```
 
 **For OpenCode:**

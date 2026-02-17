@@ -76,7 +76,7 @@ Topic: {topic}
 
 {context_summary}
 
-The CHALLENGER ({challenger_tool}) raised these points in round {round-1}:
+The CHALLENGER ({challenger_tool}) raised these points in round {previous_round}:
 
 ---
 {challenger_previous_response}

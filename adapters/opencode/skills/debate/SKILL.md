@@ -82,7 +82,7 @@ Topic: {topic}
 
 {context_summary}
 
-The CHALLENGER ({challenger_tool}) raised these points in round {round-1}:
+The CHALLENGER ({challenger_tool}) raised these points in round {previous_round}:
 
 ---
 {challenger_previous_response}
@@ -220,7 +220,7 @@ Save to `{AI_STATE_DIR}/debate/last-debate.json`:
 ```
 
 Platform state directory:
-- Claude Code: `.opencode/`
+- Claude Code: `.claude/`
 - OpenCode: `.opencode/`
 - Codex CLI: `.codex/`
 

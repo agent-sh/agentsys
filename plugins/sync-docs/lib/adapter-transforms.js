@@ -18,10 +18,30 @@ function transformBodyForOpenCode(content, repoRoot) {
   content = content.replace(/\$\{CLAUDE_PLUGIN_ROOT\}/g, '${PLUGIN_ROOT}');
   content = content.replace(/\$CLAUDE_PLUGIN_ROOT/g, '$PLUGIN_ROOT');
 
-  content = content.replace(/\.claude\//g, '.opencode/');
-  content = content.replace(/\.claude'/g, ".opencode'");
-  content = content.replace(/\.claude"/g, '.opencode"');
-  content = content.replace(/\.claude`/g, '.opencode`');
+  // Replace .claude/ paths with .opencode/ but preserve platform documentation lists
+  // that enumerate all three platforms (Claude Code: .claude/, OpenCode: .opencode/, Codex: .codex/)
+  // Also preserve {AI_STATE_DIR} references which are platform-agnostic
+  content = content.replace(/\.claude\//g, (match, offset) => {
+    const context = content.substring(Math.max(0, offset - 60), offset + match.length + 10);
+    // Skip if inside a platform enumeration (e.g., "Claude Code: `.claude/`")
+    if (/Claude Code:/.test(context)) return match;
+    return '.opencode/';
+  });
+  content = content.replace(/\.claude'/g, (match, offset) => {
+    const context = content.substring(Math.max(0, offset - 60), offset + match.length + 10);
+    if (/Claude Code:/.test(context)) return match;
+    return ".opencode'";
+  });
+  content = content.replace(/\.claude"/g, (match, offset) => {
+    const context = content.substring(Math.max(0, offset - 60), offset + match.length + 10);
+    if (/Claude Code:/.test(context)) return match;
+    return '.opencode"';
+  });
+  content = content.replace(/\.claude`/g, (match, offset) => {
+    const context = content.substring(Math.max(0, offset - 60), offset + match.length + 10);
+    if (/Claude Code:/.test(context)) return match;
+    return '.opencode`';
+  });
 
   const plugins = discovery.discoverPlugins(repoRoot);
   if (plugins.length > 0) {

@@ -116,9 +116,34 @@ AskUserQuestion:
         - label: "1 (Quick)"             description: "Single propose + challenge"
         - label: "3 (Extended)"          description: "Three full exchanges"
         - label: "5 (Exhaustive)"        description: "Five rounds, deep exploration"
+
+    - header: "Context"                          # SKIP if --context resolved
+      question: "Include codebase context for both tools?"
+      multiSelect: false
+      options:
+        - label: "None (Recommended)"    description: "No extra context, just the topic"
+        - label: "Diff"                  description: "Include current git diff"
+        - label: "File"                  description: "Include a specific file (will ask path)"
 ```
 
-Map choices: "Claude" -> "claude", "High (Recommended)" -> "high", "2 (Recommended)" -> 2, etc. Strip " (Recommended)" suffix.
+Map choices: "Claude" -> "claude", "High (Recommended)" -> "high", "2 (Recommended)" -> 2, "None (Recommended)" -> "none", "Diff" -> "diff", "File" -> "file" (then ask for path). Strip " (Recommended)" suffix.
+
+If context resolved to "file":
+  Use a follow-up AskUserQuestion to ask for the file path:
+  ```
+  AskUserQuestion:
+    questions:
+      - header: "File path"
+        question: "Which file should both tools see?"
+        multiSelect: false
+        options:
+          - label: "src/"               description: "Source directory file"
+          - label: "README.md"          description: "Project readme"
+  ```
+  The user can type any path via "Other".
+  After getting the path, validate it exists using the Read tool.
+  If the file doesn't exist: `[ERROR] Context file not found: {PATH}`
+  If valid, set context to `file={user_provided_path}`.
 
 If proposer and challenger resolve to the same tool after selection, show error and re-ask for challenger.
 
@@ -137,8 +162,10 @@ Task:
     - challenger: [challenger tool]
     - effort: [effort]
     - rounds: [rounds]
-    - model_proposer: [model or "auto"]
-    - model_challenger: [model or "auto"]
+    - model_proposer: [model or "omit"]
+    - model_challenger: [model or "omit"]
+
+    If model is "omit" or empty, do NOT include --model in consult skill invocations. The consult skill will use effort-based defaults.
     - context: [context or "none"]
 
     Follow the debate skill templates. Display each round progressively.
@@ -162,6 +189,7 @@ On failure: `[ERROR] Debate Failed: {specific error message}`
 | Fewer than 2 tools | `[ERROR] Debate requires at least 2 AI CLI tools installed.` |
 | Same tool for both | `[ERROR] Proposer and challenger must be different tools.` |
 | Rounds out of range | `[ERROR] Rounds must be 1-5. Got: {rounds}` |
+| Context file not found | `[ERROR] Context file not found: {PATH}` |
 | Orchestrator fails | `[ERROR] Debate failed: {error}` |
 
 ## Example Usage

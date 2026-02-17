@@ -83,11 +83,11 @@ Session resume (latest): codex exec resume --last "QUESTION" --json
 
 Note: `codex exec` is the non-interactive/headless mode. There is no `-q` flag. The TUI mode is `codex` (no subcommand).
 
-Models: gpt-5.1-codex-mini, gpt-5-codex, gpt-5.1-codex, gpt-5.2-codex, gpt-5.3-codex, gpt-5.1-codex-max
+Models: gpt-5.3-codex-spark, gpt-5-codex, gpt-5.1-codex, gpt-5.2-codex, gpt-5.3-codex, gpt-5.1-codex-max
 
 | Effort | Model | Reasoning |
 |--------|-------|-----------|
-| low | gpt-5.1-codex-mini | low |
+| low | gpt-5.3-codex-spark | low |
 | medium | gpt-5.2-codex | medium |
 | high | gpt-5.3-codex | high |
 | max | gpt-5.3-codex | xhigh |
@@ -243,16 +243,26 @@ If session file not found, warn and proceed as fresh consultation.
 
 ## Output Sanitization
 
-Before returning the response, the invoking agent MUST scan for and redact API keys, tokens, and credentials that may appear in the consulted tool's output. At minimum, redact these patterns:
+Before including any consulted tool's response in the output, scan the response text and redact matches for these patterns:
 
-- `sk-[a-zA-Z0-9_-]{20,}` and `sk-ant-*`, `sk-proj-*` (API keys)
-- `AIza[a-zA-Z0-9_-]{30,}` (Google API keys)
-- `AKIA*`, `ASIA*` (AWS access/session keys)
-- `ghp_*`, `gho_*`, `github_pat_*` (GitHub tokens)
-- `ANTHROPIC_API_KEY=*`, `OPENAI_API_KEY=*`, `GOOGLE_API_KEY=*`, `GEMINI_API_KEY=*` (env assignments)
-- `Bearer [a-zA-Z0-9_-]{20,}` (auth headers)
+| Pattern | Description | Replacement |
+|---------|-------------|-------------|
+| `sk-[a-zA-Z0-9_-]{20,}` | Anthropic API keys | `[REDACTED_API_KEY]` |
+| `sk-proj-[a-zA-Z0-9_-]{20,}` | OpenAI project keys | `[REDACTED_API_KEY]` |
+| `sk-ant-[a-zA-Z0-9_-]{20,}` | Anthropic API keys (ant prefix) | `[REDACTED_API_KEY]` |
+| `AIza[a-zA-Z0-9_-]{30,}` | Google API keys | `[REDACTED_API_KEY]` |
+| `ghp_[a-zA-Z0-9]{36,}` | GitHub personal access tokens | `[REDACTED_TOKEN]` |
+| `gho_[a-zA-Z0-9]{36,}` | GitHub OAuth tokens | `[REDACTED_TOKEN]` |
+| `github_pat_[a-zA-Z0-9_]{20,}` | GitHub fine-grained PATs | `[REDACTED_TOKEN]` |
+| `ANTHROPIC_API_KEY=[^\s]+` | Key assignment in env output | `ANTHROPIC_API_KEY=[REDACTED]` |
+| `OPENAI_API_KEY=[^\s]+` | Key assignment in env output | `OPENAI_API_KEY=[REDACTED]` |
+| `GOOGLE_API_KEY=[^\s]+` | Key assignment in env output | `GOOGLE_API_KEY=[REDACTED]` |
+| `GEMINI_API_KEY=[^\s]+` | Key assignment in env output | `GEMINI_API_KEY=[REDACTED]` |
+| `AKIA[A-Z0-9]{16}` | AWS access keys | `[REDACTED_AWS_KEY]` |
+| `ASIA[A-Z0-9]{16}` | AWS session tokens | `[REDACTED_AWS_KEY]` |
+| `Bearer [a-zA-Z0-9_-]{20,}` | Authorization headers | `Bearer [REDACTED]` |
 
-See `consult-agent.md` for the complete redaction pattern table with replacements.
+Apply redaction to the full response text before inserting into the result JSON. If any redaction occurs, append a note: `[WARN] Sensitive tokens were redacted from the response.`
 
 ## Output Format
 

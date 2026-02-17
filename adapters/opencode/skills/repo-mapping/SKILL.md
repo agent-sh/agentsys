@@ -29,7 +29,7 @@ Build and maintain a cached AST-based map of repository symbols and imports usin
 
 Repo map is stored in the platform state directory:
 
-- Claude Code: `.opencode/repo-map.json`
+- Claude Code: `.claude/repo-map.json`
 - OpenCode: `.opencode/repo-map.json`
 - Codex CLI: `.codex/repo-map.json`
 

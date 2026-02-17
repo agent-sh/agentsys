@@ -59,6 +59,11 @@ If any required parameter is missing, return an error as plain JSON:
 
 ### 2. Route: Single vs Multi-Instance
 
+If both `continueSession` is set and `count > 1`, return:
+```json
+{"error": "Cannot use --continue with count > 1. Session resume applies to a single tool session."}
+```
+
 Validate count: if provided, must be 1-5. If out of range, return `{"error": "Instance count must be 1-5. Got: [count]"}`.
 
 If `count` is 1 (or not provided), follow the **Single Instance** path (Step 3).
@@ -205,26 +210,7 @@ If some instances failed but others succeeded, show the successful responses and
 
 ## Output Sanitization
 
-Before including any consulted tool's response in the output, scan the response text and redact matches for these patterns:
-
-| Pattern | Description | Replacement |
-|---------|-------------|-------------|
-| `sk-[a-zA-Z0-9_-]{20,}` | Anthropic API keys | `[REDACTED_API_KEY]` |
-| `sk-proj-[a-zA-Z0-9_-]{20,}` | OpenAI project keys | `[REDACTED_API_KEY]` |
-| `sk-ant-[a-zA-Z0-9_-]{20,}` | Anthropic API keys (ant prefix) | `[REDACTED_API_KEY]` |
-| `AIza[a-zA-Z0-9_-]{30,}` | Google API keys | `[REDACTED_API_KEY]` |
-| `ghp_[a-zA-Z0-9]{36,}` | GitHub personal access tokens | `[REDACTED_TOKEN]` |
-| `gho_[a-zA-Z0-9]{36,}` | GitHub OAuth tokens | `[REDACTED_TOKEN]` |
-| `github_pat_[a-zA-Z0-9_]{20,}` | GitHub fine-grained PATs | `[REDACTED_TOKEN]` |
-| `ANTHROPIC_API_KEY=[^\s]+` | Key assignment in env output | `ANTHROPIC_API_KEY=[REDACTED]` |
-| `OPENAI_API_KEY=[^\s]+` | Key assignment in env output | `OPENAI_API_KEY=[REDACTED]` |
-| `GOOGLE_API_KEY=[^\s]+` | Key assignment in env output | `GOOGLE_API_KEY=[REDACTED]` |
-| `GEMINI_API_KEY=[^\s]+` | Key assignment in env output | `GEMINI_API_KEY=[REDACTED]` |
-| `AKIA[A-Z0-9]{16}` | AWS access keys | `[REDACTED_AWS_KEY]` |
-| `ASIA[A-Z0-9]{16}` | AWS session tokens | `[REDACTED_AWS_KEY]` |
-| `Bearer [a-zA-Z0-9_-]{20,}` | Authorization headers | `Bearer [REDACTED]` |
-
-Apply redaction to the full response text before inserting into the result JSON. If any redaction occurs, append a note: `[WARN] Sensitive tokens were redacted from the response.`
+Apply the redaction patterns from the consult skill (`plugins/consult/skills/consult/SKILL.md`, Output Sanitization section). The skill is the canonical source for all redaction patterns.
 
 ## Critical Constraints
 
