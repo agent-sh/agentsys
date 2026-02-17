@@ -30,8 +30,8 @@ beforeAll(() => {
 // ─── Constants ──────────────────────────────────────────────────────
 const PROVIDERS = ['claude', 'gemini', 'codex', 'opencode', 'copilot'];
 const EFFORT_LEVELS = ['low', 'medium', 'high', 'max'];
-const CONTINUABLE_PROVIDERS = ['claude', 'gemini'];
-const NON_CONTINUABLE_PROVIDERS = ['codex', 'opencode', 'copilot'];
+const CONTINUABLE_PROVIDERS = ['claude', 'gemini', 'codex', 'opencode'];
+const NON_CONTINUABLE_PROVIDERS = ['copilot'];
 
 // ─── Helpers ────────────────────────────────────────────────────────
 function parseFrontmatter(content) {
@@ -167,7 +167,7 @@ describe('provider configuration consistency', () => {
     });
   });
 
-  test('continuable providers are claude and gemini only', () => {
+  test('continuable providers are claude, gemini, codex, and opencode', () => {
     for (const provider of CONTINUABLE_PROVIDERS) {
       const section = skillContent.match(
         new RegExp(`### ${provider}[\\s\\S]*?(?=### |## |$)`, 'i')
@@ -445,7 +445,7 @@ describe('session management', () => {
     expect(commandContent).toMatch(/AI_STATE_DIR/);
   });
 
-  test('skill mentions session resume for Claude and Gemini', () => {
+  test('skill mentions session resume for all continuable providers', () => {
     // Claude section
     const claudeSection = skillContent.match(/### Claude[\s\S]*?(?=### |## |$)/i);
     expect(claudeSection[0]).toMatch(/--resume/i);
@@ -453,6 +453,14 @@ describe('session management', () => {
     // Gemini section
     const geminiSection = skillContent.match(/### Gemini[\s\S]*?(?=### |## |$)/i);
     expect(geminiSection[0]).toMatch(/--resume/i);
+
+    // Codex section
+    const codexSection = skillContent.match(/### Codex[\s\S]*?(?=### |## |$)/i);
+    expect(codexSection[0]).toMatch(/session resume|codex resume/i);
+
+    // OpenCode section
+    const opencodeSection = skillContent.match(/### OpenCode[\s\S]*?(?=### |## |$)/i);
+    expect(opencodeSection[0]).toMatch(/session resume|--continue|--session/i);
   });
 });
 

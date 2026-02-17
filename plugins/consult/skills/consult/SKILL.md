@@ -76,6 +76,7 @@ Models: gemini-2.5-flash, gemini-2.5-pro, gemini-3-flash-preview, gemini-3-pro-p
 
 ```
 Command: codex -q "QUESTION" --json -m "MODEL" -a suggest -c model_reasoning_effort="LEVEL"
+Session resume: codex resume "SESSION_ID"
 ```
 
 Models: gpt-5.1-codex-mini, gpt-5-codex, gpt-5.1-codex, gpt-5.2-codex, gpt-5.3-codex, gpt-5.1-codex-max
@@ -88,12 +89,14 @@ Models: gpt-5.1-codex-mini, gpt-5-codex, gpt-5.1-codex, gpt-5.2-codex, gpt-5.3-c
 | max | gpt-5.3-codex | xhigh |
 
 **Parse output**: `JSON.parse(stdout).message` or raw text
-**Continuable**: No
+**Session ID**: Codex prints a resume hint at session end (e.g., `codex resume SESSION_ID`). Extract the session ID from stdout or from `JSON.parse(stdout).session_id` if available.
+**Continuable**: Yes, but interactive only. Sessions are stored as JSONL rollout files at `~/.codex/sessions/`. The `codex resume SESSION_ID` subcommand resumes in TUI mode -- it does not support `-q` for non-interactive use. For non-interactive continuation, prepend prior conversation context to the new question text instead.
 
 ### OpenCode
 
 ```
 Command: opencode run "QUESTION" --format json --model "MODEL" --variant "VARIANT"
+Session resume: opencode run "QUESTION" --format json --model "MODEL" --variant "VARIANT" --continue (most recent) or --session "SESSION_ID"
 With thinking: add --thinking flag
 ```
 
@@ -107,7 +110,8 @@ Models: 75+ via providers (format: provider/model). Top picks: claude-sonnet-4-5
 | max | (user-selected or default) | high + --thinking |
 
 **Parse output**: Parse JSON events from stdout, extract final text response
-**Continuable**: No
+**Session ID**: Extract from JSON output if available, or use `--continue` to auto-resume the most recent session.
+**Continuable**: Yes (via `--continue` or `--session`). Sessions are stored in a SQLite database in the OpenCode data directory. Use `--session SESSION_ID` for a specific session, or `--continue` for the most recent.
 
 ### Copilot
 
@@ -149,7 +153,10 @@ If `--model` is specified, use it directly. Otherwise, use the effort-based mode
 
 Use the command template from the provider's configuration section. Substitute QUESTION, MODEL, TURNS, LEVEL, and VARIANT with resolved values.
 
-If continuing a session (Claude or Gemini): append `--resume SESSION_ID`.
+If continuing a session:
+- **Claude or Gemini**: append `--resume SESSION_ID` to the command.
+- **Codex**: no non-interactive resume flag exists. Prepend the prior Q&A context to the new question text before passing to `codex -q`.
+- **OpenCode**: append `--session SESSION_ID` to the command. If no session_id is saved, use `--continue` instead (resumes most recent session).
 If OpenCode at max effort: append `--thinking`.
 
 ### Step 3: Context Packaging
@@ -174,9 +181,14 @@ User-provided question text MUST NOT be interpolated into shell command strings.
 | Provider | Safe command pattern |
 |----------|---------------------|
 | Claude | `claude -p - --output-format json --model "MODEL" --max-turns TURNS --allowedTools "Read,Glob,Grep" < "{AI_STATE_DIR}/consult/question.tmp"` |
+| Claude (resume) | `claude -p - --output-format json --model "MODEL" --max-turns TURNS --allowedTools "Read,Glob,Grep" --resume "SESSION_ID" < "{AI_STATE_DIR}/consult/question.tmp"` |
 | Gemini | `gemini -p - --output-format json -m "MODEL" < "{AI_STATE_DIR}/consult/question.tmp"` |
+| Gemini (resume) | `gemini -p - --output-format json -m "MODEL" --resume "SESSION_ID" < "{AI_STATE_DIR}/consult/question.tmp"` |
 | Codex | `codex -q "$(cat "{AI_STATE_DIR}/consult/question.tmp")" --json -m "MODEL" -a suggest` (Codex lacks stdin mode -- cat reads from platform-controlled path, not user input) |
+| Codex (continue) | No non-interactive resume. Prepend prior context to question, then use standard Codex command above. |
 | OpenCode | `opencode run - --format json --model "MODEL" --variant "VARIANT" < "{AI_STATE_DIR}/consult/question.tmp"` |
+| OpenCode (resume by ID) | `opencode run - --format json --model "MODEL" --variant "VARIANT" --session "SESSION_ID" < "{AI_STATE_DIR}/consult/question.tmp"` |
+| OpenCode (resume latest) | `opencode run - --format json --model "MODEL" --variant "VARIANT" --continue < "{AI_STATE_DIR}/consult/question.tmp"` |
 | Copilot | `copilot -p - < "{AI_STATE_DIR}/consult/question.tmp"` |
 
 3. **Delete the temp file** after the command completes (success or failure). Always clean up to prevent accumulation.

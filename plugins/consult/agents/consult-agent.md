@@ -80,7 +80,7 @@ The results of the consultation are:
 {response}
 ```
 
-Set `continuable: true` only for Claude and Gemini (tools with session resumption support).
+Set `continuable: true` for Claude, Gemini, Codex, and OpenCode (tools with continuation support). Codex continuation is context-based (prior Q&A prepended to prompt) since `codex resume` is TUI-only. Claude, Gemini, and OpenCode support native session resume flags. Only Copilot is non-continuable.
 
 ### 5. Save Session State
 
