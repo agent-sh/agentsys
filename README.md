@@ -14,7 +14,7 @@
   <a href="https://www.npmjs.com/package/agentsys"><img src="https://img.shields.io/npm/v/agentsys.svg" alt="npm version"></a>
   <a href="https://www.npmjs.com/package/agentsys"><img src="https://img.shields.io/npm/dm/agentsys.svg" alt="npm downloads"></a>
   <a href="https://github.com/avifenesh/agentsys/actions/workflows/ci.yml"><img src="https://github.com/avifenesh/agentsys/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://github.com/avifenesh/agentsys/stargazers"><img src="https://img.shields.io/github/stars/avifenesh/agentsys?style=social" alt="GitHub stars"></a>
+  <a href="https://github.com/avifenesh/agentsys/stargazers"><img src="https://img.shields.io/github/stars/avifenesh/agentsys?style=flat&label=stars&color=yellow" alt="GitHub stars"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
   <a href="https://avifenesh.github.io/agentsys/"><img src="https://img.shields.io/badge/Website-AgentSys-blue?style=flat&logo=github" alt="Website"></a>
   <a href="https://github.com/hesreallyhim/awesome-claude-code"><img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Claude Code"></a>
