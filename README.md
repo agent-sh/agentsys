@@ -91,7 +91,7 @@ This came from testing on 1,000+ repositories.
 | [`/sync-docs`](#sync-docs) | Finds outdated references, stale examples, missing CHANGELOG entries |
 | [`/learn`](#learn) | Research any topic, gather online sources, create learning guide with RAG index |
 | [`/consult`](#consult) | Consult another AI CLI tool for a second opinion. Use when you want to cross-check ideas, get alternative approaches, or validate decisions with Gemini, Codex, Claude, OpenCode, or Copilot. |
-| [`/debate`](#debate) | Structured debate between two AI tools to stress-test ideas. Proposer/Challenger format with a verdict. |
+| [`/debate`](#debate) | Use when user asks to "debate", "argue about", "compare perspectives", "stress test idea", "devil advocate", or "tool vs tool". Structured debate between two AI tools with proposer/challenger roles and a verdict. |
 <!-- GEN:END:readme-commands -->
 
 Each command works standalone. Together, they compose into end-to-end pipelines.
