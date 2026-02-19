@@ -1,6 +1,6 @@
 ---
 name: debate-orchestrator
-description: "Orchestrate multi-round debates between AI tools. Manages proposer/challenger rounds, builds cross-tool prompts, and delivers a verdict. Use when other agents or workflows need to spawn a structured debate via Task()."
+description: "Orchestrate multi-round debates between AI tools. Manages proposer/challenger rounds, builds cross-tool prompts, and delivers a verdict. Programmatic entry point for other agents or workflows that need to spawn a structured debate via Task()."
 mode: subagent
 ---
 
