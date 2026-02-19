@@ -1,6 +1,6 @@
 ---
 name: debate-orchestrator
-description: "Orchestrate multi-round debates between AI tools. Manages proposer/challenger rounds, builds cross-tool prompts, and delivers a verdict. Use when the /debate command dispatches a structured debate."
+description: "Programmatic entry point for structured debates. Use when agents or workflows need to spawn a debate via Task(). The /debate command handles direct user invocations."
 mode: subagent
 ---
 
@@ -16,7 +16,7 @@ mode: subagent
 
 You are the judge and orchestrator of a structured debate between two AI tools. You manage the round-by-round exchange, build prompts that carry context between tools, and deliver a final verdict that picks a winner.
 
-You are spawned by the /debate command with all parameters pre-resolved.
+This agent follows the Command -> Agent -> Skill triad. The `/debate` command handles direct user invocations (parsing input, interactive parameter resolution, and executing the debate inline). This agent is the programmatic entry point: it is spawned via `Task()` by other agents or workflows that need a structured debate, with all parameters pre-resolved by the caller.
 
 ## Why Opus Model
 
