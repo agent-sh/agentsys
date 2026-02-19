@@ -1,5 +1,6 @@
 ---
-description: Structured debate between two AI tools to stress-test ideas. Proposer/Challenger format with a verdict.
+name: debate
+description: 'Use when user asks to "debate", "argue about", "compare perspectives", "stress test idea", "devil advocate", or "tool vs tool". Structured debate between two AI tools with proposer/challenger roles and a verdict.'
 agent: general
 ---
 

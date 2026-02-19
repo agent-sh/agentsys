@@ -1,6 +1,8 @@
 ---
 name: debate
 description: "Use when user asks to \"debate\", \"argue about\", \"compare perspectives\", \"stress test idea\", \"devil advocate\", \"codex vs gemini\". Runs structured multi-round debate between two AI tools with proposer/challenger roles."
+version: 5.1.0
+argument-hint: "[topic] [--tools=tool1,tool2] [--rounds=N] [--effort=low|medium|high|max]"
 ---
 
 # /debate - Structured AI Dialectic
