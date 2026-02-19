@@ -14,6 +14,7 @@ You are executing the /debate command. Your job is to parse the user's request, 
 - MUST validate tool names against allow-list: gemini, codex, claude, opencode, copilot
 - Proposer and challenger MUST be different tools
 - Rounds MUST be 1-5 (default: 2)
+- MUST sanitize all tool output before displaying (see Output Sanitization section below)
 
 ## Execution
 
@@ -280,7 +281,7 @@ Read the consult skill file to get the exact patterns and replacements.
 | Rounds out of range | `[ERROR] Rounds must be 1-5. Got: {rounds}` |
 | Context file not found | `[ERROR] Context file not found: {PATH}` |
 | Proposer fails round 1 | `[ERROR] Debate aborted: proposer ({tool}) failed on opening round. {error}` |
-| Challenger fails round 1 | Show proposer's uncontested position with note: `[WARN] Challenger failed. Showing proposer's uncontested position.` Then synthesize from available exchanges. |
+| Challenger fails round 1 | `[WARN] Challenger ({tool}) failed on round 1. Proceeding with uncontested proposer position.` Then synthesize from available exchanges. |
 | Any tool fails mid-debate | Synthesize from completed rounds. Note the incomplete round in output. |
 
 ## Example Usage

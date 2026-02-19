@@ -213,6 +213,10 @@ describe('security constraints', () => {
     expect(agentContent).toMatch(/Output Sanitization/);
   });
 
+  test('command has output sanitization section', () => {
+    expect(commandContent).toMatch(/## Output Sanitization/);
+  });
+
   test('orchestrator mentions 120s timeout', () => {
     expect(agentContent).toMatch(/120s?\s*timeout/i);
   });
