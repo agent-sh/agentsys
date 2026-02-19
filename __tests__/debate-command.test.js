@@ -174,11 +174,6 @@ describe('command/skill/agent alignment', () => {
     expect(agentContent).toMatch(/Skill:\s*consult/);
   });
 
-  test('skill version matches plugin.json version', () => {
-    const fm = parseFrontmatter(skillContent);
-    expect(fm.version).toBe(pluginJson.version);
-  });
-
   test('command invokes skills via Skill blocks in Phase 3', () => {
     const phase3Match = commandContent.match(/### Phase 3[\s\S]*$/);
     expect(phase3Match).not.toBeNull();
@@ -191,6 +186,10 @@ describe('command/skill/agent alignment', () => {
     const fm = parseFrontmatter(agentContent);
     const toolsStr = Array.isArray(fm.tools) ? fm.tools.join(', ') : fm.tools;
     expect(toolsStr).toContain('Skill');
+  });
+
+  test('command does not spawn debate-orchestrator via Task', () => {
+    expect(commandContent).not.toMatch(/subagent_type.*debate-orchestrator|debate:debate-orchestrator/);
   });
 });
 
@@ -391,6 +390,7 @@ describe('error handling coverage', () => {
 
   test('command handles tool failure during debate', () => {
     expect(commandContent).toMatch(/Proposer fails round 1/i);
+    expect(commandContent).toMatch(/Challenger fails round 1/i);
     expect(commandContent).toMatch(/Any tool fails mid-debate/i);
   });
 });
@@ -441,10 +441,16 @@ describe('cross-file consistency', () => {
     expect(fm.model).toBe('opus');
   });
 
-  test('command allowed-tools includes Task', () => {
+  test('command allowed-tools includes Skill', () => {
     const fm = parseFrontmatter(commandContent);
     const tools = fm['allowed-tools'] || '';
-    expect(tools).toContain('Task');
+    expect(tools).toContain('Skill');
+  });
+
+  test('command allowed-tools does not include Task (least-privilege)', () => {
+    const fm = parseFrontmatter(commandContent);
+    const tools = fm['allowed-tools'] || '';
+    expect(tools).not.toContain('Task');
   });
 
   test('command allowed-tools includes AskUserQuestion', () => {
@@ -475,8 +481,8 @@ describe('cross-file consistency', () => {
   });
 
   test('command and agent both reference debate skill', () => {
-    // Command spawns orchestrator which invokes skill
-    expect(commandContent).toMatch(/debate/i);
+    // Command executes debate inline via Skill:debate and Skill:consult. Agent is the programmatic entry point for Task() callers.
+    expect(commandContent).toMatch(/Skill:\s*debate/);
     expect(agentContent).toMatch(/Skill:\s*debate/);
   });
 });

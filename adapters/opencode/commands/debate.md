@@ -3,12 +3,6 @@ description: Structured debate between two AI tools to stress-test ideas. Propos
 agent: general
 ---
 
-> **OpenCode Note**: Invoke agents using `@agent-name` syntax.
-> Available agents: task-discoverer, exploration-agent, planning-agent,
-> implementation-agent, deslop-agent, delivery-validator, sync-docs-agent, consult-agent
-> Example: `@exploration-agent analyze the codebase`
-
-
 # /debate - Structured AI Dialectic
 
 You are executing the /debate command. Your job is to parse the user's request, resolve missing parameters interactively, and execute the debate directly.
@@ -200,6 +194,9 @@ Args: "{proposer_prompt}" --tool=[proposer] --effort=[effort] [--model=[model_pr
 
 Parse the JSON result. Extract the response text. Record: round, role="proposer", tool, response, duration_ms.
 
+If the proposer call fails on round 1, abort: `[ERROR] Debate aborted: proposer ({tool}) failed on opening round. {error}`
+If the proposer call fails on round 2+, skip remaining rounds and proceed to Phase 3c (synthesize from completed rounds, note the early stop).
+
 Display to user immediately:
 ```
 --- Round {N}: {proposer_tool} (Proposer) ---
@@ -222,6 +219,9 @@ Args: "{challenger_prompt}" --tool=[challenger] --effort=[effort] [--model=[mode
 ```
 
 Parse the JSON result. Record: round, role="challenger", tool, response, duration_ms.
+
+If the challenger call fails on round 1, emit `[WARN] Challenger ({tool}) failed on round 1. Proceeding with uncontested proposer position.` then proceed to Phase 3c.
+If the challenger call fails on round 2+, skip remaining rounds and proceed to Phase 3c.
 
 Display to user immediately:
 ```

@@ -3,7 +3,7 @@ name: debate
 description: Structured debate between two AI tools to stress-test ideas. Proposer/Challenger format with a verdict.
 codex-description: 'Use when user asks to "debate", "argue about", "compare perspectives", "stress test idea", "devil advocate", "codex vs gemini". Runs structured multi-round debate between two AI tools with proposer/challenger roles.'
 argument-hint: "[topic] [--tools=tool1,tool2] [--rounds=N] [--effort=low|medium|high|max]"
-allowed-tools: Task, Skill, Bash(where.exe:*), Bash(which:*), Read, Write, AskUserQuestion
+allowed-tools: Skill, Bash(where.exe:*), Bash(which:*), Read, Write, AskUserQuestion
 ---
 
 # /debate - Structured AI Dialectic
@@ -197,6 +197,9 @@ Args: "{proposer_prompt}" --tool=[proposer] --effort=[effort] [--model=[model_pr
 
 Parse the JSON result. Extract the response text. Record: round, role="proposer", tool, response, duration_ms.
 
+If the proposer call fails on round 1, abort: `[ERROR] Debate aborted: proposer ({tool}) failed on opening round. {error}`
+If the proposer call fails on round 2+, skip remaining rounds and proceed to Phase 3c (synthesize from completed rounds, note the early stop).
+
 Display to user immediately:
 ```
 --- Round {N}: {proposer_tool} (Proposer) ---
@@ -219,6 +222,9 @@ Args: "{challenger_prompt}" --tool=[challenger] --effort=[effort] [--model=[mode
 ```
 
 Parse the JSON result. Record: round, role="challenger", tool, response, duration_ms.
+
+If the challenger call fails on round 1, emit `[WARN] Challenger ({tool}) failed on round 1. Proceeding with uncontested proposer position.` then proceed to Phase 3c.
+If the challenger call fails on round 2+, skip remaining rounds and proceed to Phase 3c.
 
 Display to user immediately:
 ```
