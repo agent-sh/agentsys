@@ -161,8 +161,9 @@ describe('provider configuration - prompt templates', () => {
 
 // ─── 3. Command / Skill / Agent Alignment ───────────────────────────
 describe('command/skill/agent alignment', () => {
-  test('command spawns debate:debate-orchestrator', () => {
-    expect(commandContent).toMatch(/debate:debate-orchestrator/);
+  test('command invokes debate and consult skills inline', () => {
+    expect(commandContent).toMatch(/Skill:\s*debate/);
+    expect(commandContent).toMatch(/Skill:\s*consult/);
   });
 
   test('agent invokes debate skill', () => {
@@ -178,9 +179,12 @@ describe('command/skill/agent alignment', () => {
     expect(fm.version).toBe(pluginJson.version);
   });
 
-  test('command invokes skill via Task tool in Phase 3', () => {
-    expect(commandContent).toMatch(/Task:/);
-    expect(commandContent).toMatch(/debate:debate-orchestrator/);
+  test('command invokes skills via Skill blocks in Phase 3', () => {
+    const phase3Match = commandContent.match(/### Phase 3[\s\S]*$/);
+    expect(phase3Match).not.toBeNull();
+    const phase3 = phase3Match[0];
+    expect(phase3).toMatch(/Skill:\s*debate/);
+    expect(phase3).toMatch(/Skill:\s*consult/);
   });
 
   test('agent has Skill tool for invoking skills', () => {
@@ -385,8 +389,9 @@ describe('error handling coverage', () => {
     expect(commandContent).toMatch(/context.*file=PATH|--context=.*file/i);
   });
 
-  test('command handles orchestrator failure', () => {
-    expect(commandContent).toMatch(/Orchestrator fails|Debate failed/i);
+  test('command handles tool failure during debate', () => {
+    expect(commandContent).toMatch(/Proposer fails round 1/i);
+    expect(commandContent).toMatch(/Any tool fails mid-debate/i);
   });
 });
 
@@ -453,10 +458,10 @@ describe('cross-file consistency', () => {
     expect(fm.version).toBe(pluginJson.version);
   });
 
-  test('orchestrator description mentions proposer/challenger', () => {
+  test('orchestrator description describes programmatic entry point', () => {
     const fm = parseFrontmatter(agentContent);
-    expect(fm.description).toMatch(/proposer/i);
-    expect(fm.description).toMatch(/challenger/i);
+    expect(fm.description).toMatch(/programmatic/i);
+    expect(fm.description).toMatch(/Task\(\)/);
   });
 
   test('agent tools list includes all 5 provider CLI tools', () => {
