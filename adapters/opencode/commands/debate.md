@@ -182,7 +182,7 @@ For each round (1 through N):
 
 **Context assembly rules:**
 - **Rounds 1-2**: Include full text of all prior exchanges per the skill's context format.
-- **Round 3+**: Summarize rounds 1 through N-2 (target 500-800 tokens, preserving core positions, key evidence, all concessions as verbatim quotes, points of disagreement, and any contradictions between rounds). Include only the most recent round's responses in full.
+- **Round 3+**: Summarize rounds 1 through {round}-2 (target 500-800 tokens, preserving core positions, key evidence, all concessions as verbatim quotes, points of disagreement, and any contradictions between rounds). Include only the most recent round's responses in full.
 
 **Invoke Proposer via Consult Skill:**
 
@@ -200,7 +200,7 @@ If the proposer call fails on round 2+, skip remaining rounds and proceed to Pha
 
 Display to user immediately:
 ```
---- Round {N}: {proposer_tool} (Proposer) ---
+--- Round {round}: {proposer_tool} (Proposer) ---
 
 {proposer_response}
 ```
@@ -226,7 +226,7 @@ If the challenger call fails on round 2+, skip remaining rounds and proceed to P
 
 Display to user immediately:
 ```
---- Round {N}: {challenger_tool} (Challenger) ---
+--- Round {round}: {challenger_tool} (Challenger) ---
 
 {challenger_response}
 ```
@@ -255,7 +255,7 @@ Display the full synthesis using the format from the debate skill's Synthesis Fo
 
 Write the debate state to `{AI_STATE_DIR}/debate/last-debate.json` using the schema from the debate skill.
 
-Platform state directory: use `process.env.AI_STATE_DIR` if set. Otherwise:
+Platform state directory: use the AI_STATE_DIR environment variable if set. Otherwise:
 - Claude Code: `.claude/`
 - OpenCode: `.opencode/`
 - Codex CLI: `.codex/`
@@ -266,7 +266,7 @@ Create the `debate/` subdirectory if it doesn't exist.
 
 Apply the FULL redaction pattern table from the consult skill (`plugins/consult/skills/consult/SKILL.md`, Output Sanitization section). The skill is the canonical source with all 14 patterns. Do NOT maintain a separate subset here.
 
-The consult skill's table covers: Anthropic keys (`sk-*`, `sk-ant-*`, `sk-proj-*`), Google keys (`AIza*`), GitHub tokens (`ghp_*`, `gho_*`, `github_pat_*`), AWS keys (`AKIA*`, `ASIA*`), env assignments (`ANTHROPIC_API_KEY=*`, `OPENAI_API_KEY=*`, `GOOGLE_API_KEY=*`, `GEMINI_API_KEY=*`), and auth headers (`Bearer *`).
+The consult skill's table covers: Anthropic keys (`sk-*`, `sk-ant-*`), OpenAI project keys (`sk-proj-*`), Google keys (`AIza*`), GitHub tokens (`ghp_*`, `gho_*`, `github_pat_*`), AWS keys (`AKIA*`, `ASIA*`), env assignments (`ANTHROPIC_API_KEY=*`, `OPENAI_API_KEY=*`, `GOOGLE_API_KEY=*`, `GEMINI_API_KEY=*`), and auth headers (`Bearer *`).
 
 Read the consult skill file to get the exact patterns and replacements.
 
