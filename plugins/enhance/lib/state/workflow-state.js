@@ -73,8 +73,10 @@ const PHASES = [
   'planning',
   'user-approval',
   'implementation',
+  'pre-review-gates',
   'review-loop',
   'delivery-validation',
+  'docs-update',
   'shipping',
   'complete'
 ];
@@ -430,7 +432,10 @@ function getResultField(phase) {
   const mapping = {
     'exploration': 'exploration',
     'planning': 'plan',
-    'review-loop': 'reviewResult'
+    'pre-review-gates': 'preReviewResult',
+    'review-loop': 'reviewResult',
+    'delivery-validation': 'deliveryResult',
+    'docs-update': 'docsResult'
   };
   return mapping[phase] || null;
 }
