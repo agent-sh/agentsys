@@ -3,7 +3,7 @@ name: debate
 description: 'Use when user asks to "debate", "argue about", "compare perspectives", "stress test idea", "devil advocate", or "tool vs tool". Structured debate between two AI tools with proposer/challenger roles and a verdict.'
 codex-description: 'Use when user asks to "debate", "argue about", "compare perspectives", "stress test idea", "devil advocate", "codex vs gemini". Runs structured multi-round debate between two AI tools with proposer/challenger roles.'
 argument-hint: "[topic] [--tools=tool1,tool2] [--rounds=N] [--effort=low|medium|high|max]"
-allowed-tools: Skill, Bash(where.exe:*), Bash(which:*), Read, Write, AskUserQuestion
+allowed-tools: Skill, Bash(claude:*), Bash(gemini:*), Bash(codex:*), Bash(opencode:*), Bash(copilot:*), Bash(git:*), Bash(where.exe:*), Bash(which:*), Read, Write, AskUserQuestion
 ---
 
 # /debate - Structured AI Dialectic
