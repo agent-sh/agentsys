@@ -169,7 +169,7 @@ while (iteration <= MAX_ITERATIONS) {
 
   // 3. Check if done
   if (findings.openCount === 0) {
-    workflowState.updateFlow({ reviewResult: { approved: true, iterations: iteration } });
+    workflowState.completePhase({ approved: true, iterations: iteration });
     break;
   }
 
@@ -198,10 +198,10 @@ while (iteration <= MAX_ITERATIONS) {
 
   // 8. Check limits
   if (stallCount >= MAX_STALLS || iteration >= MAX_ITERATIONS) {
-    workflowState.updateFlow({
-      reviewResult: { approved: false, blocked: true,
-                     reason: stallCount >= MAX_STALLS ? 'stall-detected' : 'iteration-limit',
-                     remaining: findings.totals }
+    workflowState.completePhase({
+      approved: false, blocked: true,
+      reason: stallCount >= MAX_STALLS ? 'stall-detected' : 'iteration-limit',
+      remaining: findings.totals
     });
     break;
   }
