@@ -1,12 +1,17 @@
 ---
 name: discover-tasks
-description: "Use when user asks to \"discover tasks\", \"find next task\", or \"prioritize issues\". Discovers and ranks tasks from GitHub, GitLab, local files, and custom sources."
+description: "Use when user asks to \"discover tasks\", \"find next task\", \"prioritize issues\", \"what should I work on\", or \"list open issues\". Discovers and ranks tasks from GitHub, GitLab, local files, and custom sources."
 version: 5.1.1
+allowed-tools: "Bash(gh:*), Bash(glab:*), Bash(git:*), Grep, Read, AskUserQuestion"
 ---
 
 # discover-tasks
 
 Discover tasks from configured sources, validate them, and present for user selection.
+
+## When to Use
+
+Invoked during Phase 2 of `/next-task` workflow, after policy selection. Also usable standalone when the user wants to discover and select tasks from configured sources.
 
 ## Workflow
 
@@ -14,7 +19,7 @@ Discover tasks from configured sources, validate them, and present for user sele
 
 ```javascript
 // Use relative path from skill directory to plugin lib
-// Path: skills/task-discovery/ -> ../../lib/state/workflow-state.js
+// Path: skills/discover-tasks/ -> ../../lib/state/workflow-state.js
 const workflowState = require('../../lib/state/workflow-state.js');
 
 const state = workflowState.readState();
@@ -214,8 +219,12 @@ workflowState.completePhase({
 
 ### Phase 6: Post Comment (GitHub only)
 
+**Skip this phase entirely for non-GitHub sources.**
+
 ```bash
-gh issue comment "$TASK_ID" --body "[BOT] Workflow started for this issue."
+if [ "$SOURCE" = "github" ] || [ "$SOURCE" = "gh-issues" ]; then
+  gh issue comment "$TASK_ID" --body "[BOT] Workflow started for this issue."
+fi
 ```
 
 ## Output Format
@@ -243,4 +252,5 @@ If no tasks found:
 - Labels MUST be max 30 characters
 - Exclude tasks already claimed by other workflows
 - Exclude issues that already have an open PR (GitHub source only)
+- PR-link detection covers up to 100 open PRs (--limit 100 is the fetch cap)
 - Top 5 tasks only
