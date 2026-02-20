@@ -35,11 +35,12 @@ Reads from workflow state (`flow.json`):
 2. Load policy from workflow state
 3. Fetch tasks from configured source
 4. Exclude tasks already claimed by other workflows
-5. Filter by priority policy
-6. Score and rank top 5 tasks
-7. Present via AskUserQuestion with checkbox UI
-8. Update state with selected task
-9. Post comment to issue (GitHub only)
+5. Exclude issues with open PRs (GitHub only) — single `gh pr list` call
+6. Filter by priority policy
+7. Score and rank top 5 tasks
+8. Present via AskUserQuestion with checkbox UI
+9. Update state with selected task
+10. Post comment to issue (GitHub only)
 
 ## [WARN] OpenCode Label Limit
 

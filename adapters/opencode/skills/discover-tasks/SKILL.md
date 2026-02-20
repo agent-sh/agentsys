@@ -1,7 +1,7 @@
 ---
 name: discover-tasks
 description: "Use when user asks to \"discover tasks\", \"find next task\", or \"prioritize issues\". Discovers and ranks tasks from GitHub, GitLab, local files, and custom sources."
-version: 5.1.0
+version: 5.1.1
 ---
 
 # discover-tasks
@@ -46,9 +46,22 @@ done
 **Custom Source:**
 *(JavaScript reference - not executable in OpenCode)*
 
+### Phase 2.5: Collect PR-Linked Issues (GitHub only)
+
+For GitHub sources, fetch all open PRs and build a Set of issue numbers that already have an associated PR. For non-GitHub sources, set `prLinkedIssues` to an empty Set and skip this phase.
+
+```bash
+gh pr list --state open --json number,title,body,headRefName --limit 100 > /tmp/gh-prs.json
+```
+
+*(JavaScript reference - not executable in OpenCode)*
+
 ### Phase 3: Filter and Score
 
 **Exclude claimed tasks:**
+*(JavaScript reference - not executable in OpenCode)*
+
+**Exclude issues with open PRs (GitHub only):**
 *(JavaScript reference - not executable in OpenCode)*
 
 **Apply priority filter:**
@@ -99,4 +112,5 @@ If no tasks found:
 - MUST use AskUserQuestion for task selection (not plain text)
 - Labels MUST be max 30 characters
 - Exclude tasks already claimed by other workflows
+- Exclude issues that already have an open PR (GitHub source only)
 - Top 5 tasks only

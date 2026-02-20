@@ -1,7 +1,7 @@
 ---
 name: discover-tasks
 description: "Use when user asks to \"discover tasks\", \"find next task\", or \"prioritize issues\". Discovers and ranks tasks from GitHub, GitLab, local files, and custom sources."
-version: 5.1.0
+version: 5.1.1
 ---
 
 # discover-tasks
@@ -61,11 +61,52 @@ const capabilities = sources.getToolCapabilities(toolName);
 // Execute capabilities.commands.list_issues
 ```
 
+### Phase 2.5: Collect PR-Linked Issues (GitHub only)
+
+For GitHub sources, fetch all open PRs and build a Set of issue numbers that already have an associated PR. For non-GitHub sources, set `prLinkedIssues` to an empty Set and skip this phase.
+
+```bash
+gh pr list --state open --json number,title,body,headRefName --limit 100 > /tmp/gh-prs.json
+```
+
+```javascript
+const prs = JSON.parse(fs.readFileSync('/tmp/gh-prs.json', 'utf8'));
+const prLinkedIssues = new Set();
+
+for (const pr of prs) {
+  // 1. Branch name suffix: fix/some-thing-123 extracts 123
+  const branchMatch = pr.headRefName.match(/-(\d+)$/);
+  if (branchMatch) prLinkedIssues.add(branchMatch[1]);
+
+  // 2. PR body closing keywords: closes/fixes/resolves #N
+  if (pr.body) {
+    const bodyMatches = pr.body.matchAll(/(?:closes|fixes|resolves)\s+#(\d+)/gi);
+    for (const m of bodyMatches) prLinkedIssues.add(m[1]);
+  }
+
+  // 3. PR title (#N) convention
+  const titleMatch = pr.title.match(/\(#(\d+)\)/);
+  if (titleMatch) prLinkedIssues.add(titleMatch[1]);
+}
+```
+
 ### Phase 3: Filter and Score
 
 **Exclude claimed tasks:**
 ```javascript
 const available = tasks.filter(t => !claimedIds.has(String(t.number || t.id)));
+```
+
+**Exclude issues with open PRs (GitHub only):**
+```javascript
+const filtered = available.filter(t => {
+  const id = String(t.number || t.id);
+  if (prLinkedIssues.has(id)) {
+    console.log(`[INFO] Skipping #${id} — already has an open PR`);
+    return false;
+  }
+  return true;
+});
 ```
 
 **Apply priority filter:**
@@ -188,4 +229,5 @@ If no tasks found:
 - MUST use AskUserQuestion for task selection (not plain text)
 - Labels MUST be max 30 characters
 - Exclude tasks already claimed by other workflows
+- Exclude issues that already have an open PR (GitHub source only)
 - Top 5 tasks only
