@@ -1,12 +1,17 @@
 ---
 name: discover-tasks
-description: "Use when user asks to \"discover tasks\", \"find next task\", or \"prioritize issues\". Discovers and ranks tasks from GitHub, GitLab, local files, and custom sources."
-version: 5.1.0
+description: "Use when user asks to \"discover tasks\", \"find next task\", \"prioritize issues\", \"what should I work on\", or \"list open issues\". Discovers and ranks tasks from GitHub, GitLab, local files, and custom sources."
+version: 5.1.1
+allowed-tools: "Bash(gh:*), Bash(glab:*), Bash(git:*), Bash(grep:*), Grep, Read, AskUserQuestion"
 ---
 
 # discover-tasks
 
 Discover tasks from configured sources, validate them, and present for user selection.
+
+## When to Use
+
+Invoked during Phase 2 of `/next-task` workflow, after policy selection. Also usable standalone when the user wants to discover and select tasks from configured sources.
 
 ## Workflow
 
@@ -14,7 +19,7 @@ Discover tasks from configured sources, validate them, and present for user sele
 
 ```javascript
 // Use relative path from skill directory to plugin lib
-// Path: skills/task-discovery/ -> ../../lib/state/workflow-state.js
+// Path: skills/discover-tasks/ -> ../../lib/state/workflow-state.js
 const workflowState = require('../../lib/state/workflow-state.js');
 
 const state = workflowState.readState();
@@ -61,6 +66,49 @@ const capabilities = sources.getToolCapabilities(toolName);
 // Execute capabilities.commands.list_issues
 ```
 
+### Phase 2.5: Collect PR-Linked Issues (GitHub only)
+
+```javascript
+// Default for non-GitHub sources - always defined so Phase 3 filter is safe
+let prLinkedIssues = new Set();
+```
+
+For GitHub sources (`policy.taskSource === 'github'` or `'gh-issues'`), fetch all open PRs and build a Set of issue numbers that already have an associated PR. Skip to Phase 3 for all other sources.
+
+```bash
+# Only run when policy.taskSource is 'github' or 'gh-issues'
+# Note: covers up to 100 open PRs. If repo has more, some linked issues may not be excluded.
+gh pr list --state open --json number,title,body,headRefName --limit 100 > /tmp/gh-prs.json
+```
+
+```javascript
+const fs = require('fs');
+try {
+  const prs = JSON.parse(fs.readFileSync('/tmp/gh-prs.json', 'utf8') || '[]');
+
+  for (const pr of prs) {
+    // 1. Branch name suffix: fix/some-thing-123 extracts 123
+    // Note: heuristic - branches like "release-2026" will false-positive on issue #2026.
+    // Patterns 2 and 3 are more precise; this is a best-effort supplement.
+    const branchMatch = (pr.headRefName || '').match(/-(\d+)$/);
+    if (branchMatch) prLinkedIssues.add(branchMatch[1]);
+
+    // 2. PR body closing keywords (GitHub's full keyword set, with word boundary)
+    if (pr.body) {
+      const bodyMatches = pr.body.matchAll(/\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi);
+      for (const m of bodyMatches) prLinkedIssues.add(m[1]);
+    }
+
+    // 3. PR title (#N) convention - capture all occurrences
+    const titleMatches = (pr.title || '').matchAll(/\(#(\d+)\)/g);
+    for (const m of titleMatches) prLinkedIssues.add(m[1]);
+  }
+} catch (e) {
+  console.log('[WARN] Could not parse open PRs, skipping PR-link filter:', e.message);
+  prLinkedIssues = new Set();
+}
+```
+
 ### Phase 3: Filter and Score
 
 **Exclude claimed tasks:**
@@ -68,7 +116,19 @@ const capabilities = sources.getToolCapabilities(toolName);
 const available = tasks.filter(t => !claimedIds.has(String(t.number || t.id)));
 ```
 
-**Apply priority filter:**
+**Exclude issues with open PRs (GitHub only):**
+```javascript
+const filtered = available.filter(t => {
+  const id = String(t.number || t.id);
+  if (prLinkedIssues.has(id)) {
+    console.log(`[INFO] Skipping #${id} - already has an open PR`);
+    return false;
+  }
+  return true;
+});
+```
+
+**Apply priority filter** (pass `filtered` through scoring pipeline):
 ```javascript
 const LABEL_MAPS = {
   bugs: ['bug', 'fix', 'error', 'defect'],
@@ -84,6 +144,10 @@ function filterByPriority(tasks, filter) {
     return targetLabels.some(target => labels.some(l => l.includes(target)));
   });
 }
+
+const prioritized = filterByPriority(filtered, policy.priorityFilter);
+// Assign score to each task so it is available for display in the UI
+const topTasks = prioritized.map(t => ({ ...t, score: scoreTask(t) })).sort((a, b) => b.score - a.score);
 ```
 
 **Score tasks:**
@@ -160,7 +224,10 @@ workflowState.completePhase({
 
 ### Phase 6: Post Comment (GitHub only)
 
+**Skip this phase entirely for non-GitHub sources (GitLab, local, custom).**
+
 ```bash
+# Only run for GitHub source. Use policy.taskSource from Phase 1 to check.
 gh issue comment "$TASK_ID" --body "[BOT] Workflow started for this issue."
 ```
 
@@ -188,4 +255,6 @@ If no tasks found:
 - MUST use AskUserQuestion for task selection (not plain text)
 - Labels MUST be max 30 characters
 - Exclude tasks already claimed by other workflows
+- Exclude issues that already have an open PR (GitHub source only)
+- PR-link detection covers up to 100 open PRs (--limit 100 is the fetch cap)
 - Top 5 tasks only

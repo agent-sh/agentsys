@@ -1,12 +1,17 @@
 ---
 name: discover-tasks
-description: "Use when user asks to \"discover tasks\", \"find next task\", or \"prioritize issues\". Discovers and ranks tasks from GitHub, GitLab, local files, and custom sources."
-version: 5.1.0
+description: "Use when user asks to \"discover tasks\", \"find next task\", \"prioritize issues\", \"what should I work on\", or \"list open issues\". Discovers and ranks tasks from GitHub, GitLab, local files, and custom sources."
+version: 5.1.1
+allowed-tools: "Bash(gh:*), Bash(glab:*), Bash(git:*), Bash(grep:*), Grep, Read, AskUserQuestion"
 ---
 
 # discover-tasks
 
 Discover tasks from configured sources, validate them, and present for user selection.
+
+## When to Use
+
+Invoked during Phase 2 of `/next-task` workflow, after policy selection. Also usable standalone when the user wants to discover and select tasks from configured sources.
 
 ## Workflow
 
@@ -46,12 +51,29 @@ done
 **Custom Source:**
 *(JavaScript reference - not executable in OpenCode)*
 
+### Phase 2.5: Collect PR-Linked Issues (GitHub only)
+
+*(JavaScript reference - not executable in OpenCode)*
+
+For GitHub sources (`policy.taskSource === 'github'` or `'gh-issues'`), fetch all open PRs and build a Set of issue numbers that already have an associated PR. Skip to Phase 3 for all other sources.
+
+```bash
+# Only run when policy.taskSource is 'github' or 'gh-issues'
+# Note: covers up to 100 open PRs. If repo has more, some linked issues may not be excluded.
+gh pr list --state open --json number,title,body,headRefName --limit 100 > /tmp/gh-prs.json
+```
+
+*(JavaScript reference - not executable in OpenCode)*
+
 ### Phase 3: Filter and Score
 
 **Exclude claimed tasks:**
 *(JavaScript reference - not executable in OpenCode)*
 
-**Apply priority filter:**
+**Exclude issues with open PRs (GitHub only):**
+*(JavaScript reference - not executable in OpenCode)*
+
+**Apply priority filter** (pass `filtered` through scoring pipeline):
 *(JavaScript reference - not executable in OpenCode)*
 
 **Score tasks:**
@@ -71,7 +93,10 @@ done
 
 ### Phase 6: Post Comment (GitHub only)
 
+**Skip this phase entirely for non-GitHub sources (GitLab, local, custom).**
+
 ```bash
+# Only run for GitHub source. Use policy.taskSource from Phase 1 to check.
 gh issue comment "$TASK_ID" --body "[BOT] Workflow started for this issue."
 ```
 
@@ -99,4 +124,6 @@ If no tasks found:
 - MUST use AskUserQuestion for task selection (not plain text)
 - Labels MUST be max 30 characters
 - Exclude tasks already claimed by other workflows
+- Exclude issues that already have an open PR (GitHub source only)
+- PR-link detection covers up to 100 open PRs (--limit 100 is the fetch cap)
 - Top 5 tasks only

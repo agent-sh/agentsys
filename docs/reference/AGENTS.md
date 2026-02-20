@@ -60,8 +60,8 @@ AgentSys uses 41 specialized agents across 12 plugins (11 have agents - ship use
 **What it does:**
 1. Loads claimed tasks from `tasks.json` (excludes them)
 2. Fetches from GitHub/GitLab/local files/custom CLI
-3. Applies priority scoring (labels, blockers, age, reactions)
-4. Validates tasks against codebase
+3. Excludes issues that already have an open PR (GitHub source only)
+4. Applies priority scoring (labels, blockers, age, reactions)
 5. Presents top 5 via AskUserQuestion checkboxes
 6. Posts "Workflow Started" comment to GitHub issue
 
