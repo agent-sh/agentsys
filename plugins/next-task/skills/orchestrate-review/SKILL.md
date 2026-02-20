@@ -202,9 +202,10 @@ while (iteration <= MAX_ITERATIONS) {
     const reason = stallCount >= MAX_STALLS ? 'stall-detected' : 'iteration-limit';
     console.log(`[BLOCKED] Review loop ended: ${reason}. Remaining: ${JSON.stringify(findings.totals)}`);
     // Ask the user before advancing - do not silently proceed to delivery-validation
+    const question = `Review loop blocked (${reason}). Open issues remain. How should we proceed?`;
     const response = AskUserQuestion({
       questions: [{
-        question: `Review loop blocked (${reason}). Open issues remain. How should we proceed?`,
+        question,
         header: 'Review Blocked',
         multiSelect: false,
         options: [
@@ -213,7 +214,9 @@ while (iteration <= MAX_ITERATIONS) {
         ]
       }]
     });
-    if (response['Review loop blocked'] === 'Override and proceed') {
+    // AskUserQuestion returns { answers: { [questionText]: selectedLabel } }
+    const choice = response.answers?.[question] ?? response[question];
+    if (choice === 'Override and proceed') {
       workflowState.completePhase({
         approved: false, blocked: true, overridden: true,
         reason, remaining: findings.totals
