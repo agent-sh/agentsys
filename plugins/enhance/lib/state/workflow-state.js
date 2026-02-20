@@ -405,6 +405,7 @@ function completePhase(result = null, worktreePath = process.cwd()) {
   if (!flow) return null;
 
   const currentIndex = PHASES.indexOf(flow.phase);
+  if (currentIndex === -1) return null;
   const nextPhase = PHASES[currentIndex + 1] || 'complete';
 
   // Build updates object
@@ -414,7 +415,7 @@ function completePhase(result = null, worktreePath = process.cwd()) {
   };
 
   // Store result in appropriate field
-  if (result) {
+  if (result !== null && result !== undefined) {
     const resultField = getResultField(flow.phase);
     if (resultField) {
       updates[resultField] = result;

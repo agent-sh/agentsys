@@ -17,7 +17,7 @@ This workflow exists because each step serves a purpose. Taking shortcuts defeat
 | Step | Purpose | What Happens If Skipped |
 |------|---------|------------------------|
 | Worktree creation | Parallel task isolation | Conflicts, lost work |
-| Review loop (3 iterations) | Catches bugs humans miss | Bugs ship to production |
+| Review loop (5 iterations, stall-safe) | Catches bugs humans miss | Bugs ship to production |
 | 3-minute CI wait | Auto-reviewers need time | Miss critical feedback |
 | Address all PR comments | Quality gate | Merge blocked, trust lost |
 
@@ -439,6 +439,11 @@ After review loop completes, output:
 - Conditional specialists: [list any that were added]
 - Findings resolved: X critical, Y high, Z medium
 - Status: approved | blocked
+```
+
+Then advance the workflow state:
+```javascript
+workflowState.completePhase({ approved, iterations, remaining });
 ```
 </phase-9>
 

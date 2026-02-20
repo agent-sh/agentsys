@@ -50,6 +50,14 @@ describe('workflow-state', () => {
       expect(PHASES).toContain('complete');
       expect(PHASES.indexOf('policy-selection')).toBeLessThan(PHASES.indexOf('complete'));
     });
+
+    test('new phases are in correct order relative to neighbors', () => {
+      expect(PHASES.indexOf('implementation')).toBeLessThan(PHASES.indexOf('pre-review-gates'));
+      expect(PHASES.indexOf('pre-review-gates')).toBeLessThan(PHASES.indexOf('review-loop'));
+      expect(PHASES.indexOf('review-loop')).toBeLessThan(PHASES.indexOf('delivery-validation'));
+      expect(PHASES.indexOf('delivery-validation')).toBeLessThan(PHASES.indexOf('docs-update'));
+      expect(PHASES.indexOf('docs-update')).toBeLessThan(PHASES.indexOf('shipping'));
+    });
   });
 
   describe('tasks.json operations', () => {
@@ -251,6 +259,36 @@ describe('workflow-state', () => {
       expect(flow.phase).toBe('delivery-validation');
       expect(flow.status).toBe('in_progress');
       expect(flow.reviewResult).toEqual({ approved: true, iterations: 2 });
+    });
+
+    test('completePhase from review-loop stores blocked result', () => {
+      setPhase('review-loop', testDir);
+      completePhase({ approved: false, blocked: true, reason: 'stall-detected', remaining: { critical: 1 } }, testDir);
+
+      const flow = readFlow(testDir);
+      expect(flow.phase).toBe('delivery-validation');
+      expect(flow.reviewResult.approved).toBe(false);
+      expect(flow.reviewResult.reason).toBe('stall-detected');
+    });
+
+    test('completePhase from shipping advances to complete', () => {
+      setPhase('shipping', testDir);
+      completePhase(null, testDir);
+
+      const flow = readFlow(testDir);
+      expect(flow.phase).toBe('complete');
+      expect(flow.status).toBe('completed');
+    });
+
+    test('completePhase returns null for unknown current phase', () => {
+      setPhase('review-loop', testDir);
+      // Manually corrupt the phase to an unknown value
+      const currentFlow = readFlow(testDir);
+      currentFlow.phase = 'nonexistent-phase';
+      writeFlow(currentFlow, testDir);
+
+      const result = completePhase(null, testDir);
+      expect(result).toBeNull();
     });
 
     test('completePhase from delivery-validation advances to docs-update', () => {
