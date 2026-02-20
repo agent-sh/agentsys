@@ -650,10 +650,10 @@ agent-knowledge/
 
 | Tool | Default Model (high) | Reasoning Control |
 |------|---------------------|-------------------|
-| Claude | opus | max-turns |
-| Gemini | gemini-3-pro | built-in |
-| Codex | gpt-5.3-codex | model_reasoning_effort |
-| OpenCode | github-copilot/claude-opus-4-6 | --variant |
+| Claude | claude-opus-4-6 | max-turns |
+| Gemini | gemini-3-pro-preview | built-in |
+| Codex | o3 | model_reasoning_effort |
+| OpenCode | (user-selected or default) | --variant |
 | Copilot | (default) | none |
 
 **Usage:**

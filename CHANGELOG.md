@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`/debate` command inline orchestration** — The `/debate` command now manages the full debate workflow directly (parse → resolve → execute → verdict), following the `/consult` pattern. The `debate-orchestrator` agent is now the programmatic entry point for other agents/workflows that need to spawn a debate via `Task()`. Fixes issue #231.
 
+- **`/debate` External Tool Quick Reference** — Added a "External Tool Quick Reference" section to all copies of the debate skill (`plugins/debate/skills/debate/SKILL.md`, OpenCode and Codex adapters) with safe command patterns, effort-to-model mapping tables, and output parsing expressions. The section includes a canonical-source pointer to `plugins/consult/skills/consult/SKILL.md` so the debate orchestrator doesn't duplicate provider logic. Added pointer notes in `debate-orchestrator` agents. Fixes issue #232.
+
+- **`/consult` model name updates** — Updated stale model names in the consult skill: Codex models are now `o4-mini` (low/medium) and `o3` (high/max); Gemini models include `gemini-3-flash-preview`, `gemini-3-pro-preview`, and `gemini-3.1-pro-preview`. Synced to OpenCode adapter consult skill. Fixes issue #232.
+
 - **`/next-task` Phase 12 ship invocation** — Phase 12 now invokes `ship:ship` via `await Skill({ name: "ship:ship", args: ... })` instead of `Task({ subagent_type: "ship:ship", ... })`. `ship:ship` is a skill, not an agent; the previous `Task()` call silently failed, leaving the workflow stuck after delivery validation with no PR created. The Codex adapter is updated in parity and regression tests are added. Fixes issue #230.
 
 ## [5.1.0] - 2026-02-18
