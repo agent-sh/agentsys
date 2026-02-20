@@ -143,7 +143,7 @@ Skills are the reusable implementation units. Agents invoke skills; commands orc
 
 **What happens when you run it:**
 
-1. **Policy Selection** - Choose task source (GitHub issues, GitLab, local file), priority filter, stopping point
+1. **Policy Selection** - Choose task source (GitHub Issues, GitHub Projects, GitLab, local file), priority filter, stopping point
 2. **Task Discovery** - Shows top 5 prioritized tasks, you pick one
 3. **Worktree Setup** - Creates isolated branch and working directory
 4. **Exploration** - Deep codebase analysis to understand context

@@ -13,6 +13,7 @@ const customHandler = require('./custom-handler');
  */
 const SOURCE_LABELS = {
   github: 'GitHub',
+  'gh-projects': 'GitHub Projects',
   gitlab: 'GitLab',
   local: 'Local',
   custom: 'Custom',
@@ -53,6 +54,7 @@ function getPolicyQuestions() {
   // Standard options
   sourceOptions.push(
     { label: 'GitHub Issues', description: 'Use gh CLI to list issues' },
+    { label: 'GitHub Projects', description: 'Issues from a GitHub Project board' },
     { label: 'GitLab Issues', description: 'Use glab CLI to list issues' },
     { label: 'Local tasks.md', description: 'Read from PLAN.md, tasks.md, or TODO.md' },
     { label: 'Custom', description: 'Specify your tool: CLI, MCP, Skill, or file path' },
@@ -142,8 +144,41 @@ function parseAndCachePolicy(responses) {
     stoppingPoint: mapStopPoint(responses.stopPoint)
   };
 
+  // Guard: mapSource returns null when "(last used)" selected but cache is empty
+  if (!policy.taskSource) {
+    throw new Error('Cached source preference not found. Please select a source.');
+  }
+
+  // Merge gh-projects follow-up data (projectNumber + owner)
+  if (policy.taskSource.source === 'gh-projects') {
+    if (responses.project) {
+      // Validate and merge follow-up responses
+      const rawNum = String(responses.project.number).trim();
+      if (!/^[1-9][0-9]*$/.test(rawNum)) {
+        const safeNum = String(responses.project.number).replace(/[^\x20-\x7E]/g, '?').substring(0, 32);
+        throw new Error(`Invalid project number: "${safeNum}". Must be a positive integer.`);
+      }
+      const num = Number(rawNum);
+      const owner = String(responses.project.owner || '').trim();
+      const safeOwner = String(responses.project.owner || '').replace(/[^\x20-\x7E]/g, '?').substring(0, 64);
+      if (!owner || !/^(@me|[a-zA-Z0-9][a-zA-Z0-9_-]*)$/.test(owner)) {
+        throw new Error(`Invalid project owner: "${safeOwner}" (use @me or an org/user name)`);
+      }
+      policy.taskSource.projectNumber = num;
+      policy.taskSource.owner = owner;
+    } else if (!policy.taskSource.projectNumber || !policy.taskSource.owner) {
+      // No follow-up data and no cached values - cannot proceed
+      throw new Error('GitHub Projects source requires project number and owner. Call getProjectQuestions() first.');
+    }
+  }
+
   // Cache source preference (unless "other" which is ad-hoc)
-  if (policy.taskSource.source !== 'other') {
+  // For gh-projects, only cache when projectNumber and owner are present
+  if (policy.taskSource.source === 'gh-projects') {
+    if (policy.taskSource.projectNumber && policy.taskSource.owner) {
+      sourceCache.savePreference(policy.taskSource);
+    }
+  } else if (policy.taskSource.source !== 'other') {
     sourceCache.savePreference(policy.taskSource);
   }
 
@@ -161,6 +196,7 @@ function mapSource(selection, customDetails) {
 
   const sourceMap = {
     'GitHub Issues': { source: 'github' },
+    'GitHub Projects': { source: 'gh-projects' },
     'GitLab Issues': { source: 'gitlab' },
     'Local tasks.md': { source: 'local' },
     'Custom': null, // Handled separately
@@ -235,6 +271,42 @@ function needsOtherDescription(selection) {
   return selection === 'Other';
 }
 
+/**
+ * Check if GitHub Projects follow-up is needed
+ * @param {string} selection - User's source selection
+ * @returns {boolean}
+ */
+function needsProjectFollowUp(selection) {
+  return selection === 'GitHub Projects';
+}
+
+/**
+ * Get GitHub Projects follow-up questions
+ * Returns 2 questions: project number and owner
+ *
+ * @returns {Object} Question structure for project details
+ */
+function getProjectQuestions() {
+  return {
+    questions: [
+      {
+        header: 'Project Number',
+        question: 'What is the GitHub Project number?',
+        options: [],
+        multiSelect: false,
+        hint: 'e.g. 1, 5, 42 (from the project URL)'
+      },
+      {
+        header: 'Project Owner',
+        question: 'Who owns this project?',
+        options: [],
+        multiSelect: false,
+        hint: '@me, my-org, or a GitHub username'
+      }
+    ]
+  };
+}
+
 module.exports = {
   getPolicyQuestions,
   getCustomTypeQuestions,
@@ -242,5 +314,7 @@ module.exports = {
   parseAndCachePolicy,
   isUsingCached,
   needsCustomFollowUp,
-  needsOtherDescription
+  needsOtherDescription,
+  needsProjectFollowUp,
+  getProjectQuestions
 };

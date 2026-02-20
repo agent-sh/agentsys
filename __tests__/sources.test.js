@@ -333,11 +333,12 @@ describe('policy-questions', () => {
       expect(cachedPreference).toBeNull();
     });
 
-    it('should have 5 source options when no cache', () => {
+    it('should have 6 source options when no cache', () => {
       const { questions } = policyQuestions.getPolicyQuestions();
       const sourceQ = questions[0];
-      expect(sourceQ.options).toHaveLength(5);
+      expect(sourceQ.options).toHaveLength(6);
       expect(sourceQ.options[0].label).toBe('GitHub Issues');
+      expect(sourceQ.options[1].label).toBe('GitHub Projects');
     });
 
     it('should prepend cached option when preference exists', () => {
@@ -346,7 +347,7 @@ describe('policy-questions', () => {
       const sourceQ = questions[0];
 
       expect(cachedPreference).not.toBeNull();
-      expect(sourceQ.options).toHaveLength(6); // 5 standard + 1 cached
+      expect(sourceQ.options).toHaveLength(7); // 6 standard + 1 cached
       expect(sourceQ.options[0].label).toContain('last used');
       expect(sourceQ.options[0].label).toContain('GitHub');
     });
@@ -492,6 +493,104 @@ describe('policy-questions', () => {
       const pref = sourceCache.getPreference();
       expect(pref).toBeNull();
     });
+
+    it('should map GitHub Projects with project details', () => {
+      const policy = policyQuestions.parseAndCachePolicy({
+        source: 'GitHub Projects',
+        priority: 'All',
+        stopPoint: 'Merged',
+        project: { number: 5, owner: '@me' }
+      });
+
+      expect(policy.taskSource.source).toBe('gh-projects');
+      expect(policy.taskSource.projectNumber).toBe(5);
+      expect(policy.taskSource.owner).toBe('@me');
+    });
+
+    it('should cache gh-projects preference with project details', () => {
+      sourceCache.clearCache();
+      policyQuestions.parseAndCachePolicy({
+        source: 'GitHub Projects',
+        priority: 'All',
+        stopPoint: 'Merged',
+        project: { number: 42, owner: 'my-org' }
+      });
+
+      const pref = sourceCache.getPreference();
+      expect(pref.source).toBe('gh-projects');
+      expect(pref.projectNumber).toBe(42);
+      expect(pref.owner).toBe('my-org');
+    });
+
+    it('should throw on invalid project number', () => {
+      expect(() => {
+        policyQuestions.parseAndCachePolicy({
+          source: 'GitHub Projects',
+          priority: 'All',
+          stopPoint: 'Merged',
+          project: { number: -1, owner: '@me' }
+        });
+      }).toThrow('Invalid project number');
+    });
+
+    it('should throw on non-integer project number', () => {
+      expect(() => {
+        policyQuestions.parseAndCachePolicy({
+          source: 'GitHub Projects',
+          priority: 'All',
+          stopPoint: 'Merged',
+          project: { number: 'abc', owner: '@me' }
+        });
+      }).toThrow('Invalid project number');
+    });
+
+    it('throws for float projectNumber', () => {
+      expect(() => policyQuestions.parseAndCachePolicy({ source: 'GitHub Projects', priority: 'All', stopPoint: 'Merged', project: { number: 1.5, owner: '@me' } }))
+        .toThrow('Invalid project number');
+    });
+
+    it('should throw on invalid project owner', () => {
+      expect(() => {
+        policyQuestions.parseAndCachePolicy({
+          source: 'GitHub Projects',
+          priority: 'All',
+          stopPoint: 'Merged',
+          project: { number: 1, owner: '; rm -rf /' }
+        });
+      }).toThrow('Invalid project owner');
+    });
+
+    it('should throw on empty project owner', () => {
+      expect(() => {
+        policyQuestions.parseAndCachePolicy({
+          source: 'GitHub Projects',
+          priority: 'All',
+          stopPoint: 'Merged',
+          project: { number: 1, owner: '' }
+        });
+      }).toThrow('Invalid project owner');
+    });
+
+    it('throws for whitespace-only owner', () => {
+      expect(() => policyQuestions.parseAndCachePolicy({ source: 'GitHub Projects', priority: 'All', stopPoint: 'Merged', project: { number: 1, owner: '   ' } }))
+        .toThrow('Invalid project owner');
+    });
+
+    it('throws when (last used) selected but cache is empty', () => {
+      sourceCache.clearCache();
+      expect(() => policyQuestions.parseAndCachePolicy({ source: 'GitHub Issues (last used)', priority: 'All', stopPoint: 'Merged' }))
+        .toThrow('Cached source preference not found');
+    });
+
+    it('throws for scientific notation project number', () => {
+      expect(() => policyQuestions.parseAndCachePolicy({ source: 'GitHub Projects', priority: 'All', stopPoint: 'Merged', project: { number: '1e5', owner: '@me' } }))
+        .toThrow('Invalid project number');
+    });
+
+    it('throws when GitHub Projects selected without project details', () => {
+      expect(() => policyQuestions.parseAndCachePolicy({ source: 'GitHub Projects', priority: 'All', stopPoint: 'Merged' }))
+        .toThrow('GitHub Projects source requires project number and owner');
+    });
   });
 
   describe('helper functions', () => {
@@ -526,6 +625,40 @@ describe('policy-questions', () => {
       it('should return false for other options', () => {
         expect(policyQuestions.needsOtherDescription('GitHub Issues')).toBe(false);
         expect(policyQuestions.needsOtherDescription('Custom')).toBe(false);
+      });
+    });
+
+    describe('needsProjectFollowUp', () => {
+      it('should return true for GitHub Projects', () => {
+        expect(policyQuestions.needsProjectFollowUp('GitHub Projects')).toBe(true);
+      });
+
+      it('should return false for other options', () => {
+        expect(policyQuestions.needsProjectFollowUp('GitHub Issues')).toBe(false);
+        expect(policyQuestions.needsProjectFollowUp('Custom')).toBe(false);
+        expect(policyQuestions.needsProjectFollowUp('Other')).toBe(false);
+        expect(policyQuestions.needsProjectFollowUp('GitLab Issues')).toBe(false);
+      });
+    });
+
+    describe('getProjectQuestions', () => {
+      it('should return 2 questions for project details', () => {
+        const { questions } = policyQuestions.getProjectQuestions();
+        expect(questions).toHaveLength(2);
+        expect(questions[0].header).toBe('Project Number');
+        expect(questions[1].header).toBe('Project Owner');
+      });
+
+      it('should have empty options (free text input)', () => {
+        const { questions } = policyQuestions.getProjectQuestions();
+        expect(questions[0].options).toEqual([]);
+        expect(questions[1].options).toEqual([]);
+      });
+
+      it('should have hints for both questions', () => {
+        const { questions } = policyQuestions.getProjectQuestions();
+        expect(questions[0].hint).toContain('1');
+        expect(questions[1].hint).toContain('@me');
       });
     });
   });
@@ -614,6 +747,59 @@ describe('integration', () => {
 
     // Custom config should be built via buildCustomConfig internally
     expect(policy.taskSource.source).toBe('custom');
+  });
+
+  it('should handle full workflow: GitHub Projects source', () => {
+    // User selects GitHub Projects
+    expect(policyQuestions.needsProjectFollowUp('GitHub Projects')).toBe(true);
+
+    // Get project follow-up questions
+    const projectQ = policyQuestions.getProjectQuestions();
+    expect(projectQ.questions).toHaveLength(2);
+    expect(projectQ.questions[0].header).toBe('Project Number');
+    expect(projectQ.questions[1].header).toBe('Project Owner');
+
+    // Parse policy with project details
+    const policy = policyQuestions.parseAndCachePolicy({
+      source: 'GitHub Projects',
+      priority: 'Bugs',
+      stopPoint: 'PR Created',
+      project: { number: 5, owner: '@me' }
+    });
+
+    expect(policy.taskSource.source).toBe('gh-projects');
+    expect(policy.taskSource.projectNumber).toBe(5);
+    expect(policy.taskSource.owner).toBe('@me');
+    expect(policy.priorityFilter).toBe('bugs');
+    expect(policy.stoppingPoint).toBe('pr-created');
+
+    // Verify cached
+    const pref = sourceCache.getPreference();
+    expect(pref.source).toBe('gh-projects');
+    expect(pref.projectNumber).toBe(5);
+    expect(pref.owner).toBe('@me');
+  });
+
+  it('should handle full workflow: cached gh-projects preference', () => {
+    // Setup: first run cached gh-projects
+    sourceCache.savePreference({ source: 'gh-projects', projectNumber: 3, owner: 'my-org' });
+
+    // Second run - should see cached option first
+    const { questions, cachedPreference } = policyQuestions.getPolicyQuestions();
+    expect(cachedPreference.source).toBe('gh-projects');
+    expect(questions[0].options[0].label).toContain('last used');
+    expect(questions[0].options[0].label).toContain('GitHub Projects');
+
+    // User selects cached option
+    const policy = policyQuestions.parseAndCachePolicy({
+      source: 'GitHub Projects (last used)',
+      priority: 'All',
+      stopPoint: 'Merged'
+    });
+
+    expect(policy.taskSource.source).toBe('gh-projects');
+    expect(policy.taskSource.projectNumber).toBe(3);
+    expect(policy.taskSource.owner).toBe('my-org');
   });
 
   it('should handle full workflow: Other source (ad-hoc)', () => {

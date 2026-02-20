@@ -166,6 +166,8 @@ const sources = {
   isUsingCached: policyQuestions.isUsingCached,
   needsCustomFollowUp: policyQuestions.needsCustomFollowUp,
   needsOtherDescription: policyQuestions.needsOtherDescription,
+  needsProjectFollowUp: policyQuestions.needsProjectFollowUp,
+  getProjectQuestions: policyQuestions.getProjectQuestions,
 
   // Cache operations (direct access if needed)
   getPreference: sourceCache.getPreference,

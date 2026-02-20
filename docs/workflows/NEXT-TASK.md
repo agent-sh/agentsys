@@ -42,7 +42,7 @@ You configure how the workflow will run:
 
 | Question | Options |
 |----------|---------|
-| Task Source | GitHub Issues, GitLab Issues, Local `tasks.md`, Custom source |
+| Task Source | GitHub Issues, GitHub Projects, GitLab Issues, Local `tasks.md`, Custom source |
 | Priority Filter | Bugs, Security, Features, All |
 | Stopping Point | Implemented, PR Created, All Green, Merged, Deployed, Production |
 
