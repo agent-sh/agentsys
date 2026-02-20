@@ -650,3 +650,51 @@ describe('adapter consistency', () => {
     expect(openCodeAgentContent).toMatch(/240.second timeout|Track invocation start time/i);
   });
 });
+
+// ─── 14. External Tool Quick Reference (#232) ────────────────────
+describe('external tool quick reference (#232)', () => {
+  const skillFiles = [
+    path.join(__dirname, '..', 'plugins', 'debate', 'skills', 'debate', 'SKILL.md'),
+    path.join(__dirname, '..', 'adapters', 'opencode', 'skills', 'debate', 'SKILL.md'),
+    path.join(__dirname, '..', 'adapters', 'codex', 'skills', 'debate', 'SKILL.md'),
+  ];
+
+  test('all three debate skill copies contain the External Tool Quick Reference section', () => {
+    for (const filePath of skillFiles) {
+      const content = fs.readFileSync(filePath, 'utf8');
+      expect(content).toContain('## External Tool Quick Reference');
+    }
+  });
+
+  test('all five providers mentioned in quick reference of each skill copy', () => {
+    for (const filePath of skillFiles) {
+      const content = fs.readFileSync(filePath, 'utf8');
+      expect(content).toMatch(/External Tool Quick Reference[\s\S]*claude/i);
+      expect(content).toMatch(/External Tool Quick Reference[\s\S]*gemini/i);
+      expect(content).toMatch(/External Tool Quick Reference[\s\S]*codex/i);
+      expect(content).toMatch(/External Tool Quick Reference[\s\S]*opencode/i);
+      expect(content).toMatch(/External Tool Quick Reference[\s\S]*copilot/i);
+    }
+  });
+
+  test('effort-to-model mapping table present in each skill copy', () => {
+    for (const filePath of skillFiles) {
+      const content = fs.readFileSync(filePath, 'utf8');
+      expect(content).toContain('Effort-to-Model Mapping');
+    }
+  });
+
+  test('output parsing table present in each skill copy', () => {
+    for (const filePath of skillFiles) {
+      const content = fs.readFileSync(filePath, 'utf8');
+      expect(content).toContain('Output Parsing');
+    }
+  });
+
+  test('canonical source note present in each skill copy', () => {
+    for (const filePath of skillFiles) {
+      const content = fs.readFileSync(filePath, 'utf8');
+      expect(content).toMatch(/canonical source.*consult/i);
+    }
+  });
+});
