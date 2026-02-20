@@ -199,11 +199,28 @@ while (iteration <= MAX_ITERATIONS) {
 
   // 8. Check limits
   if (stallCount >= MAX_STALLS || iteration >= MAX_ITERATIONS) {
-    workflowState.completePhase({
-      approved: false, blocked: true,
-      reason: stallCount >= MAX_STALLS ? 'stall-detected' : 'iteration-limit',
-      remaining: findings.totals
+    const reason = stallCount >= MAX_STALLS ? 'stall-detected' : 'iteration-limit';
+    console.log(`[BLOCKED] Review loop ended: ${reason}. Remaining: ${JSON.stringify(findings.totals)}`);
+    // Ask the user before advancing - do not silently proceed to delivery-validation
+    const response = AskUserQuestion({
+      questions: [{
+        question: `Review loop blocked (${reason}). Open issues remain. How should we proceed?`,
+        header: 'Review Blocked',
+        multiSelect: false,
+        options: [
+          { label: 'Override and proceed', description: 'Advance to delivery-validation with unresolved issues (risky)' },
+          { label: 'Abort workflow', description: 'Stop here; open issues must be fixed manually' }
+        ]
+      }]
     });
+    if (response['Review loop blocked'] === 'Override and proceed') {
+      workflowState.completePhase({
+        approved: false, blocked: true, overridden: true,
+        reason, remaining: findings.totals
+      });
+    } else {
+      workflowState.failPhase(`Review blocked: ${reason}. ${JSON.stringify(findings.totals)} issues remain.`);
+    }
     break;
   }
 

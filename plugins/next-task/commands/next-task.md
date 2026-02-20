@@ -341,7 +341,8 @@ Use Edit tool to apply. Commit message: "fix: clean up AI slop"`
   });
 }
 
-workflowState.completePhase({ passed: true, deslopFixes: deslop.fixes?.length || 0 });
+const gatesPassed = (deslop.fixes?.length || 0) === 0;
+workflowState.completePhase({ passed: gatesPassed, deslopFixes: deslop.fixes?.length || 0, coverageResult });
 ```
 </phase-8>
 

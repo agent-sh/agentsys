@@ -416,7 +416,7 @@ function completePhase(result = null, worktreePath = process.cwd()) {
 
   const currentIndex = PHASES.indexOf(flow.phase);
   if (currentIndex === -1) {
-    console.error(`[WARN] completePhase: unknown phase "${flow.phase}" in flow.json, cannot advance`);
+    console.warn(`[WARN] completePhase: unknown phase "${flow.phase}" in flow.json, cannot advance`);
     return null;
   }
   const nextPhase = PHASES[currentIndex + 1] || 'complete';

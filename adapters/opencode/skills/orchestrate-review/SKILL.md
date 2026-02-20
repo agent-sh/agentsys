@@ -64,6 +64,7 @@ if (signals.hasDevops) passes.push({ id: 'devops', role: 'devops reviewer',
 
 - Invoke `@general-purpose` agent
 - Invoke `@deslop-agent` agent
+- Use AskUserQuestion tool for user input
 - Call `workflowState.completePhase(result)` to advance workflow state
 
 
