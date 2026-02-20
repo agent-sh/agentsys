@@ -34,6 +34,7 @@ const claimedIds = new Set(claimedTasks.map(t => t.id));
 
 **Source types:**
 - `github` / `gh-issues`: GitHub CLI
+- `gh-projects`: GitHub Projects (v2 boards)
 - `gitlab`: GitLab CLI
 - `local` / `tasks-md`: Local markdown files
 - `custom`: CLI/MCP/Skill tool
@@ -59,6 +60,33 @@ for f in PLAN.md tasks.md TODO.md; do
 done
 ```
 
+**GitHub Projects (v2):**
+```bash
+# Requires 'project' token scope. If permission error: gh auth refresh -s project
+gh project item-list <projectNumber> --owner <owner> --format json --limit 100 > /tmp/gh-project-items.json
+```
+
+```javascript
+const fs = require('fs');
+const raw = JSON.parse(fs.readFileSync('/tmp/gh-project-items.json', 'utf8'));
+const items = (raw.items || []);
+
+// Filter to ISSUE type only (exclude PULL_REQUEST, DRAFT_ISSUE)
+const issues = items
+  .filter(item => item.content && item.content.type === 'ISSUE')
+  .map(item => ({
+    number: item.content.number,
+    title: item.content.title,
+    body: item.content.body || '',
+    labels: (item.content.labels || []),
+    url: item.content.url,
+    createdAt: item.content.createdAt
+  }));
+```
+
+[WARN] If `gh project item-list` returns a permission error, tell the user:
+`Run: gh auth refresh -s project`
+
 **Custom Source:**
 ```javascript
 const { sources } = require('../../lib');
@@ -73,10 +101,10 @@ const capabilities = sources.getToolCapabilities(toolName);
 let prLinkedIssues = new Set();
 ```
 
-For GitHub sources (`policy.taskSource === 'github'` or `'gh-issues'`), fetch all open PRs and build a Set of issue numbers that already have an associated PR. Skip to Phase 3 for all other sources.
+For GitHub sources (`policy.taskSource === 'github'`, `'gh-issues'`, or `'gh-projects'`), fetch all open PRs and build a Set of issue numbers that already have an associated PR. Skip to Phase 3 for all other sources.
 
 ```bash
-# Only run when policy.taskSource is 'github' or 'gh-issues'
+# Only run when policy.taskSource is 'github', 'gh-issues', or 'gh-projects'
 # Note: covers up to 100 open PRs. If repo has more, some linked issues may not be excluded.
 gh pr list --state open --json number,title,body,headRefName --limit 100 > /tmp/gh-prs.json
 ```
@@ -224,10 +252,10 @@ workflowState.completePhase({
 
 ### Phase 6: Post Comment (GitHub only)
 
-**Skip this phase entirely for non-GitHub sources (GitLab, local, custom).**
+**Skip this phase entirely for non-GitHub sources (GitLab, local, custom).** Run for `github`, `gh-issues`, and `gh-projects` sources.
 
 ```bash
-# Only run for GitHub source. Use policy.taskSource from Phase 1 to check.
+# Only run for GitHub sources (github, gh-issues, gh-projects). Use policy.taskSource from Phase 1 to check.
 gh issue comment "$TASK_ID" --body "[BOT] Workflow started for this issue."
 ```
 
@@ -255,6 +283,6 @@ If no tasks found:
 - MUST use AskUserQuestion for task selection (not plain text)
 - Labels MUST be max 30 characters
 - Exclude tasks already claimed by other workflows
-- Exclude issues that already have an open PR (GitHub source only)
+- Exclude issues that already have an open PR (GitHub and GitHub Projects sources)
 - PR-link detection covers up to 100 open PRs (--limit 100 is the fetch cap)
 - Top 5 tasks only
