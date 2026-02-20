@@ -193,8 +193,8 @@ if (sources.needsProjectFollowUp(responses.source)) {
   const projectQs = sources.getProjectQuestions();
   const projectResponses = await request_user_input(projectQs);
   responses.project = {
-    number: projectResponses['Project number'],
-    owner: projectResponses['Project owner']
+    number: projectResponses['Project Number'],
+    owner: projectResponses['Project Owner']
   };
 }
 
