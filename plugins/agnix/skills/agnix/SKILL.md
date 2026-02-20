@@ -129,10 +129,10 @@ Exit codes:
 
 This skill is standalone and can be invoked directly via `/agnix`.
 
-For CI integration, see the [GitHub Action](https://github.com/avifenesh/agnix#github-action).
+For CI integration, see the [GitHub Action](https://github.com/agent-sh/agnix#github-action).
 
 ## Links
 
-- [GitHub](https://github.com/avifenesh/agnix)
-- [Rules Reference](https://github.com/avifenesh/agnix/blob/main/knowledge-base/VALIDATION-RULES.md)
-- [Configuration](https://github.com/avifenesh/agnix/blob/main/docs/CONFIGURATION.md)
+- [GitHub](https://github.com/agent-sh/agnix)
+- [Rules Reference](https://github.com/agent-sh/agnix/blob/main/knowledge-base/VALIDATION-RULES.md)
+- [Configuration](https://github.com/agent-sh/agnix/blob/main/docs/CONFIGURATION.md)

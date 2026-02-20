@@ -42,7 +42,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/avifenesh/agentsys.git"
+    "url": "git+https://github.com/agent-sh/agentsys.git"
   },
   "keywords": [
     "ai",
@@ -74,9 +74,9 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/avifenesh/agentsys/issues"
+    "url": "https://github.com/agent-sh/agentsys/issues"
   },
-  "homepage": "https://github.com/avifenesh/agentsys#readme",
+  "homepage": "https://github.com/agent-sh/agentsys#readme",
   "engines": {
     "node": ">=18.0.0"
   },

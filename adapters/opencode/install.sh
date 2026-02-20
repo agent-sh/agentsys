@@ -234,8 +234,8 @@ cd /path/to/agentsys
 
 ## Support
 
-- Repository: https://github.com/avifenesh/agentsys
-- Issues: https://github.com/avifenesh/agentsys/issues
+- Repository: https://github.com/agent-sh/agentsys
+- Issues: https://github.com/agent-sh/agentsys/issues
 EOF
 
 echo "  [OK] Created README"

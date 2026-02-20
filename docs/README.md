@@ -120,6 +120,6 @@ npm run verify   # Tool availability + versions
 
 ## Getting Help
 
-- **Issues:** [github.com/avifenesh/agentsys/issues](https://github.com/avifenesh/agentsys/issues)
-- **Discussions:** [github.com/avifenesh/agentsys/discussions](https://github.com/avifenesh/agentsys/discussions)
+- **Issues:** [github.com/agent-sh/agentsys/issues](https://github.com/agent-sh/agentsys/issues)
+- **Discussions:** [github.com/agent-sh/agentsys/discussions](https://github.com/agent-sh/agentsys/discussions)
 - **Main README:** [../README.md](../README.md)

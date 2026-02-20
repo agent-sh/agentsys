@@ -11,7 +11,7 @@ Last updated: 2026-02-08
 
 The entire site is one HTML file with section anchors. All navigation is smooth-scroll to sections within the page. This keeps the build zero-dependency (no static site generator, no framework) and makes the site feel fast and cohesive.
 
-**URL:** `https://avifenesh.github.io/agentsys/`
+**URL:** `https://agent-sh.github.io/agentsys/`
 
 **File structure:**
 ```
@@ -399,7 +399,7 @@ Tab styling matches Commands section tab bar but smaller scale:
 
 **Claude Code tab:**
 ```bash
-/plugin marketplace add avifenesh/agentsys
+/plugin marketplace add agent-sh/agentsys
 /plugin install next-task@agentsys
 /plugin install ship@agentsys
 ```
@@ -413,7 +413,7 @@ Below the code block: "Interactive installer for Claude Code, OpenCode, and Code
 **Manual tab:**
 ```bash
 # Clone and install
-git clone https://github.com/avifenesh/agentsys.git
+git clone https://github.com/agent-sh/agentsys.git
 cd agentsys
 npm install
 ```
@@ -553,7 +553,7 @@ Add a website badge to the existing badge row in `README.md`, positioned after t
 
 **New line 8 (insert after):**
 ```markdown
-[![Website](https://img.shields.io/badge/Website-AgentSys-blue?style=flat&logo=github)](https://avifenesh.github.io/agentsys/)
+[![Website](https://img.shields.io/badge/Website-AgentSys-blue?style=flat&logo=github)](https://agent-sh.github.io/agentsys/)
 ```
 
 This uses:
@@ -657,15 +657,15 @@ This disables:
 <!-- Open Graph -->
 <meta property="og:title" content="AgentSys">
 <meta property="og:description" content="AI workflow automation. 11 plugins, 40 agents, 26 skills. Task to merged PR.">
-<meta property="og:image" content="https://avifenesh.github.io/agentsys/assets/og-image.png">
-<meta property="og:url" content="https://avifenesh.github.io/agentsys/">
+<meta property="og:image" content="https://agent-sh.github.io/agentsys/assets/og-image.png">
+<meta property="og:url" content="https://agent-sh.github.io/agentsys/">
 <meta property="og:type" content="website">
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="AgentSys">
 <meta name="twitter:description" content="AI workflow automation. 11 plugins, 40 agents, 26 skills.">
-<meta name="twitter:image" content="https://avifenesh.github.io/agentsys/assets/og-image.png">
+<meta name="twitter:image" content="https://agent-sh.github.io/agentsys/assets/og-image.png">
 ```
 
 ---

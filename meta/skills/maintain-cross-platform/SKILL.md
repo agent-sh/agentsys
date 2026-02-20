@@ -491,7 +491,7 @@ If pushing version tag (v*):
 ### Key Functions
 
 **installForClaude()** - Line 116
-- Adds marketplace: `claude plugin marketplace add avifenesh/agentsys`
+- Adds marketplace: `claude plugin marketplace add agent-sh/agentsys`
 - Installs 9 plugins: `claude plugin install {plugin}@agentsys`
 - Commands: /next-task, /ship, /deslop, /audit-project, /drift-detect, /enhance, /perf, /sync-docs, /repo-map
 

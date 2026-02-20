@@ -48,7 +48,7 @@ For OpenCode and Codex CLI, the installer adapts the platform argument handling 
 
 ```bash
 # Add the marketplace
-/plugin marketplace add avifenesh/agentsys
+/plugin marketplace add agent-sh/agentsys
 
 # Install plugins
 /plugin install next-task@agentsys

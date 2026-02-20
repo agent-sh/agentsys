@@ -213,7 +213,7 @@ function installClaude() {
 
   // Remove marketplace plugins first
   try {
-    execSync('claude plugin marketplace remove avifenesh/agentsys', { stdio: 'pipe' });
+    execSync('claude plugin marketplace remove agent-sh/agentsys', { stdio: 'pipe' });
     log('  Removed marketplace');
   } catch {
     // May not exist

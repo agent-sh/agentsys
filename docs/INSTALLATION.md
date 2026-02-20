@@ -22,7 +22,7 @@ One codebase works across three platforms—Claude Code, OpenCode, and Codex CLI
 Add the marketplace and install plugins directly in Claude Code:
 
 ```bash
-/plugin marketplace add avifenesh/agentsys
+/plugin marketplace add agent-sh/agentsys
 /plugin install next-task@agentsys
 /plugin install ship@agentsys
 /plugin install deslop@agentsys
@@ -132,7 +132,7 @@ agentsys --tool claude
 For testing or development, load plugins directly:
 
 ```bash
-git clone https://github.com/avifenesh/agentsys.git
+git clone https://github.com/agent-sh/agentsys.git
 claude --plugin-dir ./agentsys/plugins/next-task
 ```
 
@@ -313,7 +313,7 @@ gh auth status
 
 Try adding the full GitHub URL:
 ```bash
-/plugin marketplace add https://github.com/avifenesh/agentsys.git
+/plugin marketplace add https://github.com/agent-sh/agentsys.git
 ```
 
 ### "GitHub CLI not found"
@@ -349,11 +349,11 @@ gh auth login
 
 ## Getting Help
 
-- **Issues:** https://github.com/avifenesh/agentsys/issues
-- **Discussions:** https://github.com/avifenesh/agentsys/discussions
+- **Issues:** https://github.com/agent-sh/agentsys/issues
+- **Discussions:** https://github.com/agent-sh/agentsys/discussions
 
 ```bash
-gh issue create --repo avifenesh/agentsys \
+gh issue create --repo agent-sh/agentsys \
   --title "Installation: [description]" \
   --body "Environment: [Claude Code/OpenCode/Codex], OS: [...]"
 ```

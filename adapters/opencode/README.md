@@ -5,7 +5,7 @@ Professional-grade slash commands adapted for OpenCode.
 ## Quick Install
 
 ```bash
-git clone https://github.com/avifenesh/agentsys.git
+git clone https://github.com/agent-sh/agentsys.git
 cd agentsys
 ./adapters/opencode/install.sh
 ```
@@ -284,8 +284,8 @@ gh auth status
 
 ## Support
 
-- **Repository**: https://github.com/avifenesh/agentsys
-- **Issues**: https://github.com/avifenesh/agentsys/issues
+- **Repository**: https://github.com/agent-sh/agentsys
+- **Issues**: https://github.com/agent-sh/agentsys/issues
 - **OpenCode Docs**: https://opencode.ai/docs
 
 ---

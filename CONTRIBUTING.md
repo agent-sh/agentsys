@@ -158,5 +158,5 @@ Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`
 
 ## Getting Help
 
-- **Questions**: [Discussions](https://github.com/avifenesh/agentsys/discussions)
-- **Bugs**: [Issues](https://github.com/avifenesh/agentsys/issues)
+- **Questions**: [Discussions](https://github.com/agent-sh/agentsys/discussions)
+- **Bugs**: [Issues](https://github.com/agent-sh/agentsys/issues)

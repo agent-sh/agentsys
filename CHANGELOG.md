@@ -163,7 +163,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added CI/CD integration example with GitHub Code Scanning SARIF workflow
   - Added installation instructions (Cargo, Homebrew)
   - Added "Why use agnix" value proposition section
-  - Prominent link to [agnix CLI project](https://github.com/avifenesh/agnix)
+  - Prominent link to [agnix CLI project](https://github.com/agent-sh/agnix)
   - Updated Commands table with more descriptive entry
   - Updated skill count to 26 across all references
 
@@ -183,7 +183,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Auto-fix support with `--fix` flag
   - SARIF output for GitHub Code Scanning integration
   - Target-specific validation (`--target claude-code|cursor|codex`)
-  - Requires [agnix CLI](https://github.com/avifenesh/agnix) (`cargo install agnix-cli`)
+  - Requires [agnix CLI](https://github.com/agent-sh/agnix) (`cargo install agnix-cli`)
 
 ### Changed
 - **Plugin Count** - Now 11 plugins, 40 agents, 26 skills
@@ -247,6 +247,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Previous Releases
 
-- [v3.x Changelog](https://github.com/avifenesh/agentsys/blob/main/changelogs/CHANGELOG-v3.md) (v3.0.0 - v3.9.0)
-- [v2.x Changelog](https://github.com/avifenesh/agentsys/blob/main/changelogs/CHANGELOG-v2.md) (v2.0.0 - v2.10.1)
-- [v1.x Changelog](https://github.com/avifenesh/agentsys/blob/main/changelogs/CHANGELOG-v1.md) (v1.0.0 - v1.1.0)
+- [v3.x Changelog](https://github.com/agent-sh/agentsys/blob/main/changelogs/CHANGELOG-v3.md) (v3.0.0 - v3.9.0)
+- [v2.x Changelog](https://github.com/agent-sh/agentsys/blob/main/changelogs/CHANGELOG-v2.md) (v2.0.0 - v2.10.1)
+- [v1.x Changelog](https://github.com/agent-sh/agentsys/blob/main/changelogs/CHANGELOG-v1.md) (v1.0.0 - v1.1.0)

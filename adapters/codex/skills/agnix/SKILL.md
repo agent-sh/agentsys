@@ -133,5 +133,5 @@ No issues found in agent configurations.
 
 ## Links
 
-- [agnix GitHub](https://github.com/avifenesh/agnix)
-- [Rules Reference](https://github.com/avifenesh/agnix/blob/main/knowledge-base/VALIDATION-RULES.md)
+- [agnix GitHub](https://github.com/agent-sh/agnix)
+- [Rules Reference](https://github.com/agent-sh/agnix/blob/main/knowledge-base/VALIDATION-RULES.md)

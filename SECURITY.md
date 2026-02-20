@@ -7,7 +7,7 @@
 If you discover a security vulnerability:
 
 1. **Do not** open a public issue
-2. Use [GitHub Security Advisories](https://github.com/avifenesh/agentsys/security/advisories) to report privately
+2. Use [GitHub Security Advisories](https://github.com/agent-sh/agentsys/security/advisories) to report privately
 3. Include steps to reproduce and potential impact
 
 ## User Responsibility

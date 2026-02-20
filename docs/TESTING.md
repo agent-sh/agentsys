@@ -20,7 +20,7 @@ Follow [INSTALLATION.md](./INSTALLATION.md). For local testing:
 
 ```bash
 # Clone this repository
-git clone https://github.com/avifenesh/agentsys.git
+git clone https://github.com/agent-sh/agentsys.git
 cd agentsys
 
 # Install into Claude Code
@@ -314,7 +314,7 @@ If you find bugs during manual testing:
 2. Report on GitHub:
 
 ```bash
-gh issue create --repo avifenesh/agentsys \
+gh issue create --repo agent-sh/agentsys \
   --title "Bug: Command X failed" \
   --body "Detailed description with steps to reproduce"
 ```

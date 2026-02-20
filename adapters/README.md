@@ -7,7 +7,7 @@ This directory contains adapters for using agentsys commands with different AI c
 ### Claude Code (Native)
 The primary target. Install via marketplace:
 ```bash
-claude plugin marketplace add avifenesh/agentsys
+claude plugin marketplace add agent-sh/agentsys
 # Install specific plugins (e.g., next-task, ship, enhance)
 claude plugin install next-task@agentsys
 claude plugin install ship@agentsys
@@ -22,7 +22,7 @@ OpenAI's Codex command-line interface.
 
 **Installation:**
 ```bash
-git clone https://github.com/avifenesh/agentsys.git
+git clone https://github.com/agent-sh/agentsys.git
 cd agentsys
 ./adapters/codex/install.sh
 ```
@@ -44,7 +44,7 @@ Open-source AI coding assistant.
 
 **Installation:**
 ```bash
-git clone https://github.com/avifenesh/agentsys.git
+git clone https://github.com/agent-sh/agentsys.git
 cd agentsys
 ./adapters/opencode/install.sh
 ```
@@ -131,7 +131,7 @@ Installers automatically handle these substitutions.
 ### Claude Code
 ```bash
 # Via marketplace (easiest)
-claude plugin marketplace add avifenesh/agentsys
+claude plugin marketplace add agent-sh/agentsys
 claude plugin install next-task@agentsys
 ```
 
@@ -237,7 +237,7 @@ gh auth login
 
 Found a bug or want to add support for another tool?
 
-1. Open an issue: https://github.com/avifenesh/agentsys/issues
+1. Open an issue: https://github.com/agent-sh/agentsys/issues
 2. Submit a PR with:
    - New adapter directory: `adapters/[tool-name]/`
    - Installation script: `install.sh`
@@ -251,7 +251,7 @@ Found a bug or want to add support for another tool?
 - [Claude Code Documentation](https://code.claude.com/docs)
 - [Codex CLI Documentation](https://developers.openai.com/codex/cli)
 - [OpenCode Documentation](https://opencode.ai/docs)
-- [agentsys Repository](https://github.com/avifenesh/agentsys)
+- [agentsys Repository](https://github.com/agent-sh/agentsys)
 
 ---
 

@@ -132,8 +132,8 @@ Validates `plugin.json` files with the following rules:
     "email": "[email protected]",
     "url": "https://github.com/avifenesh"
   },
-  "homepage": "https://github.com/avifenesh/agentsys",
-  "repository": "https://github.com/avifenesh/agentsys",
+  "homepage": "https://github.com/agent-sh/agentsys",
+  "repository": "https://github.com/agent-sh/agentsys",
   "license": "MIT",
   "keywords": ["workflow", "automation", "productivity"],
   "minClaudeVersion": "1.0.0"

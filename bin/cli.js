@@ -198,7 +198,7 @@ function installForClaude() {
     console.log('[WARN]  Claude Code CLI not detected.');
     console.log('   Install it first: https://claude.ai/code\n');
     console.log('   Then run in Claude Code:');
-    console.log('   /plugin marketplace add avifenesh/agentsys');
+    console.log('   /plugin marketplace add agent-sh/agentsys');
     console.log('   /plugin install next-task@agentsys\n');
     return false;
   }
@@ -207,7 +207,7 @@ function installForClaude() {
     // Add GitHub marketplace
     console.log('Adding marketplace...');
     try {
-      execSync('claude plugin marketplace add avifenesh/agentsys', { stdio: 'pipe' });
+      execSync('claude plugin marketplace add agent-sh/agentsys', { stdio: 'pipe' });
     } catch {
       // May already exist
     }
@@ -249,7 +249,7 @@ function installForClaude() {
     return true;
   } catch (err) {
     console.log('[ERROR] Auto-install failed. Manual installation:');
-    console.log('   /plugin marketplace add avifenesh/agentsys');
+    console.log('   /plugin marketplace add agent-sh/agentsys');
     console.log('   /plugin install next-task@agentsys');
     return false;
   }
@@ -270,7 +270,7 @@ function installForClaudeDevelopment() {
   // Remove marketplace plugins first
   console.log('Removing marketplace plugins...');
   try {
-    execSync('claude plugin marketplace remove avifenesh/agentsys', { stdio: 'pipe' });
+    execSync('claude plugin marketplace remove agent-sh/agentsys', { stdio: 'pipe' });
     console.log('  [OK] Removed marketplace');
   } catch {
     // May not exist
@@ -614,7 +614,7 @@ Install:  npm install -g agentsys && agentsys
 Update:   npm update -g agentsys && agentsys
 Remove:   npm uninstall -g agentsys && agentsys --remove
 
-Docs: https://github.com/avifenesh/agentsys
+Docs: https://github.com/agent-sh/agentsys
 `);
 }
 
@@ -684,7 +684,7 @@ async function main() {
     if (selected.length === 0) {
       console.log('\nNo platforms selected. Exiting.');
       console.log('\nFor Claude Code, you can also install directly:');
-      console.log('  /plugin marketplace add avifenesh/agentsys');
+      console.log('  /plugin marketplace add agent-sh/agentsys');
       process.exit(0);
     }
   }
@@ -739,7 +739,7 @@ async function main() {
   }
   console.log('\nTo update:  npm update -g agentsys');
   console.log('To remove:  npm uninstall -g agentsys && agentsys --remove');
-  console.log('\nDocs: https://github.com/avifenesh/agentsys');
+  console.log('\nDocs: https://github.com/agent-sh/agentsys');
 }
 
 // Export for testing when required as module

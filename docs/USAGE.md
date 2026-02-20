@@ -605,5 +605,5 @@ Every finding includes:
 ## Next Steps
 
 - **Start with**: `/deslop report` - safest command, immediate value
-- **For issues**: https://github.com/avifenesh/agentsys/issues
+- **For issues**: https://github.com/agent-sh/agentsys/issues
 - **Contributing**: See [CONTRIBUTING.md](../CONTRIBUTING.md)

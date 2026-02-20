@@ -513,8 +513,8 @@ describe('template content', () => {
       email: '[email protected]',
       url: 'https://github.com/avifenesh'
     });
-    expect(pkg.homepage).toBe('https://github.com/avifenesh/agentsys#author-test');
-    expect(pkg.repository).toBe('https://github.com/avifenesh/agentsys');
+    expect(pkg.homepage).toBe('https://github.com/agent-sh/agentsys#author-test');
+    expect(pkg.repository).toBe('https://github.com/agent-sh/agentsys');
   });
 });
 

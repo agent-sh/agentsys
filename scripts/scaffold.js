@@ -112,8 +112,8 @@ function scaffoldPlugin(name, projectRoot) {
       email: '[email protected]',
       url: 'https://github.com/avifenesh'
     },
-    homepage: `https://github.com/avifenesh/agentsys#${name}`,
-    repository: 'https://github.com/avifenesh/agentsys',
+    homepage: `https://github.com/agent-sh/agentsys#${name}`,
+    repository: 'https://github.com/agent-sh/agentsys',
     license: 'MIT',
     keywords: [name]
   };

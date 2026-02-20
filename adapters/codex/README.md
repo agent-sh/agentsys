@@ -5,7 +5,7 @@ Professional-grade slash commands adapted for OpenAI's Codex CLI.
 ## Quick Install
 
 ```bash
-git clone https://github.com/avifenesh/agentsys.git
+git clone https://github.com/agent-sh/agentsys.git
 cd agentsys
 ./adapters/codex/install.sh
 ```
@@ -255,8 +255,8 @@ gh auth status
 
 ## Support
 
-- **Repository**: https://github.com/avifenesh/agentsys
-- **Issues**: https://github.com/avifenesh/agentsys/issues
+- **Repository**: https://github.com/agent-sh/agentsys
+- **Issues**: https://github.com/agent-sh/agentsys/issues
 - **Codex CLI Docs**: https://developers.openai.com/codex/cli
 
 ---

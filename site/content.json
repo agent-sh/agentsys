@@ -2,8 +2,8 @@
   "meta": {
     "title": "agentsys",
     "description": "A modular runtime and orchestration system for AI agents. 12 plugins, 41 agents, 27 skills — structured pipelines for Claude Code, OpenCode, and Codex CLI.",
-    "url": "https://avifenesh.github.io/agentsys",
-    "repo": "https://github.com/avifenesh/agentsys",
+    "url": "https://agent-sh.github.io/agentsys",
+    "repo": "https://github.com/agent-sh/agentsys",
     "npm": "https://www.npmjs.com/package/agentsys",
     "version": "5.1.0",
     "author": "Avi Fenesh",
@@ -18,7 +18,7 @@
     },
     "cta_secondary": {
       "text": "View on GitHub",
-      "url": "https://github.com/avifenesh/agentsys"
+      "url": "https://github.com/agent-sh/agentsys"
     }
   },
   "stats": [
@@ -208,7 +208,7 @@
         "Install the plugins you need"
       ],
       "commands": [
-        "/plugin marketplace add avifenesh/agentsys",
+        "/plugin marketplace add agent-sh/agentsys",
         "/plugin install next-task@agentsys",
         "/plugin install ship@agentsys"
       ]
@@ -445,9 +445,9 @@
   "footer": {
     "license": "MIT",
     "author": "Avi Fenesh",
-    "github_url": "https://github.com/avifenesh/agentsys",
+    "github_url": "https://github.com/agent-sh/agentsys",
     "npm_url": "https://www.npmjs.com/package/agentsys",
-    "issues_url": "https://github.com/avifenesh/agentsys/issues",
-    "discussions_url": "https://github.com/avifenesh/agentsys/discussions"
+    "issues_url": "https://github.com/agent-sh/agentsys/issues",
+    "discussions_url": "https://github.com/agent-sh/agentsys/discussions"
   }
 }

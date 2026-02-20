@@ -146,7 +146,7 @@ The package provides these capabilities through commands, agents, and skills:
 
 ```bash
 # Via marketplace (recommended)
-/plugin marketplace add avifenesh/agentsys
+/plugin marketplace add agent-sh/agentsys
 /plugin install next-task@agentsys
 
 # Via CLI installer

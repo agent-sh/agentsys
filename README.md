@@ -13,10 +13,10 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/agentsys"><img src="https://img.shields.io/npm/v/agentsys.svg" alt="npm version"></a>
   <a href="https://www.npmjs.com/package/agentsys"><img src="https://img.shields.io/npm/dm/agentsys.svg" alt="npm downloads"></a>
-  <a href="https://github.com/avifenesh/agentsys/actions/workflows/ci.yml"><img src="https://github.com/avifenesh/agentsys/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://github.com/avifenesh/agentsys/stargazers"><img src="https://img.shields.io/github/stars/avifenesh/agentsys.svg" alt="GitHub stars"></a>
+  <a href="https://github.com/agent-sh/agentsys/actions/workflows/ci.yml"><img src="https://github.com/agent-sh/agentsys/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/agent-sh/agentsys/stargazers"><img src="https://img.shields.io/github/stars/agent-sh/agentsys.svg" alt="GitHub stars"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <a href="https://avifenesh.github.io/agentsys/"><img src="https://img.shields.io/badge/Website-AgentSys-blue?style=flat&logo=github" alt="Website"></a>
+  <a href="https://agent-sh.github.io/agentsys/"><img src="https://img.shields.io/badge/Website-AgentSys-blue?style=flat&logo=github" alt="Website"></a>
   <a href="https://github.com/hesreallyhim/awesome-claude-code"><img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Claude Code"></a>
 </p>
 
@@ -25,7 +25,7 @@
 </p>
 
 <p align="center">
-  <a href="#commands">Commands</a> · <a href="#installation">Installation</a> · <a href="https://avifenesh.github.io/agentsys/">Website</a> · <a href="https://github.com/avifenesh/agentsys/discussions">Discussions</a>
+  <a href="#commands">Commands</a> · <a href="#installation">Installation</a> · <a href="https://agent-sh.github.io/agentsys/">Website</a> · <a href="https://github.com/agent-sh/agentsys/discussions">Discussions</a>
 </p>
 
 <p align="center">
@@ -42,7 +42,7 @@
 AI models can write code. That's not the hard part anymore. The hard part is everything around it — task selection, branch management, code review, artifact cleanup, CI, PR comments, deployment. **AgentSys is the runtime that orchestrates agents to handle all of it** — structured pipelines, gated phases, specialized agents, and persistent state that survives session boundaries.
 
 ---
-> Building custom skills, agents, hooks, or MCP tools? [agnix](https://github.com/avifenesh/agnix) is the CLI + LSP linter that catches config errors before they fail silently - real-time IDE validation, auto suggestions, auto-fix, and 155 rules for Cursor, Claude Code, Cline, Copilot, Codex, Windsurf, and more.
+> Building custom skills, agents, hooks, or MCP tools? [agnix](https://github.com/agent-sh/agnix) is the CLI + LSP linter that catches config errors before they fail silently - real-time IDE validation, auto suggestions, auto-fix, and 155 rules for Cursor, Claude Code, Cline, Copilot, Codex, Windsurf, and more.
 
 ## What This Is
 
@@ -196,7 +196,7 @@ Phase 9 uses the `orchestrate-review` skill to spawn parallel reviewers (code qu
 
 **Purpose:** Lint agent configurations before they break your workflow. The first dedicated linter for AI agent configs.
 
-**[agnix](https://github.com/avifenesh/agnix)** is a standalone open-source project that provides the validation engine. This plugin integrates it into your workflow.
+**[agnix](https://github.com/agent-sh/agnix)** is a standalone open-source project that provides the validation engine. This plugin integrates it into your workflow.
 
 **The problem it solves:**
 
@@ -255,7 +255,7 @@ agnix outputs SARIF format for GitHub Code Scanning. Add it to your workflow:
 
 **Agent:** agnix-agent (sonnet model)
 
-**External tool:** Requires [agnix CLI](https://github.com/avifenesh/agnix)
+**External tool:** Requires [agnix CLI](https://github.com/agent-sh/agnix)
 
 ```bash
 npm install -g agnix         # Install via npm
@@ -850,7 +850,7 @@ Every command works standalone. [`/deslop`](#deslop) cleans code without needing
 ### Claude Code (Recommended way)
 
 ```bash
-/plugin marketplace add avifenesh/agentsys
+/plugin marketplace add agent-sh/agentsys
 /plugin install next-task@agentsys
 /plugin install ship@agentsys
 ```
@@ -890,7 +890,7 @@ agentsys --development              # Dev mode (bypasses marketplace)
 - ast-grep (`sg`) installed
 
 **For /agnix:**
-- [agnix CLI](https://github.com/avifenesh/agnix) installed (`cargo install agnix-cli` or `brew install agnix`)
+- [agnix CLI](https://github.com/agent-sh/agnix) installed (`cargo install agnix-cli` or `brew install agnix`)
 
 **Local diagnostics (optional):**
 ```bash
@@ -952,8 +952,8 @@ The system is built on research, not guesswork.
 
 ## Support
 
-- **Issues:** [github.com/avifenesh/agentsys/issues](https://github.com/avifenesh/agentsys/issues)
-- **Discussions:** [github.com/avifenesh/agentsys/discussions](https://github.com/avifenesh/agentsys/discussions)
+- **Issues:** [github.com/agent-sh/agentsys/issues](https://github.com/agent-sh/agentsys/issues)
+- **Discussions:** [github.com/agent-sh/agentsys/discussions](https://github.com/agent-sh/agentsys/discussions)
 
 ---
 
