@@ -64,6 +64,7 @@ describe('Policy Questions', () => {
 
       const labels = sourceQuestion.options.map(opt => opt.label);
       expect(labels).toContain('GitHub Issues');
+      expect(labels).toContain('GitHub Projects');
       expect(labels).toContain('GitLab Issues');
       expect(labels).toContain('Local tasks.md');
       expect(labels).toContain('Custom');
@@ -330,6 +331,104 @@ describe('Policy Questions', () => {
       expect(result.priorityFilter).toBe('all');
       expect(result.stoppingPoint).toBe('merged');
     });
+
+    it('should map GitHub Projects to gh-projects source', () => {
+      const result = policyQuestions.parseAndCachePolicy({
+        source: 'GitHub Projects',
+        priority: 'All',
+        stopPoint: 'Merged',
+        project: { number: 5, owner: '@me' }
+      });
+
+      expect(result.taskSource.source).toBe('gh-projects');
+      expect(result.taskSource.projectNumber).toBe(5);
+      expect(result.taskSource.owner).toBe('@me');
+      expect(sourceCache.savePreference).toHaveBeenCalledWith({
+        source: 'gh-projects',
+        projectNumber: 5,
+        owner: '@me'
+      });
+    });
+
+    it('should accept valid org name as project owner', () => {
+      const result = policyQuestions.parseAndCachePolicy({
+        source: 'GitHub Projects',
+        priority: 'All',
+        stopPoint: 'Merged',
+        project: { number: 42, owner: 'my-org' }
+      });
+
+      expect(result.taskSource.owner).toBe('my-org');
+    });
+
+    it('should throw on invalid project number (negative)', () => {
+      expect(() => {
+        policyQuestions.parseAndCachePolicy({
+          source: 'GitHub Projects',
+          priority: 'All',
+          stopPoint: 'Merged',
+          project: { number: -1, owner: '@me' }
+        });
+      }).toThrow('Invalid project number');
+    });
+
+    it('should throw on invalid project number (zero)', () => {
+      expect(() => {
+        policyQuestions.parseAndCachePolicy({
+          source: 'GitHub Projects',
+          priority: 'All',
+          stopPoint: 'Merged',
+          project: { number: 0, owner: '@me' }
+        });
+      }).toThrow('Invalid project number');
+    });
+
+    it('should throw on non-numeric project number', () => {
+      expect(() => {
+        policyQuestions.parseAndCachePolicy({
+          source: 'GitHub Projects',
+          priority: 'All',
+          stopPoint: 'Merged',
+          project: { number: 'abc', owner: '@me' }
+        });
+      }).toThrow('Invalid project number');
+    });
+
+    it('should throw on project owner with shell metacharacters', () => {
+      expect(() => {
+        policyQuestions.parseAndCachePolicy({
+          source: 'GitHub Projects',
+          priority: 'All',
+          stopPoint: 'Merged',
+          project: { number: 1, owner: '; rm -rf /' }
+        });
+      }).toThrow('Invalid project owner');
+    });
+
+    it('should throw on empty project owner', () => {
+      expect(() => {
+        policyQuestions.parseAndCachePolicy({
+          source: 'GitHub Projects',
+          priority: 'All',
+          stopPoint: 'Merged',
+          project: { number: 1, owner: '' }
+        });
+      }).toThrow('Invalid project owner');
+    });
+
+    it('should handle GitHub Projects without project details (no follow-up)', () => {
+      // When user selects GitHub Projects but no project data provided yet,
+      // it should still map to gh-projects source (follow-up comes later)
+      const result = policyQuestions.parseAndCachePolicy({
+        source: 'GitHub Projects',
+        priority: 'All',
+        stopPoint: 'Merged'
+      });
+
+      expect(result.taskSource.source).toBe('gh-projects');
+      expect(result.taskSource.projectNumber).toBeUndefined();
+      expect(result.taskSource.owner).toBeUndefined();
+    });
   });
 
   describe('isUsingCached', () => {
@@ -357,6 +456,56 @@ describe('Policy Questions', () => {
       expect(policyQuestions.needsOtherDescription('Other')).toBe(true);
       expect(policyQuestions.needsOtherDescription('Custom')).toBe(false);
       expect(policyQuestions.needsOtherDescription('GitHub Issues')).toBe(false);
+    });
+  });
+
+  describe('needsProjectFollowUp', () => {
+    it('should return true only for "GitHub Projects" selection', () => {
+      expect(policyQuestions.needsProjectFollowUp('GitHub Projects')).toBe(true);
+    });
+
+    it('should return false for all other selections', () => {
+      expect(policyQuestions.needsProjectFollowUp('GitHub Issues')).toBe(false);
+      expect(policyQuestions.needsProjectFollowUp('GitLab Issues')).toBe(false);
+      expect(policyQuestions.needsProjectFollowUp('Custom')).toBe(false);
+      expect(policyQuestions.needsProjectFollowUp('Other')).toBe(false);
+      expect(policyQuestions.needsProjectFollowUp('Local tasks.md')).toBe(false);
+    });
+  });
+
+  describe('getProjectQuestions', () => {
+    it('should return 2 questions for project number and owner', () => {
+      const result = policyQuestions.getProjectQuestions();
+
+      expect(result).toHaveProperty('questions');
+      expect(result.questions).toHaveLength(2);
+    });
+
+    it('should have Project Number as first question', () => {
+      const result = policyQuestions.getProjectQuestions();
+
+      expect(result.questions[0].header).toBe('Project Number');
+      expect(result.questions[0].question).toContain('Project number');
+      expect(result.questions[0].options).toEqual([]);
+      expect(result.questions[0].multiSelect).toBe(false);
+    });
+
+    it('should have Project Owner as second question', () => {
+      const result = policyQuestions.getProjectQuestions();
+
+      expect(result.questions[1].header).toBe('Project Owner');
+      expect(result.questions[1].question).toContain('owns');
+      expect(result.questions[1].options).toEqual([]);
+      expect(result.questions[1].multiSelect).toBe(false);
+    });
+
+    it('should provide hints for both questions', () => {
+      const result = policyQuestions.getProjectQuestions();
+
+      expect(result.questions[0].hint).toBeDefined();
+      expect(result.questions[0].hint).toContain('1');
+      expect(result.questions[1].hint).toBeDefined();
+      expect(result.questions[1].hint).toContain('@me');
     });
   });
 });
