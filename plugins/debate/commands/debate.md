@@ -292,6 +292,7 @@ Read the consult skill file to get the exact patterns and replacements.
 | Challenger fails round 1 | `[WARN] Challenger ({tool}) failed on round 1. Proceeding with uncontested proposer position.` Then synthesize from available exchanges. |
 | Any tool fails mid-debate | Synthesize from completed rounds. Note the incomplete round in output. |
 | Tool invocation timeout (>240s) | Round 1 proposer: abort with `[ERROR] Debate aborted: proposer ({tool}) timed out after 240s`. Round 1 challenger: proceed with uncontested position. Round 2+: synthesize from completed rounds, note `[WARN] {role} ({tool}) timed out in round {N}`. |
+| All rounds timeout | `[ERROR] Debate failed: all tool invocations timed out.` |
 
 ## Example Usage
 

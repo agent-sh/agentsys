@@ -13,20 +13,30 @@ const fs = require('fs');
 const path = require('path');
 
 const pluginsDir = path.join(__dirname, '..', 'plugins');
+const adaptersDir = path.join(__dirname, '..', 'adapters');
 const debateDir = path.join(pluginsDir, 'debate');
 const commandPath = path.join(debateDir, 'commands', 'debate.md');
 const skillPath = path.join(debateDir, 'skills', 'debate', 'SKILL.md');
 const agentPath = path.join(debateDir, 'agents', 'debate-orchestrator.md');
 const pluginJsonPath = path.join(debateDir, '.claude-plugin', 'plugin.json');
+const codexSkillPath = path.join(adaptersDir, 'codex', 'skills', 'debate', 'SKILL.md');
+const openCodeCommandPath = path.join(adaptersDir, 'opencode', 'commands', 'debate.md');
+const openCodeSkillPath = path.join(adaptersDir, 'opencode', 'skills', 'debate', 'SKILL.md');
+const openCodeAgentPath = path.join(adaptersDir, 'opencode', 'agents', 'debate-orchestrator.md');
 
 // Load all files once
 let commandContent, skillContent, agentContent, pluginJson;
+let codexSkillContent, openCodeCommandContent, openCodeSkillContent, openCodeAgentContent;
 
 beforeAll(() => {
   commandContent = fs.readFileSync(commandPath, 'utf8');
   skillContent = fs.readFileSync(skillPath, 'utf8');
   agentContent = fs.readFileSync(agentPath, 'utf8');
   pluginJson = JSON.parse(fs.readFileSync(pluginJsonPath, 'utf8'));
+  codexSkillContent = fs.readFileSync(codexSkillPath, 'utf8');
+  openCodeCommandContent = fs.readFileSync(openCodeCommandPath, 'utf8');
+  openCodeSkillContent = fs.readFileSync(openCodeSkillPath, 'utf8');
+  openCodeAgentContent = fs.readFileSync(openCodeAgentPath, 'utf8');
 });
 
 // ─── Helpers ────────────────────────────────────────────────────────
@@ -405,6 +415,14 @@ describe('error handling coverage', () => {
   test('command handles tool invocation timeout', () => {
     expect(commandContent).toMatch(/Tool invocation timeout|timed out after 240s/i);
   });
+
+  test('command documents all-rounds-timeout error', () => {
+    expect(commandContent).toContain('[ERROR] Debate failed: all tool invocations timed out.');
+  });
+
+  test('skill documents all-rounds-timeout error', () => {
+    expect(skillContent).toContain('[ERROR] Debate failed: all tool invocations timed out.');
+  });
 });
 
 // ─── 9. Synthesis Format ────────────────────────────────────────────
@@ -585,7 +603,46 @@ describe('anti-convergence mechanisms', () => {
     expect(template).toMatch(/"I agree now" without evidence is not/i);
   });
 
+  test('opencode skill Challenger Follow-up template matches canonical', () => {
+    const canonicalSection = skillContent.match(
+      /### Round 2\+: Challenger Follow-up[\s\S]*?```[\s\S]*?```/
+    );
+    const adapterSection = openCodeSkillContent.match(
+      /### Round 2\+: Challenger Follow-up[\s\S]*?```[\s\S]*?```/
+    );
+    expect(canonicalSection).not.toBeNull();
+    expect(adapterSection).not.toBeNull();
+    // Both should contain the key anti-convergence instruction
+    expect(adapterSection[0]).toMatch(/"I agree now" without evidence is not/i);
+  });
+
+  test('opencode skill has complete Challenger Follow-up template', () => {
+    // Must contain the full template, not the stub comment
+    expect(openCodeSkillContent).toMatch(/Default to suspicion, not acceptance/i);
+    expect(openCodeSkillContent).toMatch(/Do NOT let the proposer reframe.*as agreements/i);
+    expect(openCodeSkillContent).not.toContain('*(JavaScript reference - not executable in OpenCode)*');
+  });
+
   test('debate quality checks for genuine disagreement', () => {
     expect(skillContent).toMatch(/Genuine disagreement.*converge toward the proposer/i);
+  });
+});
+
+// ─── 13. Adapter Consistency (task #233) ───────────────────────────
+describe('adapter consistency', () => {
+  test('codex adapter skill mentions 240s timeout', () => {
+    expect(codexSkillContent).toMatch(/240s?\s*timeout/i);
+  });
+
+  test('opencode command mentions 240s timeout', () => {
+    expect(openCodeCommandContent).toMatch(/240s?\s*timeout/i);
+  });
+
+  test('opencode command documents all-rounds-timeout error', () => {
+    expect(openCodeCommandContent).toContain('[ERROR] Debate failed: all tool invocations timed out.');
+  });
+
+  test('opencode agent enforces 240s timeout inline at invocation steps', () => {
+    expect(openCodeAgentContent).toMatch(/Set a 240-second timeout on this invocation/);
   });
 });

@@ -78,6 +78,8 @@ Skill: consult
 Args: "{proposer_prompt}" --tool=[proposer] --effort=[effort] [--model=[model_proposer]] [--context=[context]]
 ```
 
+Set a 240-second timeout on this invocation. If it exceeds 240s, treat as a tool failure for this round.
+
 Parse the JSON result. Extract the response text. Record: round, role="proposer", tool, response, duration_ms.
 
 Display to user immediately:
@@ -104,6 +106,8 @@ Only include `--model=[model_challenger]` if the caller provided a specific mode
 Skill: consult
 Args: "{challenger_prompt}" --tool=[challenger] --effort=[effort] [--model=[model_challenger]] [--context=[context]]
 ```
+
+Set a 240-second timeout on this invocation. If it exceeds 240s, treat as a tool failure for this round.
 
 Parse the JSON result. Record: round, role="challenger", tool, response, duration_ms.
 
