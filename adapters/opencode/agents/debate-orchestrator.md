@@ -80,6 +80,8 @@ Args: "{proposer_prompt}" --tool=[proposer] --effort=[effort] [--model=[model_pr
 
 Track invocation start time. If the invocation takes longer than 240 seconds to complete, treat it as a tool failure for this round (external tools can hang indefinitely).
 
+> See the debate skill's **External Tool Quick Reference** section for command patterns, model mappings, and output parsing per provider.
+
 Parse the JSON result. Extract the response text. Record: round, role="proposer", tool, response, duration_ms.
 
 Display to user immediately:
@@ -108,6 +110,8 @@ Args: "{challenger_prompt}" --tool=[challenger] --effort=[effort] [--model=[mode
 ```
 
 Track invocation start time. If the invocation takes longer than 240 seconds to complete, treat it as a tool failure for this round (external tools can hang indefinitely).
+
+> See the debate skill's **External Tool Quick Reference** section for command patterns, model mappings, and output parsing per provider.
 
 Parse the JSON result. Record: round, role="challenger", tool, response, duration_ms.
 
