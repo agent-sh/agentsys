@@ -139,9 +139,9 @@ describe('next-task Phase 11 integration', () => {
       expect(cmdContent).not.toMatch(/Task\(\s*\{\s*subagent_type:\s*["'`]ship:ship["'`]/);
     });
 
-    test('passes --state-file argument to ship:ship Skill invocation', () => {
-      // Verify --state-file is on the same line as the Skill invocation (not just anywhere in file)
-      expect(cmdContent).toMatch(/Skill\(\{.*ship:ship.*--state-file|--state-file.*Skill\(\{.*ship:ship/s);
+    test('passes --state-file argument on the same line as Skill invocation', () => {
+      // Use [^\n]* to enforce same-line matching (no /s flag)
+      expect(cmdContent).toMatch(/Skill\(\{[^\n]*ship:ship[^\n]*--state-file/);
     });
   });
 
@@ -150,8 +150,11 @@ describe('next-task Phase 11 integration', () => {
     let codexContent;
 
     beforeAll(() => {
-      expect(fs.existsSync(codexSkillPath)).toBe(true);
-      codexContent = fs.readFileSync(codexSkillPath, 'utf8');
+      codexContent = fs.existsSync(codexSkillPath) ? fs.readFileSync(codexSkillPath, 'utf8') : null;
+    });
+
+    test('codex adapter SKILL.md exists', () => {
+      expect(codexContent).not.toBeNull();
     });
 
     test('codex adapter SKILL.md uses Skill() for ship:ship', () => {
@@ -159,8 +162,8 @@ describe('next-task Phase 11 integration', () => {
       expect(codexContent).not.toMatch(/Task\(\s*\{\s*subagent_type:\s*["'`]ship:ship["'`]/);
     });
 
-    test('codex adapter passes --state-file to ship:ship', () => {
-      expect(codexContent).toMatch(/Skill\(\{.*ship:ship.*--state-file|--state-file.*Skill\(\{.*ship:ship/s);
+    test('codex adapter passes --state-file on the same line as Skill invocation', () => {
+      expect(codexContent).toMatch(/Skill\(\{[^\n]*ship:ship[^\n]*--state-file/);
     });
   });
 
