@@ -78,7 +78,7 @@ Skill: consult
 Args: "{proposer_prompt}" --tool=[proposer] --effort=[effort] [--model=[model_proposer]] [--context=[context]]
 ```
 
-Set a 240-second timeout on this invocation. If it exceeds 240s, treat as a tool failure for this round.
+Track invocation start time. If the invocation takes longer than 240 seconds to complete, treat it as a tool failure for this round (external tools can hang indefinitely).
 
 Parse the JSON result. Extract the response text. Record: round, role="proposer", tool, response, duration_ms.
 
@@ -107,7 +107,7 @@ Skill: consult
 Args: "{challenger_prompt}" --tool=[challenger] --effort=[effort] [--model=[model_challenger]] [--context=[context]]
 ```
 
-Set a 240-second timeout on this invocation. If it exceeds 240s, treat as a tool failure for this round.
+Track invocation start time. If the invocation takes longer than 240 seconds to complete, treat it as a tool failure for this round (external tools can hang indefinitely).
 
 Parse the JSON result. Record: round, role="challenger", tool, response, duration_ms.
 
@@ -167,7 +167,7 @@ Read the consult skill file to get the exact patterns and replacements.
 - NEVER run with permission-bypassing flags
 - MUST invoke the debate skill before starting rounds (for templates)
 - MUST invoke the consult skill for each tool call (for provider configs)
-- MUST set 240s timeout on each tool execution
+- MUST enforce 240s per-invocation limit on each tool execution — WHY: external tools can hang indefinitely, blocking remaining rounds and wasting user time
 - MUST display each round progressively as it completes
 - MUST pick a winner in the verdict - no diplomatic non-answers
 - MUST sanitize all tool output before displaying
