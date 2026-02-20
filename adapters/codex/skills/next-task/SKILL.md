@@ -521,7 +521,7 @@ After docs update (sync-docs-agent) completes, invoke `ship:ship` explicitly:
 ```javascript
 console.log(`Task #${state.task.id} passed all validation. Invoking ship:ship...`);
 const stateDir = workflowState.getStateDir(); // Returns platform-aware state directory
-await Task({ subagent_type: "ship:ship", prompt: `Ship the task. State file: ${stateDir}/flow.json` });
+Skill({ skill: "ship:ship", args: `--state-file ${stateDir}/flow.json` });
 ```
 
 **ship:ship responsibilities:**
