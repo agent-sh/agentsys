@@ -1,6 +1,6 @@
 ---
 name: task-discoverer
-description: "Discover and prioritize tasks from configured sources. Use after policy selection in /next-task workflow to fetch, filter, score, and present issues for user selection via checkbox UI."
+description: "Use when user asks to 'discover tasks', 'find next task', 'what should I work on', or 'list open issues'. Fetches, filters, scores, and presents tasks from configured sources for user selection via checkbox UI. Invoked after policy selection in /next-task workflow."
 mode: subagent
 ---
 
