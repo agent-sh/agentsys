@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`/next-task` review loop exit conditions** — The Phase 9 review loop now continues iterating until all issues are resolved or a stall is detected (MAX_STALLS reduced from 2 to 1: two consecutive identical-hash iterations = stall). The `orchestrate-review` skill now uses `completePhase()` instead of `updateFlow()` to properly advance workflow state. Added `pre-review-gates` and `docs-update` to the `PHASES` array and `RESULT_FIELD_MAP` in `workflow-state.js`, ensuring these phases can be tracked and resumed correctly. Fixes issue #235.
+
 - **`/debate` command inline orchestration** — The `/debate` command now manages the full debate workflow directly (parse → resolve → execute → verdict), following the `/consult` pattern. The `debate-orchestrator` agent is now the programmatic entry point for other agents/workflows that need to spawn a debate via `Task()`. Fixes issue #231.
 
 ## [5.1.0] - 2026-02-18
