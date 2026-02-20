@@ -174,7 +174,7 @@ No agent needed. Use AskUserQuestion tool with ALL 3 questions from `lib/sources
 
 | # | Header | Question | Options |
 |---|--------|----------|---------|
-| 1 | Source | Where should I look for tasks? | GitHub Issues, GitLab Issues, Local tasks.md, Custom, Other (+ cached if exists) |
+| 1 | Source | Where should I look for tasks? | GitHub Issues, GitHub Projects, GitLab Issues, Local tasks.md, Custom, Other (+ cached if exists) |
 | 2 | Priority | What type of tasks to prioritize? | All, Bugs, Security, Features |
 | 3 | Stop Point | How far should I take this task? | Merged, PR Created, Implemented, Deployed, Production |
 
