@@ -205,6 +205,75 @@ describe('workflow-state', () => {
     });
   });
 
+  describe('new phases: pre-review-gates and docs-update', () => {
+    beforeEach(() => {
+      createFlow(
+        { id: '1', title: 'Test', source: 'manual' },
+        { stoppingPoint: 'merged' },
+        testDir
+      );
+    });
+
+    test('PHASES contains pre-review-gates and docs-update', () => {
+      expect(PHASES).toContain('pre-review-gates');
+      expect(PHASES).toContain('docs-update');
+    });
+
+    test('isValidPhase accepts pre-review-gates and docs-update', () => {
+      expect(isValidPhase('pre-review-gates')).toBe(true);
+      expect(isValidPhase('docs-update')).toBe(true);
+    });
+
+    test('completePhase from implementation advances to pre-review-gates', () => {
+      setPhase('implementation', testDir);
+      completePhase(null, testDir);
+
+      const flow = readFlow(testDir);
+      expect(flow.phase).toBe('pre-review-gates');
+      expect(flow.status).toBe('in_progress');
+    });
+
+    test('completePhase from pre-review-gates advances to review-loop', () => {
+      setPhase('pre-review-gates', testDir);
+      completePhase({ passed: true }, testDir);
+
+      const flow = readFlow(testDir);
+      expect(flow.phase).toBe('review-loop');
+      expect(flow.status).toBe('in_progress');
+      expect(flow.preReviewResult).toEqual({ passed: true });
+    });
+
+    test('completePhase from review-loop stores reviewResult and advances to delivery-validation', () => {
+      setPhase('review-loop', testDir);
+      completePhase({ approved: true, iterations: 2 }, testDir);
+
+      const flow = readFlow(testDir);
+      expect(flow.phase).toBe('delivery-validation');
+      expect(flow.status).toBe('in_progress');
+      expect(flow.reviewResult).toEqual({ approved: true, iterations: 2 });
+    });
+
+    test('completePhase from delivery-validation advances to docs-update', () => {
+      setPhase('delivery-validation', testDir);
+      completePhase({ passed: true }, testDir);
+
+      const flow = readFlow(testDir);
+      expect(flow.phase).toBe('docs-update');
+      expect(flow.status).toBe('in_progress');
+      expect(flow.deliveryResult).toEqual({ passed: true });
+    });
+
+    test('completePhase from docs-update advances to shipping', () => {
+      setPhase('docs-update', testDir);
+      completePhase({ docsUpdated: true }, testDir);
+
+      const flow = readFlow(testDir);
+      expect(flow.phase).toBe('shipping');
+      expect(flow.status).toBe('in_progress');
+      expect(flow.docsResult).toEqual({ docsUpdated: true });
+    });
+  });
+
   describe('convenience functions', () => {
     test('getFlowSummary returns summary object', () => {
       createFlow(
