@@ -295,7 +295,7 @@ Read the consult skill file to get the exact patterns and replacements.
 |--------|--------|--------|-------|----------|---------|
 | low | claude-haiku-4-5 (1 turn) | gemini-2.5-flash | o4-mini (low) | default (low) | no control |
 | medium | claude-sonnet-4-6 (3 turns) | gemini-3-flash-preview | o4-mini (medium) | default (medium) | no control |
-| high | claude-opus-4-6 (5 turns) | gemini-3-pro-preview | o3 (high) | default (high) | no control |
+| high | claude-opus-4-6 (5 turns) | gemini-3.1-pro-preview | o3 (high) | default (high) | no control |
 | max | claude-opus-4-6 (10 turns) | gemini-3.1-pro-preview | o3 (high) | default + --thinking | no control |
 
 ### Output Parsing

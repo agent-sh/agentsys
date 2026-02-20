@@ -177,7 +177,7 @@ AskUserQuestion:
       question: "Which Gemini model?"
       multiSelect: false
       options:
-        - label: "gemini-3-pro"          description: "Most capable, strong reasoning"
+        - label: "gemini-3.1-pro"          description: "Most capable, strong reasoning"
         - label: "gemini-3-flash"        description: "Fast, 78% SWE-bench"
         - label: "gemini-2.5-pro"        description: "Previous gen pro model"
         - label: "gemini-2.5-flash"      description: "Previous gen flash model"
@@ -241,7 +241,7 @@ Invoke the `consult` skill directly using the Skill tool:
 Skill: consult
 Args: "[question]" --tool=[tool] --effort=[effort] --model=[model] [--context=[context]] [--continue=[session_id]]
 
-Example: "Is this the right approach?" --tool=gemini --effort=high --model=gemini-3-pro
+Example: "Is this the right approach?" --tool=gemini --effort=high --model=gemini-3.1-pro
 ```
 
 The skill handles the full consultation lifecycle: model resolution, command building, context packaging, execution with 120s timeout, and returns a plain JSON result.

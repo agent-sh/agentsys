@@ -66,7 +66,7 @@ Models: gemini-2.5-flash, gemini-2.5-pro, gemini-3-flash-preview, gemini-3-pro-p
 |--------|-------|
 | low | gemini-2.5-flash |
 | medium | gemini-3-flash-preview |
-| high | gemini-3-pro-preview |
+| high | gemini-3.1-pro-preview |
 | max | gemini-3.1-pro-preview |
 
 **Parse output**: `JSON.parse(stdout).response`
@@ -104,7 +104,7 @@ Session resume: opencode run "QUESTION" --format json --model "MODEL" --variant 
 With thinking: add --thinking flag
 ```
 
-Models: 75+ via providers (format: provider/model). Top picks: claude-sonnet-4-6, claude-opus-4-6, gpt-5.2, o3, gemini-3-pro-preview, minimax-m2.1
+Models: 75+ via providers (format: provider/model). Top picks: claude-sonnet-4-6, claude-opus-4-6, gpt-5.2, o3, gemini-3.1-pro-preview, minimax-m2.1
 
 | Effort | Model | Variant |
 |--------|-------|---------|
@@ -271,7 +271,7 @@ Return a plain JSON object to stdout (no markers or wrappers):
 ```json
 {
   "tool": "gemini",
-  "model": "gemini-3-pro-preview",
+  "model": "gemini-3.1-pro-preview",
   "effort": "high",
   "duration_ms": 12300,
   "response": "The AI's response text here...",
@@ -309,4 +309,4 @@ This skill is invoked by:
 - `consult-agent` for `/consult` command
 - Direct invocation: `Skill('consult', '"question" --tool=gemini --effort=high')`
 
-Example: `Skill('consult', '"Is this approach correct?" --tool=gemini --effort=high --model=gemini-3-pro-preview')`
+Example: `Skill('consult', '"Is this approach correct?" --tool=gemini --effort=high --model=gemini-3.1-pro-preview')`
