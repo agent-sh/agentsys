@@ -119,22 +119,6 @@ describe('next-task Phase 11 integration', () => {
     });
   });
 
-  describe('command allowed-tools', () => {
-    const cmdPath = path.join(nextTaskDir, 'commands', 'next-task.md');
-    let cmdContent;
-
-    beforeAll(() => {
-      cmdContent = fs.readFileSync(cmdPath, 'utf8');
-    });
-
-    test('command allowed-tools includes Skill', () => {
-      // Extract the frontmatter allowed-tools line
-      const match = cmdContent.match(/^allowed-tools:\s*(.+)$/m);
-      expect(match).not.toBeNull();
-      expect(match[1]).toContain('Skill');
-    });
-  });
-
   describe('Phase 12 ship:ship invocation', () => {
     const cmdPath = path.join(nextTaskDir, 'commands', 'next-task.md');
     let cmdContent;
@@ -143,22 +127,40 @@ describe('next-task Phase 11 integration', () => {
       cmdContent = fs.readFileSync(cmdPath, 'utf8');
     });
 
-    test('uses Skill() not Task() to invoke ship:ship', () => {
-      expect(cmdContent).toContain('Skill({ skill: "ship:ship"');
-      expect(cmdContent).not.toMatch(/Task\(\s*\{\s*subagent_type:\s*["']ship:ship["']/);
+    test('allowed-tools includes both Skill and Task', () => {
+      const match = cmdContent.match(/^allowed-tools:\s*(.+)$/m);
+      expect(match).not.toBeNull();
+      expect(match[1]).toContain('Skill');
+      expect(match[1]).toContain('Task');
     });
 
-    test('passes --state-file argument to ship:ship', () => {
-      expect(cmdContent).toContain('--state-file');
+    test('uses Skill() not Task() to invoke ship:ship', () => {
+      expect(cmdContent).toContain('Skill({ skill: "ship:ship"');
+      expect(cmdContent).not.toMatch(/Task\(\s*\{\s*subagent_type:\s*["'`]ship:ship["'`]/);
+    });
+
+    test('passes --state-file argument to ship:ship Skill invocation', () => {
+      // Verify --state-file is on the same line as the Skill invocation (not just anywhere in file)
+      expect(cmdContent).toMatch(/Skill\(\{.*ship:ship.*--state-file|--state-file.*Skill\(\{.*ship:ship/s);
     });
   });
 
   describe('codex adapter ship:ship parity', () => {
+    const codexSkillPath = path.join(__dirname, '..', 'adapters', 'codex', 'skills', 'next-task', 'SKILL.md');
+    let codexContent;
+
+    beforeAll(() => {
+      expect(fs.existsSync(codexSkillPath)).toBe(true);
+      codexContent = fs.readFileSync(codexSkillPath, 'utf8');
+    });
+
     test('codex adapter SKILL.md uses Skill() for ship:ship', () => {
-      const codexSkillPath = path.join(__dirname, '..', 'adapters', 'codex', 'skills', 'next-task', 'SKILL.md');
-      const codexContent = fs.readFileSync(codexSkillPath, 'utf8');
       expect(codexContent).toContain('Skill({ skill: "ship:ship"');
-      expect(codexContent).not.toMatch(/Task\(\s*\{\s*subagent_type:\s*["']ship:ship["']/);
+      expect(codexContent).not.toMatch(/Task\(\s*\{\s*subagent_type:\s*["'`]ship:ship["'`]/);
+    });
+
+    test('codex adapter passes --state-file to ship:ship', () => {
+      expect(codexContent).toMatch(/Skill\(\{.*ship:ship.*--state-file|--state-file.*Skill\(\{.*ship:ship/s);
     });
   });
 
