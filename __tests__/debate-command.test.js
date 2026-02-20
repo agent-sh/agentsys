@@ -217,8 +217,12 @@ describe('security constraints', () => {
     expect(commandContent).toMatch(/## Output Sanitization/);
   });
 
-  test('orchestrator mentions 120s timeout', () => {
-    expect(agentContent).toMatch(/120s?\s*timeout/i);
+  test('orchestrator mentions 240s timeout', () => {
+    expect(agentContent).toMatch(/240s?\s*timeout/i);
+  });
+
+  test('command mentions 240s timeout', () => {
+    expect(commandContent).toMatch(/240s?\s*timeout/i);
   });
 });
 
@@ -396,6 +400,10 @@ describe('error handling coverage', () => {
     expect(commandContent).toMatch(/Proposer fails round 1/i);
     expect(commandContent).toMatch(/Challenger fails round 1/i);
     expect(commandContent).toMatch(/Any tool fails mid-debate/i);
+  });
+
+  test('command handles tool invocation timeout', () => {
+    expect(commandContent).toMatch(/Tool invocation timeout|timed out after 240s/i);
   });
 });
 

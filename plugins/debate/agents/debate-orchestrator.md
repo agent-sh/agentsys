@@ -169,7 +169,7 @@ Read the consult skill file to get the exact patterns and replacements.
 - NEVER run with permission-bypassing flags
 - MUST invoke the debate skill before starting rounds (for templates)
 - MUST invoke the consult skill for each tool call (for provider configs)
-- MUST set 120s timeout on each Bash execution
+- MUST set 240s timeout on each tool execution
 - MUST display each round progressively as it completes
 - MUST pick a winner in the verdict - no diplomatic non-answers
 - MUST sanitize all tool output before displaying

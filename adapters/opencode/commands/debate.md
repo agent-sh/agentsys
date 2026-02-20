@@ -15,6 +15,7 @@ You are executing the /debate command. Your job is to parse the user's request, 
 - Proposer and challenger MUST be different tools
 - Rounds MUST be 1-5 (default: 2)
 - MUST sanitize all tool output before displaying (see Output Sanitization section below)
+- MUST enforce 240s timeout on all tool executions
 
 ## Execution
 
@@ -193,6 +194,8 @@ Skill: consult
 Args: "{proposer_prompt}" --tool=[proposer] --effort=[effort] [--model=[model_proposer]] [--context=[context]]
 ```
 
+Set a 240-second timeout on this invocation. If it exceeds 240s, treat as a tool failure for this round.
+
 Parse the JSON result. Extract the response text. Record: round, role="proposer", tool, response, duration_ms.
 
 If the proposer call fails on round 1, abort: `[ERROR] Debate aborted: proposer ({tool}) failed on opening round. {error}`
@@ -218,6 +221,8 @@ Only include `--model=[model_challenger]` if the user provided a specific model.
 Skill: consult
 Args: "{challenger_prompt}" --tool=[challenger] --effort=[effort] [--model=[model_challenger]] [--context=[context]]
 ```
+
+Set a 240-second timeout on this invocation. If it exceeds 240s, treat as a tool failure for this round.
 
 Parse the JSON result. Record: round, role="challenger", tool, response, duration_ms.
 
@@ -283,6 +288,7 @@ Read the consult skill file to get the exact patterns and replacements.
 | Proposer fails round 1 | `[ERROR] Debate aborted: proposer ({tool}) failed on opening round. {error}` |
 | Challenger fails round 1 | `[WARN] Challenger ({tool}) failed on round 1. Proceeding with uncontested proposer position.` Then synthesize from available exchanges. |
 | Any tool fails mid-debate | Synthesize from completed rounds. Note the incomplete round in output. |
+| Tool invocation timeout (>240s) | Round 1 proposer: abort with `[ERROR] Debate aborted: proposer ({tool}) timed out after 240s`. Round 1 challenger: proceed with uncontested position. Round 2+: synthesize from completed rounds, note `[WARN] {role} ({tool}) timed out in round {N}`. |
 
 ## Example Usage
 

@@ -250,6 +250,7 @@ Platform state directory:
 | Proposer fails round 1 | Abort debate. Cannot proceed without opening position. |
 | Challenger fails round 1 | Show proposer's position with note: "[WARN] Challenger failed. Showing proposer's uncontested position." |
 | Any tool fails mid-debate | Synthesize from completed rounds. Note incomplete round in output. |
+| Tool invocation timeout (>240s) | Round 1 proposer: abort. Round 1 challenger: proceed with uncontested. Round 2+: synthesize from completed rounds with timeout note. |
 | All rounds timeout | "[ERROR] Debate failed: all tool invocations timed out." |
 
 ## Consult Skill Integration
