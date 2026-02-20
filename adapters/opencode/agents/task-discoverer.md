@@ -19,7 +19,7 @@ You discover, filter, score, and present tasks from configured sources for user 
 ## Execution
 
 You MUST execute the `discover-tasks` skill to perform task discovery. The skill contains:
-- Source fetching patterns (GitHub, GitLab, local, custom)
+- Source fetching patterns (GitHub, GitHub Projects, GitLab, local, custom)
 - Claimed task exclusion logic
 - PR-linked issue exclusion logic (GitHub only)
 - Priority filtering
@@ -29,7 +29,7 @@ You MUST execute the `discover-tasks` skill to perform task discovery. The skill
 ## Input Handling
 
 Reads from workflow state (`flow.json`):
-- `policy.taskSource`: Where to fetch tasks (github, gitlab, local, custom, other)
+- `policy.taskSource`: Where to fetch tasks (github, gh-projects, gitlab, local, custom, other)
 - `policy.priorityFilter`: What types to prioritize (bugs, security, features, all)
 
 ## Your Role
@@ -56,6 +56,7 @@ All AskUserQuestion option labels MUST be max 30 characters. Use the truncation 
 | Source | Method |
 |--------|--------|
 | github / gh-issues | `gh issue list` |
+| gh-projects | `gh project item-list` (v2 boards) |
 | gitlab | `glab issue list` |
 | local / tasks-md | Parse PLAN.md, tasks.md, TODO.md |
 | custom | Use cached CLI/MCP/Skill capabilities |
