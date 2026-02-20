@@ -68,7 +68,7 @@ function transformBodyForOpenCode(content, repoRoot) {
       }
 
       if (code.includes('require(') || code.includes('Task(') ||
-          code.includes('const ') || code.includes('let ') ||
+          code.includes('const ') || /^\s*let\s+[a-zA-Z_$]/m.test(code) ||
           code.includes('function ') || code.includes('=>') ||
           code.includes('async ') || code.includes('await ') ||
           code.includes('completePhase')) {

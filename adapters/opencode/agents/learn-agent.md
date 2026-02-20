@@ -123,7 +123,34 @@ Store in memory:
 
 Create `agent-knowledge/{slug}.md`:
 
-*(JavaScript reference - not executable in OpenCode)*{language}
+```markdown
+# Learning Guide: {Topic}
+
+**Generated**: {date}
+**Sources**: {count} resources analyzed
+**Depth**: {depth}
+
+## Prerequisites
+
+- What you should know before starting
+- Required tools/environment
+
+## TL;DR
+
+3-5 bullet points covering the essentials.
+
+## Core Concepts
+
+### Concept 1
+{Explanation synthesized from sources}
+
+### Concept 2
+{Explanation synthesized from sources}
+
+## Code Examples
+
+### Basic Example
+```{language}
 {code from sources}
 ```
 
