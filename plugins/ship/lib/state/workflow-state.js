@@ -64,6 +64,16 @@ function generateWorkflowId() {
   return `workflow-${date}-${time}-${random}`;
 }
 
+// Map phase name to the result field stored on flow.json
+const RESULT_FIELD_MAP = {
+  'exploration': 'exploration',
+  'planning': 'plan',
+  'pre-review-gates': 'preReviewResult',
+  'review-loop': 'reviewResult',
+  'delivery-validation': 'deliveryResult',
+  'docs-update': 'docsResult'
+};
+
 // Valid phases for the workflow
 const PHASES = [
   'policy-selection',
@@ -405,7 +415,10 @@ function completePhase(result = null, worktreePath = process.cwd()) {
   if (!flow) return null;
 
   const currentIndex = PHASES.indexOf(flow.phase);
-  if (currentIndex === -1) return null;
+  if (currentIndex === -1) {
+    console.error(`[WARN] completePhase: unknown phase "${flow.phase}" in flow.json, cannot advance`);
+    return null;
+  }
   const nextPhase = PHASES[currentIndex + 1] || 'complete';
 
   // Build updates object
@@ -430,15 +443,7 @@ function completePhase(result = null, worktreePath = process.cwd()) {
  * Map phase to result field
  */
 function getResultField(phase) {
-  const mapping = {
-    'exploration': 'exploration',
-    'planning': 'plan',
-    'pre-review-gates': 'preReviewResult',
-    'review-loop': 'reviewResult',
-    'delivery-validation': 'deliveryResult',
-    'docs-update': 'docsResult'
-  };
-  return mapping[phase] || null;
+  return RESULT_FIELD_MAP[phase] || null;
 }
 
 /**

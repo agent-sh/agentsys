@@ -261,7 +261,7 @@ describe('workflow-state', () => {
       expect(flow.reviewResult).toEqual({ approved: true, iterations: 2 });
     });
 
-    test('completePhase from review-loop stores blocked result', () => {
+    test('completePhase from review-loop stores blocked result (stall-detected)', () => {
       setPhase('review-loop', testDir);
       completePhase({ approved: false, blocked: true, reason: 'stall-detected', remaining: { critical: 1 } }, testDir);
 
@@ -269,6 +269,25 @@ describe('workflow-state', () => {
       expect(flow.phase).toBe('delivery-validation');
       expect(flow.reviewResult.approved).toBe(false);
       expect(flow.reviewResult.reason).toBe('stall-detected');
+    });
+
+    test('completePhase from review-loop stores blocked result (iteration-limit)', () => {
+      setPhase('review-loop', testDir);
+      completePhase({ approved: false, blocked: true, reason: 'iteration-limit', remaining: { critical: 0, high: 2 } }, testDir);
+
+      const flow = readFlow(testDir);
+      expect(flow.phase).toBe('delivery-validation');
+      expect(flow.reviewResult.reason).toBe('iteration-limit');
+      expect(flow.reviewResult.remaining.high).toBe(2);
+    });
+
+    test('completePhase stores falsy result (result !== null fix)', () => {
+      setPhase('pre-review-gates', testDir);
+      completePhase({ passed: false, reason: 'lint-failure' }, testDir);
+
+      const flow = readFlow(testDir);
+      expect(flow.preReviewResult).toBeDefined();
+      expect(flow.preReviewResult.passed).toBe(false);
     });
 
     test('completePhase from shipping advances to complete', () => {

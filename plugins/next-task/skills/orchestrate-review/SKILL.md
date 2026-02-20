@@ -152,8 +152,8 @@ function aggregateFindings(results) {
 **Security Note**: Fixes are applied by the orchestrator using standard Edit tool permissions. Critical/high severity findings should be reviewed before applying - do not blindly apply LLM-suggested fixes to security-sensitive code. The orchestrator validates each fix against the original issue.
 
 ```javascript
-// 5 iterations balances thoroughness vs cost; 2 stalls indicates fixes aren't progressing
-const MAX_ITERATIONS = 5, MAX_STALLS = 2;
+// 5 iterations balances thoroughness vs cost; 1 stall (2 consecutive identical-hash iterations) indicates fixes aren't progressing
+const MAX_ITERATIONS = 5, MAX_STALLS = 1;
 let iteration = 1, stallCount = 0, lastHash = null;
 
 while (iteration <= MAX_ITERATIONS) {
