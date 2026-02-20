@@ -214,7 +214,7 @@ request_user_input:
         - label: "claude-sonnet-4-5"        description: "Default Copilot model"
         - label: "claude-opus-4-6"          description: "Most capable Claude model"
         - label: "gpt-5.3-codex"            description: "OpenAI GPT-5.3 Codex"
-        - label: "gemini-3-pro"             description: "Google Gemini 3 Pro"
+        - label: "gemini-3.1-pro"           description: "Google Gemini 3.1 Pro"
 ```
 
 Map the user's choice to the model string (strip " (Recommended)" suffix if present).

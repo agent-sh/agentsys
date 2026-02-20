@@ -696,7 +696,7 @@ describe('external tool quick reference (#232)', () => {
   });
 
   test('current model names present in effort-to-model mapping of each skill copy', () => {
-    const expectedModels = ['claude-haiku-4-5', 'claude-sonnet-4-6', 'claude-opus-4-6', 'o4-mini', 'o3', 'gemini-2.5-flash'];
+    const expectedModels = ['claude-haiku-4-5', 'claude-sonnet-4-6', 'claude-opus-4-6', 'o4-mini', 'o3', 'gemini-2.5-flash', 'gemini-3.1-pro-preview'];
     for (const content of allDebateSkillContents()) {
       for (const model of expectedModels) {
         expect(content).toMatch(new RegExp(`Effort-to-Model Mapping[\\s\\S]*${model}`));
@@ -733,5 +733,13 @@ describe('consult skill opencode adapter sync (#232)', () => {
     expect(consultSkillContent).not.toContain('gpt-5.3-codex');
     expect(consultSkillContent).toContain('o4-mini');
     expect(consultSkillContent).toContain('o3');
+  });
+
+  test('consult skill uses gemini-3.1-pro-preview as high-effort Gemini default (#234)', () => {
+    expect(consultSkillContent).toContain('gemini-3.1-pro-preview');
+    expect(openCodeConsultSkillContent).toContain('gemini-3.1-pro-preview');
+    // Ensure old model is not used as a default (it may still appear in the models list)
+    expect(consultSkillContent).not.toMatch(/\|\s*high\s*\|\s*gemini-3-pro-preview/);
+    expect(openCodeConsultSkillContent).not.toMatch(/\|\s*high\s*\|\s*gemini-3-pro-preview/);
   });
 });
