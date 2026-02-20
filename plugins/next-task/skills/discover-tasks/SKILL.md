@@ -2,7 +2,7 @@
 name: discover-tasks
 description: "Use when user asks to \"discover tasks\", \"find next task\", \"prioritize issues\", \"what should I work on\", or \"list open issues\". Discovers and ranks tasks from GitHub, GitLab, local files, and custom sources."
 version: 5.1.1
-allowed-tools: "Bash(gh:*), Bash(glab:*), Bash(git:*), Grep, Read, AskUserQuestion"
+allowed-tools: "Bash(gh:*), Bash(glab:*), Bash(git:*), Bash(grep:*), Grep, Read, AskUserQuestion"
 ---
 
 # discover-tasks
@@ -73,14 +73,16 @@ const capabilities = sources.getToolCapabilities(toolName);
 let prLinkedIssues = new Set();
 ```
 
-For GitHub sources, fetch all open PRs and build a Set of issue numbers that already have an associated PR. Skip to Phase 3 for non-GitHub sources.
+For GitHub sources (`policy.taskSource === 'github'` or `'gh-issues'`), fetch all open PRs and build a Set of issue numbers that already have an associated PR. Skip to Phase 3 for all other sources.
 
 ```bash
+# Only run when policy.taskSource is 'github' or 'gh-issues'
 # Note: covers up to 100 open PRs. If repo has more, some linked issues may not be excluded.
 gh pr list --state open --json number,title,body,headRefName --limit 100 > /tmp/gh-prs.json
 ```
 
 ```javascript
+const fs = require('fs');
 try {
   const prs = JSON.parse(fs.readFileSync('/tmp/gh-prs.json', 'utf8') || '[]');
 
