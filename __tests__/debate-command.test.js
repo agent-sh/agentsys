@@ -737,8 +737,8 @@ describe('consult skill opencode adapter sync (#232)', () => {
   test('consult skill uses gemini-3.1-pro-preview as high-effort Gemini default (#234)', () => {
     expect(consultSkillContent).toContain('gemini-3.1-pro-preview');
     expect(openCodeConsultSkillContent).toContain('gemini-3.1-pro-preview');
-    // Ensure old model is not used as a default (it may still appear in the models list)
-    expect(consultSkillContent).not.toMatch(/\|\s*high\s*\|\s*gemini-3-pro-preview/);
-    expect(openCodeConsultSkillContent).not.toMatch(/\|\s*high\s*\|\s*gemini-3-pro-preview/);
+    // Ensure old model is not used as high/max default (may still appear in the models list)
+    expect(consultSkillContent).not.toMatch(/\|\s*(?:high|max)\s*\|\s*gemini-3-pro-preview/);
+    expect(openCodeConsultSkillContent).not.toMatch(/\|\s*(?:high|max)\s*\|\s*gemini-3-pro-preview/);
   });
 });

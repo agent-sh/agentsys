@@ -177,7 +177,7 @@ AskUserQuestion:
       question: "Which Gemini model?"
       multiSelect: false
       options:
-        - label: "gemini-3.1-pro"          description: "Most capable, strong reasoning"
+        - label: "gemini-3.1-pro-preview"          description: "Most capable, strong reasoning"
         - label: "gemini-3-flash-preview"  description: "Fast, efficient coding"
         - label: "gemini-2.5-pro"        description: "Previous gen pro model"
         - label: "gemini-2.5-flash"      description: "Previous gen flash model"
@@ -222,7 +222,7 @@ AskUserQuestion:
         - label: "claude-sonnet-4-5"        description: "Default Copilot model"
         - label: "claude-opus-4-6"          description: "Most capable Claude model"
         - label: "gpt-5.3-codex"            description: "OpenAI GPT-5.3 Codex"
-        - label: "gemini-3.1-pro"           description: "Google Gemini 3.1 Pro"
+        - label: "gemini-3.1-pro-preview"           description: "Google Gemini 3.1 Pro"
 ```
 
 Map the user's choice to the model string (strip " (Recommended)" suffix if present).
@@ -241,7 +241,7 @@ Invoke the `consult` skill directly using the Skill tool:
 Skill: consult
 Args: "[question]" --tool=[tool] --effort=[effort] --model=[model] [--context=[context]] [--continue=[session_id]]
 
-Example: "Is this the right approach?" --tool=gemini --effort=high --model=gemini-3.1-pro
+Example: "Is this the right approach?" --tool=gemini --effort=high --model=gemini-3.1-pro-preview
 ```
 
 The skill handles the full consultation lifecycle: model resolution, command building, context packaging, execution with 120s timeout, and returns a plain JSON result.

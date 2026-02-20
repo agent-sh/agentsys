@@ -216,7 +216,7 @@ Save to `{AI_STATE_DIR}/debate/last-debate.json`:
   "id": "debate-{ISO timestamp}-{4 char random hex}",
   "topic": "original topic text",
   "proposer": {"tool": "claude", "model": "opus"},
-  "challenger": {"tool": "gemini", "model": "gemini-3.1-pro"},
+  "challenger": {"tool": "gemini", "model": "gemini-3.1-pro-preview"},
   "effort": "high",
   "rounds_completed": 2,
   "max_rounds": 2,
