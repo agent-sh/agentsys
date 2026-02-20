@@ -70,7 +70,8 @@ function transformBodyForOpenCode(content, repoRoot) {
       if (code.includes('require(') || code.includes('Task(') ||
           code.includes('const ') || code.includes('let ') ||
           code.includes('function ') || code.includes('=>') ||
-          code.includes('async ') || code.includes('await ')) {
+          code.includes('async ') || code.includes('await ') ||
+          code.includes('completePhase')) {
 
         let instructions = '';
 

@@ -74,13 +74,8 @@ delivery-validator (YOU ARE HERE)
 
 ## State Updates
 
-```javascript
-// On success
-workflowState.completePhase({ approved: true, checks });
+- Call `workflowState.completePhase(result)` to advance workflow state
 
-// On failure
-workflowState.failPhase('Validation failed', { failedChecks, fixInstructions });
-```
 
 ## Output Format
 

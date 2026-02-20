@@ -236,11 +236,9 @@ Spawn: `worktree-manager` (haiku)
 
 **Last human interaction point.** Present plan via EnterPlanMode/ExitPlanMode.
 
-```javascript
-EnterPlanMode();
-// User reviews and approves via ExitPlanMode
-workflowState.completePhase({ planApproved: true, plan });
-```
+- Use EnterPlanMode for user approval
+- Call `workflowState.completePhase(result)` to advance workflow state
+
 </phase-6>
 
 <phase-7>
@@ -335,9 +333,8 @@ After review loop completes, output:
 ```
 
 Then advance the workflow state:
-```javascript
-workflowState.completePhase({ approved, iterations, remaining });
-```
+- Call `workflowState.completePhase(result)` to advance workflow state
+
 </phase-9>
 
 <phase-10>

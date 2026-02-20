@@ -68,15 +68,8 @@ AFTER=$(npm test 2>&1 | grep -oE '[0-9]+ passing' | grep -oE '[0-9]+')
 
 ### If All Pass
 
-```javascript
-workflowState.completePhase({
-  approved: true,
-  checks,
-  summary: 'All validation checks passed'
-});
+- Call `workflowState.completePhase(result)` to advance workflow state
 
-return { approved: true, checks };
-```
 
 ### If Any Fail
 
