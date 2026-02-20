@@ -92,12 +92,11 @@ gh pr list --state open --json number,title,body,headRefName --limit 100 > /tmp/
 
 ### Phase 6: Post Comment (GitHub only)
 
-**Skip this phase entirely for non-GitHub sources.**
+**Skip this phase entirely for non-GitHub sources (GitLab, local, custom).**
 
 ```bash
-if [ "$SOURCE" = "github" ] || [ "$SOURCE" = "gh-issues" ]; then
-  gh issue comment "$TASK_ID" --body "[BOT] Workflow started for this issue."
-fi
+# Only run for GitHub source. Use policy.taskSource from Phase 1 to check.
+gh issue comment "$TASK_ID" --body "[BOT] Workflow started for this issue."
 ```
 
 ## Output Format

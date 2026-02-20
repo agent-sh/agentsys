@@ -86,6 +86,8 @@ try {
 
   for (const pr of prs) {
     // 1. Branch name suffix: fix/some-thing-123 extracts 123
+    // Note: heuristic - branches like "release-2026" will false-positive on issue #2026.
+    // Patterns 2 and 3 are more precise; this is a best-effort supplement.
     const branchMatch = (pr.headRefName || '').match(/-(\d+)$/);
     if (branchMatch) prLinkedIssues.add(branchMatch[1]);
 
@@ -142,7 +144,8 @@ function filterByPriority(tasks, filter) {
 }
 
 const prioritized = filterByPriority(filtered, policy.priorityFilter);
-const topTasks = prioritized.sort((a, b) => scoreTask(b) - scoreTask(a));
+// Assign score to each task so it is available for display in the UI
+const topTasks = prioritized.map(t => ({ ...t, score: scoreTask(t) })).sort((a, b) => b.score - a.score);
 ```
 
 **Score tasks:**
@@ -219,12 +222,11 @@ workflowState.completePhase({
 
 ### Phase 6: Post Comment (GitHub only)
 
-**Skip this phase entirely for non-GitHub sources.**
+**Skip this phase entirely for non-GitHub sources (GitLab, local, custom).**
 
 ```bash
-if [ "$SOURCE" = "github" ] || [ "$SOURCE" = "gh-issues" ]; then
-  gh issue comment "$TASK_ID" --body "[BOT] Workflow started for this issue."
-fi
+# Only run for GitHub source. Use policy.taskSource from Phase 1 to check.
+gh issue comment "$TASK_ID" --body "[BOT] Workflow started for this issue."
 ```
 
 ## Output Format
