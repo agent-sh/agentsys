@@ -117,6 +117,7 @@ git diff HEAD~20 -- ${RELEVANT_DIRS} --stat
 ## Phase 10: Update State
 
 - Phase: exploration
+- Call `workflowState.completePhase(result)` to advance workflow state
 
 
 ## Output Format

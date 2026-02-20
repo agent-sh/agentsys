@@ -92,6 +92,7 @@ Agent MUST exit monitoring loop when ANY of these occur:
 4. ci-fixer reports unfixable issue - ESCALATE
 
 - Phase: ci-wait
+- Call `workflowState.completePhase(result)` to advance workflow state
 
 
 ## Output Format

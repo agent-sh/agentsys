@@ -340,6 +340,8 @@ For each fix:
 Use Edit tool to apply. Commit message: "fix: clean up AI slop"`
   });
 }
+
+workflowState.completePhase({ passed: true, deslopFixes: deslop.fixes?.length || 0 });
 ```
 </phase-8>
 

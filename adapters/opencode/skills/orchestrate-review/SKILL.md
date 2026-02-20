@@ -63,6 +63,7 @@ if (signals.hasDevops) passes.push({ id: 'devops', role: 'devops reviewer',
 
 - Invoke `@general-purpose` agent
 - Invoke `@deslop-agent` agent
+- Call `workflowState.completePhase(result)` to advance workflow state
 
 
 ## Review Queue

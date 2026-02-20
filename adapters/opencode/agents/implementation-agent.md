@@ -133,7 +133,8 @@ Make atomic, meaningful commits:
 
 After implementation completes:
 
-*(JavaScript reference - not executable in OpenCode)*
+- Call `workflowState.completePhase(result)` to advance workflow state
+
 
 ## [CRITICAL] WORKFLOW GATES - READ CAREFULLY
 

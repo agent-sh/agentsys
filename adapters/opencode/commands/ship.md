@@ -78,7 +78,8 @@ Parse from $ARGUMENTS:
 
 ## State Integration
 
-*(JavaScript reference - not executable in OpenCode)*
+- Call `workflowState.completePhase(result)` to advance workflow state
+
 
 ## Phase 1: Pre-flight Checks
 

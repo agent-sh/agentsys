@@ -260,6 +260,7 @@ workflowState.completePhase({ planApproved: true, plan });
 - Invoke `@deslop-agent` agent
 - Invoke `@test-coverage-checker` agent
 - Phase: pre-review-gates
+- Call `workflowState.completePhase(result)` to advance workflow state
 
 </phase-8>
 
@@ -358,6 +359,7 @@ Uses the unified sync-docs agent from the sync-docs plugin with `before-pr` scop
 
 - Invoke `@sync-docs-agent` agent
 - Phase: docs-update
+- Call `workflowState.completePhase(result)` to advance workflow state
 
 </phase-11>
 

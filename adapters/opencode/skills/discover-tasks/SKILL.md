@@ -66,7 +66,8 @@ done
 
 ### Phase 5: Update State
 
-*(JavaScript reference - not executable in OpenCode)*
+- Call `workflowState.completePhase(result)` to advance workflow state
+
 
 ### Phase 6: Post Comment (GitHub only)
 
