@@ -135,7 +135,7 @@ describe('next-task Phase 11 integration', () => {
     });
 
     test('uses Skill() not Task() to invoke ship:ship', () => {
-      expect(cmdContent).toContain('Skill({ skill: "ship:ship"');
+      expect(cmdContent).toContain('Skill({ name: "ship:ship"');
       expect(cmdContent).not.toMatch(/Task\(\s*\{\s*subagent_type:\s*["'`]ship:ship["'`]/);
     });
 
@@ -158,7 +158,7 @@ describe('next-task Phase 11 integration', () => {
     });
 
     test('codex adapter SKILL.md uses Skill() for ship:ship', () => {
-      expect(codexContent).toContain('Skill({ skill: "ship:ship"');
+      expect(codexContent).toContain('Skill({ name: "ship:ship"');
       expect(codexContent).not.toMatch(/Task\(\s*\{\s*subagent_type:\s*["'`]ship:ship["'`]/);
     });
 
