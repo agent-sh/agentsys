@@ -123,7 +123,7 @@ Store in memory:
 
 Create `agent-knowledge/{slug}.md`:
 
-```markdown
+````markdown
 # Learning Guide: {Topic}
 
 **Generated**: {date}
@@ -179,7 +179,7 @@ Create `agent-knowledge/{slug}.md`:
 ---
 
 *This guide was synthesized from {count} sources. See `resources/{slug}-sources.json` for full source list.*
-```
+````
 
 ### 7. Save Source Metadata
 
