@@ -253,13 +253,35 @@ Platform state directory:
 | Tool invocation timeout (>240s) | Round 1 proposer: abort. Round 1 challenger: proceed with uncontested. Round 2+: synthesize from completed rounds with timeout note. |
 | All rounds timeout | "[ERROR] Debate failed: all tool invocations timed out." |
 
-## Consult Skill Integration
+## External Tool Quick Reference
 
-Each tool invocation uses the existing `consult` skill from the consult plugin. The orchestrator invokes it as:
+> Canonical source: `plugins/consult/skills/consult/SKILL.md`. This is a quick reference -- always invoke via `Skill: consult`, do NOT build commands directly.
 
-```
-Skill: consult
-Args: "{debate prompt with context}" --tool={tool} --effort={effort} --model={model}
-```
+### Safe Command Patterns
 
-The consult skill handles: provider command building, safe question passing (temp file), output parsing, and secret redaction. The debate skill does NOT duplicate this logic.
+| Provider | Safe Command Pattern |
+|----------|---------------------|
+| Claude | `claude -p - --output-format json --model "MODEL" --max-turns TURNS --allowedTools "Read,Glob,Grep" < "{AI_STATE_DIR}/consult/question.tmp"` |
+| Gemini | `gemini -p - --output-format json -m "MODEL" < "{AI_STATE_DIR}/consult/question.tmp"` |
+| Codex | `codex exec "$(cat "{AI_STATE_DIR}/consult/question.tmp")" --json -m "MODEL" -c model_reasoning_effort="LEVEL"` |
+| OpenCode | `opencode run - --format json --model "MODEL" --variant "VARIANT" < "{AI_STATE_DIR}/consult/question.tmp"` |
+| Copilot | `copilot -p - < "{AI_STATE_DIR}/consult/question.tmp"` |
+
+### Effort-to-Model Mapping
+
+| Effort | Claude | Gemini | Codex | OpenCode | Copilot |
+|--------|--------|--------|-------|----------|---------|
+| low | claude-haiku-4-5 (1 turn) | gemini-2.5-flash | o4-mini (low) | default (low) | no control |
+| medium | claude-sonnet-4-6 (3 turns) | gemini-3-flash-preview | o4-mini (medium) | default (medium) | no control |
+| high | claude-opus-4-6 (5 turns) | gemini-3-pro-preview | o3 (high) | default (high) | no control |
+| max | claude-opus-4-6 (10 turns) | gemini-3.1-pro-preview | o3 (high) | default + --thinking | no control |
+
+### Output Parsing
+
+| Provider | Parse Expression |
+|----------|-----------------|
+| Claude | `JSON.parse(stdout).result` |
+| Gemini | `JSON.parse(stdout).response` |
+| Codex | `JSON.parse(stdout).message` or raw text |
+| OpenCode | Parse JSON events, extract final text block |
+| Copilot | Raw stdout text |

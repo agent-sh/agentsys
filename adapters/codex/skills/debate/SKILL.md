@@ -271,6 +271,39 @@ The consult skill's table covers: Anthropic keys (`sk-*`, `sk-ant-*`), OpenAI pr
 
 Read the consult skill file to get the exact patterns and replacements.
 
+## External Tool Quick Reference
+
+> Canonical source: `plugins/consult/skills/consult/SKILL.md`. This is a quick reference -- always invoke via `Skill: consult`, do NOT build commands directly.
+
+### Safe Command Patterns
+
+| Provider | Safe Command Pattern |
+|----------|---------------------|
+| Claude | `claude -p - --output-format json --model "MODEL" --max-turns TURNS --allowedTools "Read,Glob,Grep" < "{AI_STATE_DIR}/consult/question.tmp"` |
+| Gemini | `gemini -p - --output-format json -m "MODEL" < "{AI_STATE_DIR}/consult/question.tmp"` |
+| Codex | `codex exec "$(cat "{AI_STATE_DIR}/consult/question.tmp")" --json -m "MODEL" -c model_reasoning_effort="LEVEL"` |
+| OpenCode | `opencode run - --format json --model "MODEL" --variant "VARIANT" < "{AI_STATE_DIR}/consult/question.tmp"` |
+| Copilot | `copilot -p - < "{AI_STATE_DIR}/consult/question.tmp"` |
+
+### Effort-to-Model Mapping
+
+| Effort | Claude | Gemini | Codex | OpenCode | Copilot |
+|--------|--------|--------|-------|----------|---------|
+| low | claude-haiku-4-5 (1 turn) | gemini-2.5-flash | o4-mini (low) | default (low) | no control |
+| medium | claude-sonnet-4-6 (3 turns) | gemini-3-flash-preview | o4-mini (medium) | default (medium) | no control |
+| high | claude-opus-4-6 (5 turns) | gemini-3-pro-preview | o3 (high) | default (high) | no control |
+| max | claude-opus-4-6 (10 turns) | gemini-3.1-pro-preview | o3 (high) | default + --thinking | no control |
+
+### Output Parsing
+
+| Provider | Parse Expression |
+|----------|-----------------|
+| Claude | `JSON.parse(stdout).result` |
+| Gemini | `JSON.parse(stdout).response` |
+| Codex | `JSON.parse(stdout).message` or raw text |
+| OpenCode | Parse JSON events, extract final text block |
+| Copilot | Raw stdout text |
+
 ## Error Handling
 
 | Error | Output |
