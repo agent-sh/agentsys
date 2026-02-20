@@ -172,7 +172,7 @@ No agent needed. Use request_user_input tool with ALL 3 questions from `lib/sour
 
 | # | Header | Question | Options |
 |---|--------|----------|---------|
-| 1 | Source | Where should I look for tasks? | GitHub Issues, GitLab Issues, Local tasks.md, Custom, Other (+ cached if exists) |
+| 1 | Source | Where should I look for tasks? | GitHub Issues, GitHub Projects, GitLab Issues, Local tasks.md, Custom, Other (+ cached if exists) |
 | 2 | Priority | What type of tasks to prioritize? | All, Bugs, Security, Features |
 | 3 | Stop Point | How far should I take this task? | Merged, PR Created, Implemented, Deployed, Production |
 
@@ -187,6 +187,17 @@ const { sources } = require(path.join(pluginRoot, 'lib'));
 const { questions, cachedPreference } = sources.getPolicyQuestions();
 // questions array contains all 3 questions above
 request_user_input({ questions }); // Pass all 3 questions
+
+// Handle GitHub Projects follow-up
+if (sources.needsProjectFollowUp(responses.source)) {
+  const projectQs = sources.getProjectQuestions();
+  const projectResponses = await request_user_input(projectQs);
+  responses.project = {
+    number: projectResponses['Project number'],
+    owner: projectResponses['Project owner']
+  };
+}
+
 const policy = sources.parseAndCachePolicy(responses);
 workflowState.updateFlow({ policy, phase: 'task-discovery' });
 ```

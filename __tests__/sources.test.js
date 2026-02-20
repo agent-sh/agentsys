@@ -575,6 +575,22 @@ describe('policy-questions', () => {
       expect(() => policyQuestions.parseAndCachePolicy({ source: 'GitHub Projects', priority: 'All', stopPoint: 'Merged', project: { number: 1, owner: '   ' } }))
         .toThrow('Invalid project owner');
     });
+
+    it('throws when (last used) selected but cache is empty', () => {
+      sourceCache.clearCache();
+      expect(() => policyQuestions.parseAndCachePolicy({ source: 'GitHub Issues (last used)', priority: 'All', stopPoint: 'Merged' }))
+        .toThrow('Cached source preference not found');
+    });
+
+    it('throws for scientific notation project number', () => {
+      expect(() => policyQuestions.parseAndCachePolicy({ source: 'GitHub Projects', priority: 'All', stopPoint: 'Merged', project: { number: '1e5', owner: '@me' } }))
+        .toThrow('Invalid project number');
+    });
+
+    it('throws when GitHub Projects selected without project details', () => {
+      expect(() => policyQuestions.parseAndCachePolicy({ source: 'GitHub Projects', priority: 'All', stopPoint: 'Merged' }))
+        .toThrow('GitHub Projects source requires project number and owner');
+    });
   });
 
   describe('helper functions', () => {

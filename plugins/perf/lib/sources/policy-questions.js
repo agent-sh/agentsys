@@ -144,22 +144,41 @@ function parseAndCachePolicy(responses) {
     stoppingPoint: mapStopPoint(responses.stopPoint)
   };
 
+  // Guard: mapSource returns null when "(last used)" selected but cache is empty
+  if (!policy.taskSource) {
+    throw new Error('Cached source preference not found. Please select a source.');
+  }
+
   // Merge gh-projects follow-up data (projectNumber + owner)
-  if (policy.taskSource.source === 'gh-projects' && responses.project) {
-    const num = Number(responses.project.number);
-    if (!Number.isInteger(num) || num < 1) {
-      throw new Error(`Invalid project number: "${responses.project.number}" (must be a positive integer)`);
+  if (policy.taskSource.source === 'gh-projects') {
+    if (responses.project) {
+      // Validate and merge follow-up responses
+      const rawNum = String(responses.project.number).trim();
+      if (!/^[1-9][0-9]*$/.test(rawNum)) {
+        const safeNum = String(responses.project.number).replace(/[^\x20-\x7E]/g, '?').substring(0, 32);
+        throw new Error(`Invalid project number: "${safeNum}". Must be a positive integer.`);
+      }
+      const num = Number(rawNum);
+      const owner = String(responses.project.owner || '').trim();
+      const safeOwner = String(responses.project.owner || '').replace(/[^\x20-\x7E]/g, '?').substring(0, 64);
+      if (!owner || !/^(@me|[a-zA-Z0-9][a-zA-Z0-9_-]*)$/.test(owner)) {
+        throw new Error(`Invalid project owner: "${safeOwner}" (use @me or an org/user name)`);
+      }
+      policy.taskSource.projectNumber = num;
+      policy.taskSource.owner = owner;
+    } else if (!policy.taskSource.projectNumber || !policy.taskSource.owner) {
+      // No follow-up data and no cached values - cannot proceed
+      throw new Error('GitHub Projects source requires project number and owner. Call getProjectQuestions() first.');
     }
-    const owner = String(responses.project.owner || '').trim();
-    if (!owner || !/^[@a-zA-Z0-9_-]+$/.test(owner)) {
-      throw new Error(`Invalid project owner: "${responses.project.owner}" (use @me or an org/user name)`);
-    }
-    policy.taskSource.projectNumber = num;
-    policy.taskSource.owner = owner;
   }
 
   // Cache source preference (unless "other" which is ad-hoc)
-  if (policy.taskSource.source !== 'other') {
+  // For gh-projects, only cache when projectNumber and owner are present
+  if (policy.taskSource.source === 'gh-projects') {
+    if (policy.taskSource.projectNumber && policy.taskSource.owner) {
+      sourceCache.savePreference(policy.taskSource);
+    }
+  } else if (policy.taskSource.source !== 'other') {
     sourceCache.savePreference(policy.taskSource);
   }
 

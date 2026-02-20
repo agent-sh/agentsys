@@ -256,6 +256,29 @@ describe('Policy Questions', () => {
       expect(result.taskSource).toEqual({ source: 'gitlab' });
     });
 
+    it('should throw when (last used) selected but cache is empty', () => {
+      sourceCache.getPreference.mockReturnValue(null);
+
+      expect(() => {
+        policyQuestions.parseAndCachePolicy({
+          source: 'GitHub Issues (last used)',
+          priority: 'All',
+          stopPoint: 'Merged'
+        });
+      }).toThrow('Cached source preference not found');
+    });
+
+    it('should throw on scientific notation project number', () => {
+      expect(() => {
+        policyQuestions.parseAndCachePolicy({
+          source: 'GitHub Projects',
+          priority: 'All',
+          stopPoint: 'Merged',
+          project: { number: '1e5', owner: '@me' }
+        });
+      }).toThrow('Invalid project number');
+    });
+
     it('should map priority selections correctly', () => {
       sourceCache.getPreference.mockReturnValue(null);
 
@@ -416,18 +439,15 @@ describe('Policy Questions', () => {
       }).toThrow('Invalid project owner');
     });
 
-    it('should handle GitHub Projects without project details (no follow-up)', () => {
-      // When user selects GitHub Projects but no project data provided yet,
-      // it should still map to gh-projects source (follow-up comes later)
-      const result = policyQuestions.parseAndCachePolicy({
-        source: 'GitHub Projects',
-        priority: 'All',
-        stopPoint: 'Merged'
-      });
-
-      expect(result.taskSource.source).toBe('gh-projects');
-      expect(result.taskSource.projectNumber).toBeUndefined();
-      expect(result.taskSource.owner).toBeUndefined();
+    it('should throw when GitHub Projects selected without project details', () => {
+      // gh-projects requires project number and owner from follow-up questions
+      expect(() => {
+        policyQuestions.parseAndCachePolicy({
+          source: 'GitHub Projects',
+          priority: 'All',
+          stopPoint: 'Merged'
+        });
+      }).toThrow('GitHub Projects source requires project number and owner');
     });
   });
 

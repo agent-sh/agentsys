@@ -61,9 +61,18 @@ done
 ```
 
 **GitHub Projects (v2):**
+```javascript
+// Extract gh-projects parameters from policy
+const projectNumber = policy.taskSource.projectNumber;
+const owner = policy.taskSource.owner;
+if (!projectNumber || !owner) {
+  throw new Error('gh-projects source missing projectNumber or owner in policy.taskSource');
+}
+```
+
 ```bash
 # Requires 'project' token scope. If permission error: gh auth refresh -s project
-gh project item-list <projectNumber> --owner <owner> --format json --limit 100 > /tmp/gh-project-items.json
+gh project item-list "$PROJECT_NUMBER" --owner "$OWNER" --format json --limit 100 > /tmp/gh-project-items.json
 ```
 
 ```javascript
@@ -78,7 +87,7 @@ const issues = items
     number: item.content.number,
     title: item.content.title,
     body: item.content.body || '',
-    labels: (item.content.labels || []),
+    labels: (item.content.labels || []).map(l => typeof l === 'object' ? l.name || '' : l).filter(Boolean),
     url: item.content.url,
     createdAt: item.content.createdAt
   }));
@@ -101,10 +110,10 @@ const capabilities = sources.getToolCapabilities(toolName);
 let prLinkedIssues = new Set();
 ```
 
-For GitHub sources (`policy.taskSource === 'github'`, `'gh-issues'`, or `'gh-projects'`), fetch all open PRs and build a Set of issue numbers that already have an associated PR. Skip to Phase 3 for all other sources.
+For GitHub sources (`policy.taskSource?.source === 'github'`, `'gh-issues'`, or `'gh-projects'`), fetch all open PRs and build a Set of issue numbers that already have an associated PR. Skip to Phase 3 for all other sources.
 
 ```bash
-# Only run when policy.taskSource is 'github', 'gh-issues', or 'gh-projects'
+# Only run when policy.taskSource?.source is 'github', 'gh-issues', or 'gh-projects'
 # Note: covers up to 100 open PRs. If repo has more, some linked issues may not be excluded.
 gh pr list --state open --json number,title,body,headRefName --limit 100 > /tmp/gh-prs.json
 ```
@@ -236,7 +245,7 @@ AskUserQuestion({
 workflowState.updateState({
   task: {
     id: String(selectedTask.number),
-    source: policy.taskSource,
+    source: policy.taskSource?.source || policy.taskSource,
     title: selectedTask.title,
     description: selectedTask.body || '',
     labels: selectedTask.labels?.map(l => l.name || l) || [],
@@ -255,7 +264,7 @@ workflowState.completePhase({
 **Skip this phase entirely for non-GitHub sources (GitLab, local, custom).** Run for `github`, `gh-issues`, and `gh-projects` sources.
 
 ```bash
-# Only run for GitHub sources (github, gh-issues, gh-projects). Use policy.taskSource from Phase 1 to check.
+# Only run for GitHub sources (github, gh-issues, gh-projects). Use policy.taskSource?.source from Phase 1 to check.
 gh issue comment "$TASK_ID" --body "[BOT] Workflow started for this issue."
 ```
 

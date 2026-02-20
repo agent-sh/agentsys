@@ -189,6 +189,17 @@ const { sources } = require(path.join(pluginRoot, 'lib'));
 const { questions, cachedPreference } = sources.getPolicyQuestions();
 // questions array contains all 3 questions above
 AskUserQuestion({ questions }); // Pass all 3 questions
+
+// Handle GitHub Projects follow-up
+if (sources.needsProjectFollowUp(responses.source)) {
+  const projectQs = sources.getProjectQuestions();
+  const projectResponses = await AskUserQuestion(projectQs);
+  responses.project = {
+    number: projectResponses['Project number'],
+    owner: projectResponses['Project owner']
+  };
+}
+
 const policy = sources.parseAndCachePolicy(responses);
 workflowState.updateFlow({ policy, phase: 'task-discovery' });
 ```
