@@ -348,6 +348,10 @@ Use Edit tool to apply. Commit message: "fix: clean up AI slop"`
 
 **Blocking gate** - Must run iterations before delivery validation.
 
+```javascript
+workflowState.startPhase('review-loop');
+```
+
 **CRITICAL**: You MUST spawn multiple parallel reviewer agents. Do NOT use a single generic reviewer.
 
 ### Step 1: Get Changed Files
@@ -417,13 +421,13 @@ For each finding, use Edit tool to apply the suggested fix. Commit after each ba
 
 Repeat steps 3-5 until:
 - `openCount === 0` (all issues resolved) -> approved
-- 3+ iterations with only medium/low issues -> orchestrator may override
-- 5 iterations reached -> blocked
+- Same findings hash for 2 consecutive iterations (stall detected) -> blocked
+- 5 iterations reached (hard limit) -> blocked
 
 ### Review Iteration Rules
 - MUST run at least 1 full iteration with ALL 4 core reviewers
 - Do NOT use a single generic reviewer - spawn all specialists in parallel
-- Orchestrator may override after 3+ iterations if only medium/low issues remain
+- MUST continue while `openCount > 0`. Only stop on: openCount===0, stall detection, or 5-iteration hard limit
 - Do not skip directly to delivery validation
 - Do not claim "review passed" without spawning the reviewer agents
 
