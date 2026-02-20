@@ -365,7 +365,8 @@ Uses the unified sync-docs agent from the sync-docs plugin with `before-pr` scop
 
 After docs update (sync-docs-agent) completes, invoke `ship` explicitly:
 
-*(JavaScript reference - not executable in OpenCode)*
+- Phase: ship
+
 
 **ship responsibilities:**
 - Create PR, push branch
