@@ -13,6 +13,7 @@ const customHandler = require('./custom-handler');
  */
 const SOURCE_LABELS = {
   github: 'GitHub',
+  'gh-projects': 'GitHub Projects',
   gitlab: 'GitLab',
   local: 'Local',
   custom: 'Custom',
@@ -53,6 +54,7 @@ function getPolicyQuestions() {
   // Standard options
   sourceOptions.push(
     { label: 'GitHub Issues', description: 'Use gh CLI to list issues' },
+    { label: 'GitHub Projects', description: 'Issues from a GitHub Project board' },
     { label: 'GitLab Issues', description: 'Use glab CLI to list issues' },
     { label: 'Local tasks.md', description: 'Read from PLAN.md, tasks.md, or TODO.md' },
     { label: 'Custom', description: 'Specify your tool: CLI, MCP, Skill, or file path' },
@@ -142,6 +144,20 @@ function parseAndCachePolicy(responses) {
     stoppingPoint: mapStopPoint(responses.stopPoint)
   };
 
+  // Merge gh-projects follow-up data (projectNumber + owner)
+  if (policy.taskSource.source === 'gh-projects' && responses.project) {
+    const num = Number(responses.project.number);
+    if (!Number.isInteger(num) || num < 1) {
+      throw new Error(`Invalid project number: "${responses.project.number}" (must be a positive integer)`);
+    }
+    const owner = String(responses.project.owner || '').trim();
+    if (!owner || !/^[@a-zA-Z0-9_-]+$/.test(owner)) {
+      throw new Error(`Invalid project owner: "${responses.project.owner}" (use @me or an org/user name)`);
+    }
+    policy.taskSource.projectNumber = num;
+    policy.taskSource.owner = owner;
+  }
+
   // Cache source preference (unless "other" which is ad-hoc)
   if (policy.taskSource.source !== 'other') {
     sourceCache.savePreference(policy.taskSource);
@@ -161,6 +177,7 @@ function mapSource(selection, customDetails) {
 
   const sourceMap = {
     'GitHub Issues': { source: 'github' },
+    'GitHub Projects': { source: 'gh-projects' },
     'GitLab Issues': { source: 'gitlab' },
     'Local tasks.md': { source: 'local' },
     'Custom': null, // Handled separately
@@ -235,6 +252,42 @@ function needsOtherDescription(selection) {
   return selection === 'Other';
 }
 
+/**
+ * Check if GitHub Projects follow-up is needed
+ * @param {string} selection - User's source selection
+ * @returns {boolean}
+ */
+function needsProjectFollowUp(selection) {
+  return selection === 'GitHub Projects';
+}
+
+/**
+ * Get GitHub Projects follow-up questions
+ * Returns 2 questions: project number and owner
+ *
+ * @returns {Object} Question structure for project details
+ */
+function getProjectQuestions() {
+  return {
+    questions: [
+      {
+        header: 'Project Number',
+        question: 'What is the GitHub Project number?',
+        options: [],
+        multiSelect: false,
+        hint: 'e.g. 1, 5, 42 (from the project URL)'
+      },
+      {
+        header: 'Project Owner',
+        question: 'Who owns this project?',
+        options: [],
+        multiSelect: false,
+        hint: '@me, my-org, or a GitHub username'
+      }
+    ]
+  };
+}
+
 module.exports = {
   getPolicyQuestions,
   getCustomTypeQuestions,
@@ -242,5 +295,7 @@ module.exports = {
   parseAndCachePolicy,
   isUsingCached,
   needsCustomFollowUp,
-  needsOtherDescription
+  needsOtherDescription,
+  needsProjectFollowUp,
+  getProjectQuestions
 };
