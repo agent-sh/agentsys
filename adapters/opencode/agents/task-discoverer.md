@@ -19,6 +19,7 @@ mode: subagent
 You MUST execute the `discover-tasks` skill to perform task discovery. The skill contains:
 - Source fetching patterns (GitHub, GitLab, local, custom)
 - Claimed task exclusion logic
+- PR-linked issue exclusion logic (GitHub only)
 - Priority filtering
 - Scoring algorithm
 - AskUserQuestion patterns with 30-char label limit
@@ -35,7 +36,7 @@ Reads from workflow state (`flow.json`):
 2. Load policy from workflow state
 3. Fetch tasks from configured source
 4. Exclude tasks already claimed by other workflows
-5. Exclude issues with open PRs (GitHub only) — single `gh pr list` call
+5. Exclude issues with open PRs (GitHub only) - single `gh pr list` call
 6. Filter by priority policy
 7. Score and rank top 5 tasks
 8. Present via AskUserQuestion with checkbox UI

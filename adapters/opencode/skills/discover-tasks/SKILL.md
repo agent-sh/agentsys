@@ -48,9 +48,12 @@ done
 
 ### Phase 2.5: Collect PR-Linked Issues (GitHub only)
 
-For GitHub sources, fetch all open PRs and build a Set of issue numbers that already have an associated PR. For non-GitHub sources, set `prLinkedIssues` to an empty Set and skip this phase.
+*(JavaScript reference - not executable in OpenCode)*
+
+For GitHub sources, fetch all open PRs and build a Set of issue numbers that already have an associated PR. Skip to Phase 3 for non-GitHub sources.
 
 ```bash
+# Note: covers up to 100 open PRs. If repo has more, some linked issues may not be excluded.
 gh pr list --state open --json number,title,body,headRefName --limit 100 > /tmp/gh-prs.json
 ```
 
@@ -64,7 +67,7 @@ gh pr list --state open --json number,title,body,headRefName --limit 100 > /tmp/
 **Exclude issues with open PRs (GitHub only):**
 *(JavaScript reference - not executable in OpenCode)*
 
-**Apply priority filter:**
+**Apply priority filter** (pass `filtered` through scoring pipeline):
 *(JavaScript reference - not executable in OpenCode)*
 
 **Score tasks:**

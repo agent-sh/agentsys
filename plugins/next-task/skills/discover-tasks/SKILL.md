@@ -63,30 +63,40 @@ const capabilities = sources.getToolCapabilities(toolName);
 
 ### Phase 2.5: Collect PR-Linked Issues (GitHub only)
 
-For GitHub sources, fetch all open PRs and build a Set of issue numbers that already have an associated PR. For non-GitHub sources, set `prLinkedIssues` to an empty Set and skip this phase.
+```javascript
+// Default for non-GitHub sources - always defined so Phase 3 filter is safe
+let prLinkedIssues = new Set();
+```
+
+For GitHub sources, fetch all open PRs and build a Set of issue numbers that already have an associated PR. Skip to Phase 3 for non-GitHub sources.
 
 ```bash
+# Note: covers up to 100 open PRs. If repo has more, some linked issues may not be excluded.
 gh pr list --state open --json number,title,body,headRefName --limit 100 > /tmp/gh-prs.json
 ```
 
 ```javascript
-const prs = JSON.parse(fs.readFileSync('/tmp/gh-prs.json', 'utf8'));
-const prLinkedIssues = new Set();
+try {
+  const prs = JSON.parse(fs.readFileSync('/tmp/gh-prs.json', 'utf8') || '[]');
 
-for (const pr of prs) {
-  // 1. Branch name suffix: fix/some-thing-123 extracts 123
-  const branchMatch = pr.headRefName.match(/-(\d+)$/);
-  if (branchMatch) prLinkedIssues.add(branchMatch[1]);
+  for (const pr of prs) {
+    // 1. Branch name suffix: fix/some-thing-123 extracts 123
+    const branchMatch = (pr.headRefName || '').match(/-(\d+)$/);
+    if (branchMatch) prLinkedIssues.add(branchMatch[1]);
 
-  // 2. PR body closing keywords: closes/fixes/resolves #N
-  if (pr.body) {
-    const bodyMatches = pr.body.matchAll(/(?:closes|fixes|resolves)\s+#(\d+)/gi);
-    for (const m of bodyMatches) prLinkedIssues.add(m[1]);
+    // 2. PR body closing keywords (GitHub's full keyword set, with word boundary)
+    if (pr.body) {
+      const bodyMatches = pr.body.matchAll(/\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi);
+      for (const m of bodyMatches) prLinkedIssues.add(m[1]);
+    }
+
+    // 3. PR title (#N) convention - capture all occurrences
+    const titleMatches = (pr.title || '').matchAll(/\(#(\d+)\)/g);
+    for (const m of titleMatches) prLinkedIssues.add(m[1]);
   }
-
-  // 3. PR title (#N) convention
-  const titleMatch = pr.title.match(/\(#(\d+)\)/);
-  if (titleMatch) prLinkedIssues.add(titleMatch[1]);
+} catch (e) {
+  console.log('[WARN] Could not parse open PRs, skipping PR-link filter:', e.message);
+  prLinkedIssues = new Set();
 }
 ```
 
@@ -102,14 +112,14 @@ const available = tasks.filter(t => !claimedIds.has(String(t.number || t.id)));
 const filtered = available.filter(t => {
   const id = String(t.number || t.id);
   if (prLinkedIssues.has(id)) {
-    console.log(`[INFO] Skipping #${id} — already has an open PR`);
+    console.log(`[INFO] Skipping #${id} - already has an open PR`);
     return false;
   }
   return true;
 });
 ```
 
-**Apply priority filter:**
+**Apply priority filter** (pass `filtered` through scoring pipeline):
 ```javascript
 const LABEL_MAPS = {
   bugs: ['bug', 'fix', 'error', 'defect'],
@@ -125,6 +135,9 @@ function filterByPriority(tasks, filter) {
     return targetLabels.some(target => labels.some(l => l.includes(target)));
   });
 }
+
+const prioritized = filterByPriority(filtered, policy.priorityFilter);
+const topTasks = prioritized.sort((a, b) => scoreTask(b) - scoreTask(a));
 ```
 
 **Score tasks:**
