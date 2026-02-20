@@ -171,8 +171,8 @@ describe('Model Selection', () => {
 
   describe('Gemini models', () => {
     it('should map effort levels correctly', () => {
-      expect(getGeminiModel('low')).toBe('gemini-2.5-flash');
-      expect(getGeminiModel('medium')).toBe('gemini-3-flash');
+      expect(getGeminiModel('low')).toBe('gemini-3-flash-preview');
+      expect(getGeminiModel('medium')).toBe('gemini-3-flash-preview');
       expect(getGeminiModel('high')).toBe('gemini-3.1-pro');
       expect(getGeminiModel('max')).toBe('gemini-3.1-pro');
     });

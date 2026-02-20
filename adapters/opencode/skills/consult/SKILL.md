@@ -70,7 +70,7 @@ Models: gemini-2.5-flash, gemini-2.5-pro, gemini-3-flash-preview, gemini-3-pro-p
 
 | Effort | Model |
 |--------|-------|
-| low | gemini-2.5-flash |
+| low | gemini-3-flash-preview |
 | medium | gemini-3-flash-preview |
 | high | gemini-3.1-pro-preview |
 | max | gemini-3.1-pro-preview |
@@ -89,14 +89,14 @@ Session resume (latest): codex exec resume --last "QUESTION" --json
 
 Note: `codex exec` is the non-interactive/headless mode. There is no `-q` flag. The TUI mode is `codex` (no subcommand).
 
-Models: o4-mini, o3
+Models: gpt-5.3-codex
 
 | Effort | Model | Reasoning |
 |--------|-------|-----------|
-| low | o4-mini | low |
-| medium | o4-mini | medium |
-| high | o3 | high |
-| max | o3 | high |
+| low | gpt-5.3-codex | low |
+| medium | gpt-5.3-codex | medium |
+| high | gpt-5.3-codex | high |
+| max | gpt-5.3-codex | high |
 
 **Parse output**: `JSON.parse(stdout).message` or raw text
 **Session ID**: Codex prints a resume hint at session end (e.g., `codex resume SESSION_ID`). Extract the session ID from stdout or from `JSON.parse(stdout).session_id` if available.
@@ -110,7 +110,7 @@ Session resume: opencode run "QUESTION" --format json --model "MODEL" --variant 
 With thinking: add --thinking flag
 ```
 
-Models: 75+ via providers (format: provider/model). Top picks: claude-sonnet-4-6, claude-opus-4-6, gpt-5.2, o3, gemini-3.1-pro-preview, minimax-m2.1
+Models: 75+ via providers (format: provider/model). Top picks: claude-sonnet-4-6, claude-opus-4-6, gpt-5.3-codex, gemini-3.1-pro-preview, minimax-m2.1
 
 | Effort | Model | Variant |
 |--------|-------|---------|

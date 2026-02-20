@@ -696,7 +696,7 @@ describe('external tool quick reference (#232)', () => {
   });
 
   test('current model names present in effort-to-model mapping of each skill copy', () => {
-    const expectedModels = ['claude-haiku-4-5', 'claude-sonnet-4-6', 'claude-opus-4-6', 'o4-mini', 'o3', 'gemini-2.5-flash', 'gemini-3.1-pro-preview'];
+    const expectedModels = ['claude-haiku-4-5', 'claude-sonnet-4-6', 'claude-opus-4-6', 'gpt-5.3-codex', 'gemini-3-flash-preview', 'gemini-3.1-pro-preview'];
     for (const content of allDebateSkillContents()) {
       for (const model of expectedModels) {
         expect(content).toMatch(new RegExp(`Effort-to-Model Mapping[\\s\\S]*${model}`));
@@ -719,20 +719,19 @@ describe('consult skill opencode adapter sync (#232)', () => {
     expect(openCodeConsultSkillContent).toContain('claude-opus-4-6');
   });
 
-  test('opencode consult adapter has updated codex model names (no speculative gpt-5.x)', () => {
-    expect(openCodeConsultSkillContent).not.toContain('gpt-5.3-codex');
-    expect(openCodeConsultSkillContent).not.toContain('gpt-5.2-codex');
-    expect(openCodeConsultSkillContent).toContain('o4-mini');
-    expect(openCodeConsultSkillContent).toContain('o3');
+  test('opencode consult adapter has updated codex model names', () => {
+    expect(openCodeConsultSkillContent).toContain('gpt-5.3-codex');
+    expect(openCodeConsultSkillContent).not.toContain('o4-mini');
+    expect(openCodeConsultSkillContent).not.toMatch(/\|\s*(?:low|medium|high|max)\s*\|\s*o3\s*\|/);
   });
 
   test('canonical consult skill has updated model names', () => {
     expect(consultSkillContent).toContain('claude-haiku-4-5');
     expect(consultSkillContent).toContain('claude-sonnet-4-6');
     expect(consultSkillContent).toContain('claude-opus-4-6');
-    expect(consultSkillContent).not.toContain('gpt-5.3-codex');
-    expect(consultSkillContent).toContain('o4-mini');
-    expect(consultSkillContent).toContain('o3');
+    expect(consultSkillContent).toContain('gpt-5.3-codex');
+    expect(consultSkillContent).not.toContain('o4-mini');
+    expect(consultSkillContent).not.toMatch(/\|\s*(?:low|medium|high|max)\s*\|\s*o3\s*\|/);
   });
 
   test('consult skill uses gemini-3.1-pro-preview as high-effort Gemini default (#234)', () => {

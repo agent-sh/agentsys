@@ -175,7 +175,7 @@ AskUserQuestion:
       multiSelect: false
       options:
         - label: "gemini-3.1-pro"          description: "Most capable, strong reasoning"
-        - label: "gemini-3-flash"        description: "Fast, 78% SWE-bench"
+        - label: "gemini-3-flash-preview"  description: "Fast, efficient coding"
         - label: "gemini-2.5-pro"        description: "Previous gen pro model"
         - label: "gemini-2.5-flash"      description: "Previous gen flash model"
 ```
