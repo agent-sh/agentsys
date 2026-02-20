@@ -634,6 +634,10 @@ describe('adapter consistency', () => {
     expect(codexSkillContent).toMatch(/240s?\s*timeout/i);
   });
 
+  test('codex adapter skill documents all-rounds-timeout error', () => {
+    expect(codexSkillContent).toContain('[ERROR] Debate failed: all tool invocations timed out.');
+  });
+
   test('opencode command mentions 240s timeout', () => {
     expect(openCodeCommandContent).toMatch(/240s?\s*timeout/i);
   });
