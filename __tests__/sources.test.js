@@ -544,6 +544,11 @@ describe('policy-questions', () => {
       }).toThrow('Invalid project number');
     });
 
+    it('throws for float projectNumber', () => {
+      expect(() => policyQuestions.parseAndCachePolicy({ source: 'GitHub Projects', priority: 'All', stopPoint: 'Merged', project: { number: 1.5, owner: '@me' } }))
+        .toThrow('Invalid project number');
+    });
+
     it('should throw on invalid project owner', () => {
       expect(() => {
         policyQuestions.parseAndCachePolicy({
@@ -564,6 +569,11 @@ describe('policy-questions', () => {
           project: { number: 1, owner: '' }
         });
       }).toThrow('Invalid project owner');
+    });
+
+    it('throws for whitespace-only owner', () => {
+      expect(() => policyQuestions.parseAndCachePolicy({ source: 'GitHub Projects', priority: 'All', stopPoint: 'Merged', project: { number: 1, owner: '   ' } }))
+        .toThrow('Invalid project owner');
     });
   });
 
