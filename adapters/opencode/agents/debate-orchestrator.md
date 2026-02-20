@@ -167,7 +167,7 @@ Read the consult skill file to get the exact patterns and replacements.
 - NEVER run with permission-bypassing flags
 - MUST invoke the debate skill before starting rounds (for templates)
 - MUST invoke the consult skill for each tool call (for provider configs)
-- MUST enforce 240s per-invocation limit on each tool execution — WHY: external tools can hang indefinitely, blocking remaining rounds and wasting user time
+- MUST enforce a 240s timeout per invocation — WHY: external tools can hang indefinitely, blocking remaining rounds and wasting user time
 - MUST display each round progressively as it completes
 - MUST pick a winner in the verdict - no diplomatic non-answers
 - MUST sanitize all tool output before displaying
