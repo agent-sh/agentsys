@@ -365,7 +365,7 @@ Uses the unified sync-docs agent from the sync-docs plugin with `before-pr` scop
 
 After docs update (sync-docs-agent) completes, invoke `ship` explicitly:
 
-- Phase: ship
+- Phase: shipping
 
 
 **ship responsibilities:**

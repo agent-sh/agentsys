@@ -139,6 +139,11 @@ describe('next-task Phase 11 integration', () => {
       expect(cmdContent).not.toMatch(/Task\(\s*\{\s*subagent_type:\s*["'`]ship:ship["'`]/);
     });
 
+    test('startPhase uses shipping not ship (valid PHASES entry)', () => {
+      expect(cmdContent).toContain("startPhase('shipping')");
+      expect(cmdContent).not.toContain("startPhase('ship')");
+    });
+
     test('passes --state-file argument on the same line as Skill invocation', () => {
       // Use [^\n]* to enforce same-line matching (no /s flag)
       expect(cmdContent).toMatch(/Skill\(\{[^\n]*ship:ship[^\n]*--state-file/);
