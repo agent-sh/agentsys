@@ -273,7 +273,7 @@ Read the consult skill file to get the exact patterns and replacements.
 
 ## External Tool Quick Reference
 
-> Canonical source: `plugins/consult/skills/consult/SKILL.md`. This is a quick reference -- always invoke via `Skill: consult`, do NOT build commands directly.
+> Canonical source: consult skill (`consult/SKILL.md`). This table is for **planning reference only** -- always invoke via `Skill: consult`, which handles safe question passing, temp file creation, and cleanup. Do NOT execute these commands directly.
 
 ### Safe Command Patterns
 

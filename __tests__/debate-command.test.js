@@ -23,10 +23,13 @@ const codexSkillPath = path.join(adaptersDir, 'codex', 'skills', 'debate', 'SKIL
 const openCodeCommandPath = path.join(adaptersDir, 'opencode', 'commands', 'debate.md');
 const openCodeSkillPath = path.join(adaptersDir, 'opencode', 'skills', 'debate', 'SKILL.md');
 const openCodeAgentPath = path.join(adaptersDir, 'opencode', 'agents', 'debate-orchestrator.md');
+const openCodeConsultSkillPath = path.join(adaptersDir, 'opencode', 'skills', 'consult', 'SKILL.md');
+const consultSkillPath = path.join(__dirname, '..', 'plugins', 'consult', 'skills', 'consult', 'SKILL.md');
 
 // Load all files once
 let commandContent, skillContent, agentContent, pluginJson;
 let codexSkillContent, openCodeCommandContent, openCodeSkillContent, openCodeAgentContent;
+let openCodeConsultSkillContent, consultSkillContent;
 
 beforeAll(() => {
   commandContent = fs.readFileSync(commandPath, 'utf8');
@@ -37,6 +40,8 @@ beforeAll(() => {
   openCodeCommandContent = fs.readFileSync(openCodeCommandPath, 'utf8');
   openCodeSkillContent = fs.readFileSync(openCodeSkillPath, 'utf8');
   openCodeAgentContent = fs.readFileSync(openCodeAgentPath, 'utf8');
+  openCodeConsultSkillContent = fs.readFileSync(openCodeConsultSkillPath, 'utf8');
+  consultSkillContent = fs.readFileSync(consultSkillPath, 'utf8');
 });
 
 // ─── Helpers ────────────────────────────────────────────────────────
@@ -653,22 +658,17 @@ describe('adapter consistency', () => {
 
 // ─── 14. External Tool Quick Reference (#232) ────────────────────
 describe('external tool quick reference (#232)', () => {
-  const skillFiles = [
-    path.join(__dirname, '..', 'plugins', 'debate', 'skills', 'debate', 'SKILL.md'),
-    path.join(__dirname, '..', 'adapters', 'opencode', 'skills', 'debate', 'SKILL.md'),
-    path.join(__dirname, '..', 'adapters', 'codex', 'skills', 'debate', 'SKILL.md'),
-  ];
+  // Use pre-loaded content (no redundant file reads)
+  const allDebateSkillContents = () => [skillContent, openCodeSkillContent, codexSkillContent];
 
   test('all three debate skill copies contain the External Tool Quick Reference section', () => {
-    for (const filePath of skillFiles) {
-      const content = fs.readFileSync(filePath, 'utf8');
+    for (const content of allDebateSkillContents()) {
       expect(content).toContain('## External Tool Quick Reference');
     }
   });
 
   test('all five providers mentioned in quick reference of each skill copy', () => {
-    for (const filePath of skillFiles) {
-      const content = fs.readFileSync(filePath, 'utf8');
+    for (const content of allDebateSkillContents()) {
       expect(content).toMatch(/External Tool Quick Reference[\s\S]*claude/i);
       expect(content).toMatch(/External Tool Quick Reference[\s\S]*gemini/i);
       expect(content).toMatch(/External Tool Quick Reference[\s\S]*codex/i);
@@ -678,23 +678,60 @@ describe('external tool quick reference (#232)', () => {
   });
 
   test('effort-to-model mapping table present in each skill copy', () => {
-    for (const filePath of skillFiles) {
-      const content = fs.readFileSync(filePath, 'utf8');
+    for (const content of allDebateSkillContents()) {
       expect(content).toContain('Effort-to-Model Mapping');
     }
   });
 
   test('output parsing table present in each skill copy', () => {
-    for (const filePath of skillFiles) {
-      const content = fs.readFileSync(filePath, 'utf8');
+    for (const content of allDebateSkillContents()) {
       expect(content).toContain('Output Parsing');
     }
   });
 
   test('canonical source note present in each skill copy', () => {
-    for (const filePath of skillFiles) {
-      const content = fs.readFileSync(filePath, 'utf8');
+    for (const content of allDebateSkillContents()) {
       expect(content).toMatch(/canonical source.*consult/i);
     }
+  });
+
+  test('current model names present in effort-to-model mapping of each skill copy', () => {
+    const expectedModels = ['claude-haiku-4-5', 'claude-sonnet-4-6', 'claude-opus-4-6', 'o4-mini', 'o3', 'gemini-2.5-flash'];
+    for (const content of allDebateSkillContents()) {
+      for (const model of expectedModels) {
+        expect(content).toMatch(new RegExp(`Effort-to-Model Mapping[\\s\\S]*${model}`));
+      }
+    }
+  });
+});
+
+// ─── 15. Consult skill adapter sync (#232) ───────────────────────
+describe('consult skill opencode adapter sync (#232)', () => {
+  test('opencode consult adapter contains all 5 providers', () => {
+    for (const provider of ['claude', 'gemini', 'codex', 'opencode', 'copilot']) {
+      expect(openCodeConsultSkillContent.toLowerCase()).toContain(provider);
+    }
+  });
+
+  test('opencode consult adapter has updated claude model names', () => {
+    expect(openCodeConsultSkillContent).toContain('claude-haiku-4-5');
+    expect(openCodeConsultSkillContent).toContain('claude-sonnet-4-6');
+    expect(openCodeConsultSkillContent).toContain('claude-opus-4-6');
+  });
+
+  test('opencode consult adapter has updated codex model names (no speculative gpt-5.x)', () => {
+    expect(openCodeConsultSkillContent).not.toContain('gpt-5.3-codex');
+    expect(openCodeConsultSkillContent).not.toContain('gpt-5.2-codex');
+    expect(openCodeConsultSkillContent).toContain('o4-mini');
+    expect(openCodeConsultSkillContent).toContain('o3');
+  });
+
+  test('canonical consult skill has updated model names', () => {
+    expect(consultSkillContent).toContain('claude-haiku-4-5');
+    expect(consultSkillContent).toContain('claude-sonnet-4-6');
+    expect(consultSkillContent).toContain('claude-opus-4-6');
+    expect(consultSkillContent).not.toContain('gpt-5.3-codex');
+    expect(consultSkillContent).toContain('o4-mini');
+    expect(consultSkillContent).toContain('o3');
   });
 });
