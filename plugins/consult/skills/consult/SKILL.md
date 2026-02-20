@@ -40,14 +40,14 @@ Command: claude -p "QUESTION" --output-format json --model "MODEL" --max-turns T
 Session resume: --resume "SESSION_ID"
 ```
 
-Models: haiku, sonnet, opus
+Models: claude-haiku-4-5, claude-sonnet-4-6, claude-opus-4-6
 
 | Effort | Model | Max Turns |
 |--------|-------|-----------|
-| low | haiku | 1 |
-| medium | sonnet | 3 |
-| high | opus | 5 |
-| max | opus | 10 |
+| low | claude-haiku-4-5 | 1 |
+| medium | claude-sonnet-4-6 | 3 |
+| high | claude-opus-4-6 | 5 |
+| max | claude-opus-4-6 | 10 |
 
 **Parse output**: `JSON.parse(stdout).result`
 **Session ID**: `JSON.parse(stdout).session_id`
@@ -60,14 +60,14 @@ Command: gemini -p "QUESTION" --output-format json -m "MODEL"
 Session resume: --resume "SESSION_ID"
 ```
 
-Models: gemini-2.5-flash, gemini-2.5-pro, gemini-3-flash, gemini-3-pro
+Models: gemini-2.5-flash, gemini-2.5-pro, gemini-3-flash-preview, gemini-3-pro-preview, gemini-3.1-pro-preview
 
 | Effort | Model |
 |--------|-------|
 | low | gemini-2.5-flash |
-| medium | gemini-3-flash |
-| high | gemini-3-pro |
-| max | gemini-3-pro |
+| medium | gemini-3-flash-preview |
+| high | gemini-3-pro-preview |
+| max | gemini-3.1-pro-preview |
 
 **Parse output**: `JSON.parse(stdout).response`
 **Session ID**: `JSON.parse(stdout).session_id`
@@ -83,14 +83,14 @@ Session resume (latest): codex exec resume --last "QUESTION" --json
 
 Note: `codex exec` is the non-interactive/headless mode. There is no `-q` flag. The TUI mode is `codex` (no subcommand).
 
-Models: gpt-5.3-codex-spark, gpt-5-codex, gpt-5.1-codex, gpt-5.2-codex, gpt-5.3-codex, gpt-5.1-codex-max
+Models: o4-mini, o3
 
 | Effort | Model | Reasoning |
 |--------|-------|-----------|
-| low | gpt-5.3-codex-spark | low |
-| medium | gpt-5.2-codex | medium |
-| high | gpt-5.3-codex | high |
-| max | gpt-5.3-codex | xhigh |
+| low | o4-mini | low |
+| medium | o4-mini | medium |
+| high | o3 | high |
+| max | o3 | high |
 
 **Parse output**: `JSON.parse(stdout).message` or raw text
 **Session ID**: Codex prints a resume hint at session end (e.g., `codex resume SESSION_ID`). Extract the session ID from stdout or from `JSON.parse(stdout).session_id` if available.
@@ -104,7 +104,7 @@ Session resume: opencode run "QUESTION" --format json --model "MODEL" --variant 
 With thinking: add --thinking flag
 ```
 
-Models: 75+ via providers (format: provider/model). Top picks: claude-sonnet-4-5, claude-opus-4-5, gpt-5.2, gpt-5.1-codex, gemini-3-pro, minimax-m2.1
+Models: 75+ via providers (format: provider/model). Top picks: claude-sonnet-4-6, claude-opus-4-6, gpt-5.2, o3, gemini-3-pro-preview, minimax-m2.1
 
 | Effort | Model | Variant |
 |--------|-------|---------|
@@ -123,7 +123,7 @@ Models: 75+ via providers (format: provider/model). Top picks: claude-sonnet-4-5
 Command: copilot -p "QUESTION"
 ```
 
-Models: claude-sonnet-4-5 (default), claude-opus-4-6, claude-haiku-4-5, claude-sonnet-4, gpt-5
+Models: claude-sonnet-4-6 (default), claude-opus-4-6, claude-haiku-4-5, gpt-5
 
 | Effort | Notes |
 |--------|-------|
@@ -271,7 +271,7 @@ Return a plain JSON object to stdout (no markers or wrappers):
 ```json
 {
   "tool": "gemini",
-  "model": "gemini-3-pro",
+  "model": "gemini-3-pro-preview",
   "effort": "high",
   "duration_ms": 12300,
   "response": "The AI's response text here...",
@@ -309,4 +309,4 @@ This skill is invoked by:
 - `consult-agent` for `/consult` command
 - Direct invocation: `Skill('consult', '"question" --tool=gemini --effort=high')`
 
-Example: `Skill('consult', '"Is this approach correct?" --tool=gemini --effort=high --model=gemini-3-pro')`
+Example: `Skill('consult', '"Is this approach correct?" --tool=gemini --effort=high --model=gemini-3-pro-preview')`
