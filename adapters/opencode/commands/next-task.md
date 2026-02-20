@@ -15,11 +15,13 @@ Ask the user these questions using AskUserQuestion:
 
 **Question 1 - Source**: "Where should I look for tasks?"
 - GitHub Issues - Use `gh issue list` to find issues
+- GitHub Projects - Issues from a GitHub Project board
 - GitLab Issues - Use `glab issue list` to find issues
-- GitHub Projects - Track tasks from GitHub Projects board
 - Local tasks.md - Read from PLAN.md, tasks.md, or TODO.md in the repo
 - Custom - User specifies their own source
 - Other - User describes source, you figure it out
+
+If user selects GitHub Projects, ask two follow-up questions: project number (positive integer from the project URL, e.g. 1, 5, 42) and project owner (@me for your own projects, or the org/username). Pass as responses.project = { number, owner } to parseAndCachePolicy.
 
 **Question 2 - Priority**: "What type of tasks to prioritize?"
 - All - Consider all tasks, pick by score
@@ -185,8 +187,6 @@ No agent needed. Use AskUserQuestion tool with ALL 3 questions from `lib/sources
 - Proceeding to Phase 2 without all 3 answers
 
 - Use AskUserQuestion tool for user input
-
-If user selects GitHub Projects, ask two follow-up questions: project number (positive integer from the project URL, e.g. 1, 5, 42) and project owner (@me for your own projects, or the org/username). Pass as responses.project = { number, owner } to parseAndCachePolicy.
 
 </phase-1>
 
