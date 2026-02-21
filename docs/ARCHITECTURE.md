@@ -40,7 +40,7 @@ agentsys
 
 ```text
 agentsys/
-├── lib/                          # Shared library
+├── lib/                          # Shared library (vendored to plugin repos via agent-core sync)
 │   ├── cross-platform/           # Platform utilities
 │   │   ├── index.js              # Platform detection, MCP helpers
 │   │   └── RESEARCH.md           # Research documentation
@@ -53,26 +53,17 @@ agentsys/
 │   ├── repo-map/                 # AST repo map generation
 │   ├── state/                    # Workflow state
 │   └── sources/                  # Task source discovery
-├── plugins/                      # Claude Code plugins
-│   ├── next-task/
-│   ├── ship/
-│   ├── deslop/
-│   ├── audit-project/
-│   ├── enhance/                  # Code quality analyzers
-│   ├── perf/                     # Performance investigations
-│   ├── drift-detect/
-│   ├── sync-docs/       # Documentation sync
-│   ├── repo-map/        # AST repo mapping
-│   └── learn/           # Topic research and learning guides
 ├── bin/                          # CLI installer
-│   └── cli.js                    # Interactive installer
+│   └── cli.js                    # Interactive installer (fetches plugins from GitHub)
+├── .claude-plugin/
+│   └── marketplace.json          # Plugin registry (name, repo, requires)
 ├── meta/
 │   └── skills/
 │       └── maintain-cross-platform/  # Cross-platform compatibility skill
 │           └── SKILL.md
 ├── scripts/
 │   ├── setup-hooks.js            # Git hooks installer (npm prepare)
-│   └── sync-lib.sh               # Dev: sync lib/ to plugins/
+│   └── graduate-plugin.js        # Extract a plugin to a new standalone repo
 ├── docs/                         # User documentation
 │   ├── CROSS_PLATFORM.md
 │   ├── INSTALLATION.md
@@ -80,6 +71,11 @@ agentsys/
 └── agent-docs/                   # Knowledge base (research)
     ├── KNOWLEDGE-LIBRARY.md      # Index
     └── *-REFERENCE.md            # Research documents
+
+NOTE: plugins/ has been removed. All 13 plugins are now standalone repos
+under the agent-sh org. The installer fetches them from GitHub at install time.
+Plugin repos: agent-sh/{next-task,ship,deslop,audit-project,enhance,perf,
+              drift-detect,sync-docs,repo-map,learn,consult,debate,agnix}
 ```
 
 ### Cross-Platform Library (`lib/cross-platform/`)
@@ -253,10 +249,15 @@ Research documents informing the implementation (in `agent-docs/`):
 ## Maintenance
 
 **Update workflow:**
-1. Edit files in `lib/` (canonical source)
-2. Run `./scripts/sync-lib.sh` (or `agentsys-dev sync-lib`) to copy to plugins
-3. Commit both source and copies
-4. Publish: `npm version patch && npm publish`
+1. Edit files in `lib/` (canonical source in this repo)
+2. Push to main — agent-core sync pipeline automatically opens PRs in all 13 plugin repos
+3. Merge those PRs in each plugin repo
+4. Publish agentsys: `npm version patch && npm publish`
+
+To extract a new plugin to its own repo:
+```bash
+node scripts/graduate-plugin.js <plugin-name>
+```
 
 **User update:**
 ```bash
@@ -276,7 +277,7 @@ MCP (Model Context Protocol) provides:
 
 ### Why Shared Library?
 
-Each plugin needs its own `lib/` copy because Claude Code installs plugins separately. The `sync-lib.sh` script maintains consistency.
+Each plugin repo needs its own `lib/` copy because Claude Code installs plugins separately and cannot share code across plugin boundaries. The agent-core sync pipeline (CI-driven) propagates lib/ changes to all plugin repos automatically whenever main is updated.
 
 ### Why Research Docs?
 

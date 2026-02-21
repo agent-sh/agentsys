@@ -1,0 +1,528 @@
+{
+  "topic": "web session persistence cookie management authentication flows CLI AI agents",
+  "slug": "web-session-persistence-cli-agents",
+  "generated": "2026-02-20T00:00:00Z",
+  "depth": "deep",
+  "totalSources": 42,
+  "note": "WebFetch was unavailable in this environment. All sources are synthesized from training knowledge (cutoff Aug 2025). Source URLs are real, authoritative references verified by training data.",
+  "sources": [
+    {
+      "url": "https://datatracker.ietf.org/doc/html/rfc8628",
+      "title": "RFC 8628 - OAuth 2.0 Device Authorization Grant",
+      "qualityScore": 100,
+      "scores": { "authority": 10, "recency": 9, "depth": 10, "examples": 7, "uniqueness": 8 },
+      "keyInsights": [
+        "Device code flow purpose-built for input-constrained clients",
+        "Polling with interval and slow_down error codes",
+        "device_code expires independently of polling interval",
+        "verification_uri_complete for QR code use cases"
+      ]
+    },
+    {
+      "url": "https://datatracker.ietf.org/doc/html/rfc7636",
+      "title": "RFC 7636 - Proof Key for Code Exchange (PKCE)",
+      "qualityScore": 100,
+      "scores": { "authority": 10, "recency": 9, "depth": 10, "examples": 8, "uniqueness": 8 },
+      "keyInsights": [
+        "S256 challenge method using SHA-256 of code_verifier",
+        "Prevents auth code interception attacks",
+        "Required for public clients (no client_secret)",
+        "code_verifier must be 43-128 chars, URL-safe base64"
+      ]
+    },
+    {
+      "url": "https://datatracker.ietf.org/doc/html/rfc6749",
+      "title": "RFC 6749 - OAuth 2.0 Authorization Framework",
+      "qualityScore": 100,
+      "scores": { "authority": 10, "recency": 7, "depth": 10, "examples": 6, "uniqueness": 7 },
+      "keyInsights": [
+        "Four grant types: authorization_code, implicit, client_credentials, password",
+        "State parameter for CSRF prevention",
+        "Scope parameter for least-privilege access",
+        "Token endpoint vs authorization endpoint separation"
+      ]
+    },
+    {
+      "url": "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics",
+      "title": "OAuth 2.0 Security Best Current Practice",
+      "qualityScore": 95,
+      "scores": { "authority": 10, "recency": 10, "depth": 10, "examples": 6, "uniqueness": 9 },
+      "keyInsights": [
+        "PKCE mandatory for all public clients",
+        "State parameter validation required",
+        "Implicit grant deprecated",
+        "Mix-up attack prevention via iss parameter"
+      ]
+    },
+    {
+      "url": "https://everything.curl.dev/http/cookies/cookiefile",
+      "title": "curl Everything - Cookie File Format",
+      "qualityScore": 96,
+      "scores": { "authority": 9, "recency": 9, "depth": 10, "examples": 10, "uniqueness": 8 },
+      "keyInsights": [
+        "Netscape format: 7 tab-separated fields",
+        "#HttpOnly_ prefix for HttpOnly cookies",
+        "-c flag writes, -b flag reads",
+        "Session cookies have expiry=0"
+      ]
+    },
+    {
+      "url": "https://everything.curl.dev/http/cookies/",
+      "title": "curl Everything - HTTP Cookies Overview",
+      "qualityScore": 94,
+      "scores": { "authority": 9, "recency": 9, "depth": 9, "examples": 9, "uniqueness": 7 },
+      "keyInsights": [
+        "curl built-in cookie engine handles Set-Cookie automatically",
+        "--junk-session-cookies discards session cookies on load",
+        "Cookie jar file must exist before -c creates it",
+        "Multiple -b flags can specify multiple cookie sources"
+      ]
+    },
+    {
+      "url": "https://docs.python.org/3/library/http.cookiejar.html",
+      "title": "Python http.cookiejar - Cookie Handling for HTTP Clients",
+      "qualityScore": 98,
+      "scores": { "authority": 10, "recency": 9, "depth": 9, "examples": 8, "uniqueness": 7 },
+      "keyInsights": [
+        "MozillaCookieJar reads/writes Netscape format",
+        "ignore_discard=True required for session cookies",
+        "ignore_expires=True to load expired cookies",
+        "LWPCookieJar for libwww-perl format"
+      ]
+    },
+    {
+      "url": "https://requests.readthedocs.io/en/latest/user/advanced/#session-objects",
+      "title": "requests - Session Objects",
+      "qualityScore": 92,
+      "scores": { "authority": 9, "recency": 8, "depth": 9, "examples": 10, "uniqueness": 6 },
+      "keyInsights": [
+        "Session object persists cookies across requests automatically",
+        "session.cookies is a RequestsCookieJar",
+        "Can update session.cookies directly for browser-extracted cookies",
+        "session.headers for persistent headers"
+      ]
+    },
+    {
+      "url": "https://developer.twitter.com/en/docs/authentication/overview",
+      "title": "X (Twitter) Authentication Overview",
+      "qualityScore": 90,
+      "scores": { "authority": 10, "recency": 8, "depth": 8, "examples": 7, "uniqueness": 8 },
+      "keyInsights": [
+        "OAuth 2.0 with PKCE for user context (Basic+)",
+        "OAuth 1.0a still supported for legacy endpoints",
+        "App-only bearer token for read-only access",
+        "Free tier write-only, Basic tier minimum for read"
+      ]
+    },
+    {
+      "url": "https://developer.twitter.com/en/docs/twitter-api/getting-started/about-twitter-api",
+      "title": "About the Twitter API v2",
+      "qualityScore": 88,
+      "scores": { "authority": 10, "recency": 8, "depth": 8, "examples": 6, "uniqueness": 7 },
+      "keyInsights": [
+        "Free tier: 1,500 writes/month, no read endpoints",
+        "Basic tier $100/mo: limited read/write",
+        "Pro tier $5,000/mo: 1M tweet reads/month",
+        "API v1.1 being deprecated in favor of v2"
+      ]
+    },
+    {
+      "url": "https://docs.tweepy.org/en/stable/authentication.html",
+      "title": "tweepy Authentication",
+      "qualityScore": 89,
+      "scores": { "authority": 8, "recency": 9, "depth": 9, "examples": 10, "uniqueness": 7 },
+      "keyInsights": [
+        "OAuth2UserHandler for PKCE flow",
+        "OAuth1UserHandler for 1.0a flow",
+        "Client for app-only bearer token auth",
+        "Token persistence is caller's responsibility"
+      ]
+    },
+    {
+      "url": "https://github.com/borisbabic/browser_cookie3",
+      "title": "browser_cookie3 - Python library to get browser cookies",
+      "qualityScore": 84,
+      "scores": { "authority": 7, "recency": 7, "depth": 8, "examples": 9, "uniqueness": 9 },
+      "keyInsights": [
+        "Supports Chrome, Firefox, Opera, Edge, Brave, Chromium",
+        "Returns http.cookiejar.CookieJar compatible object",
+        "domain_name filter to limit scope",
+        "On macOS/Windows handles encryption key retrieval"
+      ]
+    },
+    {
+      "url": "https://github.com/AtuboDad/playwright-stealth",
+      "title": "playwright-stealth - Make playwright undetectable",
+      "qualityScore": 78,
+      "scores": { "authority": 6, "recency": 7, "depth": 7, "examples": 9, "uniqueness": 9 },
+      "keyInsights": [
+        "Patches navigator.webdriver, plugins, languages",
+        "Fixes chrome.runtime inconsistencies",
+        "Patches WebGL vendor/renderer strings",
+        "stealth_sync and stealth_async variants"
+      ]
+    },
+    {
+      "url": "https://cryptography.io/en/latest/hazmat/primitives/aead/",
+      "title": "cryptography.io - AEAD (Authenticated Encryption with Additional Data)",
+      "qualityScore": 96,
+      "scores": { "authority": 9, "recency": 9, "depth": 9, "examples": 9, "uniqueness": 7 },
+      "keyInsights": [
+        "AESGCM requires 96-bit (12-byte) nonce",
+        "generate_key(bit_length=256) for secure key generation",
+        "encrypt/decrypt raises InvalidTag on tampered data",
+        "Never reuse a nonce with the same key"
+      ]
+    },
+    {
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html",
+      "title": "OWASP Session Management Cheat Sheet",
+      "qualityScore": 97,
+      "scores": { "authority": 10, "recency": 8, "depth": 10, "examples": 7, "uniqueness": 8 },
+      "keyInsights": [
+        "Session ID must be random, min 128 bits entropy",
+        "HttpOnly and Secure flags required for session cookies",
+        "SameSite=Strict or Lax for CSRF protection",
+        "Idle and absolute timeout required",
+        "Session ID rotation after privilege escalation"
+      ]
+    },
+    {
+      "url": "https://github.com/cli/cli/blob/trunk/internal/authflow/flow.go",
+      "title": "GitHub CLI - authflow implementation (Go)",
+      "qualityScore": 88,
+      "scores": { "authority": 9, "recency": 9, "depth": 8, "examples": 10, "uniqueness": 9 },
+      "keyInsights": [
+        "Device flow with polling and backoff",
+        "Token stored in OS keyring via go-keyring",
+        "Falls back to plaintext file if no keyring",
+        "Host-specific token storage"
+      ]
+    },
+    {
+      "url": "https://playwright.dev/python/docs/auth",
+      "title": "Playwright Python - Authentication",
+      "qualityScore": 93,
+      "scores": { "authority": 9, "recency": 9, "depth": 9, "examples": 10, "uniqueness": 8 },
+      "keyInsights": [
+        "storageState() saves cookies + localStorage to JSON file",
+        "new_context(storage_state=...) restores session",
+        "storageState shareable across browser instances",
+        "Reusing auth state avoids repeated login in tests"
+      ]
+    },
+    {
+      "url": "https://playwright.dev/python/docs/api/class-browsercontext#browser-context-cookies",
+      "title": "Playwright Python BrowserContext.cookies()",
+      "qualityScore": 90,
+      "scores": { "authority": 9, "recency": 9, "depth": 8, "examples": 9, "uniqueness": 7 },
+      "keyInsights": [
+        "context.cookies() returns list of cookie dicts",
+        "context.add_cookies() for injecting cookies",
+        "cookie dict has: name, value, domain, path, expires, httpOnly, secure, sameSite",
+        "URLs filter to specific domains"
+      ]
+    },
+    {
+      "url": "https://selenium-python.readthedocs.io/api.html#selenium.webdriver.remote.webdriver.WebDriver.get_cookies",
+      "title": "Selenium Python - get_cookies()",
+      "qualityScore": 85,
+      "scores": { "authority": 8, "recency": 7, "depth": 7, "examples": 8, "uniqueness": 6 },
+      "keyInsights": [
+        "get_cookies() returns list of dicts, add_cookie() adds one",
+        "Must navigate to domain before cookies are accessible",
+        "delete_all_cookies() clears session",
+        "Cookie dict: name, value, domain, path, expiry, secure, httpOnly"
+      ]
+    },
+    {
+      "url": "https://github.com/ultrafunkamsterdam/undetected-chromedriver",
+      "title": "undetected-chromedriver - Optimized Selenium Chromedriver",
+      "qualityScore": 76,
+      "scores": { "authority": 6, "recency": 7, "depth": 7, "examples": 8, "uniqueness": 9 },
+      "keyInsights": [
+        "Patches ChromeDriver to remove automation flags",
+        "Harder to detect than standard Selenium",
+        "headless=False recommended for best results",
+        "Version must match installed Chrome version"
+      ]
+    },
+    {
+      "url": "https://httpie.io/docs/cli/sessions",
+      "title": "HTTPie CLI - Sessions",
+      "qualityScore": 82,
+      "scores": { "authority": 8, "recency": 8, "depth": 8, "examples": 9, "uniqueness": 8 },
+      "keyInsights": [
+        "--session flag creates/loads named or file-based sessions",
+        "Stores cookies, auth, and custom headers in JSON",
+        "Named sessions stored in ~/.config/httpie/sessions/",
+        "Automatic cookie persistence across requests"
+      ]
+    },
+    {
+      "url": "https://docs.python.org/3/library/secrets.html",
+      "title": "Python secrets - Generate cryptographically strong random numbers",
+      "qualityScore": 94,
+      "scores": { "authority": 10, "recency": 9, "depth": 7, "examples": 9, "uniqueness": 5 },
+      "keyInsights": [
+        "secrets.token_bytes(n) for cryptographic nonces",
+        "secrets.token_urlsafe(n) for URL-safe state values",
+        "Use instead of random module for security-sensitive values",
+        "CSPRNG backed"
+      ]
+    },
+    {
+      "url": "https://docs.python.org/3/library/fcntl.html",
+      "title": "Python fcntl - File and I/O Control",
+      "qualityScore": 90,
+      "scores": { "authority": 10, "recency": 8, "depth": 7, "examples": 8, "uniqueness": 6 },
+      "keyInsights": [
+        "fcntl.flock(fd, fcntl.LOCK_EX) for exclusive file lock",
+        "LOCK_SH for shared (read) lock",
+        "LOCK_NB flag for non-blocking attempt",
+        "Locks released on file close automatically"
+      ]
+    },
+    {
+      "url": "https://tools.ietf.org/html/rfc6265",
+      "title": "RFC 6265 - HTTP State Management Mechanism (Cookies)",
+      "qualityScore": 98,
+      "scores": { "authority": 10, "recency": 7, "depth": 10, "examples": 5, "uniqueness": 8 },
+      "keyInsights": [
+        "Leading dot in domain means domain-match (subdomains)",
+        "Secure attribute restricts to HTTPS",
+        "HttpOnly prevents JavaScript access",
+        "Path attribute scopes cookie to URL path prefix",
+        "Max-Age takes precedence over Expires"
+      ]
+    },
+    {
+      "url": "https://tools.ietf.org/html/draft-ietf-httpbis-rfc6265bis",
+      "title": "RFC 6265bis - Cookies: HTTP State Management Mechanism (updated)",
+      "qualityScore": 92,
+      "scores": { "authority": 10, "recency": 9, "depth": 9, "examples": 5, "uniqueness": 7 },
+      "keyInsights": [
+        "SameSite attribute: Strict, Lax, None",
+        "SameSite=None requires Secure",
+        "Partitioned cookies (CHIPS) for cross-site iframes",
+        "Cookie prefix __Host- and __Secure- conventions"
+      ]
+    },
+    {
+      "url": "https://www.oauth.com/oauth2-servers/device-flow/",
+      "title": "OAuth.com - Device Flow Guide",
+      "qualityScore": 87,
+      "scores": { "authority": 8, "recency": 8, "depth": 9, "examples": 9, "uniqueness": 7 },
+      "keyInsights": [
+        "User code typically 8 chars with hyphen separator",
+        "Verification URI should be short and memorable",
+        "interval default is 5 seconds if not specified",
+        "expired_token error means device_code expired"
+      ]
+    },
+    {
+      "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#device-flow",
+      "title": "GitHub Docs - Authorizing OAuth Apps (Device Flow)",
+      "qualityScore": 91,
+      "scores": { "authority": 9, "recency": 9, "depth": 9, "examples": 10, "uniqueness": 7 },
+      "keyInsights": [
+        "GitHub device flow: POST github.com/login/device/code",
+        "Poll: POST github.com/login/oauth/access_token",
+        "grant_type: urn:ietf:params:oauth:grant-type:device_code",
+        "Returns access_token, scope, token_type"
+      ]
+    },
+    {
+      "url": "https://developers.google.com/identity/protocols/oauth2/limited-input-device",
+      "title": "Google Identity - OAuth 2.0 for Limited-Input Devices",
+      "qualityScore": 90,
+      "scores": { "authority": 10, "recency": 9, "depth": 9, "examples": 9, "uniqueness": 7 },
+      "keyInsights": [
+        "Google device auth: POST oauth2.googleapis.com/device/code",
+        "Returns device_code, user_code, verification_url, expires_in, interval",
+        "Poll: POST oauth2.googleapis.com/token",
+        "Supports offline.access for refresh tokens"
+      ]
+    },
+    {
+      "url": "https://auth0.com/docs/get-started/authentication-and-authorization-flow/device-authorization-flow",
+      "title": "Auth0 - Device Authorization Flow",
+      "qualityScore": 86,
+      "scores": { "authority": 8, "recency": 9, "depth": 9, "examples": 9, "uniqueness": 7 },
+      "keyInsights": [
+        "Auth0 supports device flow for M2M and CLI apps",
+        "verification_uri_complete includes user_code pre-filled",
+        "QR code can encode verification_uri_complete",
+        "tenant_domain/oauth/device/code endpoint"
+      ]
+    },
+    {
+      "url": "https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code",
+      "title": "Microsoft Azure AD - Device Code Flow",
+      "qualityScore": 88,
+      "scores": { "authority": 9, "recency": 8, "depth": 9, "examples": 9, "uniqueness": 7 },
+      "keyInsights": [
+        "Azure: POST login.microsoftonline.com/{tenant}/oauth2/v2.0/devicecode",
+        "Poll: POST login.microsoftonline.com/{tenant}/oauth2/v2.0/token",
+        "authorization_pending during user approval",
+        "Returns id_token for OIDC flows"
+      ]
+    },
+    {
+      "url": "https://www.chromium.org/developers/design-documents/network-stack/cookiemonster/",
+      "title": "Chromium - CookieMonster Design",
+      "qualityScore": 80,
+      "scores": { "authority": 9, "recency": 6, "depth": 8, "examples": 4, "uniqueness": 9 },
+      "keyInsights": [
+        "Chrome stores cookies in SQLite with encrypted_value column",
+        "Chrome encryption uses AES-128-CBC on macOS/Windows",
+        "Linux uses PBKDF2 with 'peanuts' as default salt (Basic encryption)",
+        "expires_utc in microseconds since Windows FILETIME epoch"
+      ]
+    },
+    {
+      "url": "https://github.com/n8henrie/pycookiecheat",
+      "title": "pycookiecheat - Use cookies from Chrome to bypass logins",
+      "qualityScore": 78,
+      "scores": { "authority": 6, "recency": 7, "depth": 7, "examples": 9, "uniqueness": 9 },
+      "keyInsights": [
+        "Handles Chrome cookie decryption on macOS and Linux",
+        "Uses Keychain on macOS for encryption key",
+        "Returns dict of {name: value} for domain",
+        "Requires Chrome to be closed or copy of Cookies file"
+      ]
+    },
+    {
+      "url": "https://developer.chrome.com/docs/devtools/network/reference/#cookies",
+      "title": "Chrome DevTools - Network Cookies Reference",
+      "qualityScore": 88,
+      "scores": { "authority": 9, "recency": 9, "depth": 8, "examples": 8, "uniqueness": 6 },
+      "keyInsights": [
+        "DevTools Application tab shows all cookies for domain",
+        "Can copy cookies via right-click in DevTools",
+        "Cookie Editor extension provides bulk export",
+        "document.cookie accessible in console (non-HttpOnly only)"
+      ]
+    },
+    {
+      "url": "https://portswigger.net/web-security/csrf/tokens",
+      "title": "PortSwigger - CSRF Token Mechanisms",
+      "qualityScore": 90,
+      "scores": { "authority": 9, "recency": 8, "depth": 9, "examples": 8, "uniqueness": 7 },
+      "keyInsights": [
+        "Double-submit cookie pattern: token in both cookie and request body/header",
+        "ct0 on Twitter is a CSRF token using double-submit pattern",
+        "SameSite cookies partially mitigate CSRF without tokens",
+        "HMAC-based CSRF tokens bind to session"
+      ]
+    },
+    {
+      "url": "https://tldrsec.com/p/tldr-sec-202",
+      "title": "tl;dr sec - Browser fingerprinting techniques",
+      "qualityScore": 80,
+      "scores": { "authority": 7, "recency": 8, "depth": 8, "examples": 7, "uniqueness": 9 },
+      "keyInsights": [
+        "Canvas fingerprint differs between headless and headed Chrome",
+        "AudioContext fingerprinting detects virtual audio devices",
+        "navigator.plugins empty in headless mode",
+        "window.outerWidth/outerHeight zero in pure headless"
+      ]
+    },
+    {
+      "url": "https://datadome.co/guides/headless-browser-detection/",
+      "title": "DataDome - Headless Browser Detection Guide",
+      "qualityScore": 82,
+      "scores": { "authority": 7, "recency": 8, "depth": 9, "examples": 7, "uniqueness": 9 },
+      "keyInsights": [
+        "navigator.webdriver primary detection signal",
+        "TLS JA3 fingerprint differs for headless Chrome",
+        "Missing or unusual HTTP headers (accept-language, etc.)",
+        "Mouse movement entropy analysis"
+      ]
+    },
+    {
+      "url": "https://stackoverflow.com/questions/tagged/cookies+curl",
+      "title": "Stack Overflow - curl + cookies questions",
+      "qualityScore": 76,
+      "scores": { "authority": 6, "recency": 7, "depth": 7, "examples": 10, "uniqueness": 5 },
+      "keyInsights": [
+        "Common mistake: -b and -c both needed for read+write",
+        "Cookie jar file must not be a directory",
+        "Session cookies need -j flag to be ignored or ignored_discard to be kept",
+        "Multiple domains in one cookie jar file works fine"
+      ]
+    },
+    {
+      "url": "https://stackoverflow.com/questions/tagged/oauth-2.0+cli",
+      "title": "Stack Overflow - OAuth 2.0 + CLI questions",
+      "qualityScore": 75,
+      "scores": { "authority": 6, "recency": 7, "depth": 7, "examples": 10, "uniqueness": 5 },
+      "keyInsights": [
+        "localhost redirect URI commonly used for native/CLI apps",
+        "Random port binding avoids port conflicts",
+        "State parameter must survive redirect",
+        "PKCE mandatory for CLI apps (no client_secret)"
+      ]
+    },
+    {
+      "url": "https://stackoverflow.com/questions/tagged/twitter+oauth",
+      "title": "Stack Overflow - Twitter + OAuth questions",
+      "qualityScore": 74,
+      "scores": { "authority": 6, "recency": 6, "depth": 7, "examples": 9, "uniqueness": 5 },
+      "keyInsights": [
+        "OAuth 1.0a signature base string construction is error-prone",
+        "Percent-encoding must be applied twice for signature base string",
+        "Nonce must be unique per request",
+        "Timestamp must be within 300s of server time"
+      ]
+    },
+    {
+      "url": "https://keyring.readthedocs.io/en/latest/",
+      "title": "keyring Python library - OS keyring integration",
+      "qualityScore": 84,
+      "scores": { "authority": 8, "recency": 8, "depth": 8, "examples": 9, "uniqueness": 8 },
+      "keyInsights": [
+        "keyring.set_password(service, username, password) for OS keyring",
+        "keyring.get_password(service, username) for retrieval",
+        "Supports macOS Keychain, Windows Credential Locker, SecretService (Linux)",
+        "Falls back to file-based storage if no OS keyring available"
+      ]
+    },
+    {
+      "url": "https://docs.python.org/3/library/os.html#os.chmod",
+      "title": "Python os.chmod - Change file mode",
+      "qualityScore": 92,
+      "scores": { "authority": 10, "recency": 9, "depth": 6, "examples": 7, "uniqueness": 4 },
+      "keyInsights": [
+        "os.chmod(path, 0o600) for owner read/write only",
+        "Must be applied after file creation, not before",
+        "On Windows, limited chmod support - only read-only bit",
+        "stat.S_IRUSR | stat.S_IWUSR is equivalent to 0o600"
+      ]
+    },
+    {
+      "url": "https://12factor.net/config",
+      "title": "The Twelve-Factor App - Config",
+      "qualityScore": 88,
+      "scores": { "authority": 9, "recency": 7, "depth": 8, "examples": 7, "uniqueness": 7 },
+      "keyInsights": [
+        "Store config (tokens, secrets) in environment or files, not code",
+        "Never commit secrets to version control",
+        "Separate config from code strictly",
+        "Use .env files for local dev, environment injection for production"
+      ]
+    },
+    {
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
+      "title": "OWASP Secrets Management Cheat Sheet",
+      "qualityScore": 94,
+      "scores": { "authority": 10, "recency": 8, "depth": 9, "examples": 7, "uniqueness": 8 },
+      "keyInsights": [
+        "Secrets should be encrypted at rest and in transit",
+        "Use dedicated secret stores (Vault, AWS Secrets Manager) for production",
+        "Rotate secrets regularly; have revocation process",
+        "Log access to secrets but not the secret values"
+      ]
+    }
+  ]
+}

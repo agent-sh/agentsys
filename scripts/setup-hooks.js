@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Setup git hooks for development
- * - pre-commit: Auto-syncs lib/ to plugins/
+ * - pre-commit: Placeholder (lib/ sync handled by agent-core CI)
  * - pre-push: Runs preflight checks, /enhance reminder, release validation
  */
 
@@ -13,14 +13,7 @@ const preCommitPath = path.join(hookDir, 'pre-commit');
 const prePushPath = path.join(hookDir, 'pre-push');
 
 const preCommitHook = `#!/bin/sh
-# Auto-sync lib/ to plugins/ when lib/ files are staged
-
-if git diff --cached --name-only | grep -q "^lib/"; then
-  echo "lib/ changes detected, syncing to plugins..."
-  bash scripts/sync-lib.sh
-  git add plugins/*/lib/
-  echo "Synced and staged plugin lib/ copies"
-fi
+# Pre-commit hook (lib/ sync now handled by agent-core)
 `;
 
 const prePushHook = `#!/bin/sh

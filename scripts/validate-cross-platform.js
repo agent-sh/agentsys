@@ -143,6 +143,10 @@ function validate(options = {}) {
   const allIssues = [];
 
   // Get all plugins
+  if (!fs.existsSync(PLUGINS_DIR)) {
+    console.log('[OK] No plugins/ directory (plugins extracted to standalone repos)');
+    return { success: true, issues: [], fixedCount: 0 };
+  }
   const plugins = fs.readdirSync(PLUGINS_DIR).filter(f =>
     fs.statSync(path.join(PLUGINS_DIR, f)).isDirectory()
   );

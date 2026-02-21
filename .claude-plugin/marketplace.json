@@ -24,94 +24,120 @@
   "plugins": [
     {
       "name": "next-task",
-      "source": "./plugins/next-task",
+      "source": "https://github.com/agent-sh/next-task",
       "description": "Master workflow orchestrator: autonomous workflow with model optimization (opus/sonnet/haiku), two-file state management, workflow enforcement gates, 14 specialist agents",
-      "version": "5.1.0",
-      "category": "productivity"
+      "version": "1.0.0",
+      "category": "productivity",
+      "requires": ["deslop", "sync-docs", "ship"],
+      "core": ">=1.0.0"
     },
     {
       "name": "ship",
-      "source": "./plugins/ship",
+      "source": "https://github.com/agent-sh/ship",
       "description": "Complete PR workflow: commit to production, skips review when called from next-task, removes task from registry on cleanup, automatic rollback",
-      "version": "5.1.0",
-      "category": "deployment"
+      "version": "1.0.0",
+      "category": "deployment",
+      "requires": ["next-task"],
+      "core": ">=1.0.0"
     },
     {
       "name": "deslop",
-      "source": "./plugins/deslop",
+      "source": "https://github.com/agent-sh/deslop",
       "description": "3-phase AI slop detection: regex patterns (HIGH), multi-pass analyzers (MEDIUM), CLI tools (LOW)",
-      "version": "5.1.0",
-      "category": "development"
+      "version": "1.0.0",
+      "category": "development",
+      "requires": ["next-task"],
+      "core": ">=1.0.0"
     },
     {
       "name": "audit-project",
-      "source": "./plugins/audit-project",
+      "source": "https://github.com/agent-sh/audit-project",
       "description": "Multi-agent iterative code review until zero issues remain",
-      "version": "5.1.0",
-      "category": "development"
+      "version": "1.0.0",
+      "category": "development",
+      "requires": [],
+      "core": ">=1.0.0"
     },
     {
       "name": "drift-detect",
-      "source": "./plugins/drift-detect",
+      "source": "https://github.com/agent-sh/drift-detect",
       "description": "Deep repository analysis to realign project plans with code reality - detects drift, gaps, and creates prioritized reconstruction plans",
-      "version": "5.1.0",
-      "category": "productivity"
+      "version": "1.0.0",
+      "category": "productivity",
+      "requires": [],
+      "core": ">=1.0.0"
     },
     {
       "name": "enhance",
-      "source": "./plugins/enhance",
+      "source": "https://github.com/agent-sh/enhance",
       "description": "Master enhancement orchestrator: parallel analyzer execution for plugins, agents, docs, CLAUDE.md, and prompts with unified reporting",
-      "version": "5.1.0",
-      "category": "development"
+      "version": "1.0.0",
+      "category": "development",
+      "requires": [],
+      "core": ">=1.0.0"
     },
     {
       "name": "sync-docs",
-      "source": "./plugins/sync-docs",
+      "source": "https://github.com/agent-sh/sync-docs",
       "description": "Standalone documentation sync: find outdated refs, update CHANGELOG, flag stale examples based on code changes",
-      "version": "5.1.0",
-      "category": "development"
+      "version": "1.0.0",
+      "category": "development",
+      "requires": ["next-task"],
+      "core": ">=1.0.0"
     },
     {
       "name": "repo-map",
-      "source": "./plugins/repo-map",
+      "source": "https://github.com/agent-sh/repo-map",
       "description": "AST-based repository map generation using ast-grep with incremental updates for faster drift analysis",
-      "version": "5.1.0",
-      "category": "development"
+      "version": "1.0.0",
+      "category": "development",
+      "requires": [],
+      "core": ">=1.0.0"
     },
     {
       "name": "perf",
-      "source": "./plugins/perf",
+      "source": "https://github.com/agent-sh/perf",
       "description": "Rigorous performance investigation workflow with baselines, profiling, hypotheses, and evidence-backed decisions",
-      "version": "5.1.0",
-      "category": "development"
+      "version": "1.0.0",
+      "category": "development",
+      "requires": [],
+      "core": ">=1.0.0"
     },
     {
       "name": "learn",
-      "source": "./plugins/learn",
+      "source": "https://github.com/agent-sh/learn",
       "description": "Research topics online and create comprehensive learning guides with RAG-optimized indexes",
-      "version": "5.1.0",
-      "category": "productivity"
+      "version": "1.0.0",
+      "category": "productivity",
+      "requires": ["enhance"],
+      "core": ">=1.0.0"
     },
     {
       "name": "agnix",
-      "source": "./plugins/agnix",
+      "source": "https://github.com/agent-sh/agnix",
       "description": "Lint agent configuration files (SKILL.md, CLAUDE.md, hooks, MCP) against 155 rules across 10+ AI tools",
-      "version": "5.1.0",
-      "category": "development"
+      "version": "1.0.0",
+      "category": "development",
+      "requires": [],
+      "core": ">=1.0.0"
     },
     {
       "name": "consult",
-      "source": "./plugins/consult",
+      "source": "https://github.com/agent-sh/consult",
       "description": "Cross-tool AI consultation: get second opinions from Gemini CLI, Codex CLI, Claude Code, OpenCode, or Copilot CLI with model and thinking effort control",
-      "version": "5.1.0",
-      "category": "productivity"
+      "version": "1.0.0",
+      "category": "productivity",
+      "requires": [],
+      "core": ">=1.0.0"
     },
     {
       "name": "debate",
-      "source": "./plugins/debate",
+      "source": "https://github.com/agent-sh/debate",
       "description": "Structured multi-round debate between AI tools with proposer/challenger roles and verdict",
-      "version": "5.1.0",
-      "category": "productivity"
+      "version": "1.0.0",
+      "category": "productivity",
+      "requires": [],
+      "core": ">=1.0.0"
     }
   ]
 }

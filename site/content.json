@@ -23,17 +23,17 @@
   },
   "stats": [
     {
-      "value": "13",
+      "value": "0",
       "label": "Plugins",
       "suffix": ""
     },
     {
-      "value": "42",
+      "value": "10",
       "label": "Agents",
       "suffix": ""
     },
     {
-      "value": "28",
+      "value": "0",
       "label": "Skills",
       "suffix": ""
     },
@@ -307,8 +307,8 @@
     }
   ],
   "agents": {
-    "total": 42,
-    "file_based": 32,
+    "total": 10,
+    "file_based": 0,
     "role_based": 10,
     "by_model": [
       {

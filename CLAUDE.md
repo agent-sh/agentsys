@@ -81,7 +81,7 @@
 <!-- GEN:START:claude-architecture -->
 ```
 lib/          → Shared library (vendored to plugins)
-plugins/      → 13 plugins, 42 agents (32 file-based + 10 role-based), 28 skills
+plugins/      → 0 plugins, 10 agents (0 file-based + 10 role-based), 0 skills
 adapters/     → Platform adapters (opencode-plugin/, opencode/, codex/)
 checklists/   → Action checklists (9 files)
 bin/cli.js    → npm CLI installer
@@ -89,20 +89,11 @@ bin/cli.js    → npm CLI installer
 
 | Plugin | Agents | Skills | Purpose |
 |--------|--------|--------|---------|
-| agnix | 1 | 1 | Agent config linting |
-| audit-project | 10 | 0 | Multi-agent code review |
-| consult | 1 | 1 | Cross-tool AI consultation |
-| debate | 1 | 1 | Multi-perspective debate analysis |
-| deslop | 1 | 1 | AI slop cleanup |
-| drift-detect | 1 | 1 | Plan drift detection |
-| enhance | 8 | 9 | Code quality analyzers |
-| learn | 1 | 1 | Topic research and learning guides |
-| next-task | 10 | 3 | Master workflow orchestration |
-| perf | 6 | 8 | Performance investigation |
-| repo-map | 1 | 1 | AST repo mapping |
-| ship | 0 | 0 | PR creation and deployment |
-| sync-docs | 1 | 1 | Documentation sync |
 <!-- GEN:END:claude-architecture -->
+
+> Note: `plugins/ → 0 plugins` is correct — all 13 plugins now live in standalone repos under
+> the [agent-sh](https://github.com/agent-sh) org. The ecosystem-wide counts (13 plugins,
+> 42 agents, 28 skills) reflect all repos combined. agentsys is the marketplace and installer.
 
 **Pattern**: `Command → Agent → Skill` (orchestration → invocation → implementation)
 </architecture>
@@ -138,7 +129,6 @@ npx agentsys-dev status           # Project health (version, counts, branch)
 npx agentsys-dev validate         # Run all validators
 npx agentsys-dev validate plugins # Run single validator
 npx agentsys-dev bump <version>   # Bump all version files (e.g., 3.7.3)
-npx agentsys-dev sync-lib         # Sync lib/ to plugins/
 npx agentsys-dev test             # Run test suite
 npx agentsys-dev preflight         # Change-aware checklist enforcement
 npx agentsys-dev preflight --all   # Run all checks

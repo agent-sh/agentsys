@@ -1,0 +1,239 @@
+{
+  "topic": "GitHub organization project management for multi-repo open source ecosystems",
+  "slug": "github-org-project-management",
+  "generated": "2026-02-21T00:00:00Z",
+  "depth": "deep",
+  "totalSources": 15,
+  "sources": [
+    {
+      "url": "https://docs.github.com/en/issues/planning-and-tracking-with-projects",
+      "title": "About Projects - GitHub Docs",
+      "qualityScore": 97,
+      "authority": 30,
+      "recency": 20,
+      "depth": 19,
+      "examples": 18,
+      "uniqueness": 10,
+      "keyInsights": [
+        "Projects v2 supports Table, Board, and Roadmap views",
+        "Up to 50 custom fields per project (date, number, single-select, text, iteration)",
+        "50,000 item capacity; cross-repo at org level",
+        "Built-in workflow automations with plan-based limits (1/5/20)"
+      ]
+    },
+    {
+      "url": "https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects",
+      "title": "Using the API to manage Projects - GitHub Docs",
+      "qualityScore": 94,
+      "authority": 30,
+      "recency": 20,
+      "depth": 18,
+      "examples": 18,
+      "uniqueness": 8,
+      "keyInsights": [
+        "read:project scope for read-only, project scope for mutations",
+        "addProjectV2ItemById, updateProjectV2ItemFieldValue, createProjectV2 are primary mutations",
+        "Webhooks: projects_v2_item events (created, edited, deleted, reordered, converted)"
+      ]
+    },
+    {
+      "url": "https://github.com/actions/add-to-project",
+      "title": "actions/add-to-project - GitHub",
+      "qualityScore": 90,
+      "authority": 28,
+      "recency": 18,
+      "depth": 16,
+      "examples": 20,
+      "uniqueness": 8,
+      "keyInsights": [
+        "Official GitHub Action for cross-repo auto-add to org projects",
+        "Supports filtering by label before adding",
+        "Requires PAT with project scope from an org member"
+      ]
+    },
+    {
+      "url": "https://github.blog/changelog/2025-01-issue-types-public-preview/",
+      "title": "Issue Types in public preview - GitHub Changelog",
+      "qualityScore": 88,
+      "authority": 28,
+      "recency": 20,
+      "depth": 14,
+      "examples": 14,
+      "uniqueness": 12,
+      "keyInsights": [
+        "Up to 25 custom issue types per org",
+        "Default types: Task, Bug, Feature",
+        "Available across all repos; filterable in Projects and search",
+        "Launched public preview January 2025"
+      ]
+    },
+    {
+      "url": "https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/adding-sub-issues",
+      "title": "Sub-Issues - GitHub Docs",
+      "qualityScore": 85,
+      "authority": 30,
+      "recency": 18,
+      "depth": 14,
+      "examples": 13,
+      "uniqueness": 10,
+      "keyInsights": [
+        "Parent-child issue hierarchy",
+        "Progress bar shown on parent",
+        "Cross-repo sub-issues supported",
+        "Currently in public preview"
+      ]
+    },
+    {
+      "url": "https://github.com/orgs/github/projects/4247",
+      "title": "GitHub Public Roadmap",
+      "qualityScore": 88,
+      "authority": 26,
+      "recency": 20,
+      "depth": 14,
+      "examples": 18,
+      "uniqueness": 10,
+      "keyInsights": [
+        "Quarterly columns as milestones",
+        "shipped label applied with changelog link when feature lands",
+        "Items remain visible post-shipping in Shipped column",
+        "Model for public open source roadmaps"
+      ]
+    },
+    {
+      "url": "https://github.com/kubernetes/community/blob/master/sig-list.md",
+      "title": "Kubernetes SIG List",
+      "qualityScore": 82,
+      "authority": 24,
+      "recency": 16,
+      "depth": 16,
+      "examples": 16,
+      "uniqueness": 10,
+      "keyInsights": [
+        "Special Interest Groups own subsets of repos",
+        "Standardized labels: sig/*, kind/*, priority/*",
+        "Weekly triage meetings per SIG",
+        "Scales to 100+ repos without central bottleneck"
+      ]
+    },
+    {
+      "url": "https://github.com/kubernetes/enhancements",
+      "title": "kubernetes/enhancements repo",
+      "qualityScore": 80,
+      "authority": 24,
+      "recency": 16,
+      "depth": 16,
+      "examples": 14,
+      "uniqueness": 10,
+      "keyInsights": [
+        "Kubernetes Enhancement Proposals (KEPs) as structured markdown",
+        "Single repo aggregates work tracked across many implementation repos",
+        "Lifecycle stages tracked as project fields"
+      ]
+    },
+    {
+      "url": "https://github.com/rust-lang/rfcs",
+      "title": "rust-lang/rfcs",
+      "qualityScore": 78,
+      "authority": 22,
+      "recency": 14,
+      "depth": 16,
+      "examples": 16,
+      "uniqueness": 10,
+      "keyInsights": [
+        "RFCs as PRs enable community review via GitHub comments",
+        "Working groups coordinate cross-team implementation",
+        "Project tracks RFC lifecycle: proposed, accepted, stabilized, closed"
+      ]
+    },
+    {
+      "url": "https://github.com/withastro/roadmap",
+      "title": "withastro/roadmap",
+      "qualityScore": 80,
+      "authority": 20,
+      "recency": 18,
+      "depth": 16,
+      "examples": 16,
+      "uniqueness": 10,
+      "keyInsights": [
+        "51 repos under withastro org coordinated via roadmap project",
+        "RFC discussions in roadmap repo, implementation in satellite repos",
+        "GitHub Actions auto-add from satellite repos to roadmap project"
+      ]
+    },
+    {
+      "url": "https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/automating-projects-using-actions",
+      "title": "Automating projects using Actions - GitHub Docs",
+      "qualityScore": 86,
+      "authority": 30,
+      "recency": 18,
+      "depth": 16,
+      "examples": 14,
+      "uniqueness": 8,
+      "keyInsights": [
+        "GitHub Actions can react to project webhooks and issue events",
+        "Cross-repo workflows require a PAT, not GITHUB_TOKEN",
+        "actions/github-script useful for GraphQL mutations in Actions"
+      ]
+    },
+    {
+      "url": "https://docs.github.com/en/issues/planning-and-tracking-with-projects/managing-your-project/managing-access-to-your-projects",
+      "title": "Managing access to Projects - GitHub Docs",
+      "qualityScore": 78,
+      "authority": 30,
+      "recency": 16,
+      "depth": 12,
+      "examples": 10,
+      "uniqueness": 10,
+      "keyInsights": [
+        "Projects can be public or private at org level",
+        "Team-level write access configurable",
+        "Useful for contributor-facing roadmaps vs internal planning"
+      ]
+    },
+    {
+      "url": "https://github.com/EndBug/label-sync",
+      "title": "EndBug/label-sync Action",
+      "qualityScore": 72,
+      "authority": 16,
+      "recency": 16,
+      "depth": 14,
+      "examples": 16,
+      "uniqueness": 10,
+      "keyInsights": [
+        "Sync label definitions from YAML config to all org repos",
+        "Prevents label drift across repos",
+        "Configurable delete behavior"
+      ]
+    },
+    {
+      "url": "https://docs.github.com/en/issues/planning-and-tracking-with-projects/understanding-fields/about-iteration-fields",
+      "title": "About Iteration Fields - GitHub Docs",
+      "qualityScore": 80,
+      "authority": 30,
+      "recency": 16,
+      "depth": 14,
+      "examples": 10,
+      "uniqueness": 10,
+      "keyInsights": [
+        "Iteration fields define time-boxed periods (sprints or releases)",
+        "Configurable duration and start date",
+        "Useful for burndown tracking across repos"
+      ]
+    },
+    {
+      "url": "https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests",
+      "title": "Searching Issues and Pull Requests - GitHub Docs",
+      "qualityScore": 75,
+      "authority": 30,
+      "recency": 14,
+      "depth": 12,
+      "examples": 12,
+      "uniqueness": 7,
+      "keyInsights": [
+        "AND/OR keywords and parentheses for nested searches",
+        "type: qualifier for issue types",
+        "org: qualifier to search across all org repos at once"
+      ]
+    }
+  ]
+}

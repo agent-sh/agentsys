@@ -122,6 +122,7 @@ function hasSkillTool(toolsString) {
  */
 function getAllAgentFiles() {
   const agents = [];
+  if (!fs.existsSync(pluginsDir)) return agents;
   const plugins = fs.readdirSync(pluginsDir).filter(f =>
     fs.statSync(path.join(pluginsDir, f)).isDirectory()
   );
@@ -148,6 +149,7 @@ function getAllAgentFiles() {
  */
 function getAllSkillDirs() {
   const skills = [];
+  if (!fs.existsSync(pluginsDir)) return skills;
   const plugins = fs.readdirSync(pluginsDir).filter(f =>
     fs.statSync(path.join(pluginsDir, f)).isDirectory()
   );

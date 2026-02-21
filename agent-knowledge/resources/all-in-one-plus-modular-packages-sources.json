@@ -1,0 +1,310 @@
+{
+  "topic": "All-in-one plus modular packages - batteries included but removable pattern",
+  "slug": "all-in-one-plus-modular-packages",
+  "generated": "2026-02-21T00:00:00Z",
+  "depth": "deep",
+  "totalSources": 40,
+  "sources": [
+    {
+      "url": "https://github.com/aws/aws-sdk-js-v3/blob/main/UPGRADING.md",
+      "title": "AWS SDK v3 Migration Guide",
+      "qualityScore": 92,
+      "scores": { "authority": 10, "recency": 8, "depth": 10, "examples": 9, "uniqueness": 9 },
+      "keyInsights": ["Monolith-to-modular migration case study", "Per-service @aws-sdk/client-* packages", "Middleware stack replaces plugin system", "Tree-shaking reduces bundle size"]
+    },
+    {
+      "url": "https://github.com/lodash/lodash",
+      "title": "Lodash - Per-Method Packages",
+      "qualityScore": 85,
+      "scores": { "authority": 9, "recency": 6, "depth": 8, "examples": 8, "uniqueness": 10 },
+      "keyInsights": ["Full library ~24kB, core ~4kB, per-method ~1kB", "lodash-es for tree-shaking", "Per-method packages caused version fragmentation"]
+    },
+    {
+      "url": "https://github.com/lerna/lerna",
+      "title": "Lerna - Monorepo Management",
+      "qualityScore": 88,
+      "scores": { "authority": 9, "recency": 8, "depth": 9, "examples": 8, "uniqueness": 7 },
+      "keyInsights": ["Fixed vs independent versioning", "Version and publish commands", "Now maintained by Nx", "Used by 174k+ dependent projects"]
+    },
+    {
+      "url": "https://github.com/changesets/changesets",
+      "title": "Changesets - Version and Changelog Management",
+      "qualityScore": 90,
+      "scores": { "authority": 9, "recency": 9, "depth": 9, "examples": 8, "uniqueness": 8 },
+      "keyInsights": ["Intent-based changelogs", "Batches multiple bumps into single releases", "Keeps internally-dependent packages synchronized", "Used by Astro, Chakra UI, Apollo Client"]
+    },
+    {
+      "url": "https://github.com/Rich-Harris/degit",
+      "title": "degit - Project Scaffolding",
+      "qualityScore": 82,
+      "scores": { "authority": 8, "recency": 4, "depth": 8, "examples": 9, "uniqueness": 9 },
+      "keyInsights": ["Downloads tar archive not git clone", "Caches tarballs locally", "Supports subdirectory extraction", "Multi-platform git hosting support"]
+    },
+    {
+      "url": "https://github.com/tiged/tiged",
+      "title": "tiged - Maintained degit Fork",
+      "qualityScore": 78,
+      "scores": { "authority": 7, "recency": 8, "depth": 7, "examples": 8, "uniqueness": 6 },
+      "keyInsights": ["Actively maintained fork of degit", "Auto-detects default branch", "Improved Windows compatibility", "Offline mode support"]
+    },
+    {
+      "url": "https://github.com/pnpm/pnpm",
+      "title": "pnpm - Performant Package Manager",
+      "qualityScore": 87,
+      "scores": { "authority": 9, "recency": 9, "depth": 7, "examples": 7, "uniqueness": 8 },
+      "keyInsights": ["Content-addressable storage prevents duplicates", "Built-in workspace support", "Used by Microsoft Rush at scale", "Strict isolation prevents phantom dependencies"]
+    },
+    {
+      "url": "https://github.com/vercel/turborepo",
+      "title": "Turborepo - Monorepo Build Orchestration",
+      "qualityScore": 86,
+      "scores": { "authority": 9, "recency": 9, "depth": 7, "examples": 7, "uniqueness": 7 },
+      "keyInsights": ["Written in Rust for performance", "Remote caching for builds", "Task pipeline orchestration", "29.8k stars, 115k dependents"]
+    },
+    {
+      "url": "https://github.com/facebook/create-react-app",
+      "title": "Create React App - CLI Scaffolding Pattern",
+      "qualityScore": 80,
+      "scores": { "authority": 9, "recency": 4, "depth": 8, "examples": 8, "uniqueness": 8 },
+      "keyInsights": ["npx-based scaffolding pattern", "Single dependency abstracts build complexity", "Eject option for customization", "Iconic but now deprecated"]
+    },
+    {
+      "url": "https://github.com/babel/babel/blob/main/CONTRIBUTING.md",
+      "title": "Babel - Monorepo Plugin Architecture",
+      "qualityScore": 89,
+      "scores": { "authority": 10, "recency": 8, "depth": 9, "examples": 8, "uniqueness": 8 },
+      "keyInsights": ["@babel/core + @babel/plugin-transform-* pattern", "Presets bundle common plugins", "Parser and generator as separate packages", "Fixed versioning across all packages"]
+    },
+    {
+      "url": "https://github.com/eslint/eslint",
+      "title": "ESLint - Pluggable Linting Architecture",
+      "qualityScore": 83,
+      "scores": { "authority": 9, "recency": 8, "depth": 7, "examples": 7, "uniqueness": 7 },
+      "keyInsights": ["Every rule is a plugin", "Separate parser (Espree)", "Monorepo with packages/ directory", "Flat config system in v9"]
+    },
+    {
+      "url": "https://github.com/mui/material-ui",
+      "title": "Material UI - Component Library Packaging",
+      "qualityScore": 82,
+      "scores": { "authority": 9, "recency": 8, "depth": 7, "examples": 7, "uniqueness": 7 },
+      "keyInsights": ["@mui/material as primary package", "MUI X for advanced components as separate packages", "pnpm workspaces monorepo", "3000+ contributors"]
+    },
+    {
+      "url": "https://github.com/tailwindlabs/tailwindcss",
+      "title": "Tailwind CSS - Core + Plugin Architecture",
+      "qualityScore": 81,
+      "scores": { "authority": 9, "recency": 9, "depth": 6, "examples": 7, "uniqueness": 7 },
+      "keyInsights": ["Core tailwindcss + @tailwindcss/* plugins", "Monorepo with packages/", "15.3 million dependents", "Rust + TypeScript build"]
+    },
+    {
+      "url": "https://github.com/NixOS/nixpkgs",
+      "title": "Nixpkgs - Declarative Package Collection",
+      "qualityScore": 79,
+      "scores": { "authority": 9, "recency": 8, "depth": 7, "examples": 5, "uniqueness": 10 },
+      "keyInsights": ["120,000+ package definitions in one repo", "Monolithic source, selective installation", "Channel-based distribution", "Declarative package management"]
+    },
+    {
+      "url": "https://github.com/rust-lang/cargo/blob/master/src/doc/src/reference/workspaces.md",
+      "title": "Cargo Workspaces - Rust Multi-Crate Management",
+      "qualityScore": 88,
+      "scores": { "authority": 10, "recency": 8, "depth": 9, "examples": 8, "uniqueness": 9 },
+      "keyInsights": ["Shared Cargo.lock and build output", "workspace.dependencies inheritance", "Virtual vs root package workspaces", "Glob patterns for member discovery"]
+    },
+    {
+      "url": "https://github.com/wbthomason/packer.nvim",
+      "title": "Packer.nvim - Plugin Installation Patterns",
+      "qualityScore": 68,
+      "scores": { "authority": 6, "recency": 4, "depth": 7, "examples": 8, "uniqueness": 7 },
+      "keyInsights": ["Multi-source plugin installation", "Lazy-loading via autocommands", "Compiled loader for performance", "Now replaced by lazy.nvim"]
+    },
+    {
+      "url": "https://github.com/sindresorhus/ky",
+      "title": "Ky - Small Focused Package Philosophy",
+      "qualityScore": 72,
+      "scores": { "authority": 8, "recency": 8, "depth": 5, "examples": 7, "uniqueness": 7 },
+      "keyInsights": ["Zero-dependency philosophy", "Single responsibility design", "Small bundle as core value", "Composable over monolithic"]
+    },
+    {
+      "url": "https://github.com/microsoft/rushstack",
+      "title": "Rush Stack - Enterprise Monorepo Tooling",
+      "qualityScore": 86,
+      "scores": { "authority": 9, "recency": 8, "depth": 9, "examples": 7, "uniqueness": 8 },
+      "keyInsights": ["50+ published packages from one repo", "Rush build orchestrator + Heft compilation", "API Extractor for type management", "Strict dependency policies"]
+    },
+    {
+      "url": "https://github.com/nrwl/nx",
+      "title": "Nx - Monorepo Platform",
+      "qualityScore": 85,
+      "scores": { "authority": 9, "recency": 9, "depth": 7, "examples": 7, "uniqueness": 7 },
+      "keyInsights": ["Computation caching and task distribution", "Affected analysis skips unchanged packages", "create-nx-workspace scaffolder", "28.2k stars, 175k dependents"]
+    },
+    {
+      "url": "https://github.com/volta-cli/volta",
+      "title": "Volta - JavaScript Tool Manager",
+      "qualityScore": 70,
+      "scores": { "authority": 7, "recency": 4, "depth": 7, "examples": 7, "uniqueness": 8 },
+      "keyInsights": ["Per-project version switching", "Tools persist across Node upgrades", "Now unmaintained, recommend mise", "Used by Microsoft TypeScript, Sentry"]
+    },
+    {
+      "url": "https://github.com/denoland/deno",
+      "title": "Deno - Modern Runtime with JSR",
+      "qualityScore": 80,
+      "scores": { "authority": 9, "recency": 9, "depth": 6, "examples": 6, "uniqueness": 9 },
+      "keyInsights": ["JSR as modern package registry", "URL-based imports", "Standard library at jsr.io/@std", "Import maps for module resolution"]
+    },
+    {
+      "url": "https://github.com/goreleaser/goreleaser",
+      "title": "GoReleaser - Binary Distribution",
+      "qualityScore": 83,
+      "scores": { "authority": 8, "recency": 9, "depth": 7, "examples": 7, "uniqueness": 9 },
+      "keyInsights": ["Automated binary building and releasing", "Multi-language support", "GitHub Releases distribution", "Cross-platform compilation"]
+    },
+    {
+      "url": "https://github.com/oven-sh/bun",
+      "title": "Bun - Fast Runtime with Workspaces",
+      "qualityScore": 78,
+      "scores": { "authority": 8, "recency": 9, "depth": 6, "examples": 6, "uniqueness": 7 },
+      "keyInsights": ["Native workspace support in bun install", "Compatible with npm workspace config", "Custom registry support", "Fastest package installation"]
+    },
+    {
+      "url": "https://github.com/homebrew/brew",
+      "title": "Homebrew - Formula/Tap/Cask Model",
+      "qualityScore": 77,
+      "scores": { "authority": 9, "recency": 8, "depth": 6, "examples": 5, "uniqueness": 8 },
+      "keyInsights": ["Formulae for packages, taps for sources, casks for apps", "Hierarchical registry with core + community taps", "Cellar-based installation model"]
+    },
+    {
+      "url": "https://github.com/withastro/astro",
+      "title": "Astro - Core + Integrations Pattern",
+      "qualityScore": 88,
+      "scores": { "authority": 9, "recency": 9, "depth": 8, "examples": 8, "uniqueness": 8 },
+      "keyInsights": ["Core astro + @astrojs/* integrations", "Framework adapters, deployment adapters, utility integrations", "npm create astro@latest scaffolder", "1033 contributors, 257k users"]
+    },
+    {
+      "url": "https://github.com/vitejs/vite",
+      "title": "Vite - Core + Official Plugins",
+      "qualityScore": 84,
+      "scores": { "authority": 9, "recency": 9, "depth": 7, "examples": 7, "uniqueness": 7 },
+      "keyInsights": ["Core vite + @vitejs/plugin-* packages", "create-vite scaffolding tool", "pnpm workspaces monorepo", "Independent package publishing"]
+    },
+    {
+      "url": "https://github.com/angular/angular",
+      "title": "Angular - Scoped Package Architecture",
+      "qualityScore": 85,
+      "scores": { "authority": 10, "recency": 8, "depth": 7, "examples": 7, "uniqueness": 7 },
+      "keyInsights": ["@angular/core, @angular/router, @angular/forms as separate packages", "Fixed versioning across all packages", "ng new installs common set together", "Monorepo with packages/ directory"]
+    },
+    {
+      "url": "https://github.com/jestjs/jest",
+      "title": "Jest - Meta-Package over Monorepo",
+      "qualityScore": 84,
+      "scores": { "authority": 9, "recency": 8, "depth": 7, "examples": 7, "uniqueness": 8 },
+      "keyInsights": ["jest meta-package wraps @jest/* packages", "Lerna + Yarn workspaces monorepo", "Users can import individual @jest/* utilities", "Complete solution or modular adoption"]
+    },
+    {
+      "url": "https://github.com/webpack/webpack",
+      "title": "Webpack - Extensible Core + Plugin/Loader Architecture",
+      "qualityScore": 83,
+      "scores": { "authority": 9, "recency": 7, "depth": 8, "examples": 8, "uniqueness": 7 },
+      "keyInsights": ["Most features are plugins internally", "Loaders preprocess files, plugins hook lifecycle", "Rich third-party ecosystem", "Core remains lightweight"]
+    },
+    {
+      "url": "https://github.com/ds300/patch-package",
+      "title": "patch-package - Dependency Patching",
+      "qualityScore": 75,
+      "scores": { "authority": 7, "recency": 7, "depth": 7, "examples": 8, "uniqueness": 8 },
+      "keyInsights": ["Fix dependencies without forking", "Patches applied via postinstall hook", "Version-tracked .patch files", "Team-shareable via version control"]
+    },
+    {
+      "url": "https://github.com/vercel/next.js",
+      "title": "Next.js - Monorepo with Multiple Tools",
+      "qualityScore": 82,
+      "scores": { "authority": 9, "recency": 9, "depth": 6, "examples": 6, "uniqueness": 6 },
+      "keyInsights": ["next meta-package + @next/* scoped packages", "Lerna + Turbo + pnpm triple tooling", "Rust crates for performance-critical code", "packages/ + crates/ hybrid structure"]
+    },
+    {
+      "url": "https://github.com/unjs/unbuild",
+      "title": "unbuild - Unified Library Build System",
+      "qualityScore": 80,
+      "scores": { "authority": 8, "recency": 8, "depth": 7, "examples": 8, "uniqueness": 7 },
+      "keyInsights": ["Auto-infers build config from package.json", "Dual CJS/ESM output", "Bundleless option preserves file structure", "Dependency checking for missing/unused"]
+    },
+    {
+      "url": "https://github.com/antfu/ni",
+      "title": "ni - Package Manager Abstraction",
+      "qualityScore": 76,
+      "scores": { "authority": 7, "recency": 8, "depth": 7, "examples": 8, "uniqueness": 8 },
+      "keyInsights": ["Detects package manager from lockfiles", "Unified commands across npm/yarn/pnpm/bun/deno", "Workspace-aware operations", "Interactive package selection"]
+    },
+    {
+      "url": "https://github.com/sindresorhus/np",
+      "title": "np - Better npm Publish",
+      "qualityScore": 79,
+      "scores": { "authority": 8, "recency": 8, "depth": 8, "examples": 7, "uniqueness": 7 },
+      "keyInsights": ["Interactive publish workflow", "Pre-publish validation and testing", "Rollback on failure", "Works with npm, yarn, pnpm, bun"]
+    },
+    {
+      "url": "https://github.com/pypa/pip",
+      "title": "pip - Python Package Installer",
+      "qualityScore": 72,
+      "scores": { "authority": 9, "recency": 8, "depth": 5, "examples": 5, "uniqueness": 7 },
+      "keyInsights": ["extras_require for optional dependency groups", "pip install pkg[full] syntax", "Regular 3-month release cycle"]
+    },
+    {
+      "url": "https://github.com/jsr-io/jsr",
+      "title": "JSR - Modern JavaScript Registry",
+      "qualityScore": 84,
+      "scores": { "authority": 8, "recency": 10, "depth": 8, "examples": 6, "uniqueness": 10 },
+      "keyInsights": ["Cloud-native registry architecture", "npm compatibility tarballs generated automatically", "Rust API + Cloudflare Workers edge", "Direct publish from Deno CLI"]
+    },
+    {
+      "url": "https://github.com/egoist/tsup",
+      "title": "tsup - TypeScript Bundler",
+      "qualityScore": 74,
+      "scores": { "authority": 7, "recency": 6, "depth": 7, "examples": 7, "uniqueness": 6 },
+      "keyInsights": ["esbuild-based for speed", "Dual CJS/ESM output", "Now recommends migration to tsdown", "126k dependents despite unmaintained status"]
+    },
+    {
+      "url": "https://github.com/privatenumber/pkgroll",
+      "title": "pkgroll - Zero-Config Package Bundler",
+      "qualityScore": 80,
+      "scores": { "authority": 7, "recency": 8, "depth": 8, "examples": 8, "uniqueness": 8 },
+      "keyInsights": ["Reads entry points from package.json exports", "Auto-maps dist/ to src/", "TypeScript .d.ts bundling", "Format detection from file extensions"]
+    },
+    {
+      "url": "https://arethetypeswrong.github.io",
+      "title": "Are The Types Wrong - Package Type Checker",
+      "qualityScore": 82,
+      "scores": { "authority": 8, "recency": 9, "depth": 8, "examples": 7, "uniqueness": 10 },
+      "keyInsights": ["Detects 12 categories of CJS/ESM type problems", "Tests node10, node16, bundler resolution modes", "CLI tool for local analysis", "Catches masquerading module formats"]
+    },
+    {
+      "url": "https://github.com/semantic-release/semantic-release",
+      "title": "semantic-release - Automated Versioning",
+      "qualityScore": 84,
+      "scores": { "authority": 9, "recency": 8, "depth": 8, "examples": 7, "uniqueness": 7 },
+      "keyInsights": ["Commit-based version determination", "Nine-step release process", "Plugin-based architecture", "23.3k stars, widely adopted"]
+    },
+    {
+      "url": "https://github.com/pinojs/pino",
+      "title": "Pino - Modular Logging Architecture",
+      "qualityScore": 81,
+      "scores": { "authority": 8, "recency": 8, "depth": 7, "examples": 8, "uniqueness": 8 },
+      "keyInsights": ["Core pino + pino-pretty + transport plugins", "Transports run in worker threads", "Minimal core for maximum performance", "Composable ecosystem"]
+    },
+    {
+      "url": "https://github.com/Effect-TS/effect",
+      "title": "Effect - Modern Scoped Package Ecosystem",
+      "qualityScore": 86,
+      "scores": { "authority": 8, "recency": 10, "depth": 8, "examples": 7, "uniqueness": 9 },
+      "keyInsights": ["Core effect + 20+ @effect/* packages", "Platform-specific packages (node, bun, browser)", "SQL with 12+ database adapters", "AI integrations as separate packages"]
+    },
+    {
+      "url": "https://github.com/sindresorhus/awesome-npm",
+      "title": "Awesome npm - Publishing Best Practices",
+      "qualityScore": 74,
+      "scores": { "authority": 8, "recency": 6, "depth": 6, "examples": 6, "uniqueness": 6 },
+      "keyInsights": ["Publishing tools comparison (np, semantic-release, release-it)", "Lifecycle scripts for automation", "npm link for local development", "Security validation before publish"]
+    }
+  ]
+}

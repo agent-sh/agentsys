@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Plugin extraction to standalone repos (#250)** — All 13 plugins extracted from `plugins/` into standalone repos under the `agent-sh` org (`agent-sh/next-task`, `agent-sh/ship`, `agent-sh/deslop`, `agent-sh/audit-project`, `agent-sh/enhance`, `agent-sh/perf`, `agent-sh/drift-detect`, `agent-sh/sync-docs`, `agent-sh/repo-map`, `agent-sh/learn`, `agent-sh/consult`, `agent-sh/debate`, `agent-sh/agnix`). The `plugins/` directory has been removed from this repo. agentsys is now a marketplace + installer.
+
+- **External plugin fetching in installer** — `bin/cli.js` now fetches plugins from their standalone GitHub repos at install time rather than bundling them. The installer resolves the correct version for each platform using the marketplace manifest.
+
+- **Graduation script** (`scripts/graduate-plugin.js`) — Automates extraction of a plugin from the monorepo to a new standalone repo: creates repo, copies files, sets up agent-core sync, updates marketplace manifest.
+
+- **Marketplace `requires` field** — `.claude-plugin/marketplace.json` now supports a `requires` field per plugin entry to declare the minimum agentsys installer version required. The installer validates this at install time and warns on incompatibility.
+
 - **`/next-task` GitHub Projects source** — Added `gh-projects` as a supported task source. When selected, the workflow prompts for a project number and owner, then fetches issues from a GitHub Projects v2 board via `gh project item-list`. Includes PR-linked issue exclusion (same as GitHub Issues), input validation for project number and owner, and caching of project preferences. Fixes #247.
 
 ### Fixed

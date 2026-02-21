@@ -8,10 +8,12 @@
  * Remove:   npm uninstall -g agentsys && agentsys --remove
  */
 
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
+const https = require('https');
+const { createGunzip } = require('zlib');
 
 const VERSION = require('../package.json').version;
 // Use the installed npm package directory as source (no git clone needed)
@@ -54,7 +56,7 @@ function getConfigPath(platform) {
 
 function commandExists(cmd) {
   try {
-    execSync(`${process.platform === 'win32' ? 'where' : 'which'} ${cmd}`, { stdio: 'pipe' });
+    execFileSync(process.platform === 'win32' ? 'where.exe' : 'which', [cmd], { stdio: 'pipe' });
     return true;
   } catch {
     return false;
@@ -84,6 +86,8 @@ function parseArgs(args) {
     stripModels: true, // Default: strip models
     tool: null,        // Single tool
     tools: [],         // Multiple tools
+    only: [],          // --only flag: selective plugin install
+    subcommand: null,  // 'update' or 'list'
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -102,6 +106,10 @@ function parseArgs(args) {
     } else if (arg === '--strip-models') {
       // Legacy flag, now default behavior
       result.stripModels = true;
+    } else if (arg === '--only' && args[i + 1]) {
+      const pluginList = args[i + 1].split(',').map(p => p.trim()).filter(Boolean);
+      result.only.push(...pluginList);
+      i++;
     } else if (arg === '--tool' && args[i + 1]) {
       const tool = args[i + 1].toLowerCase();
       if (VALID_TOOLS.includes(tool)) {
@@ -121,6 +129,8 @@ function parseArgs(args) {
         result.tools.push(tool);
       }
       i++;
+    } else if (arg === 'update' || arg === 'list') {
+      result.subcommand = arg;
     }
   }
 
@@ -189,6 +199,346 @@ function copyFromPackage(installDir) {
 function installDependencies(installDir) {
   console.log('Installing dependencies...');
   execSync('npm install --production', { cwd: installDir, stdio: 'inherit' });
+}
+
+// --- External Plugin Fetching ---
+
+function getPluginCacheDir() {
+  const home = process.env.HOME || process.env.USERPROFILE;
+  return path.join(home, '.agentsys', 'plugins');
+}
+
+function loadMarketplace() {
+  const marketplacePath = path.join(PACKAGE_DIR, '.claude-plugin', 'marketplace.json');
+  if (!fs.existsSync(marketplacePath)) {
+    console.error('[ERROR] marketplace.json not found at ' + marketplacePath);
+    process.exit(1);
+  }
+  return JSON.parse(fs.readFileSync(marketplacePath, 'utf8'));
+}
+
+/**
+ * Resolve plugin dependencies transitively.
+ *
+ * Circular dependencies are expected and handled: the `visiting` Set tracks
+ * the current DFS path and short-circuits any back-edge (e.g. next-task ->
+ * ship -> next-task), adding the already-visited node to `resolved` and
+ * returning immediately so the traversal terminates without infinite recursion.
+ *
+ * @param {string[]} names - Plugin names to resolve
+ * @param {Object} marketplace - Parsed marketplace.json
+ * @returns {string[]} All required plugin names (deduplicated, topologically ordered)
+ */
+function resolvePluginDeps(names, marketplace) {
+  const pluginMap = {};
+  for (const p of marketplace.plugins) {
+    pluginMap[p.name] = p;
+  }
+
+  // Validate requested names exist
+  for (const name of names) {
+    if (!pluginMap[name]) {
+      console.error(`[ERROR] Unknown plugin: ${name}. Available: ${marketplace.plugins.map(p => p.name).join(', ')}`);
+      process.exit(1);
+    }
+  }
+
+  const resolved = new Set();
+  const visiting = new Set();
+
+  function visit(name) {
+    if (resolved.has(name)) return;
+    if (visiting.has(name)) {
+      // Circular dep - just add it and stop recursing
+      resolved.add(name);
+      return;
+    }
+    visiting.add(name);
+
+    const plugin = pluginMap[name];
+    if (plugin && plugin.requires) {
+      for (const dep of plugin.requires) {
+        visit(dep);
+      }
+    }
+
+    visiting.delete(name);
+    resolved.add(name);
+  }
+
+  for (const name of names) {
+    visit(name);
+  }
+
+  return [...resolved];
+}
+
+/**
+ * Download a GitHub repo tarball and extract to cache directory.
+ *
+ * @param {string} name - Plugin name
+ * @param {string} source - GitHub source URL (e.g. "github:agent-sh/agentsys-plugin-next-task")
+ * @param {string} version - Expected version string
+ * @returns {Promise<string>} Path to extracted plugin directory
+ */
+async function fetchPlugin(name, source, version) {
+  const cacheDir = getPluginCacheDir();
+  const pluginDir = path.join(cacheDir, name);
+  const versionFile = path.join(pluginDir, '.version');
+
+  // Check cache
+  if (fs.existsSync(versionFile)) {
+    const cached = fs.readFileSync(versionFile, 'utf8').trim();
+    if (cached === version) {
+      return pluginDir;
+    }
+  }
+
+  // Parse source formats:
+  //   "https://github.com/owner/repo" or "https://github.com/owner/repo#ref"
+  //   "github:owner/repo" or "github:owner/repo#ref"
+  let owner, repo, ref;
+  const urlMatch = source.match(/github\.com\/([^/]+)\/([^/#]+)(?:#(.+))?/);
+  const shortMatch = !urlMatch && source.match(/^github:([^/]+)\/([^#]+)(?:#(.+))?$/);
+  const match = urlMatch || shortMatch;
+  if (!match) {
+    throw new Error(`Unsupported source format for ${name}: ${source}`);
+  }
+  owner = match[1];
+  repo = match[2];
+  ref = match[3] || `v${version}`;
+
+  const tarballUrl = `https://api.github.com/repos/${owner}/${repo}/tarball/${ref}`;
+
+  console.log(`  Fetching ${name}@${version} from ${owner}/${repo}...`);
+
+  // Clean and recreate
+  if (fs.existsSync(pluginDir)) {
+    fs.rmSync(pluginDir, { recursive: true, force: true });
+  }
+  fs.mkdirSync(pluginDir, { recursive: true });
+
+  // Download and extract tarball
+  await downloadAndExtractTarball(tarballUrl, pluginDir);
+
+  // Write version marker
+  fs.writeFileSync(versionFile, version);
+
+  return pluginDir;
+}
+
+/**
+ * Download a tarball from URL and extract to dest directory.
+ * Strips the top-level directory from the tarball (GitHub tarballs have owner-repo-sha/).
+ */
+function downloadAndExtractTarball(url, dest) {
+  return new Promise((resolve, reject) => {
+    const ghToken = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
+    const request = (reqUrl, redirectCount = 0) => {
+      if (redirectCount > 5) {
+        reject(new Error(`Too many redirects fetching tarball from ${url}`));
+        return;
+      }
+      const headers = {
+        'User-Agent': `agentsys/${VERSION}`,
+        'Accept': 'application/vnd.github+json'
+      };
+      if (ghToken) headers['Authorization'] = `Bearer ${ghToken}`;
+      https.get(reqUrl, { headers }, (res) => {
+        // Follow redirects (GitHub API returns 302 to S3)
+        if (res.statusCode === 301 || res.statusCode === 302) {
+          res.resume();
+          request(res.headers.location, redirectCount + 1);
+          return;
+        }
+
+        if (res.statusCode !== 200) {
+          res.resume();
+          const hint = res.statusCode === 403 ? ' (rate limited — set GITHUB_TOKEN env var)' : '';
+          reject(new Error(`HTTP ${res.statusCode}${hint} fetching tarball from ${reqUrl}`));
+          return;
+        }
+
+        // Use tar command to extract (available on all supported platforms)
+        const tar = require('child_process').spawn('tar', [
+          'xz', '--strip-components=1', '-C', dest
+        ], { stdio: ['pipe', 'inherit', 'pipe'] });
+
+        let stderr = '';
+        tar.stderr.on('data', (d) => { stderr += d; });
+
+        res.pipe(tar.stdin);
+
+        tar.on('close', (code) => {
+          if (code !== 0) {
+            reject(new Error(`tar extraction failed (code ${code}): ${stderr}`));
+          } else {
+            resolve();
+          }
+        });
+
+        tar.on('error', reject);
+      }).on('error', reject);
+    };
+
+    request(url);
+  });
+}
+
+/**
+ * Discover plugins from the external cache directory (~/.agentsys/plugins/).
+ * Falls back to PACKAGE_DIR/plugins/ if cache doesn't exist (bundled install).
+ *
+ * @param {string[]} [onlyPlugins] - If provided, only return these plugins
+ * @returns {string} The root directory to use for plugin discovery
+ */
+function resolvePluginRoot(onlyPlugins) {
+  const cacheDir = getPluginCacheDir();
+  // If we have cached external plugins, use the cache dir
+  if (fs.existsSync(cacheDir)) {
+    const entries = fs.readdirSync(cacheDir).filter(e => {
+      const pluginJson = path.join(cacheDir, e, '.claude-plugin', 'plugin.json');
+      return fs.existsSync(pluginJson);
+    });
+    if (entries.length > 0) {
+      // Return a synthetic root where plugins/ is the cache dir
+      // We need to restructure: cache has ~/.agentsys/plugins/<name>/
+      // but discovery expects <root>/plugins/<name>/
+      // The cache dir IS the plugins dir, so root is its parent
+      return path.join(cacheDir, '..');
+    }
+  }
+  // Fallback to bundled
+  return PACKAGE_DIR;
+}
+
+/**
+ * Fetch all requested plugins (with dependency resolution) to the cache.
+ *
+ * @param {string[]} pluginNames - Plugins to fetch (empty = all)
+ * @param {Object} marketplace - Parsed marketplace.json
+ * @returns {Promise<string[]>} Names of fetched plugins
+ */
+async function fetchExternalPlugins(pluginNames, marketplace) {
+  const pluginMap = {};
+  for (const p of marketplace.plugins) {
+    pluginMap[p.name] = p;
+  }
+
+  // Determine which plugins to fetch
+  let toFetch;
+  if (pluginNames.length > 0) {
+    toFetch = resolvePluginDeps(pluginNames, marketplace);
+  } else {
+    toFetch = marketplace.plugins.map(p => p.name);
+  }
+
+  console.log(`\nFetching ${toFetch.length} plugin(s): ${toFetch.join(', ')}\n`);
+
+  const fetched = [];
+  const failed = [];
+  for (const name of toFetch) {
+    const plugin = pluginMap[name];
+    if (!plugin) continue;
+
+    // If source is local (starts with ./), plugin is bundled - just use PACKAGE_DIR
+    if (!plugin.source || plugin.source.startsWith('./') || plugin.source.startsWith('../')) {
+      // Bundled plugin, no fetch needed
+      fetched.push(name);
+      continue;
+    }
+
+    try {
+      await fetchPlugin(name, plugin.source, plugin.version);
+      fetched.push(name);
+    } catch (err) {
+      failed.push(name);
+      console.error(`  [ERROR] Failed to fetch ${name}: ${err.message}`);
+    }
+  }
+
+  if (failed.length > 0) {
+    const missingDeps = failed.filter(f => toFetch.includes(f) && !pluginNames.includes(f));
+    if (missingDeps.length > 0) {
+      console.error(`\n  [WARN] Missing dependencies: ${missingDeps.join(', ')}`);
+      console.error(`  Some plugins may not work correctly without their dependencies.`);
+    }
+  }
+
+  return fetched;
+}
+
+/**
+ * List installed plugins with versions.
+ */
+function listInstalledPlugins() {
+  const cacheDir = getPluginCacheDir();
+  console.log(`\nagentsys v${VERSION} - Installed plugins\n`);
+
+  // Check cached external plugins
+  if (fs.existsSync(cacheDir)) {
+    const entries = fs.readdirSync(cacheDir).filter(e => {
+      return fs.statSync(path.join(cacheDir, e)).isDirectory();
+    }).sort();
+
+    if (entries.length > 0) {
+      console.log('External plugins (cached):');
+      for (const name of entries) {
+        const versionFile = path.join(cacheDir, name, '.version');
+        const ver = fs.existsSync(versionFile) ? fs.readFileSync(versionFile, 'utf8').trim() : 'unknown';
+        console.log(`  ${name}@${ver}`);
+      }
+      console.log();
+    }
+  }
+
+  // Check bundled plugins
+  const bundled = discovery.discoverPlugins(PACKAGE_DIR);
+  if (bundled.length > 0) {
+    console.log('Bundled plugins:');
+    for (const name of bundled) {
+      console.log(`  ${name}@${VERSION}`);
+    }
+    console.log();
+  }
+
+  console.log(`Cache directory: ${cacheDir}`);
+}
+
+/**
+ * Re-fetch all installed external plugins (update to latest versions).
+ */
+async function updatePlugins() {
+  console.log(`\nagentsys v${VERSION} - Updating plugins\n`);
+
+  const marketplace = loadMarketplace();
+  const cacheDir = getPluginCacheDir();
+
+  if (!fs.existsSync(cacheDir)) {
+    console.log('No cached plugins found. Run agentsys to install first.');
+    return;
+  }
+
+  // Get currently installed external plugins
+  const installed = fs.readdirSync(cacheDir).filter(e => {
+    return fs.statSync(path.join(cacheDir, e)).isDirectory();
+  });
+
+  if (installed.length === 0) {
+    console.log('No external plugins installed.');
+    return;
+  }
+
+  // Force re-fetch by removing version files
+  for (const name of installed) {
+    const versionFile = path.join(cacheDir, name, '.version');
+    if (fs.existsSync(versionFile)) {
+      fs.unlinkSync(versionFile);
+    }
+  }
+
+  await fetchExternalPlugins(installed, marketplace);
+  console.log('\n[OK] Plugins updated.');
 }
 
 function installForClaude() {
@@ -581,17 +931,22 @@ Usage:
   agentsys                    Interactive installer (select platforms)
   agentsys --tool <name>      Install for single tool (claude, opencode, codex)
   agentsys --tools <list>     Install for multiple tools (comma-separated)
+  agentsys --only <plugins>   Install only specified plugins (comma-separated, resolves deps)
   agentsys --development      Development mode: install to ~/.claude/plugins
   agentsys --no-strip, -ns    Include model specifications (stripped by default)
   agentsys --remove           Remove local installation
   agentsys --version, -v      Show version
   agentsys --help, -h         Show this help
+  agentsys list               List installed plugins and versions
+  agentsys update             Re-fetch latest versions of installed plugins
 
 Non-Interactive Examples:
   agentsys --tool claude              # Install for Claude Code only
   agentsys --tool opencode            # Install for OpenCode only
   agentsys --tools "claude,opencode"  # Install for both
   agentsys --tools claude,opencode,codex  # Install for all three
+  agentsys --only next-task           # Install next-task + its dependencies
+  agentsys --only "next-task,perf"    # Install specific plugins + deps
 
 Development Mode:
   agentsys --development      # Install plugins directly to ~/.claude/plugins
@@ -636,6 +991,17 @@ async function main() {
   // Handle --help
   if (args.help) {
     printHelp();
+    return;
+  }
+
+  // Handle subcommands
+  if (args.subcommand === 'list') {
+    listInstalledPlugins();
+    return;
+  }
+
+  if (args.subcommand === 'update') {
+    await updatePlugins();
     return;
   }
 
@@ -750,4 +1116,15 @@ if (require.main === module) {
   });
 }
 
-module.exports = { parseArgs, VALID_TOOLS };
+module.exports = {
+  parseArgs,
+  VALID_TOOLS,
+  resolvePluginDeps,
+  fetchPlugin,
+  fetchExternalPlugins,
+  resolvePluginRoot,
+  loadMarketplace,
+  getPluginCacheDir,
+  listInstalledPlugins,
+  updatePlugins
+};

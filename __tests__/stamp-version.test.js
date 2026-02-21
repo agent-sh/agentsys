@@ -91,15 +91,12 @@ describe('stampVersion', () => {
     const rootPlugin = JSON.parse(fs.readFileSync(path.join(root, '.claude-plugin', 'plugin.json'), 'utf8'));
     expect(rootPlugin.version).toBe('2.5.0');
 
-    // Marketplace (all occurrences)
+    // Marketplace (root version only, plugin versions are independent)
     const marketplace = JSON.parse(fs.readFileSync(path.join(root, '.claude-plugin', 'marketplace.json'), 'utf8'));
     expect(marketplace.version).toBe('2.5.0');
-    expect(marketplace.plugins[0].version).toBe('2.5.0');
-    expect(marketplace.plugins[1].version).toBe('2.5.0');
+    // Plugin versions are now independent (not stamped by root version)
 
-    // Plugin plugin.json
-    const pluginJson = JSON.parse(fs.readFileSync(path.join(root, 'plugins', 'mock-plugin', '.claude-plugin', 'plugin.json'), 'utf8'));
-    expect(pluginJson.version).toBe('2.5.0');
+    // Plugin plugin.json - no longer stamped by root version (plugins have independent versions)
 
     // Site content.json
     const content = JSON.parse(fs.readFileSync(path.join(root, 'site', 'content.json'), 'utf8'));
@@ -145,17 +142,17 @@ describe('stampVersion', () => {
     expect(rootPlugin.version).toBe('3.0.0-rc.1');
   });
 
-  test('throws error when target plugin.json is malformed', () => {
+  test('ignores plugin.json in plugins/ (independent versions)', () => {
     const root = createMockRepo('1.0.0');
 
-    // Corrupt a plugin.json file
+    // Even with a corrupt plugin.json, stamp-version should succeed
+    // because it no longer touches plugin-level files
     const pluginJsonPath = path.join(root, 'plugins', 'mock-plugin', '.claude-plugin', 'plugin.json');
     fs.writeFileSync(pluginJsonPath, '{ "name": "mock-plugin", "version": "0.0.0"'); // Missing closing brace
 
-    // Should throw when trying to update the malformed file
-    expect(() => {
-      stampVersion(root);
-    }).toThrow();
+    // Should NOT throw — plugins are independent now
+    const code = stampVersion(root);
+    expect(code).toBe(0);
   });
 
   test('throws error when package.json is malformed', () => {
@@ -236,6 +233,45 @@ describe('updateMarketplaceJson', () => {
   test('returns false for missing file', () => {
     const result = updateMarketplaceJson(path.join(tmpDir, 'missing.json'), '1.0.0');
     expect(result).toBe(false);
+  });
+});
+
+describe('marketplace.json semver validation', () => {
+  const marketplacePath = path.join(__dirname, '..', '.claude-plugin', 'marketplace.json');
+
+  // Simple semver regex: major.minor.patch with optional prerelease/build
+  const SEMVER_RE = /^\d+\.\d+\.\d+(-[\w.]+)?(\+[\w.]+)?$/;
+  // Semver range: >=X.Y.Z or ^X.Y.Z or ~X.Y.Z or plain semver
+  const SEMVER_RANGE_RE = /^(>=|<=|>|<|\^|~)?\d+\.\d+\.\d+(-[\w.]+)?$/;
+
+  test('marketplace.json exists and is valid JSON', () => {
+    expect(fs.existsSync(marketplacePath)).toBe(true);
+    expect(() => JSON.parse(fs.readFileSync(marketplacePath, 'utf8'))).not.toThrow();
+  });
+
+  test('all plugin entries have valid semver versions', () => {
+    const marketplace = JSON.parse(fs.readFileSync(marketplacePath, 'utf8'));
+    expect(Array.isArray(marketplace.plugins)).toBe(true);
+    for (const plugin of marketplace.plugins) {
+      expect(plugin.name).toBeTruthy();
+      expect(plugin.version).toBeTruthy();
+      expect(SEMVER_RE.test(plugin.version)).toBe(true);
+    }
+  });
+
+  test('all plugin entries have valid semver ranges in the core field', () => {
+    const marketplace = JSON.parse(fs.readFileSync(marketplacePath, 'utf8'));
+    for (const plugin of marketplace.plugins) {
+      if (plugin.core !== undefined) {
+        expect(typeof plugin.core).toBe('string');
+        expect(SEMVER_RANGE_RE.test(plugin.core)).toBe(true);
+      }
+    }
+  });
+
+  test('top-level marketplace version is valid semver', () => {
+    const marketplace = JSON.parse(fs.readFileSync(marketplacePath, 'utf8'));
+    expect(SEMVER_RE.test(marketplace.version)).toBe(true);
   });
 });
 

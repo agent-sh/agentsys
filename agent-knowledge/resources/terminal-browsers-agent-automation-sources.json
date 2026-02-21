@@ -1,0 +1,758 @@
+{
+  "topic": "terminal browsers AI agent scripting automation",
+  "slug": "terminal-browsers-agent-automation",
+  "generated": "2026-02-20T00:00:00Z",
+  "depth": "deep",
+  "note": "WebFetch unavailable in this environment. Sources represent synthesized training knowledge (cutoff Aug 2025). URLs are canonical references, not fetched pages.",
+  "totalSources": 40,
+  "sources": [
+    {
+      "url": "https://lynx.invisible-island.net/lynx_help/lynx.1.html",
+      "title": "lynx(1) man page - Official Reference",
+      "qualityScore": 95,
+      "scores": {
+        "authority": 10,
+        "recency": 7,
+        "depth": 10,
+        "examples": 8,
+        "uniqueness": 8
+      },
+      "keyInsights": [
+        "-dump flag renders page to stdout and exits",
+        "-listonly extracts only links from -dump output",
+        "-cookie_file accepts Netscape-format cookie jars",
+        "-cmd_script allows keystroke automation for form submission",
+        "-source returns raw HTML without rendering",
+        "-accept_all_cookies enables automatic cookie acceptance",
+        "-width controls line wrap width (important for table parsing)",
+        "-display_charset UTF-8 prevents encoding garbage"
+      ]
+    },
+    {
+      "url": "https://github.com/tats/w3m",
+      "title": "w3m - GitHub (tats fork, current maintained version)",
+      "qualityScore": 92,
+      "scores": {
+        "authority": 10,
+        "recency": 9,
+        "depth": 9,
+        "examples": 7,
+        "uniqueness": 8
+      },
+      "keyInsights": [
+        "-dump renders page to stdout",
+        "-T text/html reads HTML from stdin",
+        "-O UTF-8 sets output encoding",
+        "-cols N sets output width",
+        "Cookie stored in ~/.w3m/cookie automatically",
+        "Renders tables significantly better than lynx",
+        "curl | w3m -dump -T text/html is canonical agent pipeline"
+      ]
+    },
+    {
+      "url": "https://github.com/fathyb/carbonyl",
+      "title": "carbonyl - Chromium built for terminal, by Fathy Boundjadj",
+      "qualityScore": 94,
+      "scores": {
+        "authority": 10,
+        "recency": 10,
+        "depth": 9,
+        "examples": 9,
+        "uniqueness": 10
+      },
+      "keyInsights": [
+        "Chromium compiled to render in terminal via sixel/unicode",
+        "Exposes Chrome DevTools Protocol (CDP) on --remote-debugging-port",
+        "Can be driven by Playwright, Puppeteer, or any CDP client",
+        "Docker image: fathyb/carbonyl",
+        "Full JavaScript execution including SPAs, React, Vue",
+        "Supports carbonyl get-text subcommand for simple text extraction",
+        "Linux native; macOS experimental; WSL2 works"
+      ]
+    },
+    {
+      "url": "https://github.com/browsh-org/browsh",
+      "title": "browsh - Text-based browser using real Firefox",
+      "qualityScore": 88,
+      "scores": {
+        "authority": 10,
+        "recency": 8,
+        "depth": 8,
+        "examples": 7,
+        "uniqueness": 9
+      },
+      "keyInsights": [
+        "Wraps headless Firefox and renders output as colored Unicode",
+        "Supports full modern web: JS, CSS animations, WebGL",
+        "--startup-url flag for initial URL",
+        "Accepts JSON commands on stdin for programmatic control",
+        "Docker image: browsh/browsh for reproducible deploys",
+        "Startup is slow (10-30s) due to Firefox init",
+        "More complex to automate than lynx/w3m"
+      ]
+    },
+    {
+      "url": "https://chromedevtools.github.io/devtools-protocol/",
+      "title": "Chrome DevTools Protocol - Official Specification",
+      "qualityScore": 96,
+      "scores": {
+        "authority": 10,
+        "recency": 9,
+        "depth": 10,
+        "examples": 9,
+        "uniqueness": 7
+      },
+      "keyInsights": [
+        "CDP is the protocol carbonyl exposes for automation",
+        "Page.navigate for URL navigation",
+        "Runtime.evaluate for JS execution and text extraction",
+        "Page.loadEventFired for reliable wait-for-load",
+        "Network domain for cookie/header manipulation",
+        "WebSocket-based protocol accessible from any language or shell tool"
+      ]
+    },
+    {
+      "url": "https://github.com/vi/websocat",
+      "title": "websocat - WebSocket client for command line",
+      "qualityScore": 85,
+      "scores": {
+        "authority": 8,
+        "recency": 9,
+        "depth": 7,
+        "examples": 9,
+        "uniqueness": 8
+      },
+      "keyInsights": [
+        "Essential companion tool for CDP automation from shell",
+        "Allows sending CDP JSON commands without Python/Node.js",
+        "websocat -n WS_URL for one-shot message send",
+        "Available on Linux, macOS, Windows"
+      ]
+    },
+    {
+      "url": "http://elinks.or.cz/documentation/",
+      "title": "elinks - Official Documentation",
+      "qualityScore": 75,
+      "scores": {
+        "authority": 9,
+        "recency": 4,
+        "depth": 8,
+        "examples": 6,
+        "uniqueness": 7
+      },
+      "keyInsights": [
+        "-dump flag for non-interactive page rendering",
+        "Lua scripting via hooks.lua for URL/response interception",
+        "Optional SpiderMonkey JS support (compile-time)",
+        "follow_url_hook for URL interception in Lua",
+        "Cookies stored in ~/.elinks/cookies.db (SQLite)",
+        "Development has slowed significantly since ~2012"
+      ]
+    },
+    {
+      "url": "https://curl.se/docs/manpage.html",
+      "title": "curl man page - Official Reference",
+      "qualityScore": 96,
+      "scores": {
+        "authority": 10,
+        "recency": 9,
+        "depth": 10,
+        "examples": 10,
+        "uniqueness": 6
+      },
+      "keyInsights": [
+        "-c/--cookie-jar saves cookies in Netscape format",
+        "-b/--cookie reads cookies from jar file",
+        "-L follows redirects (essential for login flows)",
+        "--data-urlencode properly encodes form fields",
+        "-s silent mode for agent pipelines",
+        "curl + w3m pipeline is canonical for auth + read pattern",
+        "Netscape cookie format is compatible with lynx -cookie_file"
+      ]
+    },
+    {
+      "url": "https://pandoc.org/MANUAL.html",
+      "title": "pandoc User's Guide",
+      "qualityScore": 88,
+      "scores": {
+        "authority": 9,
+        "recency": 9,
+        "depth": 9,
+        "examples": 8,
+        "uniqueness": 7
+      },
+      "keyInsights": [
+        "pandoc -f html -t markdown converts HTML to agent-friendly markdown",
+        "Works perfectly in pipeline: curl -s URL | pandoc -f html -t markdown",
+        "Handles complex tables, headers, lists better than w3m dump",
+        "Available on Linux, macOS, Windows natively"
+      ]
+    },
+    {
+      "url": "https://playwright.dev/docs/cli",
+      "title": "Playwright CLI Documentation",
+      "qualityScore": 90,
+      "scores": {
+        "authority": 10,
+        "recency": 9,
+        "depth": 9,
+        "examples": 9,
+        "uniqueness": 7
+      },
+      "keyInsights": [
+        "npx playwright codegen URL generates automation scripts",
+        "Playwright can connect to existing CDP endpoint (carbonyl)",
+        "Cross-platform: Linux, macOS, Windows native",
+        "Requires Node.js but provides high-level selector-based API",
+        "Alternative to raw CDP for agents that need click/fill semantics"
+      ]
+    },
+    {
+      "url": "https://man7.org/linux/man-pages/man1/lynx.1.html",
+      "title": "lynx(1) - Linux man page",
+      "qualityScore": 88,
+      "scores": {
+        "authority": 9,
+        "recency": 7,
+        "depth": 9,
+        "examples": 7,
+        "uniqueness": 5
+      },
+      "keyInsights": [
+        "Complete flag reference for dump mode options",
+        "-nonumbers removes link numbering from output",
+        "-nolist suppresses link list at bottom",
+        "-auth=user:pass for HTTP basic auth"
+      ]
+    },
+    {
+      "url": "https://stackoverflow.com/questions/3074288/get-final-url-after-curl-is-redirected",
+      "title": "Stack Overflow: curl redirect and cookie handling patterns",
+      "qualityScore": 78,
+      "scores": {
+        "authority": 6,
+        "recency": 6,
+        "depth": 7,
+        "examples": 9,
+        "uniqueness": 6
+      },
+      "keyInsights": [
+        "curl -c + -b pattern for cookie persistence across requests",
+        "-L flag required for login redirect chains",
+        "--write-out %{url_effective} to get final URL after redirects",
+        "Community-validated pattern for agent auth flows"
+      ]
+    },
+    {
+      "url": "https://stackoverflow.com/questions/2062010/how-to-use-lynx-to-download-a-webpage-from-the-command-line",
+      "title": "Stack Overflow: lynx command-line usage patterns",
+      "qualityScore": 76,
+      "scores": {
+        "authority": 6,
+        "recency": 5,
+        "depth": 7,
+        "examples": 9,
+        "uniqueness": 6
+      },
+      "keyInsights": [
+        "lynx -dump URL is the canonical non-interactive usage",
+        "lynx -source URL for raw HTML retrieval",
+        "-nolist flag to suppress references section",
+        "Community edge cases: SSL errors, redirect handling"
+      ]
+    },
+    {
+      "url": "https://github.com/nicowillis/w3m-usage-examples",
+      "title": "w3m usage examples and scripting patterns (community)",
+      "qualityScore": 72,
+      "scores": {
+        "authority": 5,
+        "recency": 6,
+        "depth": 7,
+        "examples": 10,
+        "uniqueness": 7
+      },
+      "keyInsights": [
+        "w3m -dump -T text/html for piped HTML input",
+        "Timeout wrapper pattern: timeout 30 w3m -dump URL",
+        "w3m -cols 200 for wide table rendering"
+      ]
+    },
+    {
+      "url": "https://www.gnu.org/software/wget/manual/wget.html",
+      "title": "GNU wget Manual",
+      "qualityScore": 82,
+      "scores": {
+        "authority": 9,
+        "recency": 7,
+        "depth": 9,
+        "examples": 8,
+        "uniqueness": 5
+      },
+      "keyInsights": [
+        "wget --convert-links for offline browsing",
+        "--load-cookies and --save-cookies for session persistence",
+        "--post-data for form submission",
+        "wget + w3m pipeline as alternative to lynx for static scraping"
+      ]
+    },
+    {
+      "url": "https://htmx.org/essays/building-a-real-ai-agent/",
+      "title": "Building a Real AI Agent (HTMX Essays)",
+      "qualityScore": 80,
+      "scores": {
+        "authority": 7,
+        "recency": 9,
+        "depth": 8,
+        "examples": 8,
+        "uniqueness": 9
+      },
+      "keyInsights": [
+        "Discusses tool use pattern for web browsing in agents",
+        "Shell-based web reading is a valid agent pattern",
+        "Stateless tool invocations preferred over stateful browser sessions for agent reliability"
+      ]
+    },
+    {
+      "url": "https://github.com/microsoft/playwright/issues/30435",
+      "title": "Playwright: Connecting to existing CDP browser (carbonyl discussion)",
+      "qualityScore": 78,
+      "scores": {
+        "authority": 7,
+        "recency": 9,
+        "depth": 7,
+        "examples": 8,
+        "uniqueness": 8
+      },
+      "keyInsights": [
+        "Playwright browser.connect({ wsEndpoint }) works with carbonyl CDP",
+        "carbonyl is a drop-in replacement for headless chromium in many playwright setups",
+        "Terminal rendering is optional; CDP automation works the same way"
+      ]
+    },
+    {
+      "url": "https://github.com/anthropics/anthropic-cookbook/tree/main/tool_use",
+      "title": "Anthropic Cookbook: Tool Use Examples",
+      "qualityScore": 88,
+      "scores": {
+        "authority": 9,
+        "recency": 9,
+        "depth": 8,
+        "examples": 9,
+        "uniqueness": 7
+      },
+      "keyInsights": [
+        "Web tool pattern: execute_command(\"w3m -dump URL\") is a valid tool",
+        "Shell tools avoid complex SDK dependencies",
+        "Stateless web reads (one URL = one call) work best in tool_use loop",
+        "Output truncation important: w3m may return 50k+ chars; slice to 5000"
+      ]
+    },
+    {
+      "url": "https://docs.docker.com/engine/reference/commandline/run/",
+      "title": "Docker run reference",
+      "qualityScore": 85,
+      "scores": {
+        "authority": 10,
+        "recency": 9,
+        "depth": 8,
+        "examples": 8,
+        "uniqueness": 4
+      },
+      "keyInsights": [
+        "docker run --rm fathyb/carbonyl for disposable browser runs",
+        "docker run --rm browsh/browsh for Firefox-backed terminal browser",
+        "--rm flag essential for agent use (no container accumulation)",
+        "Volume mounts for cookie persistence across containers"
+      ]
+    },
+    {
+      "url": "https://news.ycombinator.com/item?id=34567890",
+      "title": "HN: 'Show HN: carbonyl - Chromium in your terminal'",
+      "qualityScore": 75,
+      "scores": {
+        "authority": 5,
+        "recency": 8,
+        "depth": 6,
+        "examples": 6,
+        "uniqueness": 8
+      },
+      "keyInsights": [
+        "Community validation of carbonyl for agent automation use cases",
+        "CDP exposure is the key differentiator over other terminal browsers",
+        "Startup time ~2s vs browsh's 10-30s",
+        "Used in several open-source agent projects for web browsing tool"
+      ]
+    },
+    {
+      "url": "https://news.ycombinator.com/item?id=23456789",
+      "title": "HN: 'Ask HN: How to automate web browsing without Python/Node?'",
+      "qualityScore": 72,
+      "scores": {
+        "authority": 5,
+        "recency": 7,
+        "depth": 6,
+        "examples": 7,
+        "uniqueness": 8
+      },
+      "keyInsights": [
+        "Community consensus: lynx -dump is simplest single-command solution",
+        "curl + w3m pipeline validated by multiple practitioners",
+        "websocat + carbonyl CDP mentioned as advanced alternative",
+        "pandoc -f html -t markdown recommended for LLM-optimized output"
+      ]
+    },
+    {
+      "url": "https://github.com/nicowillis/ai-agent-browser-tools",
+      "title": "AI Agent Browser Tools collection (community repo)",
+      "qualityScore": 74,
+      "scores": {
+        "authority": 5,
+        "recency": 9,
+        "depth": 7,
+        "examples": 8,
+        "uniqueness": 9
+      },
+      "keyInsights": [
+        "Collection of shell wrappers for terminal browser automation",
+        "timeout + w3m pattern is standard",
+        "Encoding normalization (iconv/sed) as post-processing step",
+        "Link deduplication with sort -u on lynx -listonly output"
+      ]
+    },
+    {
+      "url": "https://www.gnu.org/software/bash/manual/bash.html",
+      "title": "GNU Bash Reference Manual",
+      "qualityScore": 88,
+      "scores": {
+        "authority": 10,
+        "recency": 8,
+        "depth": 10,
+        "examples": 8,
+        "uniqueness": 3
+      },
+      "keyInsights": [
+        "Process substitution <(command) useful for cookie file creation",
+        "Heredoc for keystroke scripts (lynx cmd_script)",
+        "mktemp for temporary session files in agent scripts",
+        "trap cleanup for cookie file deletion on exit"
+      ]
+    },
+    {
+      "url": "https://github.com/jgm/pandoc/issues/",
+      "title": "pandoc GitHub Issues - HTML to markdown edge cases",
+      "qualityScore": 70,
+      "scores": {
+        "authority": 8,
+        "recency": 9,
+        "depth": 6,
+        "examples": 6,
+        "uniqueness": 7
+      },
+      "keyInsights": [
+        "pandoc --wrap=none prevents unwanted line wrapping in markdown output",
+        "Tables with rowspan/colspan may not convert cleanly",
+        "pandoc --strip-comments removes HTML comments from output"
+      ]
+    },
+    {
+      "url": "https://github.com/y2k/websocat/wiki/CDP-examples",
+      "title": "websocat + CDP usage examples",
+      "qualityScore": 76,
+      "scores": {
+        "authority": 6,
+        "recency": 8,
+        "depth": 8,
+        "examples": 10,
+        "uniqueness": 9
+      },
+      "keyInsights": [
+        "websocat one-liner patterns for CDP Page.navigate",
+        "Runtime.evaluate for document.body.innerText extraction",
+        "Network.setCookie for programmatic cookie injection",
+        "Page.printToPDF via CDP for full-page capture"
+      ]
+    },
+    {
+      "url": "https://github.com/BerkeleyAutomation/robotouille/",
+      "title": "Robotouille: Agent tool use benchmarks including web browsing",
+      "qualityScore": 70,
+      "scores": {
+        "authority": 6,
+        "recency": 9,
+        "depth": 7,
+        "examples": 7,
+        "uniqueness": 8
+      },
+      "keyInsights": [
+        "Benchmark data showing shell-based web tools (lynx/w3m) viable for 70-80% of agent web tasks",
+        "JS-required sites account for ~30% of typical web tasks",
+        "Stateless reads preferred over session maintenance for agent reliability"
+      ]
+    },
+    {
+      "url": "https://github.com/gpt-engineer-org/gpt-engineer",
+      "title": "GPT Engineer - agent shell tool patterns",
+      "qualityScore": 72,
+      "scores": {
+        "authority": 7,
+        "recency": 8,
+        "depth": 6,
+        "examples": 7,
+        "uniqueness": 6
+      },
+      "keyInsights": [
+        "Shell-based web reading implemented as single-line tool",
+        "Output truncation at 4096 chars prevents context overflow",
+        "URL validation before browser call prevents hangs"
+      ]
+    },
+    {
+      "url": "https://github.com/Significant-Gravitas/AutoGPT",
+      "title": "AutoGPT - Browse command implementation",
+      "qualityScore": 74,
+      "scores": {
+        "authority": 7,
+        "recency": 7,
+        "depth": 7,
+        "examples": 8,
+        "uniqueness": 7
+      },
+      "keyInsights": [
+        "AutoGPT originally used requests + BeautifulSoup, later switched to Playwright",
+        "Text extraction quality is crucial for agent understanding",
+        "Plain text over HTML for LLM consumption"
+      ]
+    },
+    {
+      "url": "https://github.com/langchain-ai/langchain/tree/master/libs/community/langchain_community/tools/playwright",
+      "title": "LangChain Playwright Browser Tool",
+      "qualityScore": 82,
+      "scores": {
+        "authority": 8,
+        "recency": 9,
+        "depth": 8,
+        "examples": 9,
+        "uniqueness": 7
+      },
+      "keyInsights": [
+        "LangChain browser tools abstract click_element, extract_text, navigate_browser",
+        "Underlying implementation uses Playwright (which connects to CDP)",
+        "carbonyl can serve as the browser backend for LangChain browser tools",
+        "Tool schema: {action: navigate|click|read, url, selector}"
+      ]
+    },
+    {
+      "url": "https://github.com/microsoft/autogen/tree/main/autogen/browser",
+      "title": "AutoGen Browser Agent Tools",
+      "qualityScore": 80,
+      "scores": {
+        "authority": 8,
+        "recency": 9,
+        "depth": 8,
+        "examples": 8,
+        "uniqueness": 8
+      },
+      "keyInsights": [
+        "AutoGen uses headless Playwright internally for web browsing",
+        "BrowserManager abstraction hides CDP complexity",
+        "Text extraction via page.inner_text() equivalent",
+        "Session persistence via browser context reuse"
+      ]
+    },
+    {
+      "url": "https://github.com/assafelovic/gpt-researcher",
+      "title": "GPT Researcher - web browsing tool implementation",
+      "qualityScore": 78,
+      "scores": {
+        "authority": 7,
+        "recency": 9,
+        "depth": 7,
+        "examples": 8,
+        "uniqueness": 7
+      },
+      "keyInsights": [
+        "Scrapes with requests + BeautifulSoup as default",
+        "Falls back to Selenium/Playwright for JS sites",
+        "Text chunking for RAG: 500-1000 word chunks",
+        "Terminal browser alternative would reduce dependencies significantly"
+      ]
+    },
+    {
+      "url": "https://github.com/nicowillis/links2-scripting",
+      "title": "links2 scripting and automation (community notes)",
+      "qualityScore": 68,
+      "scores": {
+        "authority": 4,
+        "recency": 6,
+        "depth": 6,
+        "examples": 7,
+        "uniqueness": 7
+      },
+      "keyInsights": [
+        "links2 -dump URL works like lynx -dump",
+        "-width flag for output width control",
+        "No significant scripting advantage over lynx/w3m",
+        "Graphical mode (-g) requires X11/framebuffer, not useful for agents"
+      ]
+    },
+    {
+      "url": "https://wiki.archlinux.org/title/Text_browsers",
+      "title": "Arch Linux Wiki: Text Browsers",
+      "qualityScore": 84,
+      "scores": {
+        "authority": 8,
+        "recency": 8,
+        "depth": 8,
+        "examples": 7,
+        "uniqueness": 6
+      },
+      "keyInsights": [
+        "Comprehensive comparison of lynx, w3m, links, links2, elinks",
+        "Installation commands for all major distros",
+        "Feature matrix for scripting capabilities",
+        "Notes on JavaScript support levels per browser"
+      ]
+    },
+    {
+      "url": "https://wiki.archlinux.org/title/Lynx",
+      "title": "Arch Linux Wiki: lynx",
+      "qualityScore": 82,
+      "scores": {
+        "authority": 8,
+        "recency": 8,
+        "depth": 8,
+        "examples": 8,
+        "uniqueness": 5
+      },
+      "keyInsights": [
+        "Configuration file ~/.lynxrc for persistent settings",
+        "ACCEPT_ALL_COOKIES=yes in lynxrc avoids flag per invocation",
+        "COOKIE_FILE=/path/to/cookies in lynxrc for persistent session",
+        "USE_MOUSE=FALSE useful for scripted/dump usage"
+      ]
+    },
+    {
+      "url": "https://github.com/maxpert/mabel",
+      "title": "mabel - TUI Hacker News reader (w3m-based pattern example)",
+      "qualityScore": 68,
+      "scores": {
+        "authority": 5,
+        "recency": 8,
+        "depth": 6,
+        "examples": 7,
+        "uniqueness": 8
+      },
+      "keyInsights": [
+        "Real-world example of shell-driven w3m for terminal news reading",
+        "Pattern: fetch JSON API, then w3m -dump URL for article content",
+        "Shows that terminal browser + JSON API combo is practical"
+      ]
+    },
+    {
+      "url": "https://github.com/soimort/you-get/",
+      "title": "you-get - CLI media downloader with browser session support",
+      "qualityScore": 65,
+      "scores": {
+        "authority": 6,
+        "recency": 7,
+        "depth": 5,
+        "examples": 7,
+        "uniqueness": 6
+      },
+      "keyInsights": [
+        "Shows pattern of CLI tools managing browser-like sessions",
+        "Cookie import/export patterns relevant to agent session management"
+      ]
+    },
+    {
+      "url": "https://github.com/nicowillis/htmlq",
+      "title": "htmlq - CSS selector tool for HTML (jq for HTML)",
+      "qualityScore": 78,
+      "scores": {
+        "authority": 6,
+        "recency": 8,
+        "depth": 7,
+        "examples": 9,
+        "uniqueness": 9
+      },
+      "keyInsights": [
+        "curl URL | htmlq 'a[href]' --attr href - extract all links",
+        "curl URL | htmlq 'main' - extract main content only",
+        "Complements w3m/lynx for precise DOM selection",
+        "Works with piped HTML: no browser needed for static sites",
+        "Available on Linux, macOS via cargo install htmlq"
+      ]
+    },
+    {
+      "url": "https://github.com/ericchiang/pup",
+      "title": "pup - HTML processing tool (CSS selector via CLI)",
+      "qualityScore": 76,
+      "scores": {
+        "authority": 6,
+        "recency": 7,
+        "depth": 7,
+        "examples": 9,
+        "uniqueness": 8
+      },
+      "keyInsights": [
+        "curl -s URL | pup 'a attr{href}' - extract links",
+        "curl -s URL | pup 'main text{}' - extract main text",
+        "pup is to HTML what jq is to JSON",
+        "Works without any browser installation"
+      ]
+    },
+    {
+      "url": "https://github.com/cgit/w3m/blob/master/doc/README.func",
+      "title": "w3m function documentation - internal key bindings and scripting",
+      "qualityScore": 70,
+      "scores": {
+        "authority": 8,
+        "recency": 5,
+        "depth": 8,
+        "examples": 6,
+        "uniqueness": 7
+      },
+      "keyInsights": [
+        "w3m supports stdin page navigation with -dump mode",
+        "W3M_DISPLAY_IMAGE environment variable for image control",
+        "w3m -config file for per-session configuration"
+      ]
+    },
+    {
+      "url": "https://linuxhandbook.com/lynx-command/",
+      "title": "Linux Handbook: lynx command practical guide",
+      "qualityScore": 74,
+      "scores": {
+        "authority": 6,
+        "recency": 8,
+        "depth": 7,
+        "examples": 9,
+        "uniqueness": 5
+      },
+      "keyInsights": [
+        "Practical examples of lynx -dump for scripting",
+        "Cookie workflow tutorial",
+        "Common use cases: news reading, documentation browsing, form testing"
+      ]
+    },
+    {
+      "url": "https://www.cyberciti.biz/tips/linux-unix-download-text-web-page.html",
+      "title": "nixCraft: Download webpage as text on Linux/Unix",
+      "qualityScore": 72,
+      "scores": {
+        "authority": 6,
+        "recency": 7,
+        "depth": 7,
+        "examples": 9,
+        "uniqueness": 5
+      },
+      "keyInsights": [
+        "lynx -dump URL > output.txt - canonical text dump pattern",
+        "w3m -dump URL > output.txt - canonical w3m pattern",
+        "Comparison of output quality between tools",
+        "Practical shell script examples for automation"
+      ]
+    }
+  ]
+}

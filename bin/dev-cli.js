@@ -45,8 +45,13 @@ const VALIDATE_SUBCOMMANDS = {
   'paths': {
     description: 'Scan for hardcoded platform paths',
     handler: () => {
-      const { scanDirectory } = require(path.join(ROOT_DIR, 'scripts', 'check-hardcoded-paths.js'));
+      const fs = require('fs');
       const pluginsDir = path.join(ROOT_DIR, 'plugins');
+      if (!fs.existsSync(pluginsDir)) {
+        console.log('[OK] No plugins/ directory (plugins extracted to standalone repos)');
+        return 0;
+      }
+      const { scanDirectory } = require(path.join(ROOT_DIR, 'scripts', 'check-hardcoded-paths.js'));
       const issues = scanDirectory(pluginsDir);
       if (issues.length === 0) {
         console.log('[OK] No hardcoded platform paths found');
@@ -196,27 +201,6 @@ const COMMANDS = {
     handler: (args) => {
       const { main } = require(path.join(ROOT_DIR, 'scripts', 'bump-version.js'));
       return main(args);
-    }
-  },
-  'sync-lib': {
-    description: 'Sync lib/ to plugins/ (requires bash)',
-    handler: () => {
-      // Check bash availability on Windows
-      if (process.platform === 'win32') {
-        try {
-          execSync('where bash', { stdio: 'pipe' });
-        } catch {
-          console.error('[ERROR] bash not found. Install Git Bash or WSL to run sync-lib.');
-          return 1;
-        }
-      }
-      const scriptPath = path.join(ROOT_DIR, 'scripts', 'sync-lib.sh');
-      try {
-        execSync(`bash "${scriptPath}"`, { cwd: ROOT_DIR, stdio: 'inherit' });
-        return 0;
-      } catch (err) {
-        return err.status || 1;
-      }
     }
   },
   'setup-hooks': {
@@ -471,8 +455,7 @@ Commands:
     --json                Structured JSON output
 
   bump <version>          Bump version across all files
-  sync-lib                Sync lib/ to plugins/ (bash)
-  setup-hooks             Install git hooks
+setup-hooks             Install git hooks
   dev-install [tool]      Install to dev tools (--clean to remove)
   detect                  Detect project platform config
   verify                  Verify dev tool availability

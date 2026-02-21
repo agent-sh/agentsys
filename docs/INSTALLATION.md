@@ -129,11 +129,11 @@ agentsys --tool claude
 
 ### Local Development (Plugin Directory)
 
-For testing or development, load plugins directly:
+Plugins now live in standalone repos. To load a plugin locally, clone its repo:
 
 ```bash
-git clone https://github.com/agent-sh/agentsys.git
-claude --plugin-dir ./agentsys/plugins/next-task
+git clone https://github.com/agent-sh/next-task.git
+claude --plugin-dir ./next-task
 ```
 
 ### Quick Dev Install (Contributors)
