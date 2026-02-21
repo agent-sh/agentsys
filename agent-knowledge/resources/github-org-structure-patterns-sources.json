@@ -1,0 +1,293 @@
+{
+  "topic": "GitHub organization structure patterns for developer tool ecosystems",
+  "slug": "github-org-structure-patterns",
+  "generated": "2026-02-21T00:00:00Z",
+  "depth": "deep",
+  "totalSources": 18,
+  "sources": [
+    {
+      "url": "https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file",
+      "title": "Creating a default community health file - GitHub Docs",
+      "qualityScore": 98,
+      "authority": 10,
+      "recency": 10,
+      "depth": 9,
+      "examples": 9,
+      "uniqueness": 7,
+      "keyInsights": [
+        ".github repo must be public for defaults to cascade org-wide",
+        "Supported default files: CODE_OF_CONDUCT, CONTRIBUTING, FUNDING.yml, GOVERNANCE, SECURITY, SUPPORT, issue/PR templates",
+        "If repo has ANY files in .github/ISSUE_TEMPLATE, org defaults don't apply to that repo",
+        "License files cannot be org-level defaults"
+      ]
+    },
+    {
+      "url": "https://docs.github.com/en/actions/using-workflows/reusing-workflows",
+      "title": "Reusing workflows - GitHub Actions Docs",
+      "qualityScore": 97,
+      "authority": 10,
+      "recency": 10,
+      "depth": 9,
+      "examples": 9,
+      "uniqueness": 6,
+      "keyInsights": [
+        "workflow_call trigger enables reusable workflows",
+        "Reference syntax: {owner}/{repo}/.github/workflows/{filename}@{ref}",
+        "Maximum 10 nesting levels",
+        "Permissions can only be maintained or reduced, never elevated",
+        "secrets: inherit passes caller secrets implicitly"
+      ]
+    },
+    {
+      "url": "https://docs.github.com/en/actions/using-workflows/creating-starter-workflows-for-your-organization",
+      "title": "Creating starter workflows for your organization - GitHub Docs",
+      "qualityScore": 90,
+      "authority": 10,
+      "recency": 9,
+      "depth": 8,
+      "examples": 8,
+      "uniqueness": 6,
+      "keyInsights": [
+        "Starter workflows live in .github repo under workflow-templates/",
+        "5 categories: CI, Deployments, Automation, Code-scanning, Pages",
+        "Each requires .yml and .properties.json metadata file",
+        "$default-branch and $cron-daily variable substitution supported"
+      ]
+    },
+    {
+      "url": "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners",
+      "title": "About CODEOWNERS - GitHub Docs",
+      "qualityScore": 95,
+      "authority": 10,
+      "recency": 10,
+      "depth": 9,
+      "examples": 9,
+      "uniqueness": 6,
+      "keyInsights": [
+        "Last matching pattern wins (bottom-to-top precedence)",
+        "Can map paths to GitHub teams, not just individual users",
+        "Auto-requests review from owners on PRs touching owned paths"
+      ]
+    },
+    {
+      "url": "https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages",
+      "title": "About GitHub Pages - GitHub Docs",
+      "qualityScore": 88,
+      "authority": 10,
+      "recency": 9,
+      "depth": 7,
+      "examples": 6,
+      "uniqueness": 5,
+      "keyInsights": [
+        "Org site: <owner>.github.io repo, one per account",
+        "Project sites: per-repo at <owner>.github.io/<repo>",
+        "Custom domains supported",
+        "Free plan: public repos only"
+      ]
+    },
+    {
+      "url": "https://github.com/oven-sh",
+      "title": "oven-sh GitHub Organization (Bun)",
+      "qualityScore": 85,
+      "authority": 9,
+      "recency": 10,
+      "depth": 7,
+      "examples": 8,
+      "uniqueness": 8,
+      "keyInsights": [
+        "7 visible repos: bun (87.5k stars), awesome-bun, setup-bun, homebrew-bun, forks",
+        "Minimal focused org model - every repo has clear purpose",
+        "Setup action (setup-bun) is a first-class citizen"
+      ]
+    },
+    {
+      "url": "https://github.com/denoland",
+      "title": "denoland GitHub Organization (Deno)",
+      "qualityScore": 88,
+      "authority": 9,
+      "recency": 10,
+      "depth": 8,
+      "examples": 8,
+      "uniqueness": 8,
+      "keyInsights": [
+        "216+ repos: runtime, std library, frameworks, toolchains",
+        "deno (106k stars), fresh (13.8k), rusty_v8, std",
+        "Standard library is separate monorepo with own release cadence",
+        "Verified domain",
+        "Now publishes to JSR (JavaScript Registry)"
+      ]
+    },
+    {
+      "url": "https://github.com/withastro",
+      "title": "withastro GitHub Organization (Astro)",
+      "qualityScore": 90,
+      "authority": 9,
+      "recency": 10,
+      "depth": 8,
+      "examples": 8,
+      "uniqueness": 8,
+      "keyInsights": [
+        "51 repos: astro (57k), starlight, compiler, docs, roadmap (RFCs), action",
+        "roadmap repo used for public RFCs and planning",
+        "pnpm workspaces for monorepo management",
+        "Framework org archetype with clear subsystem separation"
+      ]
+    },
+    {
+      "url": "https://github.com/tauri-apps/tauri/blob/dev/.github/CODEOWNERS",
+      "title": "tauri-apps CODEOWNERS",
+      "qualityScore": 82,
+      "authority": 8,
+      "recency": 9,
+      "depth": 6,
+      "examples": 10,
+      "uniqueness": 9,
+      "keyInsights": [
+        "Two-team model: * @tauri-apps/wg-tauri and .github @tauri-apps/wg-devops",
+        "Working groups as GitHub Teams for persistent ownership",
+        "DevOps team owns .github path — prevents accidental CI breakage"
+      ]
+    },
+    {
+      "url": "https://github.com/biomejs/biome/blob/main/CONTRIBUTING.md",
+      "title": "Biome CONTRIBUTING.md",
+      "qualityScore": 88,
+      "authority": 8,
+      "recency": 10,
+      "depth": 8,
+      "examples": 9,
+      "uniqueness": 9,
+      "keyInsights": [
+        "AI disclosure section is placed first in the contributing guide",
+        "Uses just (Justfile) for all project commands",
+        "Changesets for versioning and changelog",
+        "Branch targeting: main vs next depending on change stability"
+      ]
+    },
+    {
+      "url": "https://github.com/oxc-project/oxc/blob/main/CONTRIBUTING.md",
+      "title": "OXC CONTRIBUTING.md",
+      "qualityScore": 85,
+      "authority": 8,
+      "recency": 10,
+      "depth": 8,
+      "examples": 8,
+      "uniqueness": 9,
+      "keyInsights": [
+        "AI accountability policy: contributor responsible for all AI-generated code",
+        "Good first issues labeled prominently",
+        "Discord community link in contributing guide",
+        "Quality gates for AI-assisted contributions"
+      ]
+    },
+    {
+      "url": "https://github.com/withastro/astro/blob/main/CONTRIBUTING.md",
+      "title": "Astro CONTRIBUTING.md",
+      "qualityScore": 87,
+      "authority": 8,
+      "recency": 10,
+      "depth": 8,
+      "examples": 8,
+      "uniqueness": 7,
+      "keyInsights": [
+        "Node ^22.12, pnpm ^10.28 requirements",
+        "GitHub Codespaces support for zero-install onboarding",
+        "p1-p5 priority scale for issues",
+        "Mocha to node:test migration"
+      ]
+    },
+    {
+      "url": "https://github.com/oven-sh/bun/blob/main/CONTRIBUTING.md",
+      "title": "Bun CONTRIBUTING.md",
+      "qualityScore": 85,
+      "authority": 8,
+      "recency": 10,
+      "depth": 7,
+      "examples": 8,
+      "uniqueness": 8,
+      "keyInsights": [
+        "10-30 minute first setup expectation set explicitly",
+        "LLVM 21.1.8 required (specific version)",
+        "Zig compiler auto-installed by build script",
+        "bun bd alias for debug builds"
+      ]
+    },
+    {
+      "url": "https://github.com/unjs",
+      "title": "unjs GitHub Organization",
+      "qualityScore": 80,
+      "authority": 8,
+      "recency": 10,
+      "depth": 7,
+      "examples": 7,
+      "uniqueness": 8,
+      "keyInsights": [
+        "Utility ecosystem model: dozens of small focused packages",
+        "Each package is own repo with independent release cycle",
+        "Org README serves as package index",
+        "Key packages: nitro, unbuild, h3, ofetch"
+      ]
+    },
+    {
+      "url": "https://github.com/sindresorhus",
+      "title": "sindresorhus GitHub Profile",
+      "qualityScore": 75,
+      "authority": 9,
+      "recency": 8,
+      "depth": 5,
+      "examples": 5,
+      "uniqueness": 8,
+      "keyInsights": [
+        "Hundreds of individual focused packages, each in own repo",
+        "Single-purpose packages with independent versioning",
+        "User/org profile README as central index"
+      ]
+    },
+    {
+      "url": "https://docs.github.com/en/organizations/collaborating-with-groups-in-organizations/customizing-your-organizations-profile",
+      "title": "Customizing your organization's profile - GitHub Docs",
+      "qualityScore": 88,
+      "authority": 10,
+      "recency": 10,
+      "depth": 7,
+      "examples": 6,
+      "uniqueness": 6,
+      "keyInsights": [
+        "Public README: .github repo, profile/README.md",
+        "Member-only README: .github-private repo, profile/README.md",
+        "Pin up to 6 repos for public view, separate 6 for member view",
+        "Custom avatar via upload or Gravatar"
+      ]
+    },
+    {
+      "url": "https://github.com/oxc-project",
+      "title": "oxc-project GitHub Organization",
+      "qualityScore": 78,
+      "authority": 8,
+      "recency": 10,
+      "depth": 6,
+      "examples": 6,
+      "uniqueness": 8,
+      "keyInsights": [
+        "AI usage policy prominently in contributing docs",
+        "Good first issues labeled for onboarding",
+        "Discord community integration"
+      ]
+    },
+    {
+      "url": "https://docs.github.com/en/organizations/managing-organization-settings/verifying-or-approving-a-domain-for-your-organization",
+      "title": "Verifying a domain for your organization - GitHub Docs",
+      "qualityScore": 80,
+      "authority": 10,
+      "recency": 9,
+      "depth": 6,
+      "examples": 5,
+      "uniqueness": 5,
+      "keyInsights": [
+        "Verified domain adds authority badge to org profile",
+        "Required for SAML SSO enforcement",
+        "DNS TXT record verification"
+      ]
+    }
+  ]
+}

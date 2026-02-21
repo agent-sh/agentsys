@@ -13,10 +13,8 @@
  *
  * Files stamped:
  *   - .claude-plugin/plugin.json
- *   - .claude-plugin/marketplace.json (all version occurrences)
- *   - plugins/*\/.claude-plugin/plugin.json (discovered via lib/discovery)
+ *   - .claude-plugin/marketplace.json (root version only, plugin versions are independent)
  *   - site/content.json (meta.version)
- *   - plugins/*\/skills/*\/SKILL.md (version in YAML frontmatter)
  *
  * @author Avi Fenesh
  * @license MIT
@@ -126,42 +124,13 @@ function stampVersion(rootDir) {
   console.log('Root plugin:');
   updateJsonFile(path.join(rootDir, '.claude-plugin', 'plugin.json'), version);
 
-  // Marketplace
+  // Marketplace (root version only - plugin versions are independent)
   console.log('\nMarketplace:');
-  updateMarketplaceJson(path.join(rootDir, '.claude-plugin', 'marketplace.json'), version);
-
-  // Plugin plugin.json files (discovered from filesystem)
-  console.log('\nPlugins:');
-  const discovery = require(path.join(rootDir, 'lib', 'discovery'));
-  const pluginNames = discovery.discoverPlugins(rootDir);
-  for (const plugin of pluginNames) {
-    const pluginPath = path.join(rootDir, 'plugins', plugin, '.claude-plugin', 'plugin.json');
-    updateJsonFile(pluginPath, version);
-  }
+  updateJsonFile(path.join(rootDir, '.claude-plugin', 'marketplace.json'), version);
 
   // Site content.json
   console.log('\nSite:');
   updateContentJson(path.join(rootDir, 'site', 'content.json'), version);
-
-  // Skill SKILL.md files (version in YAML frontmatter)
-  console.log('\nSkills:');
-  let skillCount = 0;
-  for (const plugin of pluginNames) {
-    const skillsDir = path.join(rootDir, 'plugins', plugin, 'skills');
-    if (!fs.existsSync(skillsDir)) continue;
-    const skillDirs = fs.readdirSync(skillsDir, { withFileTypes: true }).filter(d => d.isDirectory());
-    for (const skillDir of skillDirs) {
-      const skillMdPath = path.join(skillsDir, skillDir.name, 'SKILL.md');
-      if (!fs.existsSync(skillMdPath)) continue;
-      let content = fs.readFileSync(skillMdPath, 'utf8');
-      const updated = content.replace(/^(version:\s*)\S+/m, `$1${version}`);
-      if (updated !== content) {
-        fs.writeFileSync(skillMdPath, updated);
-        skillCount++;
-      }
-    }
-  }
-  console.log(`  [OK] ${skillCount} SKILL.md file(s) stamped`);
 
   console.log(`\n[OK] Version ${version} stamped to all files\n`);
   return 0;

@@ -61,8 +61,7 @@ const MANUAL_CHECKS = {
     'Verify skill directory name matches skill name in SKILL.md'
   ],
   'new-lib-module': [
-    'Run sync-lib to copy lib/ to all plugins/*/lib/',
-    'Verify module loads from both lib/ and plugins/*/lib/'
+    'Verify module loads from lib/'
   ],
   'release': [
     'Verify cross-platform install: npm pack && npm install -g',
@@ -595,11 +594,20 @@ function checkLibPluginSync(changedFiles, options) {
   const pluginsDir = path.join(ROOT_DIR, 'plugins');
   const mismatches = [];
 
-  if (!fs.existsSync(libDir) || !fs.existsSync(pluginsDir)) {
+  // Post-extraction: plugins/ no longer exists, sync handled by agent-core
+  if (!fs.existsSync(pluginsDir)) {
+    return {
+      name: 'gap:lib-plugin-sync',
+      status: 'pass',
+      message: 'Plugins extracted to standalone repos (agent-core handles sync)'
+    };
+  }
+
+  if (!fs.existsSync(libDir)) {
     return {
       name: 'gap:lib-plugin-sync',
       status: 'error',
-      message: 'lib/ or plugins/ directory not found'
+      message: 'lib/ directory not found'
     };
   }
 
@@ -766,52 +774,14 @@ function checkTestFileExistence(changedFiles) {
 }
 
 /**
- * g) If any lib/ file is staged, check that each plugin's lib/ files are
- *    also staged. Pass if both present or neither.
+ * g) Lib sync check - no longer needed since agent-core handles sync.
+ *    Kept as a pass-through for backward compatibility with check runners.
  */
 function checkLibStagedTogether() {
-  const raw = gitExec('git diff --cached --name-only');
-  const stagedFiles = raw ? raw.split('\n').filter(f => f.trim()) : [];
-
-  if (stagedFiles.length === 0) {
-    return {
-      name: 'gap:lib-staged-together',
-      status: 'skip',
-      message: 'No files staged'
-    };
-  }
-
-  const hasLibStaged = stagedFiles.some(f => f.startsWith('lib/') && !f.includes('node_modules'));
-  const hasPluginLibStaged = stagedFiles.some(f => /^plugins\/[^/]+\/lib\//.test(f));
-
-  if (!hasLibStaged && !hasPluginLibStaged) {
-    return {
-      name: 'gap:lib-staged-together',
-      status: 'pass',
-      message: 'No lib/ files staged'
-    };
-  }
-
-  if (hasLibStaged && hasPluginLibStaged) {
-    return {
-      name: 'gap:lib-staged-together',
-      status: 'pass',
-      message: 'lib/ and plugins/*/lib/ staged together'
-    };
-  }
-
-  if (hasLibStaged && !hasPluginLibStaged) {
-    return {
-      name: 'gap:lib-staged-together',
-      status: 'warn',
-      message: 'lib/ files staged but plugins/*/lib/ not staged - run sync-lib first'
-    };
-  }
-
   return {
     name: 'gap:lib-staged-together',
-    status: 'warn',
-    message: 'plugins/*/lib/ files staged but lib/ source not staged'
+    status: 'pass',
+    message: 'lib/ sync handled by agent-core (no local check needed)'
   };
 }
 

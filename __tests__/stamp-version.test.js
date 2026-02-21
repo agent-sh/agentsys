@@ -91,15 +91,12 @@ describe('stampVersion', () => {
     const rootPlugin = JSON.parse(fs.readFileSync(path.join(root, '.claude-plugin', 'plugin.json'), 'utf8'));
     expect(rootPlugin.version).toBe('2.5.0');
 
-    // Marketplace (all occurrences)
+    // Marketplace (root version only, plugin versions are independent)
     const marketplace = JSON.parse(fs.readFileSync(path.join(root, '.claude-plugin', 'marketplace.json'), 'utf8'));
     expect(marketplace.version).toBe('2.5.0');
-    expect(marketplace.plugins[0].version).toBe('2.5.0');
-    expect(marketplace.plugins[1].version).toBe('2.5.0');
+    // Plugin versions are now independent (not stamped by root version)
 
-    // Plugin plugin.json
-    const pluginJson = JSON.parse(fs.readFileSync(path.join(root, 'plugins', 'mock-plugin', '.claude-plugin', 'plugin.json'), 'utf8'));
-    expect(pluginJson.version).toBe('2.5.0');
+    // Plugin plugin.json - no longer stamped by root version (plugins have independent versions)
 
     // Site content.json
     const content = JSON.parse(fs.readFileSync(path.join(root, 'site', 'content.json'), 'utf8'));
@@ -145,17 +142,17 @@ describe('stampVersion', () => {
     expect(rootPlugin.version).toBe('3.0.0-rc.1');
   });
 
-  test('throws error when target plugin.json is malformed', () => {
+  test('ignores plugin.json in plugins/ (independent versions)', () => {
     const root = createMockRepo('1.0.0');
 
-    // Corrupt a plugin.json file
+    // Even with a corrupt plugin.json, stamp-version should succeed
+    // because it no longer touches plugin-level files
     const pluginJsonPath = path.join(root, 'plugins', 'mock-plugin', '.claude-plugin', 'plugin.json');
     fs.writeFileSync(pluginJsonPath, '{ "name": "mock-plugin", "version": "0.0.0"'); // Missing closing brace
 
-    // Should throw when trying to update the malformed file
-    expect(() => {
-      stampVersion(root);
-    }).toThrow();
+    // Should NOT throw — plugins are independent now
+    const code = stampVersion(root);
+    expect(code).toBe(0);
   });
 
   test('throws error when package.json is malformed', () => {

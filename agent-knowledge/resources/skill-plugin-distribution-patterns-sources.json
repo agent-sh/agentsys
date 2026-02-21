@@ -1,0 +1,290 @@
+{
+  "topic": "Skill, plugin, and extension distribution patterns for CLI tools and AI agent frameworks",
+  "slug": "skill-plugin-distribution-patterns",
+  "generated": "2026-02-21T00:00:00Z",
+  "depth": "deep",
+  "methodology": "Synthesized from training knowledge (web fetch unavailable). Sources are known references from the ecosystems studied, not live-fetched.",
+  "totalSources": 40,
+  "sources": [
+    {
+      "url": "https://developer.hashicorp.com/terraform/plugin/framework",
+      "title": "Terraform Plugin Framework Documentation",
+      "qualityScore": 95,
+      "scores": { "authority": 10, "recency": 9, "depth": 10, "examples": 9, "uniqueness": 8 },
+      "keyInsights": ["gRPC-based plugin protocol", "Provider SDK abstracts protocol details", "Platform-specific binary distribution", "Lock file for reproducibility"]
+    },
+    {
+      "url": "https://registry.terraform.io/",
+      "title": "Terraform Registry",
+      "qualityScore": 90,
+      "scores": { "authority": 10, "recency": 9, "depth": 8, "examples": 8, "uniqueness": 9 },
+      "keyInsights": ["Namespace/provider versioning model", "3000+ providers", "Module registry alongside provider registry", "Verified publisher badges"]
+    },
+    {
+      "url": "https://code.visualstudio.com/api",
+      "title": "VSCode Extension API",
+      "qualityScore": 95,
+      "scores": { "authority": 10, "recency": 9, "depth": 10, "examples": 10, "uniqueness": 8 },
+      "keyInsights": ["VSIX packaging format", "Extension Host sandboxing", "Marketplace API for discovery", "Extension packs for bundling"]
+    },
+    {
+      "url": "https://code.visualstudio.com/api/working-with-extensions/publishing-extension",
+      "title": "Publishing VSCode Extensions",
+      "qualityScore": 88,
+      "scores": { "authority": 10, "recency": 8, "depth": 9, "examples": 8, "uniqueness": 6 },
+      "keyInsights": ["vsce CLI for publishing", "Publisher verification flow", "Marketplace categories and tags"]
+    },
+    {
+      "url": "https://docs.brew.sh/Formula-Cookbook",
+      "title": "Homebrew Formula Cookbook",
+      "qualityScore": 90,
+      "scores": { "authority": 10, "recency": 8, "depth": 9, "examples": 9, "uniqueness": 8 },
+      "keyInsights": ["Ruby DSL for formulae", "Bottle (pre-built binary) system", "Tap architecture for third-party repos"]
+    },
+    {
+      "url": "https://docs.brew.sh/Taps",
+      "title": "Homebrew Taps Documentation",
+      "qualityScore": 85,
+      "scores": { "authority": 10, "recency": 8, "depth": 7, "examples": 8, "uniqueness": 7 },
+      "keyInsights": ["Third-party tap naming convention homebrew-*", "Git-based distribution", "formulae.brew.sh JSON API overlay"]
+    },
+    {
+      "url": "https://asdf-vm.com/plugins/create.html",
+      "title": "asdf Plugin Creation Guide",
+      "qualityScore": 88,
+      "scores": { "authority": 10, "recency": 7, "depth": 9, "examples": 9, "uniqueness": 8 },
+      "keyInsights": ["Shell script convention in bin/", "Minimal contract: list-all, install", "Git-based distribution with shortname registry"]
+    },
+    {
+      "url": "https://github.com/asdf-vm/asdf-plugins",
+      "title": "asdf Shortname Plugin Registry",
+      "qualityScore": 82,
+      "scores": { "authority": 9, "recency": 7, "depth": 6, "examples": 7, "uniqueness": 9 },
+      "keyInsights": ["Simple text file mapping names to git URLs", "Community-contributed via PR", "500+ plugins indexed"]
+    },
+    {
+      "url": "https://mise.jdx.dev/",
+      "title": "mise Documentation",
+      "qualityScore": 90,
+      "scores": { "authority": 9, "recency": 10, "depth": 9, "examples": 9, "uniqueness": 8 },
+      "keyInsights": ["Multi-backend plugin model", "asdf compatibility layer", "TOML-based registry", "Core plugins eliminate git clones for common tools"]
+    },
+    {
+      "url": "https://mise.jdx.dev/dev-tools/backends/",
+      "title": "mise Backends Documentation",
+      "qualityScore": 85,
+      "scores": { "authority": 9, "recency": 10, "depth": 8, "examples": 8, "uniqueness": 9 },
+      "keyInsights": ["Multiple backends: asdf, cargo, npm, go, ubi, aqua", "Backend abstraction over plugin transport"]
+    },
+    {
+      "url": "https://github.com/ohmyzsh/ohmyzsh/wiki/Plugins",
+      "title": "oh-my-zsh Plugins Wiki",
+      "qualityScore": 80,
+      "scores": { "authority": 9, "recency": 6, "depth": 7, "examples": 7, "uniqueness": 7 },
+      "keyInsights": ["300+ bundled plugins", "Convention: pluginname.plugin.zsh", "Monolithic repo approach"]
+    },
+    {
+      "url": "https://github.com/zdharma-continuum/zinit",
+      "title": "zinit - Flexible Zsh Plugin Manager",
+      "qualityScore": 82,
+      "scores": { "authority": 7, "recency": 7, "depth": 8, "examples": 9, "uniqueness": 8 },
+      "keyInsights": ["Lazy loading for performance", "Turbo mode deferred loading", "Git-based with snippet support"]
+    },
+    {
+      "url": "https://github.com/junegunn/vim-plug",
+      "title": "vim-plug: Minimalist Vim Plugin Manager",
+      "qualityScore": 85,
+      "scores": { "authority": 8, "recency": 7, "depth": 8, "examples": 9, "uniqueness": 7 },
+      "keyInsights": ["Parallel install/update", "On-demand loading", "Git-based, single-file manager"]
+    },
+    {
+      "url": "https://eslint.org/docs/latest/extend/plugins",
+      "title": "ESLint Plugin Developer Guide",
+      "qualityScore": 88,
+      "scores": { "authority": 10, "recency": 8, "depth": 9, "examples": 9, "uniqueness": 7 },
+      "keyInsights": ["npm naming convention eslint-plugin-*", "Flat config reduces plugin config burden", "Peer dependency model"]
+    },
+    {
+      "url": "https://docs.github.com/en/actions/creating-actions",
+      "title": "GitHub Actions: Creating Actions",
+      "qualityScore": 90,
+      "scores": { "authority": 10, "recency": 9, "depth": 9, "examples": 9, "uniqueness": 8 },
+      "keyInsights": ["action.yml convention", "Three action types: JS, Docker, composite", "Versioning via git tags", "GitHub Marketplace for discovery"]
+    },
+    {
+      "url": "https://docs.github.com/en/actions/creating-actions/publishing-actions-in-github-marketplace",
+      "title": "Publishing Actions to GitHub Marketplace",
+      "qualityScore": 83,
+      "scores": { "authority": 10, "recency": 8, "depth": 7, "examples": 7, "uniqueness": 7 },
+      "keyInsights": ["Marketplace listing requirements", "Category taxonomy", "Verified creator badges"]
+    },
+    {
+      "url": "https://github.com/hashicorp/go-plugin",
+      "title": "HashiCorp go-plugin Library",
+      "qualityScore": 88,
+      "scores": { "authority": 9, "recency": 7, "depth": 9, "examples": 8, "uniqueness": 10 },
+      "keyInsights": ["gRPC over stdio for plugin communication", "Plugin as separate process", "Used by Terraform, Vault, Nomad, Packer"]
+    },
+    {
+      "url": "https://docs.anthropic.com/en/docs/claude-code",
+      "title": "Claude Code Documentation",
+      "qualityScore": 85,
+      "scores": { "authority": 10, "recency": 10, "depth": 7, "examples": 8, "uniqueness": 9 },
+      "keyInsights": ["CLAUDE.md convention for project context", "Slash commands from markdown files", "Plugin cache directory structure"]
+    },
+    {
+      "url": "https://opencode.ai/docs",
+      "title": "OpenCode Documentation",
+      "qualityScore": 80,
+      "scores": { "authority": 9, "recency": 10, "depth": 6, "examples": 7, "uniqueness": 8 },
+      "keyInsights": ["AGENTS.md convention", "Tool-based extension model", "Compatible with Claude Code conventions"]
+    },
+    {
+      "url": "https://github.com/openai/codex",
+      "title": "OpenAI Codex CLI",
+      "qualityScore": 78,
+      "scores": { "authority": 9, "recency": 10, "depth": 6, "examples": 7, "uniqueness": 7 },
+      "keyInsights": ["AGENTS.md for agent instructions", "Minimal plugin model", "Convention-based discovery"]
+    },
+    {
+      "url": "https://www.npmjs.com/package/gatsby",
+      "title": "Gatsby Plugin Ecosystem (npm)",
+      "qualityScore": 78,
+      "scores": { "authority": 8, "recency": 5, "depth": 7, "examples": 8, "uniqueness": 6 },
+      "keyInsights": ["gatsby-config.js plugin array", "npm naming convention gatsby-plugin-*", "Plugin options pattern"]
+    },
+    {
+      "url": "https://grafana.com/docs/grafana/latest/developers/plugins/",
+      "title": "Grafana Plugin Development",
+      "qualityScore": 82,
+      "scores": { "authority": 9, "recency": 8, "depth": 8, "examples": 7, "uniqueness": 8 },
+      "keyInsights": ["Plugin catalog with categories", "Signed plugin verification", "Plugin.json manifest", "Three plugin types: panel, datasource, app"]
+    },
+    {
+      "url": "https://www.jetbrains.com/help/idea/managing-plugins.html",
+      "title": "JetBrains Plugin Management",
+      "qualityScore": 80,
+      "scores": { "authority": 9, "recency": 8, "depth": 7, "examples": 6, "uniqueness": 6 },
+      "keyInsights": ["Marketplace with ratings", "Plugin compatibility with IDE version ranges", "Bundled vs installable plugins"]
+    },
+    {
+      "url": "https://neovim.io/doc/user/remote_plugin.html",
+      "title": "Neovim Remote Plugins",
+      "qualityScore": 80,
+      "scores": { "authority": 9, "recency": 7, "depth": 8, "examples": 7, "uniqueness": 9 },
+      "keyInsights": ["RPC-based plugin protocol", "Any language via msgpack-rpc", "Plugin manifest generation"]
+    },
+    {
+      "url": "https://github.com/folke/lazy.nvim",
+      "title": "lazy.nvim - Modern Neovim Plugin Manager",
+      "qualityScore": 85,
+      "scores": { "authority": 8, "recency": 9, "depth": 8, "examples": 9, "uniqueness": 7 },
+      "keyInsights": ["Lazy loading by event/command/filetype", "Lock file for reproducibility", "Structured spec format", "Git-based with optional rockspec support"]
+    },
+    {
+      "url": "https://rollupjs.org/plugin-development/",
+      "title": "Rollup Plugin Development",
+      "qualityScore": 82,
+      "scores": { "authority": 9, "recency": 8, "depth": 8, "examples": 9, "uniqueness": 6 },
+      "keyInsights": ["Plugin as function returning hooks object", "Naming convention rollup-plugin-*", "Hook-based lifecycle API"]
+    },
+    {
+      "url": "https://vitejs.dev/guide/api-plugin.html",
+      "title": "Vite Plugin API",
+      "qualityScore": 85,
+      "scores": { "authority": 9, "recency": 9, "depth": 8, "examples": 9, "uniqueness": 7 },
+      "keyInsights": ["Rollup-compatible plugin interface", "Vite-specific hooks added", "npm distribution", "enforce: pre/post ordering"]
+    },
+    {
+      "url": "https://prettier.io/docs/en/plugins.html",
+      "title": "Prettier Plugin Development",
+      "qualityScore": 80,
+      "scores": { "authority": 9, "recency": 8, "depth": 7, "examples": 8, "uniqueness": 6 },
+      "keyInsights": ["npm naming convention prettier-plugin-*", "Auto-discovery in node_modules", "Parser and printer plugin types"]
+    },
+    {
+      "url": "https://go.dev/ref/mod#vendoring",
+      "title": "Go Module Vendoring Reference",
+      "qualityScore": 82,
+      "scores": { "authority": 10, "recency": 8, "depth": 7, "examples": 6, "uniqueness": 8 },
+      "keyInsights": ["go mod vendor copies dependencies", "vendor/modules.txt tracks versions", "GOFLAGS=-mod=vendor for CI"]
+    },
+    {
+      "url": "https://docs.npmjs.com/cli/v10/commands/npm-pack",
+      "title": "npm pack Documentation",
+      "qualityScore": 75,
+      "scores": { "authority": 10, "recency": 8, "depth": 6, "examples": 6, "uniqueness": 5 },
+      "keyInsights": ["Tarball packaging for offline install", "npm install <tarball> for vendored packages"]
+    },
+    {
+      "url": "https://turbot.com/steampipe/docs/develop/writing-plugins",
+      "title": "Steampipe Plugin Development",
+      "qualityScore": 82,
+      "scores": { "authority": 8, "recency": 8, "depth": 8, "examples": 8, "uniqueness": 9 },
+      "keyInsights": ["Terraform-inspired plugin model", "Go SDK for plugin development", "Hub registry for discovery", "gRPC plugin interface"]
+    },
+    {
+      "url": "https://github.com/rossmacarthur/sheldon",
+      "title": "sheldon - Fast Shell Plugin Manager",
+      "qualityScore": 78,
+      "scores": { "authority": 6, "recency": 7, "depth": 7, "examples": 8, "uniqueness": 8 },
+      "keyInsights": ["TOML config file", "Multiple sources: git, github, gist, local", "Rust for performance", "Lock file support"]
+    },
+    {
+      "url": "https://github.com/zplug/zplug",
+      "title": "zplug - Zsh Plugin Manager",
+      "qualityScore": 75,
+      "scores": { "authority": 7, "recency": 5, "depth": 7, "examples": 8, "uniqueness": 6 },
+      "keyInsights": ["Declarative plugin management", "Branch/tag/commit pinning", "Parallel install"]
+    },
+    {
+      "url": "https://nixos.org/manual/nix/stable/",
+      "title": "Nix Package Manager Manual",
+      "qualityScore": 85,
+      "scores": { "authority": 9, "recency": 8, "depth": 9, "examples": 7, "uniqueness": 10 },
+      "keyInsights": ["Fully reproducible builds", "Content-addressed store", "Flakes for composable packages", "Unlike all other systems: functional derivations"]
+    },
+    {
+      "url": "https://docs.deno.com/runtime/manual/basics/permissions",
+      "title": "Deno Permissions Model",
+      "qualityScore": 78,
+      "scores": { "authority": 9, "recency": 9, "depth": 7, "examples": 7, "uniqueness": 9 },
+      "keyInsights": ["URL-based imports as plugin model", "Permission flags for security", "No node_modules, direct URL resolution"]
+    },
+    {
+      "url": "https://github.com/nicknisi/dotfiles",
+      "title": "Example Dotfiles with Plugin Management",
+      "qualityScore": 65,
+      "scores": { "authority": 5, "recency": 6, "depth": 6, "examples": 8, "uniqueness": 6 },
+      "keyInsights": ["Real-world plugin management in dotfiles", "Git submodules for vim plugins", "Makefile-based setup"]
+    },
+    {
+      "url": "https://aquaproj.github.io/",
+      "title": "aqua - Declarative CLI Version Manager",
+      "qualityScore": 80,
+      "scores": { "authority": 7, "recency": 9, "depth": 7, "examples": 8, "uniqueness": 8 },
+      "keyInsights": ["Registry as YAML in git repo", "Checksum verification", "Lazy install on first use", "Standard registry with 2000+ tools"]
+    },
+    {
+      "url": "https://github.com/ubi-mirrors/ubi",
+      "title": "ubi - Universal Binary Installer",
+      "qualityScore": 75,
+      "scores": { "authority": 6, "recency": 8, "depth": 6, "examples": 7, "uniqueness": 9 },
+      "keyInsights": ["Install any GitHub release binary", "No plugin system needed", "Complements mise as a backend"]
+    },
+    {
+      "url": "https://webpack.js.org/contribute/writing-a-plugin/",
+      "title": "Webpack Plugin Development",
+      "qualityScore": 80,
+      "scores": { "authority": 9, "recency": 7, "depth": 8, "examples": 9, "uniqueness": 5 },
+      "keyInsights": ["Tapable hook system", "Plugin as class with apply() method", "Compiler and compilation hooks"]
+    },
+    {
+      "url": "https://docs.docker.com/engine/extend/",
+      "title": "Docker Engine Managed Plugins",
+      "qualityScore": 78,
+      "scores": { "authority": 9, "recency": 7, "depth": 7, "examples": 6, "uniqueness": 8 },
+      "keyInsights": ["Docker Hub as plugin registry", "docker plugin install command", "Containerized plugins for isolation", "config.json manifest"]
+    }
+  ]
+}

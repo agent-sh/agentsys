@@ -1,0 +1,428 @@
+{
+  "topic": "CLI-first browser automation for AI agents",
+  "slug": "cli-browser-automation-agents",
+  "generated": "2026-02-20T00:00:00Z",
+  "depth": "deep",
+  "totalSources": 32,
+  "sources": [
+    {
+      "url": "https://github.com/microsoft/playwright/blob/main/packages/playwright-core/src/cli/program.ts",
+      "title": "Playwright CLI Source - program.ts",
+      "qualityScore": 97,
+      "scores": { "authority": 10, "recency": 10, "depth": 10, "examples": 10, "uniqueness": 7 },
+      "keyInsights": [
+        "Complete CLI command list: codegen, screenshot, pdf, open, show-trace",
+        "screenshot command: <url> <filename> with --full-page, --wait-for-selector, --wait-for-timeout",
+        "pdf command: <url> <filename>, Chromium-only, --paper-format",
+        "--save-storage captures storageState at session end",
+        "--load-storage injects storageState into browser context",
+        "Standard options shared across all commands: --browser, --device, --viewport-size, --user-data-dir, --lang, --timezone, --proxy-server"
+      ]
+    },
+    {
+      "url": "https://github.com/microsoft/playwright/blob/main/packages/playwright-core/src/cli/program.ts",
+      "title": "Playwright CLI - screenshot and pdf syntax",
+      "qualityScore": 95,
+      "scores": { "authority": 10, "recency": 10, "depth": 9, "examples": 9, "uniqueness": 6 },
+      "keyInsights": [
+        "pdf --paper-format accepts: Letter, Legal, A0-A6, Tabloid, Ledger",
+        "--save-storage output format: JSON with cookies[] and origins[] arrays",
+        "screenshot -b webkit <url> example.png",
+        "open command launches interactive headed browser"
+      ]
+    },
+    {
+      "url": "https://github.com/microsoft/playwright/blob/main/packages/playwright-core/src/server/browserContext.ts",
+      "title": "Playwright storageState() method implementation",
+      "qualityScore": 90,
+      "scores": { "authority": 10, "recency": 10, "depth": 9, "examples": 7, "uniqueness": 4 },
+      "keyInsights": [
+        "storageState returns {cookies: NetworkCookie[], origins: [{origin, localStorage, indexedDB}]}",
+        "Cookies can be filtered by name, domain, path patterns",
+        "Iterates existing pages then creates temp pages to access all origins"
+      ]
+    },
+    {
+      "url": "https://github.com/microsoft/playwright/blob/main/packages/playwright-core/src/server/network.ts",
+      "title": "Playwright NetworkCookie type",
+      "qualityScore": 88,
+      "scores": { "authority": 10, "recency": 10, "depth": 8, "examples": 6, "uniqueness": 4 },
+      "keyInsights": [
+        "NetworkCookie fields: name, value, domain, path, expires, httpOnly, secure, sameSite",
+        "expires is Unix epoch float, -1 means session cookie"
+      ]
+    },
+    {
+      "url": "https://github.com/microsoft/playwright/blob/main/docs/src/auth.md",
+      "title": "Playwright Authentication Documentation",
+      "qualityScore": 95,
+      "scores": { "authority": 10, "recency": 9, "depth": 10, "examples": 9, "uniqueness": 6 },
+      "keyInsights": [
+        "Recommended: save storageState to playwright/.auth/ directory, gitignore it",
+        "Setup project pattern: dedicate one project to authenticate, others depend on it",
+        "Per-worker auth using parallelIndex for isolated accounts",
+        "context.storageState() called after login, saved to file"
+      ]
+    },
+    {
+      "url": "https://github.com/microsoft/playwright/blob/main/docs/src/codegen.md",
+      "title": "Playwright Codegen Documentation",
+      "qualityScore": 93,
+      "scores": { "authority": 10, "recency": 9, "depth": 9, "examples": 9, "uniqueness": 7 },
+      "keyInsights": [
+        "npx playwright codegen [URL] opens headed browser + code recording panel",
+        "--save-storage=auth.json saves cookies/localStorage/IndexedDB at session end",
+        "--viewport-size, --device, --color-scheme, --timezone, --geolocation, --lang options",
+        "Recordings can be saved with -o output.js"
+      ]
+    },
+    {
+      "url": "https://raw.githubusercontent.com/microsoft/playwright-mcp/main/README.md",
+      "title": "Playwright MCP README - Tools List",
+      "qualityScore": 97,
+      "scores": { "authority": 10, "recency": 10, "depth": 10, "examples": 9, "uniqueness": 9 },
+      "keyInsights": [
+        "30+ MCP tools: browser_navigate, browser_click, browser_type, browser_snapshot, browser_take_screenshot, browser_evaluate, browser_fill_form, browser_select_option, browser_hover, browser_drag, browser_press_key, browser_handle_dialog, browser_file_upload, browser_network_requests, browser_console_messages, browser_wait_for, browser_tabs, browser_resize, browser_close, browser_install",
+        "Vision mode adds: browser_mouse_click_xy, browser_mouse_move_xy, browser_mouse_drag_xy, browser_mouse_wheel, browser_mouse_down/up",
+        "PDF mode adds: browser_pdf_save",
+        "Testing mode adds: browser_verify_text_visible, browser_verify_element_visible, browser_generate_locator, browser_verify_value, browser_verify_list_visible",
+        "browser_snapshot returns accessibility tree (not screenshot) - token-efficient",
+        "browser_run_code executes custom Playwright snippets"
+      ]
+    },
+    {
+      "url": "https://raw.githubusercontent.com/microsoft/playwright-mcp/main/README.md",
+      "title": "Playwright MCP README - Auth and Config",
+      "qualityScore": 95,
+      "scores": { "authority": 10, "recency": 10, "depth": 10, "examples": 8, "uniqueness": 8 },
+      "keyInsights": [
+        "Three profile modes: persistent (default), isolated (--isolated), extension (--extension)",
+        "--storage-state: load cookies+localStorage from Playwright storageState JSON file",
+        "--user-data-dir: use/persist real Chrome profile with existing logins",
+        "--cdp-endpoint: connect to already-running Chrome via CDP URL",
+        "--save-session: save entire Playwright session to output directory",
+        "Chrome Extension bridge (--extension flag) connects to existing browser tabs with active sessions",
+        "--init-page: TypeScript file for custom page-level setup",
+        "--init-script: JavaScript evaluated before page scripts"
+      ]
+    },
+    {
+      "url": "https://raw.githubusercontent.com/microsoft/playwright-mcp/main/README.md",
+      "title": "Playwright MCP README - Installation and MCP Config",
+      "qualityScore": 93,
+      "scores": { "authority": 10, "recency": 10, "depth": 9, "examples": 9, "uniqueness": 7 },
+      "keyInsights": [
+        "Install: add {command: npx, args: [@playwright/mcp@latest]} to mcpServers config",
+        "Supported clients: VS Code, Cursor, Claude Desktop, Cline, Windsurf",
+        "--caps argument enables capability sets: vision, pdf, devtools, testing",
+        "Default mode: accessibility snapshots (not screenshots), no vision model required",
+        "--headless flag for headless mode; default is headed",
+        "--browser: chrome, firefox, webkit, msedge",
+        "--allowed-origins and --blocked-origins for security"
+      ]
+    },
+    {
+      "url": "https://github.com/browser-use/browser-use",
+      "title": "browser-use GitHub Repository",
+      "qualityScore": 92,
+      "scores": { "authority": 9, "recency": 10, "depth": 9, "examples": 10, "uniqueness": 9 },
+      "keyInsights": [
+        "Python library designed for LLM agents to control browsers",
+        "78.6K GitHub stars as of 2026",
+        "Provides both CLI (browser-use open/state/click/type/screenshot/close) and Python API",
+        "CLI maintains stateful session between commands",
+        "LLM-native: elements presented as indexed list for LLM selection",
+        "ChatBrowserUse model optimized for browser automation (3-5x faster than generic models)"
+      ]
+    },
+    {
+      "url": "https://raw.githubusercontent.com/browser-use/browser-use/main/README.md",
+      "title": "browser-use README - Code Examples",
+      "qualityScore": 93,
+      "scores": { "authority": 9, "recency": 10, "depth": 9, "examples": 10, "uniqueness": 9 },
+      "keyInsights": [
+        "CLI: browser-use open [URL], browser-use state, browser-use click [index], browser-use type [text], browser-use screenshot [file], browser-use close",
+        "Agent API: Agent(task=..., llm=..., browser=...)",
+        "Auth: reuse existing Chrome profile; profile sync via profile.sh script",
+        "Custom tools via @tools.action decorator",
+        "Sandbox deployment pattern for production",
+        "Install: uv add browser-use + uvx browser-use install (for Chromium)"
+      ]
+    },
+    {
+      "url": "https://github.com/cyrus-and/chrome-remote-interface",
+      "title": "chrome-remote-interface GitHub Repository",
+      "qualityScore": 85,
+      "scores": { "authority": 8, "recency": 7, "depth": 8, "examples": 8, "uniqueness": 8 },
+      "keyInsights": [
+        "Node.js CDP client with CLI: chrome-remote-interface new/list/close/inspect/version/activate",
+        "inspect subcommand provides interactive REPL with autocompletion",
+        "REPL commands: .help, .reset, .target",
+        "REPL usage: Runtime.evaluate({expression: '...'}), Page.navigate({url: '...'})",
+        "npm install -g chrome-remote-interface for CLI"
+      ]
+    },
+    {
+      "url": "https://github.com/cyrus-and/chrome-remote-interface/blob/master/README.md",
+      "title": "chrome-remote-interface README - Full Reference",
+      "qualityScore": 87,
+      "scores": { "authority": 8, "recency": 7, "depth": 9, "examples": 8, "uniqueness": 8 },
+      "keyInsights": [
+        "CLI target management: new 'http://url', close '<id>', list",
+        "Library API: CDP() connects to localhost:9222 by default",
+        "Network.getAllCookies() returns all browser cookies",
+        "Page.navigate({url}) for navigation",
+        "Supports custom protocol descriptors"
+      ]
+    },
+    {
+      "url": "https://github.com/GoogleChrome/chrome-launcher",
+      "title": "chrome-launcher GitHub Repository",
+      "qualityScore": 82,
+      "scores": { "authority": 8, "recency": 8, "depth": 7, "examples": 7, "uniqueness": 6 },
+      "keyInsights": [
+        "Node.js package for launching Chrome with sensible defaults",
+        "Opens Chrome's remote-debugging-port on an available port",
+        "ChromeLauncher.launch({startingUrl}) for headed launch",
+        "Recommend chrome-remote-interface for CDP interaction after launch",
+        "Handles profile management and cleanup"
+      ]
+    },
+    {
+      "url": "https://github.com/GoogleChromeLabs/chrome-for-testing",
+      "title": "Chrome for Testing",
+      "qualityScore": 78,
+      "scores": { "authority": 9, "recency": 10, "depth": 6, "examples": 5, "uniqueness": 5 },
+      "keyInsights": [
+        "Chrome flavor specifically for automation, no automatic updates",
+        "Binaries: chrome, chromedriver, chrome-headless-shell",
+        "Platforms: linux64, mac-arm64, mac-x64, win32, win64",
+        "Managed via @puppeteer/browsers package"
+      ]
+    },
+    {
+      "url": "https://github.com/browserless/browserless",
+      "title": "Browserless GitHub Repository",
+      "qualityScore": 85,
+      "scores": { "authority": 8, "recency": 9, "depth": 8, "examples": 8, "uniqueness": 8 },
+      "keyInsights": [
+        "Docker-based headless browser as a service",
+        "REST API: /screenshot, /pdf, /html, /scrape, /function endpoints",
+        "WebSocket CDP endpoint for Puppeteer/Playwright connection",
+        "Self-hosted or cloud deployment",
+        "Session management with configurable concurrency",
+        "Real-time debug viewer"
+      ]
+    },
+    {
+      "url": "https://github.com/steel-dev/steel-browser",
+      "title": "Steel Browser GitHub Repository",
+      "qualityScore": 84,
+      "scores": { "authority": 7, "recency": 10, "depth": 8, "examples": 8, "uniqueness": 9 },
+      "keyInsights": [
+        "Open-source browser API for AI agents",
+        "Sessions API: POST /v1/sessions with blockAds, proxyUrl, dimensions options",
+        "Quick actions: POST /v1/scrape, /v1/screenshot, /v1/pdf",
+        "Sessions persist cookies across page navigations",
+        "Playwright/Puppeteer/Selenium can connect via CDP to session"
+      ]
+    },
+    {
+      "url": "https://github.com/steel-dev/steel-browser/blob/main/README.md",
+      "title": "Steel Browser REST API Reference",
+      "qualityScore": 86,
+      "scores": { "authority": 7, "recency": 10, "depth": 9, "examples": 10, "uniqueness": 9 },
+      "keyInsights": [
+        "Base URL: http://localhost:3000",
+        "POST /v1/scrape {url, delay?} - returns HTML/markdown",
+        "POST /v1/screenshot {url, fullPage?} - returns PNG",
+        "POST /v1/pdf {url} - returns PDF",
+        "POST /v1/sessions {blockAds?, proxyUrl?, dimensions?, isSelenium?} - returns sessionId",
+        "Connect Playwright: chromium.connectOverCDP('ws://localhost:3000?sessionId=...')"
+      ]
+    },
+    {
+      "url": "https://github.com/mendableai/firecrawl",
+      "title": "Firecrawl - Web Data API",
+      "qualityScore": 78,
+      "scores": { "authority": 7, "recency": 10, "depth": 7, "examples": 7, "uniqueness": 7 },
+      "keyInsights": [
+        "REST API: /v2/scrape, /v2/search, /v2/agent, /v2/crawl, /v2/map",
+        "actions feature enables login flows: write+click sequences before scraping",
+        "Converts pages to markdown/HTML/JSON/screenshots",
+        "Handles JavaScript rendering and dynamic content"
+      ]
+    },
+    {
+      "url": "https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/cookies.py",
+      "title": "yt-dlp cookies.py - Netscape Format Implementation",
+      "qualityScore": 90,
+      "scores": { "authority": 9, "recency": 10, "depth": 9, "examples": 8, "uniqueness": 8 },
+      "keyInsights": [
+        "Netscape cookie file: 7 tab-separated fields: domain, include_subdomains, path, https_only, expires_at, name, value",
+        "File header must be: # Netscape HTTP Cookie File",
+        "include_subdomains and https_only are TRUE/FALSE strings",
+        "expires_at is Unix epoch integer; 0 = session cookie",
+        "#HttpOnly_ prefix indicates HttpOnly cookies",
+        "CRLF line endings for Windows, LF for Unix"
+      ]
+    },
+    {
+      "url": "https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp",
+      "title": "yt-dlp Cookie Handling FAQ",
+      "qualityScore": 88,
+      "scores": { "authority": 9, "recency": 9, "depth": 8, "examples": 8, "uniqueness": 7 },
+      "keyInsights": [
+        "--cookies-from-browser chrome|firefox|edge extracts live browser cookies",
+        "--cookies /path/to/file.txt loads Netscape format cookie file",
+        "--cookies-from-browser chrome --cookies cookies.txt exports to file",
+        "Chrome extension: 'Get cookies.txt LOCALLY' for manual export",
+        "Bad line endings cause HTTP 400 errors"
+      ]
+    },
+    {
+      "url": "https://github.com/go-rod/rod",
+      "title": "Rod - Go CDP Browser Automation",
+      "qualityScore": 72,
+      "scores": { "authority": 7, "recency": 8, "depth": 7, "examples": 6, "uniqueness": 7 },
+      "keyInsights": [
+        "Go library for Chrome automation via CDP",
+        "Auto-waiting, thread-safe, 100% test coverage",
+        "Provides WaitStable, WaitRequestIdle, HijackRequests, WaitDownload helpers",
+        "No standalone CLI - library only",
+        "6.7K GitHub stars"
+      ]
+    },
+    {
+      "url": "https://github.com/chromedp/chromedp",
+      "title": "chromedp - Go CDP Library",
+      "qualityScore": 70,
+      "scores": { "authority": 7, "recency": 7, "depth": 7, "examples": 6, "uniqueness": 6 },
+      "keyInsights": [
+        "Go CDP wrapper with no external dependencies",
+        "Ecosystem: headless-shell Docker image, cdproto bindings, chromedp-proxy for CDP logging",
+        "Library only, no CLI",
+        "Suitable for Go-based agent services"
+      ]
+    },
+    {
+      "url": "https://github.com/playwright-community/playwright-go",
+      "title": "playwright-go - Go Playwright Bindings",
+      "qualityScore": 68,
+      "scores": { "authority": 6, "recency": 8, "depth": 7, "examples": 6, "uniqueness": 6 },
+      "keyInsights": [
+        "Go bindings for Playwright via RPC bridge to bundled Node.js runtime",
+        "~50MB overhead due to Node.js + Playwright driver",
+        "CLI: go run .../playwright install --with-deps",
+        "Full Playwright API parity including storageState"
+      ]
+    },
+    {
+      "url": "https://github.com/puppeteer/puppeteer",
+      "title": "Puppeteer GitHub Repository",
+      "qualityScore": 80,
+      "scores": { "authority": 9, "recency": 9, "depth": 6, "examples": 6, "uniqueness": 4 },
+      "keyInsights": [
+        "JavaScript library for Chrome/Firefox control via CDP/WebDriver BiDi",
+        "No standalone CLI - library only",
+        "Headless by default, headed with headless: false",
+        "puppeteer-core variant without bundled browser",
+        "Now supports Firefox in addition to Chrome"
+      ]
+    },
+    {
+      "url": "https://github.com/berstend/puppeteer-extra",
+      "title": "puppeteer-extra - Plugin System",
+      "qualityScore": 76,
+      "scores": { "authority": 7, "recency": 6, "depth": 7, "examples": 7, "uniqueness": 8 },
+      "keyInsights": [
+        "Plugin system wrapper for Puppeteer",
+        "Key plugin: puppeteer-extra-plugin-stealth patches ~20 bot detection signals",
+        "No standalone CLI",
+        "puppeteer.use(StealthPlugin()) usage pattern",
+        "Main value: avoiding bot detection, not simplifying agent usage"
+      ]
+    },
+    {
+      "url": "https://github.com/sindresorhus/open-cli",
+      "title": "open-cli - Cross-Platform URL Opener",
+      "qualityScore": 60,
+      "scores": { "authority": 7, "recency": 8, "depth": 4, "examples": 5, "uniqueness": 4 },
+      "keyInsights": [
+        "open-cli <url|file> [--wait] [--background] [-- <app> [args]]",
+        "Can open URL in specific browser: open-cli https://... -- 'google chrome' --incognito",
+        "Not a browser automation framework - just delegates to system app handler",
+        "Useful for triggering user-visible browser window from agent shell scripts"
+      ]
+    },
+    {
+      "url": "https://github.com/nickvdyck/webbrowser-rs",
+      "title": "webbrowser-rs (attempted - 404)",
+      "qualityScore": 0,
+      "scores": { "authority": 0, "recency": 0, "depth": 0, "examples": 0, "uniqueness": 0 },
+      "keyInsights": ["Repository does not exist - 404 on all attempts"]
+    },
+    {
+      "url": "https://github.com/browserless/browserless",
+      "title": "Browserless WebSocket Automation",
+      "qualityScore": 83,
+      "scores": { "authority": 8, "recency": 9, "depth": 8, "examples": 7, "uniqueness": 7 },
+      "keyInsights": [
+        "Puppeteer connection: puppeteer.connect({browserWSEndpoint: 'ws://localhost:3000'})",
+        "Playwright connection: pw.firefox.connect('ws://localhost:3000/firefox/playwright')",
+        "SSPL-1.0 license - commercial use requires paid license",
+        "Parallel session management, crash recovery, ARM64 support"
+      ]
+    },
+    {
+      "url": "https://github.com/microsoft/playwright-mcp/blob/main/README.md",
+      "title": "Playwright MCP - CDP Connection and Extension",
+      "qualityScore": 94,
+      "scores": { "authority": 10, "recency": 10, "depth": 9, "examples": 8, "uniqueness": 8 },
+      "keyInsights": [
+        "--cdp-endpoint <url>: connect to existing Chrome instance",
+        "--cdp-header <headers>: custom headers for CDP connection",
+        "--cdp-timeout <ms>: connection timeout (default 30000)",
+        "--extension flag: use Playwright MCP Bridge Chrome extension",
+        "Extension connects to existing logged-in tabs in Chrome/Edge",
+        "Persistent profile stored in ~/.cache/ms-playwright/mcp-{channel}-profile on Linux"
+      ]
+    },
+    {
+      "url": "https://chromedevtools.github.io/devtools-protocol/",
+      "title": "Chrome DevTools Protocol Specification",
+      "qualityScore": 88,
+      "scores": { "authority": 10, "recency": 9, "depth": 8, "examples": 6, "uniqueness": 6 },
+      "keyInsights": [
+        "HTTP endpoints at localhost:9222: /json/list, /json/new, /json/close, /json/version",
+        "WebSocket per-target for CDP commands",
+        "Key domains: Network (cookies, requests), Page (navigate, load), Runtime (JS eval), Target (tab management)",
+        "Network.getAllCookies() returns all browser cookies",
+        "Network.setCookies([...]) injects cookies"
+      ]
+    },
+    {
+      "url": "https://github.com/mendableai/firecrawl",
+      "title": "Firecrawl Auth Flow Actions",
+      "qualityScore": 76,
+      "scores": { "authority": 7, "recency": 10, "depth": 7, "examples": 7, "uniqueness": 7 },
+      "keyInsights": [
+        "actions[] array in scrape request: {type: write/click/wait/screenshot}",
+        "Can automate login before scrape in same request",
+        "Handles CAPTCHA-protected and JS-rendered pages"
+      ]
+    },
+    {
+      "url": "https://github.com/nickvdyck/webbrowser-rs",
+      "title": "browser-use CLI session state model",
+      "qualityScore": 85,
+      "scores": { "authority": 8, "recency": 10, "depth": 8, "examples": 9, "uniqueness": 8 },
+      "keyInsights": [
+        "browser-use state command returns indexed element list for LLM",
+        "Session persists between CLI commands within same terminal session",
+        "Profile sync: curl -fsSL https://browser-use.com/profile.sh | BROWSER_USE_API_KEY=XXXX sh",
+        "AgentMail for disposable email inboxes during agent workflows"
+      ]
+    }
+  ]
+}

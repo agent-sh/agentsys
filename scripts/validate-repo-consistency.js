@@ -101,25 +101,6 @@ function validateVersions() {
     errors.push(`marketplace.json version ${marketplace.version} does not match package.json ${version}`);
   }
 
-  for (const plugin of marketplace.plugins || []) {
-    if (plugin.version !== version) {
-      errors.push(`marketplace.json plugin ${plugin.name} version ${plugin.version} does not match package.json ${version}`);
-    }
-  }
-
-  const pluginDirs = listPluginDirs();
-  for (const plugin of pluginDirs) {
-    const pluginJsonPath = path.join(PLUGINS_DIR, plugin, '.claude-plugin', 'plugin.json');
-    if (!fs.existsSync(pluginJsonPath)) {
-      errors.push(`${plugin}: missing .claude-plugin/plugin.json`);
-      continue;
-    }
-    const pluginJson = readJson(pluginJsonPath, `${plugin} plugin.json`);
-    if (pluginJson && pluginJson.version !== version) {
-      errors.push(`${plugin} plugin.json version ${pluginJson.version} does not match package.json ${version}`);
-    }
-  }
-
   // Check package-lock.json version
   const lockPath = path.join(ROOT_DIR, 'package-lock.json');
   if (fs.existsSync(lockPath)) {

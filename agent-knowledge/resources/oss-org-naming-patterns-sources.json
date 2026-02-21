@@ -1,0 +1,458 @@
+{
+  "topic": "naming conventions and patterns for open source developer tool organizations and plugin ecosystems on GitHub",
+  "slug": "oss-org-naming-patterns",
+  "generated": "2026-02-20T00:00:00Z",
+  "depth": "medium",
+  "totalSources": 24,
+  "sources": [
+    {
+      "url": "https://github.com/vitejs",
+      "title": "Vite (vitejs) GitHub Organization",
+      "qualityScore": 92,
+      "scores": {
+        "authority": 10,
+        "recency": 10,
+        "depth": 8,
+        "examples": 9,
+        "uniqueness": 7
+      },
+      "keyInsights": [
+        "Uses 'vitejs' org name (bare 'vite' was taken); +js suffix pattern",
+        "Official plugins follow vite-plugin-* naming convention",
+        "Docs localization repos use docs-{lang} pattern",
+        "Created vite-ecosystem-ci repo for compatibility testing",
+        "Distinct org for community (vitejs) vs author personal projects"
+      ]
+    },
+    {
+      "url": "https://github.com/tailwindlabs",
+      "title": "Tailwind Labs (tailwindlabs) GitHub Organization",
+      "qualityScore": 94,
+      "scores": {
+        "authority": 10,
+        "recency": 10,
+        "depth": 9,
+        "examples": 9,
+        "uniqueness": 8
+      },
+      "keyInsights": [
+        "Company name is 'tailwindlabs'; separates company identity from product",
+        "Product repos use 'tailwindcss-*' naming even though org is 'tailwindlabs'",
+        "Official plugins: tailwindcss-typography, tailwindcss-forms, tailwindcss-intellisense",
+        "-labs suffix signals commercial entity with innovation focus",
+        "headlessui is a separate product under same org umbrella"
+      ]
+    },
+    {
+      "url": "https://github.com/prisma",
+      "title": "Prisma GitHub Organization",
+      "qualityScore": 88,
+      "scores": {
+        "authority": 10,
+        "recency": 10,
+        "depth": 7,
+        "examples": 7,
+        "uniqueness": 6
+      },
+      "keyInsights": [
+        "Owns bare 'prisma' name — high authority signal",
+        "Repos use descriptive names without redundant prefix (studio, language-tools, prisma-engines)",
+        "org namespace provides the brand; repo names can be functional",
+        "Maintains ecosystem-tests repo for continuous compatibility validation"
+      ]
+    },
+    {
+      "url": "https://github.com/babel",
+      "title": "Babel GitHub Organization",
+      "qualityScore": 93,
+      "scores": {
+        "authority": 10,
+        "recency": 8,
+        "depth": 9,
+        "examples": 9,
+        "uniqueness": 8
+      },
+      "keyInsights": [
+        "Owns bare 'babel' name",
+        "Migrated from flat babel-plugin-* to @babel/* scoped monorepo in v7",
+        "This migration became a blueprint for ecosystem scoped package transitions",
+        "Community still uses babel-plugin-* flat naming convention",
+        "babel-loader (webpack) lives in org even though it's a build tool integration"
+      ]
+    },
+    {
+      "url": "https://github.com/eslint",
+      "title": "ESLint GitHub Organization",
+      "qualityScore": 87,
+      "scores": {
+        "authority": 10,
+        "recency": 9,
+        "depth": 7,
+        "examples": 7,
+        "uniqueness": 6
+      },
+      "keyInsights": [
+        "Owns bare 'eslint' name",
+        "Community plugin convention: eslint-plugin-* (flat, pre-scopes era)",
+        "Moving toward eslint/{language} official language plugins",
+        "Separate rfcs and tsc-meetings repos for governance",
+        "Too large to migrate from flat to scoped naming"
+      ]
+    },
+    {
+      "url": "https://github.com/rollup",
+      "title": "Rollup GitHub Organization",
+      "qualityScore": 82,
+      "scores": {
+        "authority": 9,
+        "recency": 8,
+        "depth": 7,
+        "examples": 7,
+        "uniqueness": 6
+      },
+      "keyInsights": [
+        "Owns bare 'rollup' name",
+        "Hub-and-spoke: centralized 'plugins' monorepo for official plugins",
+        "rollup-plugin-* community naming convention",
+        "rollup-starter-* for scaffolding templates",
+        "awesome-rollup for community resource curation"
+      ]
+    },
+    {
+      "url": "https://github.com/withastro",
+      "title": "Astro (withastro) GitHub Organization",
+      "qualityScore": 91,
+      "scores": {
+        "authority": 9,
+        "recency": 10,
+        "depth": 8,
+        "examples": 8,
+        "uniqueness": 9
+      },
+      "keyInsights": [
+        "Uses 'withastro' — 'with' prefix creates a verb phrase positioning",
+        "'astro' was taken; 'withastro' became a semantic feature communicating the framework's value",
+        "Core framework repo is simply 'astro' inside the org",
+        "Maintains roadmap and compiler as separate repos",
+        "57k stars on core with multi-language implementation (TypeScript, Go, Rust)"
+      ]
+    },
+    {
+      "url": "https://github.com/unjs",
+      "title": "UnJS (Unified JavaScript Tools) GitHub Organization",
+      "qualityScore": 89,
+      "scores": {
+        "authority": 8,
+        "recency": 10,
+        "depth": 8,
+        "examples": 9,
+        "uniqueness": 10
+      },
+      "keyInsights": [
+        "Abstract name: 'unjs' = Unified JavaScript Tools",
+        "Uses 'un*' prefix theme for many packages (unctx, unhead, untyped, unplugin)",
+        "Abstract name works because they shipped 79 high-quality repos",
+        "Modular approach: small, focused tools rather than monolithic packages",
+        "Shows that abstract names succeed when backed by consistent shipping"
+      ]
+    },
+    {
+      "url": "https://github.com/oven-sh",
+      "title": "Oven (oven-sh) GitHub Organization — Bun's Parent",
+      "qualityScore": 90,
+      "scores": {
+        "authority": 9,
+        "recency": 10,
+        "depth": 7,
+        "examples": 8,
+        "uniqueness": 9
+      },
+      "keyInsights": [
+        "Company name is 'Oven'; tool name is 'Bun' — parent company as org pattern",
+        "Domain verified as bun.com despite org being oven-sh",
+        "Clean repo name: oven-sh/bun (87k stars)",
+        "Tool name becomes the repo; company name becomes the org",
+        "Works well for multi-tool companies (setup-bun, homebrew-bun also live here)"
+      ]
+    },
+    {
+      "url": "https://github.com/storybookjs",
+      "title": "Storybook (storybookjs) GitHub Organization",
+      "qualityScore": 85,
+      "scores": {
+        "authority": 9,
+        "recency": 9,
+        "depth": 7,
+        "examples": 7,
+        "uniqueness": 6
+      },
+      "keyInsights": [
+        "'storybookjs' uses +js suffix; 'storybook' was taken",
+        "118+ repos with addon-* prefix for official extensions",
+        "eslint-plugin-storybook and vite-plugin-storybook-nextjs follow ecosystem conventions",
+        "Multi-framework support (React, Vue, Svelte, Angular) as separate repos"
+      ]
+    },
+    {
+      "url": "https://github.com/nuxt",
+      "title": "Nuxt GitHub Organization",
+      "qualityScore": 90,
+      "scores": {
+        "authority": 10,
+        "recency": 10,
+        "depth": 8,
+        "examples": 8,
+        "uniqueness": 7
+      },
+      "keyInsights": [
+        "Owns bare 'nuxt' name",
+        "Registry-based ecosystem: 'modules' repo tracks community modules without hosting them",
+        "This decoupled pattern differs from monorepo approach",
+        "nuxt-module topic tag for GitHub discoverability",
+        "64+ repos but most community modules live in external orgs"
+      ]
+    },
+    {
+      "url": "https://github.com/denoland",
+      "title": "Deno (denoland) GitHub Organization",
+      "qualityScore": 86,
+      "scores": {
+        "authority": 10,
+        "recency": 10,
+        "depth": 7,
+        "examples": 7,
+        "uniqueness": 7
+      },
+      "keyInsights": [
+        "Uses 'denoland' — playful +land suffix treating Deno as a place",
+        "Verified domains: deno.land AND deno.com (both under same org)",
+        "216 repos covering core, std, fresh (framework), tooling",
+        "The +land suffix is unique and memorable but unconventional"
+      ]
+    },
+    {
+      "url": "https://github.com/prettier",
+      "title": "Prettier GitHub Organization",
+      "qualityScore": 84,
+      "scores": {
+        "authority": 9,
+        "recency": 9,
+        "depth": 7,
+        "examples": 7,
+        "uniqueness": 6
+      },
+      "keyInsights": [
+        "Owns bare 'prettier' name",
+        "Official language plugins: plugin-{language} (no redundant 'prettier' prefix needed)",
+        "Org namespace provides the brand; repos can be clean descriptive names",
+        "Community integration repos: prettier-eslint, eslint-config-prettier"
+      ]
+    },
+    {
+      "url": "https://github.com/vitest-dev",
+      "title": "Vitest (vitest-dev) GitHub Organization",
+      "qualityScore": 88,
+      "scores": {
+        "authority": 9,
+        "recency": 10,
+        "depth": 7,
+        "examples": 7,
+        "uniqueness": 8
+      },
+      "keyInsights": [
+        "Uses 'vitest-dev' — -dev suffix signals development organization",
+        "Core repo is simply 'vitest' inside the org",
+        "vitest-ecosystem-ci repo for compatibility testing (mirrors Vite pattern)",
+        "-dev suffix is cleaner and more modern than -js for testing tools"
+      ]
+    },
+    {
+      "url": "https://github.com/biomejs",
+      "title": "Biome (biomejs) GitHub Organization",
+      "qualityScore": 85,
+      "scores": {
+        "authority": 9,
+        "recency": 10,
+        "depth": 7,
+        "examples": 7,
+        "uniqueness": 7
+      },
+      "keyInsights": [
+        "Uses 'biomejs' — +js suffix for toolchain project",
+        "Editor extensions use biome-{editor} pattern (biome-vscode, biome-intellij)",
+        "Infrastructure repos: setup-biome for GitHub Actions",
+        "Verification through biomejs.dev domain"
+      ]
+    },
+    {
+      "url": "https://github.com/drizzle-team",
+      "title": "Drizzle Team (drizzle-team) GitHub Organization",
+      "qualityScore": 87,
+      "scores": {
+        "authority": 8,
+        "recency": 10,
+        "depth": 7,
+        "examples": 7,
+        "uniqueness": 8
+      },
+      "keyInsights": [
+        "-team suffix signals humans behind the project, sustainability",
+        "Main repo is 'drizzle-orm' (tool name as repo within org)",
+        "Secondary projects: waddler (SQL client), hanji (CLI UI builder)",
+        "-team suffix warmer and more human than -js, -dev, or -hq"
+      ]
+    },
+    {
+      "url": "https://github.com/charmbracelet",
+      "title": "Charm (charmbracelet) GitHub Organization — CLI/TUI Tools",
+      "qualityScore": 92,
+      "scores": {
+        "authority": 9,
+        "recency": 10,
+        "depth": 9,
+        "examples": 9,
+        "uniqueness": 10
+      },
+      "keyInsights": [
+        "Company name 'charmbracelet' for CLI/TUI tooling company",
+        "Each tool has clean single-word name as repo (bubbletea, gum, glow, lipgloss)",
+        "Thematic naming: all cosmetics/aesthetic metaphors (lipgloss, glow, charm)",
+        "Abstract/unusual org name works because tools are excellent (39k+ stars)",
+        "Shows: substance beats cleverness; names earn credibility through shipping"
+      ]
+    },
+    {
+      "url": "https://github.com/bombshell-dev",
+      "title": "Bombshell Dev (bombshell-dev) GitHub Organization — Clack CLI",
+      "qualityScore": 82,
+      "scores": {
+        "authority": 7,
+        "recency": 10,
+        "depth": 7,
+        "examples": 7,
+        "uniqueness": 9
+      },
+      "keyInsights": [
+        "Parent brand 'bombshell-dev' for CLI tooling; domain is bomb.sh",
+        "Uses @clack/* npm scope despite org being bombshell-dev",
+        "Main tool 'clack' lives as bombshell-dev/clack",
+        "Single-word tool names inside org: clack, tab, args",
+        "npm scope and GitHub org name mismatch is acceptable if documented"
+      ]
+    },
+    {
+      "url": "https://github.com/antfu-collective",
+      "title": "antfu-collective GitHub Organization",
+      "qualityScore": 86,
+      "scores": {
+        "authority": 8,
+        "recency": 10,
+        "depth": 8,
+        "examples": 7,
+        "uniqueness": 9
+      },
+      "keyInsights": [
+        "Personal brand scaling to team: 'collective' signals community stewardship",
+        "Houses tools that started under @antfu personal account but now have team",
+        "Solves the 'single maintainer bus factor' credibility problem",
+        "Tools: ni, vitesse, icones, taze, sponsorkit, bumpp, vite-ssg",
+        "-collective naming pattern signals maturity and distributed ownership"
+      ]
+    },
+    {
+      "url": "https://github.com/vuejs",
+      "title": "Vue.js (vuejs) GitHub Organization",
+      "qualityScore": 91,
+      "scores": {
+        "authority": 10,
+        "recency": 9,
+        "depth": 8,
+        "examples": 8,
+        "uniqueness": 7
+      },
+      "keyInsights": [
+        "Canonical +js suffix example: 'vue' taken, became 'vuejs'",
+        "Ecosystem tools have descriptive names: devtools, router, test-utils, pinia",
+        "awesome-vue for community curation",
+        "Blueprint for JS framework org structure that influenced React, Angular, etc.",
+        "Separate ecosystem projects (pinia, router) not named 'vue-*' inside org"
+      ]
+    },
+    {
+      "url": "https://github.com/anthropics",
+      "title": "Anthropic (anthropics) GitHub Organization",
+      "qualityScore": 88,
+      "scores": {
+        "authority": 10,
+        "recency": 10,
+        "depth": 8,
+        "examples": 8,
+        "uniqueness": 7
+      },
+      "keyInsights": [
+        "+s suffix: 'anthropic' taken, became 'anthropics'",
+        "SDK naming: anthropic-sdk-{language} pattern",
+        "Tool naming: claude-{tool} (claude-code, claude-cookbooks)",
+        "Dual brand: organization is 'anthropics' but products use 'claude' or 'anthropic' prefix",
+        "Verified domain anthropic.com links org to company despite name mismatch"
+      ]
+    },
+    {
+      "url": "https://github.com/modelcontextprotocol",
+      "title": "Model Context Protocol (modelcontextprotocol) GitHub Organization",
+      "qualityScore": 87,
+      "scores": {
+        "authority": 10,
+        "recency": 10,
+        "depth": 8,
+        "examples": 7,
+        "uniqueness": 8
+      },
+      "keyInsights": [
+        "Full spelled-out name: no abbreviation for spec/protocol organizations",
+        "SDK naming: {language}-sdk pattern across 10+ languages",
+        "Extension naming: ext-{feature} for protocol extensions",
+        "Working group naming: {topic}-wg",
+        "Authority and clarity over brevity for standards bodies"
+      ]
+    },
+    {
+      "url": "https://github.com/SBoudrias/Inquirer.js",
+      "title": "Inquirer.js CLI Library — npm Scope Naming",
+      "qualityScore": 80,
+      "scores": {
+        "authority": 7,
+        "recency": 9,
+        "depth": 7,
+        "examples": 8,
+        "uniqueness": 8
+      },
+      "keyInsights": [
+        "Personal account repo with @inquirer npm scope — no org required",
+        "@inquirer/* scope for modular CLI prompts (@inquirer/prompts, @inquirer/select, etc.)",
+        "npm scope can be registered independently of GitHub org name",
+        "Scoped packages signal modular, professional library design",
+        "Lerna monorepo for multi-package publishing from single repo"
+      ]
+    },
+    {
+      "url": "https://github.com/shadcn-ui",
+      "title": "shadcn/ui (shadcn-ui) GitHub Organization",
+      "qualityScore": 85,
+      "scores": {
+        "authority": 9,
+        "recency": 10,
+        "depth": 7,
+        "examples": 7,
+        "uniqueness": 8
+      },
+      "keyInsights": [
+        "Personal account 'shadcn' held, so org became 'shadcn-ui'",
+        "'-ui' suffix adds semantic descriptor when bare name is personal account",
+        "Shows namespace constraint: GitHub user and org names share same pool",
+        "Component library with 106k+ stars demonstrates credibility despite name workaround",
+        "Naming workaround is invisible once the project ships quality work"
+      ]
+    }
+  ]
+}
