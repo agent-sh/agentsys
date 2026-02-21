@@ -125,7 +125,6 @@ npx agentsys-dev status           # Project health (version, counts, branch)
 npx agentsys-dev validate         # Run all validators
 npx agentsys-dev validate plugins # Run single validator
 npx agentsys-dev bump <version>   # Bump all version files (e.g., 3.7.3)
-npx agentsys-dev sync-lib         # Sync lib/ to plugins/
 npx agentsys-dev test             # Run test suite
 npx agentsys-dev preflight         # Change-aware checklist enforcement
 npx agentsys-dev preflight --all   # Run all checks

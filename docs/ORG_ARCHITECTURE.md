@@ -7,12 +7,24 @@
 
 | Repo | Purpose | Status |
 |------|---------|--------|
-| [agentsys](https://github.com/agent-sh/agentsys) | Marketplace + installer + bundled plugins | Active |
+| [agentsys](https://github.com/agent-sh/agentsys) | Marketplace + installer (plugins now in standalone repos) | Active |
 | [agnix](https://github.com/agent-sh/agnix) | Agent config linter (CLI + LSP + IDE extensions) | Active |
 | [web-ctl](https://github.com/agent-sh/web-ctl) | Browser interaction skill (Playwright-based) | Planned (#241) |
 | [agent-core](https://github.com/agent-sh/agent-core) | Shared libs — synced to all repos on merge | Created |
 | [agent-knowledge](https://github.com/agent-sh/agent-knowledge) | Research guides and RAG indexes | Active (10 guides) |
 | [.github](https://github.com/agent-sh/.github) | Org profile, shared templates, reusable workflows | Active |
+| [next-task](https://github.com/agent-sh/next-task) | Master workflow orchestration plugin | Active |
+| [ship](https://github.com/agent-sh/ship) | PR creation and deployment plugin | Active |
+| [deslop](https://github.com/agent-sh/deslop) | AI slop cleanup plugin | Active |
+| [audit-project](https://github.com/agent-sh/audit-project) | Multi-agent code review plugin | Active |
+| [enhance](https://github.com/agent-sh/enhance) | Code quality analyzers plugin | Active |
+| [perf](https://github.com/agent-sh/perf) | Performance investigation plugin | Active |
+| [drift-detect](https://github.com/agent-sh/drift-detect) | Plan drift detection plugin | Active |
+| [sync-docs](https://github.com/agent-sh/sync-docs) | Documentation sync plugin | Active |
+| [repo-map](https://github.com/agent-sh/repo-map) | AST repo mapping plugin | Active |
+| [learn](https://github.com/agent-sh/learn) | Topic research and learning guides plugin | Active |
+| [consult](https://github.com/agent-sh/consult) | Cross-tool AI consultation plugin | Active |
+| [debate](https://github.com/agent-sh/debate) | Multi-perspective debate analysis plugin | Active |
 
 **Org**: [github.com/agent-sh](https://github.com/agent-sh)
 **npm scope**: `@agentsys` (claimed on npmjs.com, not yet used)
@@ -71,22 +83,23 @@
 
 ### 1. Repo Structure & Plugin Graduation
 **Issue**: [#250](https://github.com/agent-sh/agentsys/issues/250)
-**Status**: Planning
+**Status**: Complete
 **Depends on**: #256 (cross-repo sync)
 
-When does a plugin leave the monorepo? Graduation criteria, extraction procedure, lib/ sharing across repos.
-
-**Key decisions needed:**
-- [ ] Graduation triggers (complexity, deps, team, release cycle)
-- [ ] Stub vs full removal from monorepo after graduation
-- [ ] lib/ consumption pattern for standalone repos
+**Implemented:**
+- [x] All 13 plugins extracted to standalone repos under agent-sh org
+- [x] `plugins/` directory removed from agentsys monorepo
+- [x] `scripts/graduate-plugin.js` — extraction script for future plugins
+- [x] `bin/cli.js` updated to fetch plugins from GitHub at install time
+- [x] marketplace `requires` field added for peer dependency tracking
+- [x] agent-core sync pipeline extended to all 13 plugin repos
 
 ---
 
 ### 2. Plugin Distribution Registry
 **Issue**: [#251](https://github.com/agent-sh/agentsys/issues/251)
 **Status**: Planning
-**Depends on**: #250 (repo structure), #254 (versioning)
+**Depends on**: #254 (versioning)
 **Related**: #246 (original proposal)
 
 `plugins.json` + `agentsys install <plugin>` — how users discover and install standalone plugins.
@@ -134,14 +147,16 @@ Org profile README, shared templates, reusable CI workflows, CODEOWNERS.
 
 ### 5. Versioning & Release Coordination
 **Issue**: [#254](https://github.com/agent-sh/agentsys/issues/254)
-**Status**: Planning
-**Depends on**: #250 (repo structure)
+**Status**: Complete (baseline established)
+**Depends on**: #250 (repo structure) — now complete
 
-Fixed versioning for monorepo, independent semver for standalone. Compatibility matrix.
+**Implemented:**
+- [x] Independent semver for all 13 standalone plugin repos
+- [x] marketplace `requires` field encodes agentsys compatibility range
+- [x] agentsys installer uses `requires` to validate compatibility at install time
 
-**Key decisions needed:**
-- [ ] Compatibility range format (e.g., `agentsys >= 5.0.0`)
-- [ ] Cross-repo release coordination process
+**Remaining:**
+- [ ] Cross-repo release coordination process (tooling)
 - [ ] @agentsys npm scope usage (if/when)
 
 ---
@@ -191,17 +206,17 @@ CI-driven vendor sync from agent-core → all consumer repos.
 ## Execution Order
 
 ```
-Phase 1 (Immediate — no dependencies):
+Phase 1 (Immediate — no dependencies):  [DONE]
   #252  GitHub Projects v2 Board
   #253  .github Repo & Shared Infrastructure
   #256  Cross-Repo Sync (research/decision)
 
-Phase 2 (After Phase 1 decisions):
-  #250  Repo Structure & Graduation Criteria
-  #254  Versioning & Release Coordination
+Phase 2 (After Phase 1 decisions):  [DONE]
+  #250  Repo Structure & Graduation Criteria  ← all 13 plugins extracted
+  #254  Versioning & Release Coordination     ← baseline + requires field
 
 Phase 3 (After Phase 2):
-  #251  Plugin Distribution Registry
+  #251  Plugin Distribution Registry          ← next
   #255  Documentation & Website
 
 Parallel (independent):
@@ -223,4 +238,4 @@ Parallel (independent):
 ---
 
 *Created: 2026-02-21*
-*Last updated: 2026-02-21 (Phase 1 complete)*
+*Last updated: 2026-02-21 (Phase 2 complete — all 13 plugins extracted to standalone repos)*

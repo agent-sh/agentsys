@@ -21,7 +21,8 @@
 </p>
 
 <p align="center">
-  <b>13 plugins · 42 agents · 28 skills · 26k lines of lib code · 3,357 tests · 3 platforms</b>
+  <b>13 plugins · 42 agents · 28 skills · 26k lines of lib code · 3,357 tests · 3 platforms</b><br>
+  <em>Plugins distributed as standalone repos under <a href="https://github.com/agent-sh">agent-sh</a> org</em>
 </p>
 
 <p align="center">
@@ -46,11 +47,11 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 
 ## What This Is
 
-An agent orchestration system — 13 plugins, 42 agents, and 28 skills that compose into structured pipelines for software development.
+An agent orchestration system — 13 plugins, 42 agents, and 28 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
 
 Each agent has a single responsibility, a specific model assignment, and defined inputs/outputs. Pipelines enforce phase gates so agents can't skip steps. State persists across sessions so work survives interruptions.
 
-The system runs on Claude Code, OpenCode, and Codex CLI. Install the plugins, get the runtime.
+The system runs on Claude Code, OpenCode, and Codex CLI. Install via the marketplace or the npm installer, and the plugins are fetched automatically from their repos.
 
 ---
 
