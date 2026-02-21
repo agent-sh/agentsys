@@ -91,9 +91,9 @@ bin/cli.js    → npm CLI installer
 |--------|--------|--------|---------|
 <!-- GEN:END:claude-architecture -->
 
-> Note: `plugins/ → 0 plugins` is correct — all 13 plugins now live in standalone repos under
-> the [agent-sh](https://github.com/agent-sh) org. The ecosystem-wide counts (13 plugins,
-> 42 agents, 28 skills) reflect all repos combined. agentsys is the marketplace and installer.
+> Note: `plugins/ → 0 plugins` is correct — all 14 plugins now live in standalone repos under
+> the [agent-sh](https://github.com/agent-sh) org. The ecosystem-wide counts (14 plugins,
+> 43 agents, 30 skills) reflect all repos combined. agentsys is the marketplace and installer.
 
 **Pattern**: `Command → Agent → Skill` (orchestration → invocation → implementation)
 </architecture>

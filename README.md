@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <b>13 plugins · 42 agents · 28 skills (across all repos) · 26k lines of lib code · 3,357 tests · 3 platforms</b><br>
+  <b>14 plugins · 43 agents · 30 skills (across all repos) · 26k lines of lib code · 3,357 tests · 3 platforms</b><br>
   <em>Plugins distributed as standalone repos under <a href="https://github.com/agent-sh">agent-sh</a> org — agentsys is the marketplace &amp; installer</em>
 </p>
 
@@ -47,7 +47,7 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 
 ## What This Is
 
-An agent orchestration system — 13 plugins, 42 agents, and 28 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
+An agent orchestration system — 14 plugins, 43 agents, and 30 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
 
 Each agent has a single responsibility, a specific model assignment, and defined inputs/outputs. Pipelines enforce phase gates so agents can't skip steps. State persists across sessions so work survives interruptions.
 
@@ -104,8 +104,8 @@ Skills are the reusable implementation units. Agents invoke skills; commands orc
 | Section | What's there |
 |---------|--------------|
 | [The Approach](#the-approach) | Why it's built this way |
-| [Commands](#commands) | All 12 commands overview |
-| [Skills](#skills) | 28 skills across plugins |
+| [Commands](#commands) | All 13 commands overview |
+| [Skills](#skills) | 30 skills across plugins |
 | [Command Details](#command-details) | Deep dive into each command |
 | [How Commands Work Together](#how-commands-work-together) | Standalone vs integrated |
 | [Design Philosophy](#design-philosophy) | The thinking behind the architecture |
@@ -689,6 +689,43 @@ agent-knowledge/
 | `--context=diff\|file=PATH\|none` | Codebase context passed to both tools |
 
 **Agent:** debate-orchestrator (opus model for orchestration)
+
+### /web-ctl
+
+**Purpose:** Browser automation for AI agents — navigate, authenticate, and interact with web pages.
+
+**What it does:**
+
+1. **Session Management** - Persistent browser sessions with AES-256-GCM encrypted storage
+2. **Auth Handoff** - Opens a headed browser for the user to complete login; agent monitors for success
+3. **Headless Browsing** - Navigate, click, type, fill, read, screenshot, capture network, evaluate JS
+4. **CAPTCHA/Checkpoint** - Escalates to headed browser for human verification
+5. **Prompt Injection Defense** - All web content wrapped in `[PAGE_CONTENT: ...]` delimiters; agent treats it as untrusted data
+
+**Usage:**
+
+```bash
+# Navigate to a URL
+/web-ctl goto https://example.com
+
+# Authenticate to a site (opens browser for you to log in)
+/web-ctl auth twitter --url https://x.com/i/flow/login
+
+# Multi-step browsing
+/web-ctl   # describe what you want to do, agent orchestrates it
+```
+
+**Install:**
+
+```bash
+agentsys install web-ctl
+npm install playwright
+npx playwright install chromium
+```
+
+**Agent:** web-session (sonnet model)
+
+**Skills:** web-auth, web-browse
 
 ---
 

@@ -9,7 +9,7 @@
 |------|---------|--------|
 | [agentsys](https://github.com/agent-sh/agentsys) | Marketplace + installer (plugins now in standalone repos) | Active |
 | [agnix](https://github.com/agent-sh/agnix) | Agent config linter (CLI + LSP + IDE extensions) | Active |
-| [web-ctl](https://github.com/agent-sh/web-ctl) | Browser interaction skill (Playwright-based) | Planned (#241) |
+| [web-ctl](https://github.com/agent-sh/web-ctl) | Browser automation plugin (Playwright-based, persistent sessions, auth handoff) | Active |
 | [agent-core](https://github.com/agent-sh/agent-core) | Shared libs — synced to all repos on merge | Created |
 | [agent-knowledge](https://github.com/agent-sh/agent-knowledge) | Research guides and RAG indexes | Active (10 guides) |
 | [.github](https://github.com/agent-sh/.github) | Org profile, shared templates, reusable workflows | Active |
