@@ -106,6 +106,7 @@ const VALIDATORS = {
     requirePath: path.join(ROOT_DIR, 'scripts', 'check-hardcoded-paths.js'),
     call: (mod) => {
       const pluginsDir = path.join(ROOT_DIR, 'plugins');
+      if (!fs.existsSync(pluginsDir)) return 0;
       const issues = mod.scanDirectory(pluginsDir);
       return issues.length === 0 ? 0 : 1;
     },
@@ -475,8 +476,8 @@ function checkCodexTriggerPhrases() {
   if (!fs.existsSync(pluginsDir)) {
     return {
       name: 'gap:codex-trigger-phrases',
-      status: 'error',
-      message: 'plugins/ directory not found'
+      status: 'pass',
+      message: 'No plugins/ directory (plugins extracted to standalone repos)'
     };
   }
 

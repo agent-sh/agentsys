@@ -125,6 +125,9 @@ function checkVersionAlignment() {
 
   // Check each plugin's plugin.json
   const pluginsDir = path.join(REPO_ROOT, 'plugins');
+  if (!fs.existsSync(pluginsDir)) {
+    return { mainVersion, issues };
+  }
   const plugins = fs.readdirSync(pluginsDir).filter(f => {
     const stat = fs.statSync(path.join(pluginsDir, f));
     return stat.isDirectory();
@@ -237,6 +240,20 @@ function formatCountMismatch(file, metric, expected, actual) {
  * @returns {Object} Validation result with status, issues, fixes
  */
 function runValidation() {
+  // When plugins/ doesn't exist, counts are not meaningful — return ok
+  if (!fs.existsSync(path.join(REPO_ROOT, 'plugins'))) {
+    return {
+      status: 'ok',
+      message: 'plugins/ not present (extracted to standalone repos)',
+      actualCounts: { plugins: 0, fileBasedAgents: 0, roleBasedAgents: 0, totalAgents: 0, skills: 0 },
+      docCounts: {},
+      versionCheck: { mainVersion: null, aligned: true },
+      memoryAlignment: { aligned: true, similarity: '100.0%' },
+      issues: [],
+      fixes: [],
+      summary: { issueCount: 0, fixableCount: 0, bySeverity: { high: 0, medium: 0, low: 0 } }
+    };
+  }
   const actualCounts = getActualCounts();
   const docCounts = extractCountsFromDocs();
   const versionCheck = checkVersionAlignment();
@@ -364,6 +381,16 @@ function runValidation() {
 if (require.main === module) {
   const args = process.argv.slice(2);
   const jsonMode = args.includes('--json');
+
+  // When plugins/ doesn't exist, counts are not meaningful — skip validation
+  if (!require('fs').existsSync(require('path').join(REPO_ROOT, 'plugins'))) {
+    if (jsonMode) {
+      console.log(JSON.stringify({ status: 'ok', message: 'plugins/ not present (extracted to standalone repos)', issues: [] }, null, 2));
+    } else {
+      console.log('[OK] plugins/ not present (extracted to standalone repos) — skipping count validation');
+    }
+    process.exit(0);
+  }
 
   const result = runValidation();
 

@@ -45,8 +45,13 @@ const VALIDATE_SUBCOMMANDS = {
   'paths': {
     description: 'Scan for hardcoded platform paths',
     handler: () => {
-      const { scanDirectory } = require(path.join(ROOT_DIR, 'scripts', 'check-hardcoded-paths.js'));
+      const fs = require('fs');
       const pluginsDir = path.join(ROOT_DIR, 'plugins');
+      if (!fs.existsSync(pluginsDir)) {
+        console.log('[OK] No plugins/ directory (plugins extracted to standalone repos)');
+        return 0;
+      }
+      const { scanDirectory } = require(path.join(ROOT_DIR, 'scripts', 'check-hardcoded-paths.js'));
       const issues = scanDirectory(pluginsDir);
       if (issues.length === 0) {
         console.log('[OK] No hardcoded platform paths found');
