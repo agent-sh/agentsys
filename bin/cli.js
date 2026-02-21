@@ -482,6 +482,8 @@ function listInstalledPlugins() {
   console.log(`\nagentsys v${VERSION} - Installed plugins\n`);
 
   // Check cached external plugins
+  const installed = loadInstalledJson();
+
   if (fs.existsSync(cacheDir)) {
     const entries = fs.readdirSync(cacheDir).filter(e => {
       return fs.statSync(path.join(cacheDir, e)).isDirectory();
@@ -492,7 +494,22 @@ function listInstalledPlugins() {
       for (const name of entries) {
         const versionFile = path.join(cacheDir, name, '.version');
         const ver = fs.existsSync(versionFile) ? fs.readFileSync(versionFile, 'utf8').trim() : 'unknown';
-        console.log(`  ${name}@${ver}`);
+        const entry = installed.plugins[name];
+        const scope = entry && entry.scope ? entry.scope : 'full';
+        const platformStr = entry && entry.platforms ? entry.platforms.join(', ') : '';
+        const scopeTag = scope === 'partial' ? '[partial]' : '[full]';
+        console.log(`  ${name}@${ver}  ${scopeTag}  ${platformStr}`);
+        if (scope === 'partial' && entry) {
+          if (entry.agents && entry.agents.length > 0) {
+            console.log(`    agents: ${entry.agents.join(', ')}`);
+          }
+          if (entry.skills && entry.skills.length > 0) {
+            console.log(`    skills: ${entry.skills.join(', ')}`);
+          }
+          if (entry.commands && entry.commands.length > 0) {
+            console.log(`    commands: ${entry.commands.join(', ')}`);
+          }
+        }
       }
       console.log();
     }
@@ -572,13 +589,21 @@ function saveInstalledJson(data) {
   fs.writeFileSync(p, JSON.stringify(data, null, 2) + '\n');
 }
 
-function recordInstall(name, version, platforms) {
+function recordInstall(name, version, platforms, granular) {
   const data = loadInstalledJson();
-  data.plugins[name] = {
+  const entry = {
     version,
     installedAt: new Date().toISOString(),
-    platforms
+    platforms,
+    scope: 'full'
   };
+  if (granular && granular.scope === 'partial') {
+    entry.scope = 'partial';
+    entry.agents = granular.agents || [];
+    entry.skills = granular.skills || [];
+    entry.commands = granular.commands || [];
+  }
+  data.plugins[name] = entry;
   saveInstalledJson(data);
 }
 
@@ -621,6 +646,125 @@ function checkCoreCompat(pluginEntry) {
   }
 }
 
+// --- Granular install helpers ---
+
+/**
+ * Parse "plugin:component" install target format.
+ * @param {string} arg - e.g. "next-task:ci-fixer" or "next-task" or "next-task@1.0.0"
+ * @returns {{ plugin: string, component: string|null, version: string|null }}
+ */
+function parseInstallTarget(arg) {
+  if (!arg || typeof arg !== 'string') {
+    return { plugin: null, component: null, version: null };
+  }
+
+  let plugin = arg;
+  let component = null;
+  let version = null;
+
+  // Check for colon (component separator) before @ (version separator)
+  const colonIdx = plugin.indexOf(':');
+  if (colonIdx > 0) {
+    component = plugin.slice(colonIdx + 1) || null;
+    plugin = plugin.slice(0, colonIdx);
+  }
+
+  // Check for @version on the plugin part
+  const atIdx = plugin.indexOf('@');
+  if (atIdx > 0) {
+    version = plugin.slice(atIdx + 1) || null;
+    plugin = plugin.slice(0, atIdx);
+  }
+
+  return { plugin: plugin || null, component, version };
+}
+
+/**
+ * Load components.json from a cached plugin directory.
+ * @param {string} pluginDir - Path to the cached plugin directory
+ * @returns {{ agents: Array, skills: Array, commands: Array }}
+ */
+function loadComponents(pluginDir) {
+  const componentsPath = path.join(pluginDir, 'components.json');
+  if (fs.existsSync(componentsPath)) {
+    try {
+      const data = JSON.parse(fs.readFileSync(componentsPath, 'utf8'));
+      return {
+        agents: data.agents || [],
+        skills: data.skills || [],
+        commands: data.commands || []
+      };
+    } catch {
+      // Fall through to filesystem scan
+    }
+  }
+
+  // Fallback: scan filesystem
+  const components = { agents: [], skills: [], commands: [] };
+
+  const agentsDir = path.join(pluginDir, 'agents');
+  if (fs.existsSync(agentsDir)) {
+    const files = fs.readdirSync(agentsDir).filter(f => f.endsWith('.md'));
+    for (const f of files) {
+      components.agents.push({ name: f.replace(/\.md$/, ''), file: `agents/${f}` });
+    }
+  }
+
+  const skillsDir = path.join(pluginDir, 'skills');
+  if (fs.existsSync(skillsDir)) {
+    const dirs = fs.readdirSync(skillsDir, { withFileTypes: true }).filter(d => d.isDirectory());
+    for (const d of dirs) {
+      if (fs.existsSync(path.join(skillsDir, d.name, 'SKILL.md'))) {
+        components.skills.push({ name: d.name, dir: `skills/${d.name}` });
+      }
+    }
+  }
+
+  const commandsDir = path.join(pluginDir, 'commands');
+  if (fs.existsSync(commandsDir)) {
+    const files = fs.readdirSync(commandsDir).filter(f => f.endsWith('.md'));
+    for (const f of files) {
+      components.commands.push({ name: f.replace(/\.md$/, ''), file: `commands/${f}` });
+    }
+  }
+
+  return components;
+}
+
+/**
+ * Resolve which type a component belongs to.
+ * @param {{ agents: Array, skills: Array, commands: Array }} components
+ * @param {string} name - Component name to find
+ * @returns {{ type: string, name: string, file?: string, dir?: string }|null}
+ */
+function resolveComponent(components, name) {
+  if (!name || !components) return null;
+
+  for (const agent of components.agents) {
+    if (agent.name === name) return { type: 'agent', name: agent.name, file: agent.file };
+  }
+  for (const skill of components.skills) {
+    if (skill.name === name) return { type: 'skill', name: skill.name, dir: skill.dir };
+  }
+  for (const cmd of components.commands) {
+    if (cmd.name === name) return { type: 'command', name: cmd.name, file: cmd.file };
+  }
+  return null;
+}
+
+/**
+ * Build a filter object from a resolved component.
+ * @param {{ type: string, name: string }} resolved
+ * @returns {{ agents: string[], skills: string[], commands: string[] }}
+ */
+function buildFilterFromComponent(resolved) {
+  const filter = { agents: [], skills: [], commands: [] };
+  if (resolved.type === 'agent') filter.agents.push(resolved.name);
+  else if (resolved.type === 'skill') filter.skills.push(resolved.name);
+  else if (resolved.type === 'command') filter.commands.push(resolved.name);
+  return filter;
+}
+
 // --- Detect which platforms are installed ---
 
 function detectInstalledPlatforms() {
@@ -636,14 +780,16 @@ function detectInstalledPlatforms() {
 // --- install subcommand ---
 
 async function installPlugin(nameWithVersion, args) {
-  // Parse name[@version]
-  const atIdx = nameWithVersion.indexOf('@');
-  let name, requestedVersion;
-  if (atIdx > 0) {
-    name = nameWithVersion.slice(0, atIdx);
-    requestedVersion = nameWithVersion.slice(atIdx + 1);
-  } else {
-    name = nameWithVersion;
+  // Parse plugin:component and name[@version]
+  const target = parseInstallTarget(nameWithVersion);
+  let name = target.plugin;
+  let requestedVersion = target.version;
+  const componentName = target.component;
+
+  // Legacy fallback: handle plain name@version (parseInstallTarget already handles this)
+  if (!name) {
+    console.error('[ERROR] Usage: agentsys install <plugin[:component][@version]>');
+    process.exit(1);
   }
 
   const marketplace = loadMarketplace();
@@ -691,6 +837,33 @@ async function installPlugin(nameWithVersion, args) {
 
   console.log(`Installing for platforms: ${platforms.join(', ')}`);
 
+  // Resolve component filter if a specific component was requested
+  let filter = null;
+  if (componentName) {
+    const cacheDir = getPluginCacheDir();
+    const pluginDir = path.join(cacheDir, name);
+    if (!fs.existsSync(pluginDir)) {
+      console.error(`[ERROR] Plugin ${name} not found in cache after fetch.`);
+      process.exit(1);
+    }
+    const components = loadComponents(pluginDir);
+    const resolved = resolveComponent(components, componentName);
+    if (!resolved) {
+      const allNames = [
+        ...components.agents.map(a => a.name),
+        ...components.skills.map(s => s.name),
+        ...components.commands.map(c => c.name)
+      ];
+      console.error(`[ERROR] Component "${componentName}" not found in plugin ${name}.`);
+      if (allNames.length > 0) {
+        console.error(`Available components: ${allNames.join(', ')}`);
+      }
+      process.exit(1);
+    }
+    filter = buildFilterFromComponent(resolved);
+    console.log(`  Installing ${resolved.type}: ${resolved.name}`);
+  }
+
   // Use cache as install source
   const installDir = getInstallDir();
   const needsLocal = platforms.includes('opencode') || platforms.includes('codex');
@@ -702,6 +875,9 @@ async function installPlugin(nameWithVersion, args) {
 
   for (const platform of platforms) {
     if (platform === 'claude') {
+      if (filter) {
+        console.log('  [NOTE] Claude Code installs whole plugins (granular not supported). Installing full plugin.');
+      }
       // Claude uses marketplace install
       if (commandExists('claude')) {
         try { execSync('claude plugin marketplace add agent-sh/agentsys', { stdio: 'pipe' }); } catch {}
@@ -719,17 +895,26 @@ async function installPlugin(nameWithVersion, args) {
   }
 
   if (platforms.includes('opencode') && installDir) {
-    installForOpenCode(installDir, { stripModels: args.stripModels });
+    installForOpenCode(installDir, { stripModels: args.stripModels, filter });
   }
   if (platforms.includes('codex') && installDir) {
-    installForCodex(installDir);
+    installForCodex(installDir, { filter });
   }
 
   // Record in installed.json
   for (const depName of toFetch) {
     const dep = pluginMap[depName];
     const ver = depName === name && requestedVersion ? requestedVersion : (dep ? dep.version : 'unknown');
-    recordInstall(depName, ver, platforms);
+    if (depName === name && filter) {
+      recordInstall(depName, ver, platforms, {
+        scope: 'partial',
+        agents: filter.agents,
+        skills: filter.skills,
+        commands: filter.commands
+      });
+    } else {
+      recordInstall(depName, ver, platforms);
+    }
   }
 
   console.log(`\n[OK] Installed ${name} successfully.`);
@@ -793,6 +978,44 @@ function removePlugin(name) {
 
 function searchPlugins(term) {
   const marketplace = loadMarketplace();
+
+  // Handle "plugin:" prefix to list components of a specific plugin
+  if (term && term.endsWith(':')) {
+    const pluginName = term.slice(0, -1);
+    const cacheDir = getPluginCacheDir();
+    const pluginDir = path.join(cacheDir, pluginName);
+    if (!fs.existsSync(pluginDir)) {
+      console.log(`Plugin "${pluginName}" is not cached. Install it first: agentsys install ${pluginName}`);
+      return;
+    }
+    const components = loadComponents(pluginDir);
+    console.log(`\nComponents of ${pluginName}:\n`);
+    if (components.agents.length > 0) {
+      console.log('  Agents:');
+      for (const a of components.agents) {
+        const desc = a.description ? ` - ${a.description}` : '';
+        console.log(`    ${a.name}${desc}`);
+      }
+    }
+    if (components.skills.length > 0) {
+      console.log('  Skills:');
+      for (const s of components.skills) {
+        const desc = s.description ? ` - ${s.description}` : '';
+        console.log(`    ${s.name}${desc}`);
+      }
+    }
+    if (components.commands.length > 0) {
+      console.log('  Commands:');
+      for (const c of components.commands) {
+        const desc = c.description ? ` - ${c.description}` : '';
+        console.log(`    ${c.name}${desc}`);
+      }
+    }
+    const total = components.agents.length + components.skills.length + components.commands.length;
+    console.log(`\n${total} component(s) found.`);
+    return;
+  }
+
   let plugins = marketplace.plugins;
 
   if (term) {
@@ -957,7 +1180,7 @@ function installForClaudeDevelopment() {
 
 function installForOpenCode(installDir, options = {}) {
   console.log('\n[INSTALL] Installing for OpenCode...\n');
-  const { stripModels = true } = options;
+  const { stripModels = true, filter = null } = options;
 
   if (stripModels) {
     console.log('  [INFO] Model specifications stripped (default). Use --no-strip to include.');
@@ -1018,6 +1241,11 @@ function installForOpenCode(installDir, options = {}) {
 
   // Transform and copy command files
   for (const [target, plugin, source] of commandMappings) {
+    // Apply filter: skip commands not in the filter list
+    if (filter && filter.commands.length > 0) {
+      const cmdName = target.replace(/\.md$/, '');
+      if (!filter.commands.includes(cmdName)) continue;
+    }
     const srcPath = path.join(installDir, 'plugins', plugin, 'commands', source);
     const destPath = path.join(commandsDir, target);
     if (fs.existsSync(srcPath)) {
@@ -1049,6 +1277,11 @@ function installForOpenCode(installDir, options = {}) {
     if (fs.existsSync(srcAgentsDir)) {
       const agentFiles = fs.readdirSync(srcAgentsDir).filter(f => f.endsWith('.md'));
       for (const agentFile of agentFiles) {
+        // Apply filter: skip agents not in the filter list
+        if (filter && filter.agents.length > 0) {
+          const agentName = agentFile.replace(/\.md$/, '');
+          if (!filter.agents.includes(agentName)) continue;
+        }
         const srcPath = path.join(srcAgentsDir, agentFile);
         const destPath = path.join(agentsDir, agentFile);
         let content = fs.readFileSync(srcPath, 'utf8');
@@ -1086,6 +1319,10 @@ function installForOpenCode(installDir, options = {}) {
         .filter(d => d.isDirectory());
       for (const skillDir of skillDirs) {
         const skillName = skillDir.name;
+        // Apply filter: skip skills not in the filter list
+        if (filter && filter.skills.length > 0) {
+          if (!filter.skills.includes(skillName)) continue;
+        }
         const srcSkillPath = path.join(srcSkillsDir, skillName, 'SKILL.md');
         if (fs.existsSync(srcSkillPath)) {
           const destSkillDir = path.join(skillsDestDir, skillName);
@@ -1109,8 +1346,9 @@ function installForOpenCode(installDir, options = {}) {
   return true;
 }
 
-function installForCodex(installDir) {
+function installForCodex(installDir, options = {}) {
   console.log('\n[INSTALL] Installing for Codex CLI...\n');
+  const { filter = null } = options;
 
   const home = process.env.HOME || process.env.USERPROFILE;
   const configDir = path.join(home, '.codex');
@@ -1148,6 +1386,10 @@ function installForCodex(installDir) {
   const skillMappings = discovery.getCodexSkillMappings(installDir);
 
   for (const [skillName, plugin, sourceFile, description] of skillMappings) {
+    // Apply filter: skip commands/skills not in the filter list
+    if (filter && filter.commands.length > 0) {
+      if (!filter.commands.includes(skillName)) continue;
+    }
     if (!description) {
       console.log(`  [WARN] Skipping skill ${skillName}: missing description`);
       continue;
@@ -1217,9 +1459,11 @@ Usage:
   agentsys --version, -v      Show version
   agentsys --help, -h         Show this help
   agentsys install <plugin>    Install a specific plugin (resolves deps)
+  agentsys install <p>:<comp>  Install a single agent, skill, or command
   agentsys install <p>@<ver>  Install a specific version
   agentsys remove <plugin>    Remove an installed plugin
   agentsys search [term]      Search available plugins
+  agentsys search <plugin>:   List components of a plugin
   agentsys list               List installed plugins and versions
   agentsys update             Re-fetch latest versions of installed plugins
 
@@ -1456,5 +1700,9 @@ module.exports = {
   satisfiesRange,
   checkCoreCompat,
   detectInstalledPlatforms,
-  getInstalledJsonPath
+  getInstalledJsonPath,
+  parseInstallTarget,
+  loadComponents,
+  resolveComponent,
+  buildFilterFromComponent
 };

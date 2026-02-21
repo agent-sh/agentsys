@@ -16,7 +16,11 @@ const {
   recordInstall,
   recordRemove,
   getInstalledJsonPath,
-  detectInstalledPlatforms
+  detectInstalledPlatforms,
+  parseInstallTarget,
+  loadComponents,
+  resolveComponent,
+  buildFilterFromComponent
 } = require('../bin/cli.js');
 
 describe('CLI subcommand parsing', () => {
@@ -191,6 +195,171 @@ describe('installed.json operations', () => {
     recordInstall('perf', '1.0.0', ['opencode']);
     const data = loadInstalledJson();
     expect(Object.keys(data.plugins)).toEqual(['deslop', 'perf']);
+  });
+});
+
+describe('parseInstallTarget', () => {
+  test('parses plain plugin name', () => {
+    const result = parseInstallTarget('next-task');
+    expect(result).toEqual({ plugin: 'next-task', component: null, version: null });
+  });
+
+  test('parses plugin:component', () => {
+    const result = parseInstallTarget('next-task:ci-fixer');
+    expect(result).toEqual({ plugin: 'next-task', component: 'ci-fixer', version: null });
+  });
+
+  test('parses plugin@version', () => {
+    const result = parseInstallTarget('next-task@1.2.0');
+    expect(result).toEqual({ plugin: 'next-task', component: null, version: '1.2.0' });
+  });
+
+  test('parses plugin:component with version on plugin', () => {
+    const result = parseInstallTarget('next-task:ci-fixer');
+    expect(result.plugin).toBe('next-task');
+    expect(result.component).toBe('ci-fixer');
+  });
+
+  test('returns nulls for empty input', () => {
+    expect(parseInstallTarget('')).toEqual({ plugin: null, component: null, version: null });
+    expect(parseInstallTarget(null)).toEqual({ plugin: null, component: null, version: null });
+    expect(parseInstallTarget(undefined)).toEqual({ plugin: null, component: null, version: null });
+  });
+
+  test('handles colon at end (no component)', () => {
+    const result = parseInstallTarget('next-task:');
+    expect(result).toEqual({ plugin: 'next-task', component: null, version: null });
+  });
+});
+
+describe('loadComponents', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agentsys-comp-test-'));
+  });
+
+  afterEach(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  test('loads from components.json when present', () => {
+    fs.writeFileSync(path.join(tmpDir, 'components.json'), JSON.stringify({
+      agents: [{ name: 'ci-fixer', file: 'agents/ci-fixer.md' }],
+      skills: [{ name: 'discover-tasks', dir: 'skills/discover-tasks' }],
+      commands: [{ name: 'next-task', file: 'commands/next-task.md' }]
+    }));
+    const result = loadComponents(tmpDir);
+    expect(result.agents).toHaveLength(1);
+    expect(result.agents[0].name).toBe('ci-fixer');
+    expect(result.skills).toHaveLength(1);
+    expect(result.commands).toHaveLength(1);
+  });
+
+  test('scans filesystem when no components.json', () => {
+    // Create mock plugin structure
+    fs.mkdirSync(path.join(tmpDir, 'agents'), { recursive: true });
+    fs.writeFileSync(path.join(tmpDir, 'agents', 'my-agent.md'), '# Agent');
+    fs.mkdirSync(path.join(tmpDir, 'skills', 'my-skill'), { recursive: true });
+    fs.writeFileSync(path.join(tmpDir, 'skills', 'my-skill', 'SKILL.md'), '# Skill');
+    fs.mkdirSync(path.join(tmpDir, 'commands'), { recursive: true });
+    fs.writeFileSync(path.join(tmpDir, 'commands', 'my-cmd.md'), '# Cmd');
+
+    const result = loadComponents(tmpDir);
+    expect(result.agents).toEqual([{ name: 'my-agent', file: 'agents/my-agent.md' }]);
+    expect(result.skills).toEqual([{ name: 'my-skill', dir: 'skills/my-skill' }]);
+    expect(result.commands).toEqual([{ name: 'my-cmd', file: 'commands/my-cmd.md' }]);
+  });
+
+  test('returns empty arrays for empty directory', () => {
+    const result = loadComponents(tmpDir);
+    expect(result).toEqual({ agents: [], skills: [], commands: [] });
+  });
+});
+
+describe('resolveComponent', () => {
+  const components = {
+    agents: [{ name: 'ci-fixer', file: 'agents/ci-fixer.md' }],
+    skills: [{ name: 'discover-tasks', dir: 'skills/discover-tasks' }],
+    commands: [{ name: 'next-task', file: 'commands/next-task.md' }]
+  };
+
+  test('resolves agent', () => {
+    const result = resolveComponent(components, 'ci-fixer');
+    expect(result).toEqual({ type: 'agent', name: 'ci-fixer', file: 'agents/ci-fixer.md' });
+  });
+
+  test('resolves skill', () => {
+    const result = resolveComponent(components, 'discover-tasks');
+    expect(result).toEqual({ type: 'skill', name: 'discover-tasks', dir: 'skills/discover-tasks' });
+  });
+
+  test('resolves command', () => {
+    const result = resolveComponent(components, 'next-task');
+    expect(result).toEqual({ type: 'command', name: 'next-task', file: 'commands/next-task.md' });
+  });
+
+  test('returns null for unknown component', () => {
+    expect(resolveComponent(components, 'nonexistent')).toBeNull();
+  });
+
+  test('returns null for null inputs', () => {
+    expect(resolveComponent(components, null)).toBeNull();
+    expect(resolveComponent(null, 'ci-fixer')).toBeNull();
+  });
+});
+
+describe('buildFilterFromComponent', () => {
+  test('builds agent filter', () => {
+    const filter = buildFilterFromComponent({ type: 'agent', name: 'ci-fixer' });
+    expect(filter).toEqual({ agents: ['ci-fixer'], skills: [], commands: [] });
+  });
+
+  test('builds skill filter', () => {
+    const filter = buildFilterFromComponent({ type: 'skill', name: 'discover-tasks' });
+    expect(filter).toEqual({ agents: [], skills: ['discover-tasks'], commands: [] });
+  });
+
+  test('builds command filter', () => {
+    const filter = buildFilterFromComponent({ type: 'command', name: 'next-task' });
+    expect(filter).toEqual({ agents: [], skills: [], commands: ['next-task'] });
+  });
+});
+
+describe('granular install recording', () => {
+  let tmpDir;
+  let origHome;
+
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agentsys-granular-test-'));
+    origHome = process.env.HOME;
+    process.env.HOME = tmpDir;
+  });
+
+  afterEach(() => {
+    process.env.HOME = origHome;
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  test('recordInstall with scope full (default)', () => {
+    recordInstall('next-task', '1.0.0', ['claude']);
+    const data = loadInstalledJson();
+    expect(data.plugins['next-task'].scope).toBe('full');
+    expect(data.plugins['next-task'].agents).toBeUndefined();
+  });
+
+  test('recordInstall with scope partial', () => {
+    recordInstall('next-task', '1.0.0', ['opencode'], {
+      scope: 'partial',
+      agents: ['ci-fixer'],
+      skills: [],
+      commands: []
+    });
+    const data = loadInstalledJson();
+    expect(data.plugins['next-task'].scope).toBe('partial');
+    expect(data.plugins['next-task'].agents).toEqual(['ci-fixer']);
+    expect(data.plugins['next-task'].skills).toEqual([]);
+    expect(data.plugins['next-task'].commands).toEqual([]);
   });
 });
 
