@@ -4,6 +4,7 @@ on:
     types: [opened, transferred]
   pull_request:
     types: [opened]
+permissions: {}
 jobs:
   add:
     permissions:
