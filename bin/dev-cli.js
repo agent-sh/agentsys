@@ -479,6 +479,14 @@ Scaffolding:
   new skill <name>        Scaffold a new skill (--plugin required)
   new command <name>      Scaffold a new command (--plugin required)
 
+User CLI (agentsys):
+  agentsys                      Interactive installer
+  agentsys install <plugin>     Install a specific plugin (resolves deps)
+  agentsys remove <plugin>      Remove an installed plugin
+  agentsys search [term]        Search available plugins
+  agentsys list                 List installed plugins and versions
+  agentsys update               Re-fetch latest plugin versions
+
 Aliases (npm scripts):
   npm run new:plugin        = agentsys-dev new plugin
   npm run new:agent         = agentsys-dev new agent

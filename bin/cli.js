@@ -87,7 +87,8 @@ function parseArgs(args) {
     tool: null,        // Single tool
     tools: [],         // Multiple tools
     only: [],          // --only flag: selective plugin install
-    subcommand: null,  // 'update' or 'list'
+    subcommand: null,  // 'update', 'list', 'install', 'remove', 'search'
+    subcommandArg: null, // argument for subcommand (e.g. plugin name)
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -129,8 +130,13 @@ function parseArgs(args) {
         result.tools.push(tool);
       }
       i++;
-    } else if (arg === 'update' || arg === 'list') {
+    } else if (['update', 'list', 'install', 'remove', 'search'].includes(arg)) {
       result.subcommand = arg;
+      // Grab the next non-flag arg as subcommand argument (plugin name, search term)
+      if (args[i + 1] && !args[i + 1].startsWith('-')) {
+        result.subcommandArg = args[i + 1];
+        i++;
+      }
     }
   }
 
@@ -541,6 +547,279 @@ async function updatePlugins() {
   console.log('\n[OK] Plugins updated.');
 }
 
+// --- installed.json manifest ---
+
+function getInstalledJsonPath() {
+  const home = process.env.HOME || process.env.USERPROFILE;
+  return path.join(home, '.agentsys', 'installed.json');
+}
+
+function loadInstalledJson() {
+  const p = getInstalledJsonPath();
+  if (fs.existsSync(p)) {
+    try {
+      return JSON.parse(fs.readFileSync(p, 'utf8'));
+    } catch {
+      return { plugins: {} };
+    }
+  }
+  return { plugins: {} };
+}
+
+function saveInstalledJson(data) {
+  const p = getInstalledJsonPath();
+  fs.mkdirSync(path.dirname(p), { recursive: true });
+  fs.writeFileSync(p, JSON.stringify(data, null, 2) + '\n');
+}
+
+function recordInstall(name, version, platforms) {
+  const data = loadInstalledJson();
+  data.plugins[name] = {
+    version,
+    installedAt: new Date().toISOString(),
+    platforms
+  };
+  saveInstalledJson(data);
+}
+
+function recordRemove(name) {
+  const data = loadInstalledJson();
+  delete data.plugins[name];
+  saveInstalledJson(data);
+}
+
+// --- Core version compatibility check ---
+
+/**
+ * Simple semver range check. Supports ">=X.Y.Z" format.
+ * Returns true if ver satisfies the range.
+ */
+function satisfiesRange(ver, range) {
+  if (!range) return true;
+  const parseVer = (s) => {
+    const m = s.match(/^(\d+)\.(\d+)\.(\d+)/);
+    return m ? [parseInt(m[1]), parseInt(m[2]), parseInt(m[3])] : null;
+  };
+
+  const greaterEq = range.match(/^>=(.+)$/);
+  if (greaterEq) {
+    const required = parseVer(greaterEq[1]);
+    const actual = parseVer(ver);
+    if (!required || !actual) return true;
+    for (let i = 0; i < 3; i++) {
+      if (actual[i] > required[i]) return true;
+      if (actual[i] < required[i]) return false;
+    }
+    return true; // equal
+  }
+  return true; // unknown range format, don't block
+}
+
+function checkCoreCompat(pluginEntry) {
+  if (pluginEntry.core && !satisfiesRange(VERSION, pluginEntry.core)) {
+    console.error(`[WARN] ${pluginEntry.name} requires agentsys ${pluginEntry.core}, you have ${VERSION}`);
+  }
+}
+
+// --- Detect which platforms are installed ---
+
+function detectInstalledPlatforms() {
+  const home = process.env.HOME || process.env.USERPROFILE;
+  const platforms = [];
+  if (fs.existsSync(path.join(home, '.claude'))) platforms.push('claude');
+  const opencodeDir = getOpenCodeConfigDir();
+  if (fs.existsSync(opencodeDir)) platforms.push('opencode');
+  if (fs.existsSync(path.join(home, '.codex'))) platforms.push('codex');
+  return platforms;
+}
+
+// --- install subcommand ---
+
+async function installPlugin(nameWithVersion, args) {
+  // Parse name[@version]
+  const atIdx = nameWithVersion.indexOf('@');
+  let name, requestedVersion;
+  if (atIdx > 0) {
+    name = nameWithVersion.slice(0, atIdx);
+    requestedVersion = nameWithVersion.slice(atIdx + 1);
+  } else {
+    name = nameWithVersion;
+  }
+
+  const marketplace = loadMarketplace();
+  const pluginMap = {};
+  for (const p of marketplace.plugins) {
+    pluginMap[p.name] = p;
+  }
+
+  if (!pluginMap[name]) {
+    console.error(`[ERROR] Unknown plugin: ${name}`);
+    console.error(`Available: ${marketplace.plugins.map(p => p.name).join(', ')}`);
+    process.exit(1);
+  }
+
+  const plugin = pluginMap[name];
+  checkCoreCompat(plugin);
+
+  // Resolve deps
+  const toFetch = resolvePluginDeps([name], marketplace);
+  console.log(`\nInstalling ${name} (+ deps: ${toFetch.filter(n => n !== name).join(', ') || 'none'})\n`);
+
+  // Fetch all
+  for (const depName of toFetch) {
+    const dep = pluginMap[depName];
+    if (!dep || !dep.source || dep.source.startsWith('./')) continue;
+    checkCoreCompat(dep);
+    const ver = depName === name && requestedVersion ? requestedVersion : dep.version;
+    try {
+      await fetchPlugin(depName, dep.source, ver);
+    } catch (err) {
+      console.error(`  [ERROR] Failed to fetch ${depName}: ${err.message}`);
+    }
+  }
+
+  // Determine platforms
+  let platforms;
+  if (args.tool) {
+    platforms = [args.tool];
+  } else if (args.tools.length > 0) {
+    platforms = args.tools;
+  } else {
+    platforms = detectInstalledPlatforms();
+    if (platforms.length === 0) platforms = ['claude']; // default
+  }
+
+  console.log(`Installing for platforms: ${platforms.join(', ')}`);
+
+  // Use cache as install source
+  const installDir = getInstallDir();
+  const needsLocal = platforms.includes('opencode') || platforms.includes('codex');
+  if (needsLocal && !fs.existsSync(path.join(installDir, 'lib'))) {
+    // Need local install for transforms
+    cleanOldInstallation(installDir);
+    copyFromPackage(installDir);
+  }
+
+  for (const platform of platforms) {
+    if (platform === 'claude') {
+      // Claude uses marketplace install
+      if (commandExists('claude')) {
+        try { execSync('claude plugin marketplace add agent-sh/agentsys', { stdio: 'pipe' }); } catch {}
+        for (const depName of toFetch) {
+          if (!/^[a-z0-9][a-z0-9-]*$/.test(depName)) continue;
+          try {
+            execSync(`claude plugin install ${depName}@agentsys`, { stdio: 'pipe' });
+          } catch {
+            try { execSync(`claude plugin update ${depName}@agentsys`, { stdio: 'pipe' }); } catch {}
+          }
+        }
+      }
+    }
+    // OpenCode and Codex get handled through normal install flow with cached plugins
+  }
+
+  if (platforms.includes('opencode') && installDir) {
+    installForOpenCode(installDir, { stripModels: args.stripModels });
+  }
+  if (platforms.includes('codex') && installDir) {
+    installForCodex(installDir);
+  }
+
+  // Record in installed.json
+  for (const depName of toFetch) {
+    const dep = pluginMap[depName];
+    const ver = depName === name && requestedVersion ? requestedVersion : (dep ? dep.version : 'unknown');
+    recordInstall(depName, ver, platforms);
+  }
+
+  console.log(`\n[OK] Installed ${name} successfully.`);
+}
+
+// --- remove subcommand ---
+
+function removePlugin(name) {
+  const marketplace = loadMarketplace();
+  const installed = loadInstalledJson();
+
+  if (!installed.plugins[name]) {
+    console.error(`[ERROR] Plugin ${name} is not installed.`);
+    process.exit(1);
+  }
+
+  // Check if any other installed plugin depends on this one
+  for (const [otherName] of Object.entries(installed.plugins)) {
+    if (otherName === name) continue;
+    const entry = marketplace.plugins.find(p => p.name === otherName);
+    if (entry && entry.requires && entry.requires.includes(name)) {
+      console.error(`[WARN] ${otherName} depends on ${name}. It may not work correctly after removal.`);
+    }
+  }
+
+  const platforms = installed.plugins[name].platforms || [];
+
+  // Remove from cache
+  const cacheDir = getPluginCacheDir();
+  const pluginCacheDir = path.join(cacheDir, name);
+  if (fs.existsSync(pluginCacheDir)) {
+    fs.rmSync(pluginCacheDir, { recursive: true, force: true });
+    console.log(`  Removed from cache: ${name}`);
+  }
+
+  // Remove from platforms
+  if (platforms.includes('claude') && commandExists('claude')) {
+    try {
+      execSync(`claude plugin uninstall ${name}@agentsys`, { stdio: 'pipe' });
+      console.log(`  Removed from Claude Code: ${name}`);
+    } catch {}
+  }
+
+  if (platforms.includes('opencode')) {
+    const opencodeDir = getOpenCodeConfigDir();
+    console.log(`  [NOTE] OpenCode files may need manual cleanup in ${opencodeDir}`);
+  }
+
+  if (platforms.includes('codex')) {
+    const home = process.env.HOME || process.env.USERPROFILE;
+    const skillsDir = path.join(home, '.codex', 'skills');
+    console.log(`  [NOTE] Codex skill files may need manual cleanup in ${skillsDir}`);
+  }
+
+  // Update installed.json
+  recordRemove(name);
+  console.log(`\n[OK] Removed ${name}.`);
+}
+
+// --- search subcommand ---
+
+function searchPlugins(term) {
+  const marketplace = loadMarketplace();
+  let plugins = marketplace.plugins;
+
+  if (term) {
+    const lower = term.toLowerCase();
+    plugins = plugins.filter(p =>
+      p.name.toLowerCase().includes(lower) ||
+      (p.description && p.description.toLowerCase().includes(lower))
+    );
+  }
+
+  if (plugins.length === 0) {
+    console.log(`No plugins found${term ? ` matching "${term}"` : ''}.`);
+    return;
+  }
+
+  // Print table
+  const nameWidth = Math.max(14, ...plugins.map(p => p.name.length)) + 2;
+  const verWidth = 10;
+  console.log(`\n${'NAME'.padEnd(nameWidth)}${'VERSION'.padEnd(verWidth)}DESCRIPTION`);
+  console.log(`${'─'.repeat(nameWidth)}${'─'.repeat(verWidth)}${'─'.repeat(40)}`);
+  for (const p of plugins) {
+    const desc = p.description ? (p.description.length > 60 ? p.description.slice(0, 57) + '...' : p.description) : '';
+    console.log(`${p.name.padEnd(nameWidth)}${(p.version || '').padEnd(verWidth)}${desc}`);
+  }
+  console.log(`\n${plugins.length} plugin(s) found.`);
+}
+
 function installForClaude() {
   console.log('\n[INSTALL] Installing for Claude Code...\n');
 
@@ -937,6 +1216,10 @@ Usage:
   agentsys --remove           Remove local installation
   agentsys --version, -v      Show version
   agentsys --help, -h         Show this help
+  agentsys install <plugin>    Install a specific plugin (resolves deps)
+  agentsys install <p>@<ver>  Install a specific version
+  agentsys remove <plugin>    Remove an installed plugin
+  agentsys search [term]      Search available plugins
   agentsys list               List installed plugins and versions
   agentsys update             Re-fetch latest versions of installed plugins
 
@@ -1005,6 +1288,29 @@ async function main() {
     return;
   }
 
+  if (args.subcommand === 'search') {
+    searchPlugins(args.subcommandArg);
+    return;
+  }
+
+  if (args.subcommand === 'install') {
+    if (!args.subcommandArg) {
+      console.error('[ERROR] Usage: agentsys install <plugin[@version]>');
+      process.exit(1);
+    }
+    await installPlugin(args.subcommandArg, args);
+    return;
+  }
+
+  if (args.subcommand === 'remove') {
+    if (!args.subcommandArg) {
+      console.error('[ERROR] Usage: agentsys remove <plugin>');
+      process.exit(1);
+    }
+    removePlugin(args.subcommandArg);
+    return;
+  }
+
   // Determine which tools to install
   let selected = [];
 
@@ -1056,6 +1362,19 @@ async function main() {
   }
 
   console.log(`\nInstalling for: ${selected.join(', ')}\n`);
+
+  // Fetch external plugins to cache
+  const marketplace = loadMarketplace();
+  const onlyPlugins = args.only;
+  const pluginNames = onlyPlugins.length > 0 ? onlyPlugins : marketplace.plugins.map(p => p.name);
+
+  // Check core version compatibility
+  for (const pName of pluginNames) {
+    const entry = marketplace.plugins.find(p => p.name === pName);
+    if (entry) checkCoreCompat(entry);
+  }
+
+  await fetchExternalPlugins(pluginNames, marketplace);
 
   // Only copy to ~/.agentsys if OpenCode or Codex selected (they need local files)
   const needsLocalInstall = selected.includes('opencode') || selected.includes('codex');
@@ -1126,5 +1445,16 @@ module.exports = {
   loadMarketplace,
   getPluginCacheDir,
   listInstalledPlugins,
-  updatePlugins
+  updatePlugins,
+  installPlugin,
+  removePlugin,
+  searchPlugins,
+  loadInstalledJson,
+  saveInstalledJson,
+  recordInstall,
+  recordRemove,
+  satisfiesRange,
+  checkCoreCompat,
+  detectInstalledPlatforms,
+  getInstalledJsonPath
 };
