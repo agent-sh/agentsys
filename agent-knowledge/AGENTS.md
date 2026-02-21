@@ -12,6 +12,7 @@
 | All-in-One Plus Modular Packages | all-in-one-plus-modular-packages.md | 40 | deep | 2026-02-21 |
 | GitHub Org Project Management (Multi-Repo OSS) | github-org-project-management.md | 15 | deep | 2026-02-21 |
 | GitHub Organization Structure Patterns | github-org-structure-patterns.md | 18 | deep | 2026-02-21 |
+| Multi-Product Org Docs & Website Architecture | multi-product-org-docs.md | 42 | deep | 2026-02-21 |
 
 ## Trigger Phrases
 
@@ -91,6 +92,31 @@ Use this knowledge when user asks about:
 - "GitHub org profile README" -> github-org-structure-patterns.md
 - "developer tool org layout" -> github-org-structure-patterns.md
 - "open source org patterns" -> github-org-structure-patterns.md
+- "multi-product docs" -> multi-product-org-docs.md
+- "documentation architecture" -> multi-product-org-docs.md
+- "docs site structure" -> multi-product-org-docs.md
+- "Docusaurus multi-instance" -> multi-product-org-docs.md
+- "Starlight Astro docs" -> multi-product-org-docs.md
+- "Mintlify docs" -> multi-product-org-docs.md
+- "VitePress multi-sidebar" -> multi-product-org-docs.md
+- "developer portal" -> multi-product-org-docs.md
+- "plugin catalog page" -> multi-product-org-docs.md
+- "marketplace page design" -> multi-product-org-docs.md
+- "docs SEO multi-product" -> multi-product-org-docs.md
+- "hub and spoke docs" -> multi-product-org-docs.md
+- "unified docs vs separate sites" -> multi-product-org-docs.md
+- "llms.txt AI discoverability" -> multi-product-org-docs.md
+- "GitHub Pages org site docs" -> multi-product-org-docs.md
+- "HashiCorp developer portal" -> multi-product-org-docs.md
+- "Supabase docs structure" -> multi-product-org-docs.md
+- "agent-sh website" -> multi-product-org-docs.md
+- "agnix docs separate site" -> multi-product-org-docs.md
+- "plugin catalog generation" -> multi-product-org-docs.md
+- "cross-product navigation" -> multi-product-org-docs.md
+- "product switcher docs" -> multi-product-org-docs.md
+- "Diataxis framework" -> multi-product-org-docs.md
+- "Pagefind search" -> multi-product-org-docs.md
+- "docs-as-code" -> multi-product-org-docs.md
 
 ## Quick Lookup
 
@@ -152,6 +178,20 @@ Use this knowledge when user asks about:
 | starter workflows, workflow-templates | github-org-structure-patterns.md |
 | github pages org site | github-org-structure-patterns.md |
 | verified domain github | github-org-structure-patterns.md |
+| multi-product docs, documentation architecture | multi-product-org-docs.md |
+| Docusaurus, Starlight, Mintlify, VitePress | multi-product-org-docs.md |
+| developer portal, docs site structure | multi-product-org-docs.md |
+| plugin catalog, marketplace page | multi-product-org-docs.md |
+| docs SEO, llms.txt, AI discoverability | multi-product-org-docs.md |
+| hub-and-spoke, unified portal | multi-product-org-docs.md |
+| HashiCorp, Supabase, Vercel docs | multi-product-org-docs.md |
+| product switcher, cross-product navigation | multi-product-org-docs.md |
+| Diataxis, docs-as-code | multi-product-org-docs.md |
+| Pagefind, Algolia DocSearch | multi-product-org-docs.md |
+| agent-sh website, agnix docs | multi-product-org-docs.md |
+| GitBook, ReadMe, Nextra | multi-product-org-docs.md |
+| GitHub Pages docs hosting | multi-product-org-docs.md |
+| Cloudflare Pages, Vercel hosting | multi-product-org-docs.md |
 
 ## How to Use
 
