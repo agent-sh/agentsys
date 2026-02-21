@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`/web-ctl` plugin** — New plugin for browser automation and web testing. Headless browser control via Playwright with persistent encrypted sessions, human-in-the-loop auth handoff (including CAPTCHA detection and checkpoint mode), anti-bot measures (webdriver spoofing, random delays), WSL detection with Windows Chrome fallback, and prompt injection defense via `[PAGE_CONTENT: ...]` delimiters. Includes `web-session` agent, `web-auth` and `web-browse` skills, and the `/web-ctl` command. Available at [agent-sh/web-ctl](https://github.com/agent-sh/web-ctl).
+
 - **Plugin extraction to standalone repos (#250)** — All 13 plugins extracted from `plugins/` into standalone repos under the `agent-sh` org (`agent-sh/next-task`, `agent-sh/ship`, `agent-sh/deslop`, `agent-sh/audit-project`, `agent-sh/enhance`, `agent-sh/perf`, `agent-sh/drift-detect`, `agent-sh/sync-docs`, `agent-sh/repo-map`, `agent-sh/learn`, `agent-sh/consult`, `agent-sh/debate`, `agent-sh/agnix`). The `plugins/` directory has been removed from this repo. agentsys is now a marketplace + installer.
 
 - **External plugin fetching in installer** — `bin/cli.js` now fetches plugins from their standalone GitHub repos at install time rather than bundling them. The installer resolves the correct version for each platform using the marketplace manifest.
