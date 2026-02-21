@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Setup git hooks for development
- * - pre-commit: Auto-syncs lib/ to plugins/
+ * - pre-commit: Placeholder (lib/ sync handled by agent-core CI)
  * - pre-push: Runs preflight checks, /enhance reminder, release validation
  */
 

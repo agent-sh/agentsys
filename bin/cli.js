@@ -8,7 +8,7 @@
  * Remove:   npm uninstall -g agentsys && agentsys --remove
  */
 
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
@@ -56,7 +56,7 @@ function getConfigPath(platform) {
 
 function commandExists(cmd) {
   try {
-    execSync(`${process.platform === 'win32' ? 'where' : 'which'} ${cmd}`, { stdio: 'pipe' });
+    execFileSync(process.platform === 'win32' ? 'where.exe' : 'which', [cmd], { stdio: 'pipe' });
     return true;
   } catch {
     return false;
@@ -329,21 +329,29 @@ async function fetchPlugin(name, source, version) {
  */
 function downloadAndExtractTarball(url, dest) {
   return new Promise((resolve, reject) => {
-    const request = (reqUrl) => {
-      https.get(reqUrl, {
-        headers: {
-          'User-Agent': `agentsys/${VERSION}`,
-          'Accept': 'application/vnd.github+json'
-        }
-      }, (res) => {
+    const ghToken = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
+    const request = (reqUrl, redirectCount = 0) => {
+      if (redirectCount > 5) {
+        reject(new Error(`Too many redirects fetching tarball from ${url}`));
+        return;
+      }
+      const headers = {
+        'User-Agent': `agentsys/${VERSION}`,
+        'Accept': 'application/vnd.github+json'
+      };
+      if (ghToken) headers['Authorization'] = `Bearer ${ghToken}`;
+      https.get(reqUrl, { headers }, (res) => {
         // Follow redirects (GitHub API returns 302 to S3)
         if (res.statusCode === 301 || res.statusCode === 302) {
-          request(res.headers.location);
+          res.resume();
+          request(res.headers.location, redirectCount + 1);
           return;
         }
 
         if (res.statusCode !== 200) {
-          reject(new Error(`HTTP ${res.statusCode} fetching tarball from ${reqUrl}`));
+          res.resume();
+          const hint = res.statusCode === 403 ? ' (rate limited — set GITHUB_TOKEN env var)' : '';
+          reject(new Error(`HTTP ${res.statusCode}${hint} fetching tarball from ${reqUrl}`));
           return;
         }
 
@@ -424,6 +432,7 @@ async function fetchExternalPlugins(pluginNames, marketplace) {
   console.log(`\nFetching ${toFetch.length} plugin(s): ${toFetch.join(', ')}\n`);
 
   const fetched = [];
+  const failed = [];
   for (const name of toFetch) {
     const plugin = pluginMap[name];
     if (!plugin) continue;
@@ -439,7 +448,16 @@ async function fetchExternalPlugins(pluginNames, marketplace) {
       await fetchPlugin(name, plugin.source, plugin.version);
       fetched.push(name);
     } catch (err) {
+      failed.push(name);
       console.error(`  [ERROR] Failed to fetch ${name}: ${err.message}`);
+    }
+  }
+
+  if (failed.length > 0) {
+    const missingDeps = failed.filter(f => toFetch.includes(f) && !pluginNames.includes(f));
+    if (missingDeps.length > 0) {
+      console.error(`\n  [WARN] Missing dependencies: ${missingDeps.join(', ')}`);
+      console.error(`  Some plugins may not work correctly without their dependencies.`);
     }
   }
 
