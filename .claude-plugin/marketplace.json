@@ -24,129 +24,115 @@
   "plugins": [
     {
       "name": "next-task",
-      "source": "https://github.com/agent-sh/next-task",
+      "source": {"source": "url", "url": "https://github.com/agent-sh/next-task.git"},
       "description": "Master workflow orchestrator: autonomous workflow with model optimization (opus/sonnet/haiku), two-file state management, workflow enforcement gates, 14 specialist agents",
       "version": "1.0.0",
       "category": "productivity",
-      "requires": ["deslop", "sync-docs", "ship"],
-      "core": ">=1.0.0"
+      "homepage": "https://github.com/agent-sh/next-task"
     },
     {
       "name": "ship",
-      "source": "https://github.com/agent-sh/ship",
+      "source": {"source": "url", "url": "https://github.com/agent-sh/ship.git"},
       "description": "Complete PR workflow: commit to production, skips review when called from next-task, removes task from registry on cleanup, automatic rollback",
       "version": "1.0.0",
       "category": "deployment",
-      "requires": ["next-task"],
-      "core": ">=1.0.0"
+      "homepage": "https://github.com/agent-sh/ship"
     },
     {
       "name": "deslop",
-      "source": "https://github.com/agent-sh/deslop",
+      "source": {"source": "url", "url": "https://github.com/agent-sh/deslop.git"},
       "description": "3-phase AI slop detection: regex patterns (HIGH), multi-pass analyzers (MEDIUM), CLI tools (LOW)",
       "version": "1.0.0",
       "category": "development",
-      "requires": ["next-task"],
-      "core": ">=1.0.0"
+      "homepage": "https://github.com/agent-sh/deslop"
     },
     {
       "name": "audit-project",
-      "source": "https://github.com/agent-sh/audit-project",
+      "source": {"source": "url", "url": "https://github.com/agent-sh/audit-project.git"},
       "description": "Multi-agent iterative code review until zero issues remain",
       "version": "1.0.0",
       "category": "development",
-      "requires": [],
-      "core": ">=1.0.0"
+      "homepage": "https://github.com/agent-sh/audit-project"
     },
     {
       "name": "drift-detect",
-      "source": "https://github.com/agent-sh/drift-detect",
+      "source": {"source": "url", "url": "https://github.com/agent-sh/drift-detect.git"},
       "description": "Deep repository analysis to realign project plans with code reality - detects drift, gaps, and creates prioritized reconstruction plans",
       "version": "1.0.0",
       "category": "productivity",
-      "requires": [],
-      "core": ">=1.0.0"
+      "homepage": "https://github.com/agent-sh/drift-detect"
     },
     {
       "name": "enhance",
-      "source": "https://github.com/agent-sh/enhance",
+      "source": {"source": "url", "url": "https://github.com/agent-sh/enhance.git"},
       "description": "Master enhancement orchestrator: parallel analyzer execution for plugins, agents, docs, CLAUDE.md, and prompts with unified reporting",
       "version": "1.0.0",
       "category": "development",
-      "requires": [],
-      "core": ">=1.0.0"
+      "homepage": "https://github.com/agent-sh/enhance"
     },
     {
       "name": "sync-docs",
-      "source": "https://github.com/agent-sh/sync-docs",
+      "source": {"source": "url", "url": "https://github.com/agent-sh/sync-docs.git"},
       "description": "Standalone documentation sync: find outdated refs, update CHANGELOG, flag stale examples based on code changes",
       "version": "1.0.0",
       "category": "development",
-      "requires": ["next-task"],
-      "core": ">=1.0.0"
+      "homepage": "https://github.com/agent-sh/sync-docs"
     },
     {
       "name": "repo-map",
-      "source": "https://github.com/agent-sh/repo-map",
+      "source": {"source": "url", "url": "https://github.com/agent-sh/repo-map.git"},
       "description": "AST-based repository map generation using ast-grep with incremental updates for faster drift analysis",
       "version": "1.0.0",
       "category": "development",
-      "requires": [],
-      "core": ">=1.0.0"
+      "homepage": "https://github.com/agent-sh/repo-map"
     },
     {
       "name": "perf",
-      "source": "https://github.com/agent-sh/perf",
+      "source": {"source": "url", "url": "https://github.com/agent-sh/perf.git"},
       "description": "Rigorous performance investigation workflow with baselines, profiling, hypotheses, and evidence-backed decisions",
       "version": "1.0.0",
       "category": "development",
-      "requires": [],
-      "core": ">=1.0.0"
+      "homepage": "https://github.com/agent-sh/perf"
     },
     {
       "name": "learn",
-      "source": "https://github.com/agent-sh/learn",
+      "source": {"source": "url", "url": "https://github.com/agent-sh/learn.git"},
       "description": "Research topics online and create comprehensive learning guides with RAG-optimized indexes",
       "version": "1.0.0",
       "category": "productivity",
-      "requires": ["enhance"],
-      "core": ">=1.0.0"
+      "homepage": "https://github.com/agent-sh/learn"
     },
     {
       "name": "agnix",
-      "source": "https://github.com/agent-sh/agnix",
+      "source": {"source": "url", "url": "https://github.com/agent-sh/agnix.git"},
       "description": "Lint agent configuration files (SKILL.md, CLAUDE.md, hooks, MCP) against 155 rules across 10+ AI tools",
       "version": "1.0.0",
       "category": "development",
-      "requires": [],
-      "core": ">=1.0.0"
+      "homepage": "https://github.com/agent-sh/agnix"
     },
     {
       "name": "consult",
-      "source": "https://github.com/agent-sh/consult",
+      "source": {"source": "url", "url": "https://github.com/agent-sh/consult.git"},
       "description": "Cross-tool AI consultation: get second opinions from Gemini CLI, Codex CLI, Claude Code, OpenCode, or Copilot CLI with model and thinking effort control",
       "version": "1.0.0",
       "category": "productivity",
-      "requires": [],
-      "core": ">=1.0.0"
+      "homepage": "https://github.com/agent-sh/consult"
     },
     {
       "name": "debate",
-      "source": "https://github.com/agent-sh/debate",
+      "source": {"source": "url", "url": "https://github.com/agent-sh/debate.git"},
       "description": "Structured multi-round debate between AI tools with proposer/challenger roles and verdict",
       "version": "1.0.0",
       "category": "productivity",
-      "requires": [],
-      "core": ">=1.0.0"
+      "homepage": "https://github.com/agent-sh/debate"
     },
     {
       "name": "web-ctl",
-      "source": "https://github.com/agent-sh/web-ctl",
-      "description": "Browser automation and web testing toolkit for AI agents — headless browser control, persistent sessions, auth handoff, and prompt injection defense",
+      "source": {"source": "url", "url": "https://github.com/agent-sh/web-ctl.git"},
+      "description": "Browser automation and web testing toolkit for AI agents - headless browser control, persistent sessions, auth handoff, and prompt injection defense",
       "version": "1.0.0",
       "category": "automation",
-      "requires": [],
-      "core": ">=1.0.0"
+      "homepage": "https://github.com/agent-sh/web-ctl"
     }
   ]
 }
