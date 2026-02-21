@@ -21,8 +21,8 @@
 </p>
 
 <p align="center">
-  <b>13 plugins · 42 agents · 28 skills · 26k lines of lib code · 3,357 tests · 3 platforms</b><br>
-  <em>Plugins distributed as standalone repos under <a href="https://github.com/agent-sh">agent-sh</a> org</em>
+  <b>13 plugins · 42 agents · 28 skills (across all repos) · 26k lines of lib code · 3,357 tests · 3 platforms</b><br>
+  <em>Plugins distributed as standalone repos under <a href="https://github.com/agent-sh">agent-sh</a> org — agentsys is the marketplace &amp; installer</em>
 </p>
 
 <p align="center">

@@ -1,4 +1,15 @@
+/**
+ * NOTE on early-return pattern:
+ * Several tests in this file use an early `return` inside the test body instead of
+ * `test.skip()` when a required environment condition is not met (e.g. no plugins/
+ * directory). This is intentional: early returns are cleaner, avoid the confusing
+ * "skipped" status noise in CI output, and keep test intent explicit at the top of
+ * each test. Do not replace them with `test.skip` or conditional `describe.skip`.
+ */
+
 const path = require('path');
+const fs = require('fs');
+const os = require('os');
 const discovery = require('../lib/discovery');
 
 const REPO_ROOT = path.join(__dirname, '..');
@@ -144,5 +155,69 @@ describe('discovery module', () => {
       expect(all.agents).toEqual([]);
       expect(all.skills).toEqual([]);
     });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Fixture-based tests: verifies discovery logic with a real temp directory
+// ---------------------------------------------------------------------------
+
+describe('discoverPlugins with temp fixture', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'discovery-fixture-'));
+    discovery.invalidateCache();
+  });
+
+  afterEach(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+    discovery.invalidateCache();
+  });
+
+  test('finds a plugin when plugins/<name>/.claude-plugin/plugin.json exists', () => {
+    // Create mock plugin structure
+    const pluginDir = path.join(tmpDir, 'plugins', 'my-plugin', '.claude-plugin');
+    fs.mkdirSync(pluginDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(pluginDir, 'plugin.json'),
+      JSON.stringify({ name: 'my-plugin', version: '1.0.0' }, null, 2)
+    );
+
+    const plugins = discovery.discoverPlugins(tmpDir);
+    expect(plugins).toContain('my-plugin');
+    expect(plugins.length).toBe(1);
+  });
+
+  test('discovers commands from plugins/<name>/commands/*.md', () => {
+    // Create plugin with a command
+    const commandsDir = path.join(tmpDir, 'plugins', 'test-plugin', 'commands');
+    fs.mkdirSync(path.join(tmpDir, 'plugins', 'test-plugin', '.claude-plugin'), { recursive: true });
+    fs.writeFileSync(
+      path.join(tmpDir, 'plugins', 'test-plugin', '.claude-plugin', 'plugin.json'),
+      JSON.stringify({ name: 'test-plugin', version: '1.0.0' })
+    );
+    fs.mkdirSync(commandsDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(commandsDir, 'my-command.md'),
+      '---\nname: my-command\ndescription: A test command\n---\n# My Command\n'
+    );
+
+    const commands = discovery.discoverCommands(tmpDir);
+    expect(commands.length).toBeGreaterThan(0);
+    expect(commands.some(c => c.name === 'my-command')).toBe(true);
+  });
+
+  test('returns sorted plugin names', () => {
+    // Create multiple plugins
+    for (const name of ['zebra-plugin', 'alpha-plugin', 'middle-plugin']) {
+      const dir = path.join(tmpDir, 'plugins', name, '.claude-plugin');
+      fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(path.join(dir, 'plugin.json'), JSON.stringify({ name, version: '1.0.0' }));
+    }
+
+    const plugins = discovery.discoverPlugins(tmpDir);
+    const sorted = [...plugins].sort();
+    expect(plugins).toEqual(sorted);
   });
 });

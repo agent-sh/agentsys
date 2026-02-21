@@ -236,6 +236,45 @@ describe('updateMarketplaceJson', () => {
   });
 });
 
+describe('marketplace.json semver validation', () => {
+  const marketplacePath = path.join(__dirname, '..', '.claude-plugin', 'marketplace.json');
+
+  // Simple semver regex: major.minor.patch with optional prerelease/build
+  const SEMVER_RE = /^\d+\.\d+\.\d+(-[\w.]+)?(\+[\w.]+)?$/;
+  // Semver range: >=X.Y.Z or ^X.Y.Z or ~X.Y.Z or plain semver
+  const SEMVER_RANGE_RE = /^(>=|<=|>|<|\^|~)?\d+\.\d+\.\d+(-[\w.]+)?$/;
+
+  test('marketplace.json exists and is valid JSON', () => {
+    expect(fs.existsSync(marketplacePath)).toBe(true);
+    expect(() => JSON.parse(fs.readFileSync(marketplacePath, 'utf8'))).not.toThrow();
+  });
+
+  test('all plugin entries have valid semver versions', () => {
+    const marketplace = JSON.parse(fs.readFileSync(marketplacePath, 'utf8'));
+    expect(Array.isArray(marketplace.plugins)).toBe(true);
+    for (const plugin of marketplace.plugins) {
+      expect(plugin.name).toBeTruthy();
+      expect(plugin.version).toBeTruthy();
+      expect(SEMVER_RE.test(plugin.version)).toBe(true);
+    }
+  });
+
+  test('all plugin entries have valid semver ranges in the core field', () => {
+    const marketplace = JSON.parse(fs.readFileSync(marketplacePath, 'utf8'));
+    for (const plugin of marketplace.plugins) {
+      if (plugin.core !== undefined) {
+        expect(typeof plugin.core).toBe('string');
+        expect(SEMVER_RANGE_RE.test(plugin.core)).toBe(true);
+      }
+    }
+  });
+
+  test('top-level marketplace version is valid semver', () => {
+    const marketplace = JSON.parse(fs.readFileSync(marketplacePath, 'utf8'));
+    expect(SEMVER_RE.test(marketplace.version)).toBe(true);
+  });
+});
+
 describe('updateContentJson', () => {
   test('updates meta.version via regex', () => {
     const filePath = path.join(tmpDir, 'content.json');

@@ -219,7 +219,11 @@ function loadMarketplace() {
 
 /**
  * Resolve plugin dependencies transitively.
- * Handles circular deps (next-task <-> ship <-> deslop <-> sync-docs).
+ *
+ * Circular dependencies are expected and handled: the `visiting` Set tracks
+ * the current DFS path and short-circuits any back-edge (e.g. next-task ->
+ * ship -> next-task), adding the already-visited node to `resolved` and
+ * returning immediately so the traversal terminates without infinite recursion.
  *
  * @param {string[]} names - Plugin names to resolve
  * @param {Object} marketplace - Parsed marketplace.json
