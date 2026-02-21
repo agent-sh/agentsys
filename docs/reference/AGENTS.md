@@ -3,7 +3,7 @@
 Complete reference for all agents in AgentSys.
 
 <!-- GEN:START:agents-counts -->
-**TL;DR:** 42 agents across 13 plugins (12 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 42 -->
+**TL;DR:** 10 agents across 0 plugins (1 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 10 -->
 <!-- GEN:END:agents-counts -->
 
 ---
@@ -13,18 +13,6 @@ Complete reference for all agents in AgentSys.
 <!-- GEN:START:agents-nav -->
 | Plugin | Agents | Jump to |
 |--------|--------|---------|
-| agnix | 1 | [agnix-agent](#agnix-agent) |
-| audit-project | 10 | [code-quality-reviewer](#code-quality-reviewer), [security-expert](#security-expert), [performance-engineer](#performance-engineer), [test-quality-guardian](#test-quality-guardian), [architecture-reviewer](#architecture-reviewer), [database-specialist](#database-specialist), [api-designer](#api-designer), [frontend-specialist](#frontend-specialist), [backend-specialist](#backend-specialist), [devops-reviewer](#devops-reviewer) |
-| consult | 1 | [consult-agent](#consult-agent) |
-| debate | 1 | [debate-orchestrator](#debate-orchestrator) |
-| deslop | 1 | [deslop-agent](#deslop-agent) |
-| drift-detect | 1 | [plan-synthesizer](#plan-synthesizer) |
-| enhance | 8 | [agent-enhancer](#agent-enhancer), [claudemd-enhancer](#claudemd-enhancer), [cross-file-enhancer](#cross-file-enhancer), [docs-enhancer](#docs-enhancer), [hooks-enhancer](#hooks-enhancer), [plugin-enhancer](#plugin-enhancer), [prompt-enhancer](#prompt-enhancer), [skills-enhancer](#skills-enhancer) |
-| learn | 1 | [learn-agent](#learn-agent) |
-| next-task | 10 | [ci-fixer](#ci-fixer), [ci-monitor](#ci-monitor), [delivery-validator](#delivery-validator), [exploration-agent](#exploration-agent), [implementation-agent](#implementation-agent), [planning-agent](#planning-agent), [simple-fixer](#simple-fixer), [task-discoverer](#task-discoverer), [test-coverage-checker](#test-coverage-checker), [worktree-manager](#worktree-manager) |
-| perf | 6 | [perf-analyzer](#perf-analyzer), [perf-code-paths](#perf-code-paths), [perf-investigation-logger](#perf-investigation-logger), [perf-orchestrator](#perf-orchestrator), [perf-theory-gatherer](#perf-theory-gatherer), [perf-theory-tester](#perf-theory-tester) |
-| repo-map | 1 | [map-validator](#map-validator) |
-| sync-docs | 1 | [sync-docs-agent](#sync-docs-agent) |
 <!-- GEN:END:agents-nav -->
 
 **Design principle:** Each agent has a single responsibility. Complex work is decomposed into specialized agents that do one thing extremely well, then orchestrated together.

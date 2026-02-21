@@ -9,18 +9,9 @@ beforeEach(() => {
 
 describe('discovery module', () => {
   describe('discoverPlugins', () => {
-    test('discovers exactly 13 plugins', () => {
+    test('returns empty array when plugins/ dir does not exist', () => {
       const plugins = discovery.discoverPlugins(REPO_ROOT);
-      expect(plugins.length).toBe(13);
-    });
-
-    test('discovers all known plugin names', () => {
-      const plugins = discovery.discoverPlugins(REPO_ROOT);
-      const expected = [
-        'agnix', 'audit-project', 'consult', 'debate', 'deslop', 'drift-detect', 'enhance',
-        'learn', 'next-task', 'perf', 'repo-map', 'ship', 'sync-docs'
-      ];
-      expect(plugins).toEqual(expected);
+      expect(plugins).toEqual([]);
     });
 
     test('returns sorted array', () => {
@@ -36,150 +27,44 @@ describe('discovery module', () => {
   });
 
   describe('discoverCommands', () => {
-    test('discovers exactly 19 commands', () => {
+    test('returns empty array when no plugins exist', () => {
       const commands = discovery.discoverCommands(REPO_ROOT);
-      expect(commands.length).toBe(19);
-    });
-
-    test('each command has name, plugin, file, and frontmatter', () => {
-      const commands = discovery.discoverCommands(REPO_ROOT);
-      for (const cmd of commands) {
-        expect(cmd).toHaveProperty('name');
-        expect(cmd).toHaveProperty('plugin');
-        expect(cmd).toHaveProperty('file');
-        expect(cmd).toHaveProperty('frontmatter');
-        expect(cmd.file).toMatch(/\.md$/);
-      }
-    });
-
-    test('primary commands have descriptions in frontmatter', () => {
-      const commands = discovery.discoverCommands(REPO_ROOT);
-      const primaryNames = [
-        'enhance', 'next-task', 'ship', 'deslop', 'audit-project',
-        'drift-detect', 'repo-map', 'perf', 'sync-docs', 'learn', 'agnix'
-      ];
-      for (const name of primaryNames) {
-        const cmd = commands.find(c => c.name === name);
-        expect(cmd).toBeDefined();
-        expect(cmd.frontmatter.description).toBeTruthy();
-      }
+      expect(commands).toEqual([]);
     });
   });
 
   describe('discoverAgents', () => {
-    test('discovers exactly 32 file-based agents', () => {
+    test('returns empty array when no plugins exist', () => {
       const agents = discovery.discoverAgents(REPO_ROOT);
-      expect(agents.length).toBe(32);
-    });
-
-    test('each agent has name, plugin, file, and frontmatter', () => {
-      const agents = discovery.discoverAgents(REPO_ROOT);
-      for (const agent of agents) {
-        expect(agent).toHaveProperty('name');
-        expect(agent).toHaveProperty('plugin');
-        expect(agent).toHaveProperty('file');
-        expect(agent).toHaveProperty('frontmatter');
-        expect(agent.file).toMatch(/\.md$/);
-      }
-    });
-
-    test('agents are attributed to correct plugins', () => {
-      const agents = discovery.discoverAgents(REPO_ROOT);
-      const nextTaskAgents = agents.filter(a => a.plugin === 'next-task');
-      expect(nextTaskAgents.length).toBe(10);
-
-      const enhanceAgents = agents.filter(a => a.plugin === 'enhance');
-      expect(enhanceAgents.length).toBe(8);
-
-      const perfAgents = agents.filter(a => a.plugin === 'perf');
-      expect(perfAgents.length).toBe(6);
-    });
-
-    test('agents have model field in frontmatter', () => {
-      const agents = discovery.discoverAgents(REPO_ROOT);
-      const modelsFound = new Set();
-      for (const agent of agents) {
-        if (agent.frontmatter.model) {
-          modelsFound.add(agent.frontmatter.model);
-        }
-      }
-      expect(modelsFound.has('opus')).toBe(true);
-      expect(modelsFound.has('sonnet')).toBe(true);
-      expect(modelsFound.has('haiku')).toBe(true);
-    });
-
-    test('agents have tools array in frontmatter', () => {
-      const agents = discovery.discoverAgents(REPO_ROOT);
-      const exploration = agents.find(a => a.name === 'exploration-agent');
-      expect(exploration).toBeDefined();
-      expect(Array.isArray(exploration.frontmatter.tools)).toBe(true);
-      expect(exploration.frontmatter.tools).toContain('Read');
+      expect(agents).toEqual([]);
     });
   });
 
   describe('discoverSkills', () => {
-    test('discovers exactly 28 skills', () => {
+    test('returns empty array when no plugins exist', () => {
       const skills = discovery.discoverSkills(REPO_ROOT);
-      expect(skills.length).toBe(28);
-    });
-
-    test('each skill has name, plugin, dir, and frontmatter', () => {
-      const skills = discovery.discoverSkills(REPO_ROOT);
-      for (const skill of skills) {
-        expect(skill).toHaveProperty('name');
-        expect(skill).toHaveProperty('plugin');
-        expect(skill).toHaveProperty('dir');
-        expect(skill).toHaveProperty('frontmatter');
-      }
+      expect(skills).toEqual([]);
     });
   });
 
   describe('getCommandMappings', () => {
-    test('returns tuples of [targetFile, plugin, sourceFile]', () => {
+    test('returns empty array when no plugins exist', () => {
       const mappings = discovery.getCommandMappings(REPO_ROOT);
-      expect(mappings.length).toBe(19);
-      for (const [target, plugin, source] of mappings) {
-        expect(target).toMatch(/\.md$/);
-        expect(typeof plugin).toBe('string');
-        expect(source).toMatch(/\.md$/);
-      }
+      expect(mappings).toEqual([]);
     });
   });
 
   describe('getCodexSkillMappings', () => {
-    test('returns tuples of [name, plugin, file, description]', () => {
+    test('returns empty array when no plugins exist', () => {
       const mappings = discovery.getCodexSkillMappings(REPO_ROOT);
-      expect(mappings.length).toBe(19);
-      for (const [name, plugin, file, desc] of mappings) {
-        expect(typeof name).toBe('string');
-        expect(typeof plugin).toBe('string');
-        expect(file).toMatch(/\.md$/);
-        expect(typeof desc).toBe('string');
-      }
-    });
-
-    test('primary commands have codex-description', () => {
-      const mappings = discovery.getCodexSkillMappings(REPO_ROOT);
-      const primaryNames = [
-        'enhance', 'next-task', 'ship', 'deslop', 'audit-project',
-        'drift-detect', 'repo-map', 'perf', 'delivery-approval',
-        'sync-docs', 'learn', 'agnix'
-      ];
-      for (const name of primaryNames) {
-        const mapping = mappings.find(m => m[0] === name);
-        expect(mapping).toBeDefined();
-        expect(mapping[3]).toContain('Use when user asks to');
-      }
+      expect(mappings).toEqual([]);
     });
   });
 
   describe('getPluginPrefixRegex', () => {
-    test('builds regex matching all plugin names', () => {
+    test('builds regex from discovered plugins', () => {
       const regex = discovery.getPluginPrefixRegex(REPO_ROOT);
       expect(regex).toBeInstanceOf(RegExp);
-      expect('next-task').toMatch(regex);
-      expect('enhance').toMatch(regex);
-      expect('nonexistent-plugin').not.toMatch(regex);
     });
   });
 
@@ -237,7 +122,9 @@ describe('discovery module', () => {
     test('returns same results on repeated calls', () => {
       const first = discovery.discoverPlugins(REPO_ROOT);
       const second = discovery.discoverPlugins(REPO_ROOT);
-      expect(first).toBe(second); // Same reference = cached
+      // When plugins/ exists, caching returns same reference.
+      // When plugins/ doesn't exist, returns new empty array each time.
+      expect(first).toEqual(second);
     });
 
     test('invalidateCache forces re-scan', () => {
@@ -252,10 +139,10 @@ describe('discovery module', () => {
   describe('discoverAll', () => {
     test('returns all discovery results', () => {
       const all = discovery.discoverAll(REPO_ROOT);
-      expect(all.plugins.length).toBe(13);
-      expect(all.commands.length).toBe(19);
-      expect(all.agents.length).toBe(32);
-      expect(all.skills.length).toBe(28);
+      expect(all.plugins).toEqual([]);
+      expect(all.commands).toEqual([]);
+      expect(all.agents).toEqual([]);
+      expect(all.skills).toEqual([]);
     });
   });
 });

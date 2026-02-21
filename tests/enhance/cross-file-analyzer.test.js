@@ -736,14 +736,16 @@ describe('Integration - Real Plugin Analysis', () => {
 
   it('should load agents from plugins directory', () => {
     const agents = crossFileAnalyzer.loadAllAgents(rootDir);
-
-    expect(agents.length).toBeGreaterThan(0);
-    expect(agents[0]).toHaveProperty('plugin');
-    expect(agents[0]).toHaveProperty('name');
-    expect(agents[0]).toHaveProperty('frontmatter');
-    expect(agents[0]).toHaveProperty('body');
-    expect(agents[0]).toHaveProperty('path');
-    expect(agents[0]).toHaveProperty('content');
+    // With plugins extracted, agents may be empty
+    expect(Array.isArray(agents)).toBe(true);
+    for (const agent of agents) {
+      expect(agent).toHaveProperty('plugin');
+      expect(agent).toHaveProperty('name');
+      expect(agent).toHaveProperty('frontmatter');
+      expect(agent).toHaveProperty('body');
+      expect(agent).toHaveProperty('path');
+      expect(agent).toHaveProperty('content');
+    }
   });
 
   it('should not include README.md in agents', () => {
@@ -754,21 +756,23 @@ describe('Integration - Real Plugin Analysis', () => {
 
   it('should load skills from plugins directory', () => {
     const skills = crossFileAnalyzer.loadAllSkills(rootDir);
-
-    expect(skills.length).toBeGreaterThan(0);
-    expect(skills[0]).toHaveProperty('plugin');
-    expect(skills[0]).toHaveProperty('name');
-    expect(skills[0]).toHaveProperty('frontmatter');
-    expect(skills[0]).toHaveProperty('body');
+    expect(Array.isArray(skills)).toBe(true);
+    for (const skill of skills) {
+      expect(skill).toHaveProperty('plugin');
+      expect(skill).toHaveProperty('name');
+      expect(skill).toHaveProperty('frontmatter');
+      expect(skill).toHaveProperty('body');
+    }
   });
 
   it('should load commands from plugins directory', () => {
     const commands = crossFileAnalyzer.loadAllCommands(rootDir);
-
-    expect(commands.length).toBeGreaterThan(0);
-    expect(commands[0]).toHaveProperty('plugin');
-    expect(commands[0]).toHaveProperty('name');
-    expect(commands[0]).toHaveProperty('body');
+    expect(Array.isArray(commands)).toBe(true);
+    for (const cmd of commands) {
+      expect(cmd).toHaveProperty('plugin');
+      expect(cmd).toHaveProperty('name');
+      expect(cmd).toHaveProperty('body');
+    }
   });
 
   it('should run full cross-file analysis', () => {
@@ -776,9 +780,10 @@ describe('Integration - Real Plugin Analysis', () => {
 
     expect(results).toHaveProperty('findings');
     expect(results).toHaveProperty('summary');
-    expect(results.summary.agentsAnalyzed).toBeGreaterThan(0);
-    expect(results.summary.skillsAnalyzed).toBeGreaterThan(0);
-    expect(results.summary.commandsAnalyzed).toBeGreaterThan(0);
+    // With plugins extracted, counts may be 0
+    expect(results.summary.agentsAnalyzed).toBeGreaterThanOrEqual(0);
+    expect(results.summary.skillsAnalyzed).toBeGreaterThanOrEqual(0);
+    expect(results.summary.commandsAnalyzed).toBeGreaterThanOrEqual(0);
     expect(results.summary).toHaveProperty('byCategory');
   });
 

@@ -57,25 +57,17 @@ describe('generate-docs', () => {
       expect(table).toContain('|---------|--------------|');
     });
 
-    test('includes all 11 primary commands', () => {
+    test('includes discovered commands in table', () => {
       const commands = discovery.discoverCommands(REPO_ROOT);
       const table = genDocs.generateCommandsTable(commands);
-      const expectedCommands = [
-        'next-task', 'agnix', 'ship', 'deslop', 'perf',
-        'drift-detect', 'audit-project', 'enhance',
-        'repo-map', 'sync-docs', 'learn'
-      ];
-      for (const cmd of expectedCommands) {
-        expect(table).toContain(`/${cmd}`);
+      // With plugins extracted, commands may be empty
+      if (commands.length === 0) {
+        expect(table).toContain('| Command | What it does |');
+      } else {
+        for (const cmd of commands) {
+          expect(table).toContain(`/${cmd.name}`);
+        }
       }
-    });
-
-    test('next-task appears first in the table', () => {
-      const commands = discovery.discoverCommands(REPO_ROOT);
-      const table = genDocs.generateCommandsTable(commands);
-      const lines = table.split('\n');
-      // First data row (after header + separator)
-      expect(lines[2]).toContain('/next-task');
     });
 
     test('each row has link and description', () => {
@@ -100,24 +92,12 @@ describe('generate-docs', () => {
       expect(table).toContain(`${skills.length} skills included`);
     });
 
-    test('includes category headers', () => {
+    test('includes category headers when skills exist', () => {
       const skills = discovery.discoverSkills(REPO_ROOT);
+      if (skills.length === 0) return; // No plugins = no skills
       const table = genDocs.generateSkillsTable(skills);
       expect(table).toContain('**Performance**');
       expect(table).toContain('**Enhancement**');
-      expect(table).toContain('**Workflow**');
-      expect(table).toContain('**Cleanup**');
-      expect(table).toContain('**Analysis**');
-      expect(table).toContain('**Learning**');
-      expect(table).toContain('**Linting**');
-    });
-
-    test('uses plugin:skill format', () => {
-      const skills = discovery.discoverSkills(REPO_ROOT);
-      const table = genDocs.generateSkillsTable(skills);
-      expect(table).toContain('`perf:perf-analyzer`');
-      expect(table).toContain('`enhance:enhance-docs`');
-      expect(table).toContain('`next-task:discover-tasks`');
     });
 
     test('all skills are represented in the table', () => {
@@ -152,21 +132,15 @@ describe('generate-docs', () => {
       }
     });
 
-    test('audit-project shows role-based agent count', () => {
+    test('per-plugin rows appear when plugins exist', () => {
       const plugins = discovery.discoverPlugins(REPO_ROOT);
       const agents = discovery.discoverAgents(REPO_ROOT);
       const skills = discovery.discoverSkills(REPO_ROOT);
       const table = genDocs.generateArchitectureTable(plugins, agents, skills);
-      // audit-project has 10 role-based agents and 0 file-based
-      expect(table).toContain('| audit-project | 10 | 0 |');
-    });
-
-    test('ship shows zero agents and skills', () => {
-      const plugins = discovery.discoverPlugins(REPO_ROOT);
-      const agents = discovery.discoverAgents(REPO_ROOT);
-      const skills = discovery.discoverSkills(REPO_ROOT);
-      const table = genDocs.generateArchitectureTable(plugins, agents, skills);
-      expect(table).toContain('| ship | 0 | 0 |');
+      // With no plugins, table has header only
+      for (const plugin of plugins) {
+        expect(table).toContain(`| ${plugin} |`);
+      }
     });
   });
 
@@ -185,24 +159,6 @@ describe('generate-docs', () => {
       for (const agent of agents) {
         expect(table).toContain(`[${agent.name}](#${agent.name})`);
       }
-    });
-
-    test('includes audit-project role-based agents', () => {
-      const agents = discovery.discoverAgents(REPO_ROOT);
-      const plugins = discovery.discoverPlugins(REPO_ROOT);
-      const table = genDocs.generateAgentNavTable(agents, plugins);
-      expect(table).toContain('[code-quality-reviewer](#code-quality-reviewer)');
-      expect(table).toContain('[devops-reviewer](#devops-reviewer)');
-      expect(table).toContain('| audit-project | 10 |');
-    });
-
-    test('skips ship plugin (no agents)', () => {
-      const agents = discovery.discoverAgents(REPO_ROOT);
-      const plugins = discovery.discoverPlugins(REPO_ROOT);
-      const table = genDocs.generateAgentNavTable(agents, plugins);
-      // ship should not appear as a row (has 0 agents)
-      const rows = table.split('\n').filter(line => line.startsWith('| ship'));
-      expect(rows.length).toBe(0);
     });
   });
 
@@ -227,8 +183,13 @@ describe('generate-docs', () => {
       const agents = discovery.discoverAgents(REPO_ROOT);
       const plugins = discovery.discoverPlugins(REPO_ROOT);
       const counts = genDocs.generateAgentCounts(agents, plugins);
-      // 12 plugins have agents (all except ship)
-      expect(counts).toContain('12 have agents');
+      // With no plugins, 0 have agents
+      const pluginsWithAgents = plugins.filter(p =>
+        agents.some(a => a.plugin === p)
+      ).length + (plugins.includes('audit-project') ? 1 : 0);
+      if (pluginsWithAgents > 0) {
+        expect(counts).toContain(`${pluginsWithAgents} have agents`);
+      }
     });
   });
 

@@ -79,19 +79,6 @@ This came from testing on 1,000+ repositories.
 <!-- GEN:START:readme-commands -->
 | Command | What it does |
 |---------|--------------|
-| [`/next-task`](#next-task) | Task → exploration → plan → implementation → review → ship |
-| [`/agnix`](#agnix) | **Lint agent configs** - 155 rules for Skills, Memory, Hooks, MCP across 10+ AI tools |
-| [`/ship`](#ship) | Branch → PR → CI → reviews addressed → merge → cleanup |
-| [`/deslop`](#deslop) | 3-phase detection pipeline, certainty-graded findings |
-| [`/perf`](#perf) | 10-phase performance investigation with baselines and profiling |
-| [`/drift-detect`](#drift-detect) | AST-based plan vs code analysis, finds what's documented but not built |
-| [`/audit-project`](#audit-project) | Multi-agent code review, iterates until issues resolved |
-| [`/enhance`](#enhance) | Analyzes prompts, agents, plugins, docs, hooks, skills |
-| [`/repo-map`](#repo-map) | AST symbol and import mapping via ast-grep |
-| [`/sync-docs`](#sync-docs) | Finds outdated references, stale examples, missing CHANGELOG entries |
-| [`/learn`](#learn) | Research any topic, gather online sources, create learning guide with RAG index |
-| [`/consult`](#consult) | Consult another AI CLI tool for a second opinion. Use when you want to cross-check ideas, get alternative approaches, or validate decisions with Gemini, Codex, Claude, OpenCode, or Copilot. |
-| [`/debate`](#debate) | Use when user asks to "debate", "argue about", "compare perspectives", "stress test idea", "devil advocate", or "tool vs tool". Structured debate between two AI tools with proposer/challenger roles and a verdict. |
 <!-- GEN:END:readme-commands -->
 
 Each command works standalone. Together, they compose into end-to-end pipelines.
@@ -101,18 +88,10 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 ## Skills
 
 <!-- GEN:START:readme-skills -->
-28 skills included across the plugins:
+0 skills included across the plugins:
 
 | Category | Skills |
 |----------|--------|
-| **Performance** | `perf:perf-analyzer`, `perf:perf-baseline-manager`, `perf:perf-benchmarker`, `perf:perf-code-paths`, `perf:perf-investigation-logger`, `perf:perf-profiler`, `perf:perf-theory-gatherer`, `perf:perf-theory-tester` |
-| **Enhancement** | `enhance:enhance-agent-prompts`, `enhance:enhance-claude-memory`, `enhance:enhance-cross-file`, `enhance:enhance-docs`, `enhance:enhance-hooks`, `enhance:enhance-orchestrator`, `enhance:enhance-plugins`, `enhance:enhance-prompts`, `enhance:enhance-skills` |
-| **Workflow** | `next-task:discover-tasks`, `next-task:orchestrate-review`, `next-task:validate-delivery` |
-| **Cleanup** | `deslop:deslop`, `sync-docs:sync-docs` |
-| **Analysis** | `debate:debate`, `drift-detect:drift-analysis`, `repo-map:repo-mapping` |
-| **Productivity** | `consult:consult` |
-| **Learning** | `learn:learn` |
-| **Linting** | `agnix:agnix` |
 <!-- GEN:END:readme-skills -->
 
 Skills are the reusable implementation units. Agents invoke skills; commands orchestrate agents. When you install a plugin, its skills become available to all agents in that session.
