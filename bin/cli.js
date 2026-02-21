@@ -132,8 +132,12 @@ function parseArgs(args) {
       i++;
     } else if (['update', 'list', 'install', 'remove', 'search'].includes(arg)) {
       result.subcommand = arg;
-      // Grab the next non-flag arg as subcommand argument (plugin name, search term)
-      if (args[i + 1] && !args[i + 1].startsWith('-')) {
+      // For 'list': accept --all, --agents, --skills, --commands, --hooks, --plugins as subcommandArg
+      if (arg === 'list' && args[i + 1] && ['--all', '--agents', '--skills', '--commands', '--hooks', '--plugins'].includes(args[i + 1])) {
+        result.subcommandArg = args[i + 1];
+        i++;
+      } else if (args[i + 1] && !args[i + 1].startsWith('-')) {
+        // Grab the next non-flag arg as subcommand argument (plugin name, search term)
         result.subcommandArg = args[i + 1];
         i++;
       }
@@ -475,57 +479,132 @@ async function fetchExternalPlugins(pluginNames, marketplace) {
 }
 
 /**
- * List installed plugins with versions.
+ * List installed plugins and their components.
+ * @param {string} [filter] - 'all', 'plugins', 'agents', 'skills', 'commands', 'hooks', or null (default: plugins summary)
  */
-function listInstalledPlugins() {
+function listInstalledPlugins(filter) {
   const cacheDir = getPluginCacheDir();
-  console.log(`\nagentsys v${VERSION} - Installed plugins\n`);
-
-  // Check cached external plugins
   const installed = loadInstalledJson();
+  const showAll = filter === 'all' || filter === '--all';
+  const showPlugins = !filter || filter === 'plugins' || filter === '--plugins' || showAll;
+  const showAgents = filter === 'agents' || filter === '--agents' || showAll;
+  const showSkills = filter === 'skills' || filter === '--skills' || showAll;
+  const showCommands = filter === 'commands' || filter === '--commands' || showAll;
+  const showHooks = filter === 'hooks' || filter === '--hooks' || showAll;
 
+  console.log(`\nagentsys v${VERSION}\n`);
+
+  // Gather all cached plugins
+  const plugins = [];
   if (fs.existsSync(cacheDir)) {
     const entries = fs.readdirSync(cacheDir).filter(e => {
       return fs.statSync(path.join(cacheDir, e)).isDirectory();
     }).sort();
-
-    if (entries.length > 0) {
-      console.log('External plugins (cached):');
-      for (const name of entries) {
-        const versionFile = path.join(cacheDir, name, '.version');
-        const ver = fs.existsSync(versionFile) ? fs.readFileSync(versionFile, 'utf8').trim() : 'unknown';
-        const entry = installed.plugins[name];
-        const scope = entry && entry.scope ? entry.scope : 'full';
-        const platformStr = entry && entry.platforms ? entry.platforms.join(', ') : '';
-        const scopeTag = scope === 'partial' ? '[partial]' : '[full]';
-        console.log(`  ${name}@${ver}  ${scopeTag}  ${platformStr}`);
-        if (scope === 'partial' && entry) {
-          if (entry.agents && entry.agents.length > 0) {
-            console.log(`    agents: ${entry.agents.join(', ')}`);
-          }
-          if (entry.skills && entry.skills.length > 0) {
-            console.log(`    skills: ${entry.skills.join(', ')}`);
-          }
-          if (entry.commands && entry.commands.length > 0) {
-            console.log(`    commands: ${entry.commands.join(', ')}`);
-          }
-        }
-      }
-      console.log();
+    for (const name of entries) {
+      const pluginDir = path.join(cacheDir, name);
+      const versionFile = path.join(pluginDir, '.version');
+      const ver = fs.existsSync(versionFile) ? fs.readFileSync(versionFile, 'utf8').trim() : 'unknown';
+      const components = loadComponents(pluginDir);
+      const entry = installed.plugins[name] || {};
+      const hooksFile = path.join(pluginDir, 'hooks', 'hooks.json');
+      const hasHooks = fs.existsSync(hooksFile);
+      plugins.push({ name, version: ver, components, entry, hasHooks, dir: pluginDir });
     }
   }
 
-  // Check bundled plugins
-  const bundled = discovery.discoverPlugins(PACKAGE_DIR);
-  if (bundled.length > 0) {
-    console.log('Bundled plugins:');
-    for (const name of bundled) {
-      console.log(`  ${name}@${VERSION}`);
+  if (plugins.length === 0) {
+    console.log('No plugins installed. Run: agentsys install <plugin>\n');
+    return;
+  }
+
+  if (showPlugins && !showAll) {
+    // Default view: plugin summary
+    console.log('PLUGINS');
+    for (const p of plugins) {
+      const scope = p.entry.scope || 'full';
+      const scopeTag = scope === 'partial' ? '[partial]' : '[full]';
+      const platforms = p.entry.platforms ? p.entry.platforms.join(', ') : '';
+      const counts = [];
+      if (p.components.agents.length) counts.push(`${p.components.agents.length} agents`);
+      if (p.components.skills.length) counts.push(`${p.components.skills.length} skills`);
+      if (p.components.commands.length) counts.push(`${p.components.commands.length} cmds`);
+      if (p.hasHooks) counts.push('hooks');
+      console.log(`  ${p.name.padEnd(18)} ${p.version.padEnd(10)} ${scopeTag.padEnd(10)} ${counts.join(', ')}  ${platforms}`);
+    }
+    console.log();
+    console.log(`  ${plugins.length} plugins. Use --all, --agents, --skills, --commands, --hooks for details.`);
+    console.log();
+    return;
+  }
+
+  if (showAll || showPlugins) {
+    console.log('PLUGINS');
+    for (const p of plugins) {
+      const scope = p.entry.scope || 'full';
+      const scopeTag = scope === 'partial' ? '[partial]' : '[full]';
+      console.log(`  ${p.name}@${p.version}  ${scopeTag}`);
     }
     console.log();
   }
 
-  console.log(`Cache directory: ${cacheDir}`);
+  if (showAgents) {
+    console.log('AGENTS');
+    let total = 0;
+    for (const p of plugins) {
+      for (const a of p.components.agents) {
+        console.log(`  ${p.name}:${a.name.padEnd(28)} ${(a.model || '').padEnd(8)} ${a.description || ''}`);
+        total++;
+      }
+    }
+    if (total === 0) console.log('  (none)');
+    console.log();
+  }
+
+  if (showSkills) {
+    console.log('SKILLS');
+    let total = 0;
+    for (const p of plugins) {
+      for (const s of p.components.skills) {
+        console.log(`  ${p.name}:${s.name.padEnd(28)} ${s.description || ''}`);
+        total++;
+      }
+    }
+    if (total === 0) console.log('  (none)');
+    console.log();
+  }
+
+  if (showCommands) {
+    console.log('COMMANDS');
+    let total = 0;
+    for (const p of plugins) {
+      for (const c of p.components.commands) {
+        console.log(`  /${c.name.padEnd(29)} ${c.description || ''}`);
+        total++;
+      }
+    }
+    if (total === 0) console.log('  (none)');
+    console.log();
+  }
+
+  if (showHooks) {
+    console.log('HOOKS');
+    let total = 0;
+    for (const p of plugins) {
+      if (p.hasHooks) {
+        try {
+          const hooks = JSON.parse(fs.readFileSync(path.join(p.dir, 'hooks', 'hooks.json'), 'utf8'));
+          const hookList = Array.isArray(hooks) ? hooks : (hooks.hooks || []);
+          for (const h of hookList) {
+            const event = h.event || h.matcher || 'unknown';
+            console.log(`  ${p.name}:${String(event).padEnd(28)} ${h.description || ''}`);
+            total++;
+          }
+        } catch { /* skip malformed hooks */ }
+      }
+    }
+    if (total === 0) console.log('  (none)');
+    console.log();
+  }
 }
 
 /**
@@ -1464,7 +1543,13 @@ Usage:
   agentsys remove <plugin>    Remove an installed plugin
   agentsys search [term]      Search available plugins
   agentsys search <plugin>:   List components of a plugin
-  agentsys list               List installed plugins and versions
+  agentsys list               List installed plugins (summary)
+  agentsys list --all         List everything (plugins, agents, skills, commands, hooks)
+  agentsys list --plugins     List plugins only
+  agentsys list --agents      List all agents across plugins
+  agentsys list --skills      List all skills across plugins
+  agentsys list --commands    List all commands across plugins
+  agentsys list --hooks       List all hooks across plugins
   agentsys update             Re-fetch latest versions of installed plugins
 
 Non-Interactive Examples:
@@ -1523,7 +1608,7 @@ async function main() {
 
   // Handle subcommands
   if (args.subcommand === 'list') {
-    listInstalledPlugins();
+    listInstalledPlugins(args.subcommandArg);
     return;
   }
 
