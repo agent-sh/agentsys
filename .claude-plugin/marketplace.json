@@ -1,6 +1,6 @@
 {
   "name": "agentsys",
-  "description": "13 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, repo mapping, perf investigations, topic research, agent config linting, cross-tool AI consultation, and structured AI debate",
+  "description": "14 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, repo mapping, perf investigations, topic research, agent config linting, cross-tool AI consultation, and structured AI debate",
   "version": "5.1.0",
   "owner": {
     "name": "Avi Fenesh",
@@ -136,6 +136,15 @@
       "description": "Structured multi-round debate between AI tools with proposer/challenger roles and verdict",
       "version": "1.0.0",
       "category": "productivity",
+      "requires": [],
+      "core": ">=1.0.0"
+    },
+    {
+      "name": "web-ctl",
+      "source": "https://github.com/agent-sh/web-ctl",
+      "description": "Browser automation and web testing toolkit for AI agents — headless browser control, persistent sessions, auth handoff, and prompt injection defense",
+      "version": "1.0.0",
+      "category": "automation",
       "requires": [],
       "core": ">=1.0.0"
     }
