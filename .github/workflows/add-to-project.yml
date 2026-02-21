@@ -1,0 +1,20 @@
+# Auto-add new issues and PRs to the agent-sh org project board.
+# Requires PROJECT_TOKEN org secret (PAT with `project` scope).
+name: Add to project
+
+on:
+  issues:
+    types: [opened, transferred]
+  pull_request_target:
+    types: [opened]
+
+permissions: {}
+
+jobs:
+  add:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@244f685bbc3b7adfa8466e08b698b5577571133e # v1.0.2
+        with:
+          project-url: https://github.com/orgs/agent-sh/projects/1
+          github-token: ${{ secrets.PROJECT_TOKEN }}
