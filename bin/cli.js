@@ -1531,7 +1531,7 @@ function installForCursor(installDir, options = {}) {
   // Discover rule mappings from filesystem
   const ruleMappings = discovery.getCursorRuleMappings(installDir);
 
-  for (const [ruleName, plugin, sourceFile, description, type, globs] of ruleMappings) {
+  for (const [ruleName, plugin, sourceFile, description, , globs] of ruleMappings) {
     // Apply filter: skip commands not in the filter list
     if (filter && filter.commands.length > 0) {
       const cmdName = sourceFile.replace(/\.md$/, '');
