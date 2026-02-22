@@ -856,8 +856,9 @@ function detectInstalledPlatforms() {
   const opencodeDir = getOpenCodeConfigDir();
   if (fs.existsSync(opencodeDir)) platforms.push('opencode');
   if (fs.existsSync(path.join(home, '.codex'))) platforms.push('codex');
-  // Cursor rules are project-scoped; detect by .cursor dir in CWD
-  if (fs.existsSync(path.join(process.cwd(), '.cursor'))) platforms.push('cursor');
+  // Cursor rules are project-scoped; detect only if Cursor rules/commands/skills exist in CWD
+  const cursorDir = path.join(process.cwd(), '.cursor');
+  if (fs.existsSync(path.join(cursorDir, 'rules')) || fs.existsSync(path.join(cursorDir, 'commands')) || fs.existsSync(path.join(cursorDir, 'skills'))) platforms.push('cursor');
   return platforms;
 }
 
@@ -1531,11 +1532,13 @@ function installForCursor(installDir, options = {}) {
     fs.unlinkSync(path.join(rulesDir, f));
   }
 
-  // Cleanup old agentsys files from commands dir
+  // Cleanup old agentsys files from commands dir (only those matching known commands)
+  const commandMappingsForCleanup = discovery.getCommandMappings(installDir);
+  const knownCommandFiles = new Set(commandMappingsForCleanup.map(([target]) => target));
   for (const f of fs.readdirSync(commandsDir).filter(f => f.endsWith('.md'))) {
-    // Only remove files we can identify as ours (all .md files in commands dir
-    // are agentsys-managed since we own the directory)
-    fs.unlinkSync(path.join(commandsDir, f));
+    if (knownCommandFiles.has(f)) {
+      fs.unlinkSync(path.join(commandsDir, f));
+    }
   }
 
   // Cleanup old agentsys skill dirs from skills dir
@@ -1553,6 +1556,7 @@ function installForCursor(installDir, options = {}) {
     if (!fs.existsSync(srcSkillsDir)) continue;
     const entries = fs.readdirSync(srcSkillsDir, { withFileTypes: true }).filter(d => d.isDirectory());
     for (const entry of entries) {
+      if (!/^[a-zA-Z0-9_-]+$/.test(entry.name)) continue;
       if (filter && filter.skills && filter.skills.length > 0 && !filter.skills.includes(entry.name)) continue;
       const srcPath = path.join(srcSkillsDir, entry.name, 'SKILL.md');
       if (!fs.existsSync(srcPath)) continue;

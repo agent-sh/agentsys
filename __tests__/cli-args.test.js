@@ -366,8 +366,9 @@ describe('installForCursor', () => {
 
     installForCursor(installDir);
 
-    // Old files should be cleaned up
-    expect(fs.existsSync(path.join(commandsDir, 'old-cmd.md'))).toBe(false);
+    // Unknown command files are preserved (scoped cleanup only removes known commands)
+    expect(fs.existsSync(path.join(commandsDir, 'old-cmd.md'))).toBe(true);
+    // Old skill dirs with SKILL.md are cleaned up
     expect(fs.existsSync(path.join(tmpDir, '.cursor', 'skills', 'old-skill'))).toBe(false);
     // New files should exist
     expect(fs.existsSync(path.join(commandsDir, 'new-cmd.md'))).toBe(true);
@@ -405,6 +406,38 @@ describe('installForCursor', () => {
     const skillsDir = path.join(tmpDir, '.cursor', 'skills');
     expect(fs.existsSync(path.join(skillsDir, 'allowed-skill', 'SKILL.md'))).toBe(true);
     expect(fs.existsSync(path.join(skillsDir, 'blocked-skill'))).toBe(false);
+  });
+
+  test('replaces PLUGIN_ROOT in skills during install', () => {
+    const installDir = setupInstallDir({}, {
+      'root-skill': '---\nname: root-skill\ndescription: Test\n---\nLoad from ${CLAUDE_PLUGIN_ROOT}/lib/helper.js'
+    });
+
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    installForCursor(installDir);
+
+    const skillPath = path.join(tmpDir, '.cursor', 'skills', 'root-skill', 'SKILL.md');
+    const content = fs.readFileSync(skillPath, 'utf8');
+    expect(content).not.toContain('${CLAUDE_PLUGIN_ROOT}');
+    expect(content).toContain(path.join(installDir, 'plugins', 'test-plugin'));
+  });
+
+  test('replaces PLUGIN_ROOT in commands during install', () => {
+    const installDir = setupInstallDir({
+      'root-cmd.md': '---\ndescription: Test cmd\n---\nRun ${CLAUDE_PLUGIN_ROOT}/lib/runner.js'
+    });
+
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    installForCursor(installDir);
+
+    const cmdPath = path.join(tmpDir, '.cursor', 'commands', 'root-cmd.md');
+    const content = fs.readFileSync(cmdPath, 'utf8');
+    expect(content).not.toContain('${CLAUDE_PLUGIN_ROOT}');
+    expect(content).toContain(path.join(installDir, 'plugins', 'test-plugin'));
   });
 
   test('does not throw when source command file is missing', () => {
