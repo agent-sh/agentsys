@@ -1,22 +1,22 @@
 # Cross-Platform Compatibility Checklist
 
-Master reference for ensuring features work across Claude Code, OpenCode, and Codex CLI.
+Master reference for ensuring features work across Claude Code, OpenCode, Codex CLI, and Cursor.
 
 ## Quick Reference
 
-| Aspect | Claude Code | OpenCode | Codex CLI |
-|--------|-------------|----------|-----------|
-| **Config format** | JSON | JSON/JSONC | TOML |
-| **Config location** | `~/.claude/settings.json` | `~/.config/opencode/opencode.json` | `~/.codex/config.toml` |
-| **State directory (per-project)** | `.claude/` | `.opencode/` | `.codex/` |
-| **Commands location (global)** | Plugin `commands/` | `~/.config/opencode/commands/` | N/A (use skills) |
-| **Skills location (global)** | `.claude/skills/` | `~/.config/opencode/skills/` | `~/.codex/skills/` |
-| **Agents location (global)** | Plugin `agents/` | `~/.config/opencode/agents/` | N/A (use MCP) |
-| **Invocation prefix** | `/command` | `/command` | `$skill` |
-| **Project instructions** | `CLAUDE.md` | `AGENTS.md` (reads CLAUDE.md) | `AGENTS.md` |
-| **Env var for plugin root** | `CLAUDE_PLUGIN_ROOT` | `PLUGIN_ROOT` | `PLUGIN_ROOT` |
-| **Env var for state dir** | N/A | `AI_STATE_DIR` | `AI_STATE_DIR` |
-| **Label char limit** | No strict limit | **30 chars (enforced)** | No strict limit |
+| Aspect | Claude Code | OpenCode | Codex CLI | Cursor |
+|--------|-------------|----------|-----------|--------|
+| **Config format** | JSON | JSON/JSONC | TOML | MDC (YAML frontmatter + MD) |
+| **Config location** | `~/.claude/settings.json` | `~/.config/opencode/opencode.json` | `~/.codex/config.toml` | `.cursor/rules/*.mdc` (project) |
+| **State directory (per-project)** | `.claude/` | `.opencode/` | `.codex/` | `.cursor/` |
+| **Commands location (global)** | Plugin `commands/` | `~/.config/opencode/commands/` | N/A (use skills) | N/A (use rules) |
+| **Skills location (global)** | `.claude/skills/` | `~/.config/opencode/skills/` | `~/.codex/skills/` | N/A (use rules) |
+| **Agents location (global)** | Plugin `agents/` | `~/.config/opencode/agents/` | N/A (use MCP) | N/A (use rules) |
+| **Invocation prefix** | `/command` | `/command` | `$skill` | Auto-applied |
+| **Project instructions** | `CLAUDE.md` | `AGENTS.md` (reads CLAUDE.md) | `AGENTS.md` | `.cursor/rules/*.mdc` |
+| **Env var for plugin root** | `CLAUDE_PLUGIN_ROOT` | `PLUGIN_ROOT` | `PLUGIN_ROOT` | N/A (paths inlined) |
+| **Env var for state dir** | N/A | `AI_STATE_DIR` | `AI_STATE_DIR` | N/A |
+| **Label char limit** | No strict limit | **30 chars (enforced)** | No strict limit | No strict limit |
 
 ---
 
@@ -63,6 +63,7 @@ const statePath = path.join(projectRoot, stateDir, 'tasks.json');
 | Claude Code | Not set (defaults to `.claude`) |
 | OpenCode | `.opencode` |
 | Codex CLI | `.codex` |
+| Cursor | `.cursor` |
 
 ### 3. Command Frontmatter
 
@@ -146,6 +147,26 @@ description: "Use when user asks to \"trigger phrase 1\", \"trigger phrase 2\". 
 - Keep SKILL.md under 500 lines
 - Split large content into `references/` subdirectory
 
+### 6. Rule Format (Cursor)
+
+**Cursor rules use `.mdc` files with YAML frontmatter:**
+
+```yaml
+---
+description: "Use when user asks to \"trigger phrase\". Description of what it does."
+globs: "*.js"
+alwaysApply: true
+---
+```
+
+**Best practices:**
+- Rules live in `.cursor/rules/` (project-scoped, auto-loaded)
+- File naming: `agentsys-<plugin>-<name>.mdc`
+- `alwaysApply: true` makes the rule active for all conversations
+- `globs` restricts the rule to matching files (optional)
+- No environment variables - paths are inlined at install time
+- No Task tool, require(), or plugin namespacing syntax
+
 ---
 
 ## UI/Question Constraints
@@ -196,15 +217,15 @@ AskUserQuestion({
 
 ### Question Format Differences
 
-| Aspect | Claude Code | OpenCode | Codex |
-|--------|-------------|----------|-------|
-| Multi-select | `multiSelect: true` | `multiple: true` | Not supported |
-| Custom input | Always available | `custom: true` | "Other" option |
-| Max questions | 4 | Unlimited | 5 |
-| Header max | 12 chars | 30 chars | No limit |
-| **Label max** | No limit | **30 chars** | No limit |
-| **Tool name** | `AskUserQuestion` | `AskUserQuestion` | `request_user_input` (auto-transformed by gen-adapters) |
-| **`id` field** | Not required | Not required | **Required** (gen-adapters injects reminder note) |
+| Aspect | Claude Code | OpenCode | Codex | Cursor |
+|--------|-------------|----------|-------|--------|
+| Multi-select | `multiSelect: true` | `multiple: true` | Not supported | N/A |
+| Custom input | Always available | `custom: true` | "Other" option | N/A |
+| Max questions | 4 | Unlimited | 5 | N/A |
+| Header max | 12 chars | 30 chars | No limit | N/A |
+| **Label max** | No limit | **30 chars** | No limit | N/A |
+| **Tool name** | `AskUserQuestion` | `AskUserQuestion` | `request_user_input` (auto-transformed by gen-adapters) | N/A |
+| **`id` field** | Not required | Not required | **Required** (gen-adapters injects reminder note) | N/A |
 
 ---
 
@@ -278,6 +299,12 @@ Plugin loaded via marketplace
 ~/.codex/config.toml        # MCP config added
 ```
 
+### Cursor
+```
+~/.agentsys/                       # Package copy
+<project>/.cursor/rules/           # Transformed MDC rules (project-scoped)
+```
+
 ---
 
 ## Checklist: New Feature Release
@@ -334,6 +361,7 @@ const skillMappings = [
 - [ ] Test on Claude Code: `/new-command`
 - [ ] Test on OpenCode: `/new-command`
 - [ ] Test on Codex CLI: `$new-skill`
+- [ ] Test on Cursor: rule auto-loaded from `.cursor/rules/`
 - [ ] Verify state files created in correct directory
 
 ### Documentation
