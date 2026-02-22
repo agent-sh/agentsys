@@ -321,6 +321,105 @@ describe('adapter-transforms', () => {
       expect(result).toContain('Just regular content here.');
     });
   });
+
+  describe('transformForCursor', () => {
+    test('generates MDC frontmatter with description, globs, and alwaysApply', () => {
+      const input = '---\ndescription: original\n---\nbody content';
+      const result = transforms.transformForCursor(input, {
+        ruleName: 'agentsys-test-rule',
+        description: 'A test rule',
+        pluginInstallPath: '/usr/local/plugins/test',
+        globs: '*.js',
+        alwaysApply: true
+      });
+      expect(result).toContain('description: "A test rule"');
+      expect(result).toContain('globs: *.js');
+      expect(result).toContain('alwaysApply: true');
+      expect(result).toContain('body content');
+      expect(result).not.toContain('description: original');
+    });
+
+    test('omits globs when empty', () => {
+      const input = 'no frontmatter content';
+      const result = transforms.transformForCursor(input, {
+        ruleName: 'test',
+        description: 'test',
+        pluginInstallPath: '/tmp'
+      });
+      expect(result).not.toContain('globs:');
+      expect(result).toContain('alwaysApply: true');
+    });
+
+    test('escapes quotes in description', () => {
+      const input = '---\ndescription: x\n---\nbody';
+      const result = transforms.transformForCursor(input, {
+        ruleName: 'test',
+        description: 'Use when user says "hello"',
+        pluginInstallPath: '/tmp'
+      });
+      expect(result).toContain('description: "Use when user says \\"hello\\""');
+    });
+
+    test('replaces PLUGIN_ROOT with install path', () => {
+      const input = 'Path: ${CLAUDE_PLUGIN_ROOT}/lib and $PLUGIN_ROOT/scripts';
+      const result = transforms.transformForCursor(input, {
+        ruleName: 'test',
+        description: 'test',
+        pluginInstallPath: '/home/user/.agentsys/plugins/test'
+      });
+      expect(result).toContain('/home/user/.agentsys/plugins/test/lib');
+      expect(result).toContain('/home/user/.agentsys/plugins/test/scripts');
+      expect(result).not.toContain('PLUGIN_ROOT');
+      expect(result).not.toContain('CLAUDE_PLUGIN_ROOT');
+    });
+
+    test('strips require() statements', () => {
+      const input = 'const foo = require("./bar");\nconst { x } = require("y");\nkeep this';
+      const result = transforms.transformForCursor(input, {
+        ruleName: 'test',
+        description: 'test',
+        pluginInstallPath: '/tmp'
+      });
+      expect(result).not.toContain('require(');
+      expect(result).toContain('keep this');
+    });
+
+    test('strips plugin namespacing', () => {
+      const input = 'invoke next-task:exploration-agent and deslop:deslop-agent';
+      const result = transforms.transformForCursor(input, {
+        ruleName: 'test',
+        description: 'test',
+        pluginInstallPath: '/tmp'
+      });
+      expect(result).toContain('exploration-agent');
+      expect(result).toContain('deslop-agent');
+      expect(result).not.toContain('next-task:');
+      expect(result).not.toContain('deslop:');
+    });
+
+    test('strips Task() calls and replaces with plain text', () => {
+      const input = 'await Task({ subagent_type: "next-task:exploration-agent" });';
+      const result = transforms.transformForCursor(input, {
+        ruleName: 'test',
+        description: 'test',
+        pluginInstallPath: '/tmp'
+      });
+      expect(result).toContain('Invoke the exploration-agent agent');
+      expect(result).not.toContain('Task(');
+    });
+
+    test('adds frontmatter to content without existing frontmatter', () => {
+      const input = '# No frontmatter\nBody content';
+      const result = transforms.transformForCursor(input, {
+        ruleName: 'test',
+        description: 'test desc',
+        pluginInstallPath: '/tmp'
+      });
+      expect(result).toMatch(/^---\n/);
+      expect(result).toContain('description: "test desc"');
+      expect(result).toContain('# No frontmatter');
+    });
+  });
 });
 
 // ---------------------------------------------------------------------------

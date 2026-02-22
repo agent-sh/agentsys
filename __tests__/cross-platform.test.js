@@ -93,10 +93,11 @@ describe('cross-platform', () => {
       expect(PLATFORMS.CLAUDE_CODE).toBe('claude-code');
       expect(PLATFORMS.OPENCODE).toBe('opencode');
       expect(PLATFORMS.CODEX_CLI).toBe('codex-cli');
+      expect(PLATFORMS.CURSOR).toBe('cursor');
     });
 
-    it('should have exactly 3 platforms', () => {
-      expect(Object.keys(PLATFORMS)).toHaveLength(3);
+    it('should have exactly 4 platforms', () => {
+      expect(Object.keys(PLATFORMS)).toHaveLength(4);
     });
   });
 
@@ -105,6 +106,7 @@ describe('cross-platform', () => {
       expect(STATE_DIRS[PLATFORMS.CLAUDE_CODE]).toBe('.claude');
       expect(STATE_DIRS[PLATFORMS.OPENCODE]).toBe('.opencode');
       expect(STATE_DIRS[PLATFORMS.CODEX_CLI]).toBe('.codex');
+      expect(STATE_DIRS[PLATFORMS.CURSOR]).toBe('.cursor');
     });
 
     it('should have a state dir for each platform', () => {
@@ -152,6 +154,11 @@ describe('cross-platform', () => {
     it('should detect Codex CLI when AI_STATE_DIR is .codex', () => {
       process.env.AI_STATE_DIR = '.codex';
       expect(detectPlatform()).toBe(PLATFORMS.CODEX_CLI);
+    });
+
+    it('should detect Cursor when AI_STATE_DIR is .cursor', () => {
+      process.env.AI_STATE_DIR = '.cursor';
+      expect(detectPlatform()).toBe(PLATFORMS.CURSOR);
     });
 
     it('should default to Claude Code for unknown AI_STATE_DIR values', () => {

@@ -190,7 +190,7 @@ describe('CLI argument parsing', () => {
 
 describe('VALID_TOOLS constant', () => {
   test('contains expected tools', () => {
-    expect(VALID_TOOLS).toEqual(['claude', 'opencode', 'codex']);
+    expect(VALID_TOOLS).toEqual(['claude', 'opencode', 'codex', 'cursor']);
   });
 });
 
