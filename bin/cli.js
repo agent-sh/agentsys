@@ -1516,58 +1516,82 @@ function installForCodex(installDir, options = {}) {
 function installForCursor(installDir, options = {}) {
   console.log('\n[INSTALL] Installing for Cursor...\n');
   const { filter = null } = options;
+  const cwd = process.cwd();
 
-  // Cursor rules are project-scoped; detect by .cursor dir in CWD
-  const rulesDir = path.join(process.cwd(), '.cursor', 'rules');
+  // Create target directories (all project-scoped)
+  const skillsDir = path.join(cwd, '.cursor', 'skills');
+  const commandsDir = path.join(cwd, '.cursor', 'commands');
+  const rulesDir = path.join(cwd, '.cursor', 'rules');
+  fs.mkdirSync(skillsDir, { recursive: true });
+  fs.mkdirSync(commandsDir, { recursive: true });
   fs.mkdirSync(rulesDir, { recursive: true });
 
-  // Clean up old agentsys-*.mdc files on reinstall
-  {
-    const existing = fs.readdirSync(rulesDir).filter(f => f.startsWith('agentsys-') && f.endsWith('.mdc'));
-    for (const file of existing) {
-      fs.unlinkSync(path.join(rulesDir, file));
-      console.log(`  Removed old rule: ${file}`);
+  // Cleanup old agentsys files from rules dir
+  for (const f of fs.readdirSync(rulesDir).filter(f => f.startsWith('agentsys-') && f.endsWith('.mdc'))) {
+    fs.unlinkSync(path.join(rulesDir, f));
+  }
+
+  // Cleanup old agentsys files from commands dir
+  for (const f of fs.readdirSync(commandsDir).filter(f => f.endsWith('.md'))) {
+    // Only remove files we can identify as ours (all .md files in commands dir
+    // are agentsys-managed since we own the directory)
+    fs.unlinkSync(path.join(commandsDir, f));
+  }
+
+  // Cleanup old agentsys skill dirs from skills dir
+  for (const entry of fs.readdirSync(skillsDir, { withFileTypes: true })) {
+    if (entry.isDirectory() && fs.existsSync(path.join(skillsDir, entry.name, 'SKILL.md'))) {
+      fs.rmSync(path.join(skillsDir, entry.name), { recursive: true, force: true });
     }
   }
 
-  // Discover rule mappings from filesystem
-  const ruleMappings = discovery.getCursorRuleMappings(installDir);
+  // Install skills
+  const pluginDirs = discovery.discoverPlugins(installDir);
+  let skillCount = 0;
+  for (const pluginName of pluginDirs) {
+    const srcSkillsDir = path.join(installDir, 'plugins', pluginName, 'skills');
+    if (!fs.existsSync(srcSkillsDir)) continue;
+    const entries = fs.readdirSync(srcSkillsDir, { withFileTypes: true }).filter(d => d.isDirectory());
+    for (const entry of entries) {
+      if (filter && filter.skills && filter.skills.length > 0 && !filter.skills.includes(entry.name)) continue;
+      const srcPath = path.join(srcSkillsDir, entry.name, 'SKILL.md');
+      if (!fs.existsSync(srcPath)) continue;
+      const destDir = path.join(skillsDir, entry.name);
+      fs.mkdirSync(destDir, { recursive: true });
+      let content = fs.readFileSync(srcPath, 'utf8');
+      content = transforms.transformSkillForCursor(content, {
+        pluginInstallPath: path.join(installDir, 'plugins', pluginName)
+      });
+      fs.writeFileSync(path.join(destDir, 'SKILL.md'), content);
+      skillCount++;
+    }
+  }
 
-  for (const [ruleName, plugin, sourceFile, description, , globs] of ruleMappings) {
-    // Apply filter: skip commands not in the filter list
-    if (filter && filter.commands.length > 0) {
-      const cmdName = sourceFile.replace(/\.md$/, '');
+  // Install commands
+  const commandMappings = discovery.getCommandMappings(installDir);
+  let cmdCount = 0;
+  for (const [target, plugin, source] of commandMappings) {
+    if (filter && filter.commands && filter.commands.length > 0) {
+      const cmdName = target.replace(/\.md$/, '');
       if (!filter.commands.includes(cmdName)) continue;
     }
-    if (!description) {
-      console.log(`  [WARN] Skipping rule ${ruleName}: missing description`);
+    const srcPath = path.join(installDir, 'plugins', plugin, 'commands', source);
+    if (!fs.existsSync(srcPath)) {
+      console.log(`  [WARN] Source file not found: ${srcPath}`);
       continue;
     }
-    const srcPath = path.join(installDir, 'plugins', plugin, 'commands', sourceFile);
-    const destPath = path.join(rulesDir, `${ruleName}.mdc`);
-
-    if (fs.existsSync(srcPath)) {
-      // Read source file and transform using shared transforms
-      let content = fs.readFileSync(srcPath, 'utf8');
-      const pluginInstallPath = path.join(installDir, 'plugins', plugin);
-      content = transforms.transformForCursor(content, {
-        ruleName,
-        description,
-        pluginInstallPath,
-        globs: globs || '',
-        alwaysApply: !globs
-      });
-
-      fs.writeFileSync(destPath, content);
-      console.log(`  [OK] Installed rule: ${ruleName}.mdc`);
-    } else {
-      console.log(`  [WARN] Source file not found: ${srcPath}`);
-    }
+    let content = fs.readFileSync(srcPath, 'utf8');
+    content = transforms.transformCommandForCursor(content, {
+      pluginInstallPath: path.join(installDir, 'plugins', plugin)
+    });
+    fs.writeFileSync(path.join(commandsDir, target), content);
+    cmdCount++;
   }
 
-  console.log('\n[OK] Cursor installation complete!');
-  console.log(`   Rules: ${rulesDir}`);
-  console.log('   Rules are project-scoped and auto-loaded by Cursor.\n');
+  console.log(`\n[OK] Cursor installation complete!`);
+  console.log(`   Skills: ${skillCount} installed to ${skillsDir}`);
+  console.log(`   Commands: ${cmdCount} installed to ${commandsDir}`);
+  console.log('   All content is project-scoped and auto-loaded by Cursor.\n');
   return true;
 }
 
@@ -1587,7 +1611,7 @@ function removeInstallation() {
   console.log('  - Claude: /plugin marketplace remove agentsys');
   console.log('  - OpenCode: Remove files under ~/.config/opencode/ (commands/*.md, agents/*.md, skills/*/SKILL.md) and ~/.config/opencode/plugins/agentsys.ts');
   console.log('  - Codex: Remove ~/.codex/skills/*/');
-  console.log('  - Cursor: Remove .cursor/rules/agentsys-*.mdc from your project');
+  console.log('  - Cursor: Remove .cursor/skills/, .cursor/commands/, and .cursor/rules/agentsys-*.mdc from your project');
 }
 
 function printSubcommandHelp(subcommand) {

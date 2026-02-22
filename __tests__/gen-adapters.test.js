@@ -322,11 +322,10 @@ describe('adapter-transforms', () => {
     });
   });
 
-  describe('transformForCursor', () => {
+  describe('transformRuleForCursor', () => {
     test('generates MDC frontmatter with description, globs, and alwaysApply', () => {
       const input = '---\ndescription: original\n---\nbody content';
-      const result = transforms.transformForCursor(input, {
-        ruleName: 'agentsys-test-rule',
+      const result = transforms.transformRuleForCursor(input, {
         description: 'A test rule',
         pluginInstallPath: '/usr/local/plugins/test',
         globs: '*.js',
@@ -341,8 +340,7 @@ describe('adapter-transforms', () => {
 
     test('omits globs when empty', () => {
       const input = 'no frontmatter content';
-      const result = transforms.transformForCursor(input, {
-        ruleName: 'test',
+      const result = transforms.transformRuleForCursor(input, {
         description: 'test',
         pluginInstallPath: '/tmp'
       });
@@ -352,8 +350,7 @@ describe('adapter-transforms', () => {
 
     test('escapes quotes in description', () => {
       const input = '---\ndescription: x\n---\nbody';
-      const result = transforms.transformForCursor(input, {
-        ruleName: 'test',
+      const result = transforms.transformRuleForCursor(input, {
         description: 'Use when user says "hello"',
         pluginInstallPath: '/tmp'
       });
@@ -362,8 +359,7 @@ describe('adapter-transforms', () => {
 
     test('replaces PLUGIN_ROOT with install path', () => {
       const input = 'Path: ${CLAUDE_PLUGIN_ROOT}/lib and $PLUGIN_ROOT/scripts';
-      const result = transforms.transformForCursor(input, {
-        ruleName: 'test',
+      const result = transforms.transformRuleForCursor(input, {
         description: 'test',
         pluginInstallPath: '/home/user/.agentsys/plugins/test'
       });
@@ -375,8 +371,7 @@ describe('adapter-transforms', () => {
 
     test('strips require() statements', () => {
       const input = 'const foo = require("./bar");\nconst { x } = require("y");\nkeep this';
-      const result = transforms.transformForCursor(input, {
-        ruleName: 'test',
+      const result = transforms.transformRuleForCursor(input, {
         description: 'test',
         pluginInstallPath: '/tmp'
       });
@@ -386,8 +381,7 @@ describe('adapter-transforms', () => {
 
     test('strips plugin namespacing', () => {
       const input = 'invoke next-task:exploration-agent and deslop:deslop-agent';
-      const result = transforms.transformForCursor(input, {
-        ruleName: 'test',
+      const result = transforms.transformRuleForCursor(input, {
         description: 'test',
         pluginInstallPath: '/tmp'
       });
@@ -399,8 +393,7 @@ describe('adapter-transforms', () => {
 
     test('strips Task() calls and replaces with plain text', () => {
       const input = 'await Task({ subagent_type: "next-task:exploration-agent" });';
-      const result = transforms.transformForCursor(input, {
-        ruleName: 'test',
+      const result = transforms.transformRuleForCursor(input, {
         description: 'test',
         pluginInstallPath: '/tmp'
       });
@@ -410,8 +403,7 @@ describe('adapter-transforms', () => {
 
     test('adds frontmatter to content without existing frontmatter', () => {
       const input = '# No frontmatter\nBody content';
-      const result = transforms.transformForCursor(input, {
-        ruleName: 'test',
+      const result = transforms.transformRuleForCursor(input, {
         description: 'test desc',
         pluginInstallPath: '/tmp'
       });
@@ -422,8 +414,7 @@ describe('adapter-transforms', () => {
 
     test('sets alwaysApply false when provided', () => {
       const input = 'body content';
-      const result = transforms.transformForCursor(input, {
-        ruleName: 'test',
+      const result = transforms.transformRuleForCursor(input, {
         description: 'test',
         pluginInstallPath: '/tmp',
         globs: '*.ts',
@@ -434,8 +425,7 @@ describe('adapter-transforms', () => {
 
     test('escapes backslash in description', () => {
       const input = 'body';
-      const result = transforms.transformForCursor(input, {
-        ruleName: 'test',
+      const result = transforms.transformRuleForCursor(input, {
         description: 'path\\to\\file',
         pluginInstallPath: '/tmp'
       });
@@ -444,8 +434,7 @@ describe('adapter-transforms', () => {
 
     test('strips control characters from description', () => {
       const input = 'body';
-      const result = transforms.transformForCursor(input, {
-        ruleName: 'test',
+      const result = transforms.transformRuleForCursor(input, {
         description: 'line1\x00line2\x0aline3',
         pluginInstallPath: '/tmp'
       });
@@ -454,8 +443,7 @@ describe('adapter-transforms', () => {
 
     test('quotes globs value with JSON.stringify', () => {
       const input = 'body';
-      const result = transforms.transformForCursor(input, {
-        ruleName: 'test',
+      const result = transforms.transformRuleForCursor(input, {
         description: 'test',
         pluginInstallPath: '/tmp',
         globs: '*.{ts,tsx}'
@@ -465,14 +453,94 @@ describe('adapter-transforms', () => {
 
     test('handles frontmatter without trailing newline', () => {
       const input = '---\ndescription: old\n---body after';
-      const result = transforms.transformForCursor(input, {
-        ruleName: 'test',
+      const result = transforms.transformRuleForCursor(input, {
         description: 'new',
         pluginInstallPath: '/tmp'
       });
       expect(result).toContain('description: "new"');
       expect(result).toContain('body after');
       expect(result).not.toContain('description: old');
+    });
+
+    test('transformForCursor is an alias for transformRuleForCursor', () => {
+      expect(transforms.transformForCursor).toBe(transforms.transformRuleForCursor);
+    });
+  });
+
+  describe('transformSkillForCursor', () => {
+    test('replaces PLUGIN_ROOT paths with install path', () => {
+      const input = '---\nname: test\n---\nPath: ${CLAUDE_PLUGIN_ROOT}/lib and $PLUGIN_ROOT/scripts';
+      const result = transforms.transformSkillForCursor(input, {
+        pluginInstallPath: '/home/user/.agentsys/plugins/test'
+      });
+      expect(result).toContain('/home/user/.agentsys/plugins/test/lib');
+      expect(result).toContain('/home/user/.agentsys/plugins/test/scripts');
+    });
+
+    test('strips plugin namespace prefixes', () => {
+      const input = 'invoke next-task:exploration-agent and deslop:deslop-agent';
+      const result = transforms.transformSkillForCursor(input, {
+        pluginInstallPath: '/tmp'
+      });
+      expect(result).toContain('exploration-agent');
+      expect(result).not.toContain('next-task:');
+    });
+
+    test('preserves frontmatter (not stripped)', () => {
+      const input = '---\nname: my-skill\ndescription: A cool skill\n---\nBody content';
+      const result = transforms.transformSkillForCursor(input, {
+        pluginInstallPath: '/tmp'
+      });
+      expect(result).toContain('---\nname: my-skill\ndescription: A cool skill\n---');
+      expect(result).toContain('Body content');
+    });
+  });
+
+  describe('transformCommandForCursor', () => {
+    test('strips frontmatter', () => {
+      const input = '---\ndescription: original\nargument-hint: "[path]"\n---\nBody content';
+      const result = transforms.transformCommandForCursor(input, {
+        pluginInstallPath: '/tmp'
+      });
+      expect(result).not.toContain('description: original');
+      expect(result).not.toContain('argument-hint');
+      expect(result).toContain('Body content');
+    });
+
+    test('replaces PLUGIN_ROOT paths', () => {
+      const input = 'Path: ${CLAUDE_PLUGIN_ROOT}/lib and $PLUGIN_ROOT/scripts';
+      const result = transforms.transformCommandForCursor(input, {
+        pluginInstallPath: '/home/user/.agentsys/plugins/test'
+      });
+      expect(result).toContain('/home/user/.agentsys/plugins/test/lib');
+      expect(result).toContain('/home/user/.agentsys/plugins/test/scripts');
+    });
+
+    test('strips require() statements', () => {
+      const input = 'const foo = require("./bar");\nkeep this';
+      const result = transforms.transformCommandForCursor(input, {
+        pluginInstallPath: '/tmp'
+      });
+      expect(result).not.toContain('require(');
+      expect(result).toContain('keep this');
+    });
+
+    test('strips Task() calls and replaces with plain text', () => {
+      const input = 'await Task({ subagent_type: "next-task:exploration-agent" });';
+      const result = transforms.transformCommandForCursor(input, {
+        pluginInstallPath: '/tmp'
+      });
+      expect(result).toContain('Invoke the exploration-agent agent');
+      expect(result).not.toContain('Task(');
+    });
+
+    test('strips plugin namespace prefixes', () => {
+      const input = 'invoke next-task:exploration-agent and deslop:deslop-agent';
+      const result = transforms.transformCommandForCursor(input, {
+        pluginInstallPath: '/tmp'
+      });
+      expect(result).toContain('exploration-agent');
+      expect(result).not.toContain('next-task:');
     });
   });
 });

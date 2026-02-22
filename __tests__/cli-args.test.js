@@ -253,7 +253,7 @@ describe('installForCursor', () => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  function setupInstallDir(commands) {
+  function setupInstallDir(commands, skills) {
     const installDir = path.join(tmpDir, 'install');
     const pluginName = 'test-plugin';
     const pluginDir = path.join(installDir, 'plugins', pluginName);
@@ -262,37 +262,60 @@ describe('installForCursor', () => {
     fs.mkdirSync(pluginJsonDir, { recursive: true });
     fs.mkdirSync(commandsDir, { recursive: true });
     fs.writeFileSync(path.join(pluginJsonDir, 'plugin.json'), '{}');
-    for (const [filename, content] of Object.entries(commands)) {
+    for (const [filename, content] of Object.entries(commands || {})) {
       fs.writeFileSync(path.join(commandsDir, filename), content);
+    }
+    if (skills) {
+      const skillsDir = path.join(pluginDir, 'skills');
+      for (const [skillName, content] of Object.entries(skills)) {
+        const skillDir = path.join(skillsDir, skillName);
+        fs.mkdirSync(skillDir, { recursive: true });
+        fs.writeFileSync(path.join(skillDir, 'SKILL.md'), content);
+      }
     }
     return installDir;
   }
 
-  test('writes .mdc files to .cursor/rules/ for commands with descriptions', () => {
+  test('installs skills to .cursor/skills/<name>/SKILL.md', () => {
+    const installDir = setupInstallDir({}, {
+      'my-skill': '---\nname: my-skill\ndescription: A test skill\n---\nSkill body'
+    });
+
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    installForCursor(installDir);
+
+    const skillPath = path.join(tmpDir, '.cursor', 'skills', 'my-skill', 'SKILL.md');
+    expect(fs.existsSync(skillPath)).toBe(true);
+    const content = fs.readFileSync(skillPath, 'utf8');
+    expect(content).toContain('Skill body');
+    expect(content).toContain('name: my-skill');
+  });
+
+  test('installs commands to .cursor/commands/<name>.md', () => {
     const installDir = setupInstallDir({
       'my-cmd.md': '---\ndescription: A test command\n---\n# My Command\nBody content'
     });
 
-    // Need to invalidate discovery cache
     const discovery = require('../lib/discovery');
     discovery.invalidateCache();
 
     installForCursor(installDir);
 
-    const rulesDir = path.join(tmpDir, '.cursor', 'rules');
-    const files = fs.readdirSync(rulesDir);
-    const mdcFiles = files.filter(f => f.endsWith('.mdc'));
-    expect(mdcFiles.length).toBe(1);
-    expect(mdcFiles[0]).toBe('agentsys-test-plugin-my-cmd.mdc');
+    const commandsDir = path.join(tmpDir, '.cursor', 'commands');
+    const files = fs.readdirSync(commandsDir);
+    expect(files).toContain('my-cmd.md');
 
-    const content = fs.readFileSync(path.join(rulesDir, mdcFiles[0]), 'utf8');
-    expect(content).toContain('A test command');
+    const content = fs.readFileSync(path.join(commandsDir, 'my-cmd.md'), 'utf8');
     expect(content).toContain('Body content');
+    // Frontmatter should be stripped for commands
+    expect(content).not.toContain('description: A test command');
   });
 
-  test('skips commands without description', () => {
+  test('does not create .mdc rule files from commands', () => {
     const installDir = setupInstallDir({
-      'no-desc.md': '---\ntype: command\n---\nBody'
+      'my-cmd.md': '---\ndescription: A test command\n---\nBody content'
     });
 
     const discovery = require('../lib/discovery');
@@ -301,14 +324,60 @@ describe('installForCursor', () => {
     installForCursor(installDir);
 
     const rulesDir = path.join(tmpDir, '.cursor', 'rules');
-    const files = fs.readdirSync(rulesDir).filter(f => f.endsWith('.mdc'));
-    expect(files.length).toBe(0);
+    const mdcFiles = fs.readdirSync(rulesDir).filter(f => f.endsWith('.mdc'));
+    expect(mdcFiles.length).toBe(0);
   });
 
-  test('applies filter option to only install matching commands', () => {
+  test('cleans up old agentsys-*.mdc files from rules dir', () => {
+    const rulesDir = path.join(tmpDir, '.cursor', 'rules');
+    fs.mkdirSync(rulesDir, { recursive: true });
+    fs.writeFileSync(path.join(rulesDir, 'agentsys-old.mdc'), 'old content');
+    fs.writeFileSync(path.join(rulesDir, 'my-custom-rule.mdc'), 'custom content');
+
+    const installDir = setupInstallDir({});
+
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    installForCursor(installDir);
+
+    const files = fs.readdirSync(rulesDir);
+    expect(files).not.toContain('agentsys-old.mdc');
+    expect(files).toContain('my-custom-rule.mdc');
+  });
+
+  test('cleans up old command and skill files on reinstall', () => {
+    // Pre-create old files
+    const commandsDir = path.join(tmpDir, '.cursor', 'commands');
+    const skillsDir = path.join(tmpDir, '.cursor', 'skills', 'old-skill');
+    fs.mkdirSync(commandsDir, { recursive: true });
+    fs.mkdirSync(skillsDir, { recursive: true });
+    fs.writeFileSync(path.join(commandsDir, 'old-cmd.md'), 'old');
+    fs.writeFileSync(path.join(skillsDir, 'SKILL.md'), 'old skill');
+
     const installDir = setupInstallDir({
-      'allowed-cmd.md': '---\ndescription: Allowed command\n---\nAllowed body',
-      'blocked-cmd.md': '---\ndescription: Blocked command\n---\nBlocked body'
+      'new-cmd.md': '---\ndescription: New\n---\nNew body'
+    }, {
+      'new-skill': '---\nname: new-skill\n---\nNew skill body'
+    });
+
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    installForCursor(installDir);
+
+    // Old files should be cleaned up
+    expect(fs.existsSync(path.join(commandsDir, 'old-cmd.md'))).toBe(false);
+    expect(fs.existsSync(path.join(tmpDir, '.cursor', 'skills', 'old-skill'))).toBe(false);
+    // New files should exist
+    expect(fs.existsSync(path.join(commandsDir, 'new-cmd.md'))).toBe(true);
+    expect(fs.existsSync(path.join(tmpDir, '.cursor', 'skills', 'new-skill', 'SKILL.md'))).toBe(true);
+  });
+
+  test('applies command filter', () => {
+    const installDir = setupInstallDir({
+      'allowed-cmd.md': '---\ndescription: Allowed\n---\nAllowed body',
+      'blocked-cmd.md': '---\ndescription: Blocked\n---\nBlocked body'
     });
 
     const discovery = require('../lib/discovery');
@@ -316,70 +385,43 @@ describe('installForCursor', () => {
 
     installForCursor(installDir, { filter: { commands: ['allowed-cmd'] } });
 
-    const rulesDir = path.join(tmpDir, '.cursor', 'rules');
-    const files = fs.readdirSync(rulesDir).filter(f => f.endsWith('.mdc'));
-    expect(files.length).toBe(1);
-    expect(files[0]).toContain('allowed-cmd');
+    const commandsDir = path.join(tmpDir, '.cursor', 'commands');
+    const files = fs.readdirSync(commandsDir);
+    expect(files).toContain('allowed-cmd.md');
+    expect(files).not.toContain('blocked-cmd.md');
   });
 
-  test('does not throw and writes no .mdc when source file is missing', () => {
-    // Create install dir with plugin structure but delete the source file
-    const installDir = setupInstallDir({
-      'ghost-cmd.md': '---\ndescription: Ghost command\n---\nBody'
+  test('applies skill filter', () => {
+    const installDir = setupInstallDir({}, {
+      'allowed-skill': '---\nname: allowed\n---\nAllowed',
+      'blocked-skill': '---\nname: blocked\n---\nBlocked'
     });
 
     const discovery = require('../lib/discovery');
     discovery.invalidateCache();
 
-    // Remove the source file after discovery scanned it
-    const srcPath = path.join(installDir, 'plugins', 'test-plugin', 'commands', 'ghost-cmd.md');
-    fs.unlinkSync(srcPath);
+    installForCursor(installDir, { filter: { skills: ['allowed-skill'] } });
 
-    // Should not throw
+    const skillsDir = path.join(tmpDir, '.cursor', 'skills');
+    expect(fs.existsSync(path.join(skillsDir, 'allowed-skill', 'SKILL.md'))).toBe(true);
+    expect(fs.existsSync(path.join(skillsDir, 'blocked-skill'))).toBe(false);
+  });
+
+  test('does not throw when source command file is missing', () => {
+    const installDir = setupInstallDir({
+      'ghost-cmd.md': '---\ndescription: Ghost\n---\nBody'
+    });
+
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    // Remove source file after discovery
+    fs.unlinkSync(path.join(installDir, 'plugins', 'test-plugin', 'commands', 'ghost-cmd.md'));
+
     expect(() => installForCursor(installDir)).not.toThrow();
 
-    const rulesDir = path.join(tmpDir, '.cursor', 'rules');
-    const files = fs.readdirSync(rulesDir).filter(f => f.endsWith('.mdc'));
+    const commandsDir = path.join(tmpDir, '.cursor', 'commands');
+    const files = fs.readdirSync(commandsDir);
     expect(files.length).toBe(0);
-  });
-
-  test('preserves non-agentsys .mdc files in .cursor/rules/ during cleanup', () => {
-    const rulesDir = path.join(tmpDir, '.cursor', 'rules');
-    fs.mkdirSync(rulesDir, { recursive: true });
-    fs.writeFileSync(path.join(rulesDir, 'my-custom-rule.mdc'), 'custom content');
-    fs.writeFileSync(path.join(rulesDir, 'agentsys-old.mdc'), 'old agentsys');
-
-    const installDir = setupInstallDir({
-      'new-cmd.md': '---\ndescription: New command\n---\nNew body'
-    });
-
-    const discovery = require('../lib/discovery');
-    discovery.invalidateCache();
-
-    installForCursor(installDir);
-
-    const files = fs.readdirSync(rulesDir);
-    expect(files).toContain('my-custom-rule.mdc');
-    expect(files).not.toContain('agentsys-old.mdc');
-  });
-
-  test('cleans up old agentsys-*.mdc files on reinstall', () => {
-    // Pre-create an old .mdc file
-    const rulesDir = path.join(tmpDir, '.cursor', 'rules');
-    fs.mkdirSync(rulesDir, { recursive: true });
-    fs.writeFileSync(path.join(rulesDir, 'agentsys-old-plugin-old-cmd.mdc'), 'old content');
-
-    const installDir = setupInstallDir({
-      'new-cmd.md': '---\ndescription: New command\n---\nNew body'
-    });
-
-    const discovery = require('../lib/discovery');
-    discovery.invalidateCache();
-
-    installForCursor(installDir);
-
-    const files = fs.readdirSync(rulesDir);
-    expect(files).not.toContain('agentsys-old-plugin-old-cmd.mdc');
-    expect(files).toContain('agentsys-test-plugin-new-cmd.mdc');
   });
 });

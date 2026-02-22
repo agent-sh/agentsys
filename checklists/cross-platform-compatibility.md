@@ -7,10 +7,10 @@ Master reference for ensuring features work across Claude Code, OpenCode, Codex 
 | Aspect | Claude Code | OpenCode | Codex CLI | Cursor |
 |--------|-------------|----------|-----------|--------|
 | **Config format** | JSON | JSON/JSONC | TOML | MDC (YAML frontmatter + MD) |
-| **Config location** | `~/.claude/settings.json` | `~/.config/opencode/opencode.json` | `~/.codex/config.toml` | `.cursor/rules/*.mdc` (project) |
+| **Config location** | `~/.claude/settings.json` | `~/.config/opencode/opencode.json` | `~/.codex/config.toml` | `.cursor/{skills,commands,rules}/` (project) |
 | **State directory (per-project)** | `.claude/` | `.opencode/` | `.codex/` | `.cursor/` |
-| **Commands location (global)** | Plugin `commands/` | `~/.config/opencode/commands/` | N/A (use skills) | N/A (use rules) |
-| **Skills location (global)** | `.claude/skills/` | `~/.config/opencode/skills/` | `~/.codex/skills/` | N/A (use rules) |
+| **Commands location (global)** | Plugin `commands/` | `~/.config/opencode/commands/` | N/A (use skills) | `.cursor/commands/*.md` (project) |
+| **Skills location (global)** | `.claude/skills/` | `~/.config/opencode/skills/` | `~/.codex/skills/` | `.cursor/skills/*/SKILL.md` (project) |
 | **Agents location (global)** | Plugin `agents/` | `~/.config/opencode/agents/` | N/A (use MCP) | N/A (use rules) |
 | **Invocation prefix** | `/command` | `/command` | `$skill` | Auto-applied |
 | **Project instructions** | `CLAUDE.md` | `AGENTS.md` (reads CLAUDE.md) | `AGENTS.md` | `.cursor/rules/*.mdc` |
@@ -302,7 +302,9 @@ Plugin loaded via marketplace
 ### Cursor
 ```
 ~/.agentsys/                       # Package copy
-<project>/.cursor/rules/           # Transformed MDC rules (project-scoped)
+<project>/.cursor/skills/          # Skills (SKILL.md, minimal transform)
+<project>/.cursor/commands/        # Commands (light transform, no frontmatter)
+<project>/.cursor/rules/           # Rules (.mdc, coding standards)
 ```
 
 ---
