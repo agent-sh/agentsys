@@ -333,7 +333,7 @@ describe('adapter-transforms', () => {
         alwaysApply: true
       });
       expect(result).toContain('description: "A test rule"');
-      expect(result).toContain('globs: *.js');
+      expect(result).toContain('globs: "*.js"');
       expect(result).toContain('alwaysApply: true');
       expect(result).toContain('body content');
       expect(result).not.toContain('description: original');
@@ -418,6 +418,61 @@ describe('adapter-transforms', () => {
       expect(result).toMatch(/^---\n/);
       expect(result).toContain('description: "test desc"');
       expect(result).toContain('# No frontmatter');
+    });
+
+    test('sets alwaysApply false when provided', () => {
+      const input = 'body content';
+      const result = transforms.transformForCursor(input, {
+        ruleName: 'test',
+        description: 'test',
+        pluginInstallPath: '/tmp',
+        globs: '*.ts',
+        alwaysApply: false
+      });
+      expect(result).toContain('alwaysApply: false');
+    });
+
+    test('escapes backslash in description', () => {
+      const input = 'body';
+      const result = transforms.transformForCursor(input, {
+        ruleName: 'test',
+        description: 'path\\to\\file',
+        pluginInstallPath: '/tmp'
+      });
+      expect(result).toContain('description: "path\\\\to\\\\file"');
+    });
+
+    test('strips control characters from description', () => {
+      const input = 'body';
+      const result = transforms.transformForCursor(input, {
+        ruleName: 'test',
+        description: 'line1\x00line2\x0aline3',
+        pluginInstallPath: '/tmp'
+      });
+      expect(result).not.toMatch(/[\x00-\x09\x0b-\x1f\x7f]/);
+    });
+
+    test('quotes globs value with JSON.stringify', () => {
+      const input = 'body';
+      const result = transforms.transformForCursor(input, {
+        ruleName: 'test',
+        description: 'test',
+        pluginInstallPath: '/tmp',
+        globs: '*.{ts,tsx}'
+      });
+      expect(result).toContain('globs: "*.{ts,tsx}"');
+    });
+
+    test('handles frontmatter without trailing newline', () => {
+      const input = '---\ndescription: old\n---body after';
+      const result = transforms.transformForCursor(input, {
+        ruleName: 'test',
+        description: 'new',
+        pluginInstallPath: '/tmp'
+      });
+      expect(result).toContain('description: "new"');
+      expect(result).toContain('body after');
+      expect(result).not.toContain('description: old');
     });
   });
 });

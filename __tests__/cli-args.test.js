@@ -305,6 +305,64 @@ describe('installForCursor', () => {
     expect(files.length).toBe(0);
   });
 
+  test('applies filter option to only install matching commands', () => {
+    const installDir = setupInstallDir({
+      'allowed-cmd.md': '---\ndescription: Allowed command\n---\nAllowed body',
+      'blocked-cmd.md': '---\ndescription: Blocked command\n---\nBlocked body'
+    });
+
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    installForCursor(installDir, { filter: { commands: ['allowed-cmd'] } });
+
+    const rulesDir = path.join(tmpDir, '.cursor', 'rules');
+    const files = fs.readdirSync(rulesDir).filter(f => f.endsWith('.mdc'));
+    expect(files.length).toBe(1);
+    expect(files[0]).toContain('allowed-cmd');
+  });
+
+  test('does not throw and writes no .mdc when source file is missing', () => {
+    // Create install dir with plugin structure but delete the source file
+    const installDir = setupInstallDir({
+      'ghost-cmd.md': '---\ndescription: Ghost command\n---\nBody'
+    });
+
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    // Remove the source file after discovery scanned it
+    const srcPath = path.join(installDir, 'plugins', 'test-plugin', 'commands', 'ghost-cmd.md');
+    fs.unlinkSync(srcPath);
+
+    // Should not throw
+    expect(() => installForCursor(installDir)).not.toThrow();
+
+    const rulesDir = path.join(tmpDir, '.cursor', 'rules');
+    const files = fs.readdirSync(rulesDir).filter(f => f.endsWith('.mdc'));
+    expect(files.length).toBe(0);
+  });
+
+  test('preserves non-agentsys .mdc files in .cursor/rules/ during cleanup', () => {
+    const rulesDir = path.join(tmpDir, '.cursor', 'rules');
+    fs.mkdirSync(rulesDir, { recursive: true });
+    fs.writeFileSync(path.join(rulesDir, 'my-custom-rule.mdc'), 'custom content');
+    fs.writeFileSync(path.join(rulesDir, 'agentsys-old.mdc'), 'old agentsys');
+
+    const installDir = setupInstallDir({
+      'new-cmd.md': '---\ndescription: New command\n---\nNew body'
+    });
+
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    installForCursor(installDir);
+
+    const files = fs.readdirSync(rulesDir);
+    expect(files).toContain('my-custom-rule.mdc');
+    expect(files).not.toContain('agentsys-old.mdc');
+  });
+
   test('cleans up old agentsys-*.mdc files on reinstall', () => {
     // Pre-create an old .mdc file
     const rulesDir = path.join(tmpDir, '.cursor', 'rules');

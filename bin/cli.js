@@ -856,6 +856,7 @@ function detectInstalledPlatforms() {
   const opencodeDir = getOpenCodeConfigDir();
   if (fs.existsSync(opencodeDir)) platforms.push('opencode');
   if (fs.existsSync(path.join(home, '.codex'))) platforms.push('codex');
+  // Cursor rules are project-scoped; detect by .cursor dir in CWD
   if (fs.existsSync(path.join(process.cwd(), '.cursor'))) platforms.push('cursor');
   return platforms;
 }
@@ -1516,11 +1517,12 @@ function installForCursor(installDir, options = {}) {
   console.log('\n[INSTALL] Installing for Cursor...\n');
   const { filter = null } = options;
 
+  // Cursor rules are project-scoped; detect by .cursor dir in CWD
   const rulesDir = path.join(process.cwd(), '.cursor', 'rules');
   fs.mkdirSync(rulesDir, { recursive: true });
 
   // Clean up old agentsys-*.mdc files on reinstall
-  if (fs.existsSync(rulesDir)) {
+  {
     const existing = fs.readdirSync(rulesDir).filter(f => f.startsWith('agentsys-') && f.endsWith('.mdc'));
     for (const file of existing) {
       fs.unlinkSync(path.join(rulesDir, file));
@@ -1553,11 +1555,13 @@ function installForCursor(installDir, options = {}) {
         description,
         pluginInstallPath,
         globs: globs || '',
-        alwaysApply: true
+        alwaysApply: !globs
       });
 
       fs.writeFileSync(destPath, content);
       console.log(`  [OK] Installed rule: ${ruleName}.mdc`);
+    } else {
+      console.log(`  [WARN] Source file not found: ${srcPath}`);
     }
   }
 
@@ -1882,7 +1886,7 @@ async function main() {
 
   await fetchExternalPlugins(pluginNames, marketplace);
 
-  // Only copy to ~/.agentsys if OpenCode or Codex selected (they need local files)
+  // Only copy to ~/.agentsys if OpenCode, Codex, or Cursor selected (they need local files)
   const needsLocalInstall = selected.includes('opencode') || selected.includes('codex') || selected.includes('cursor');
   let installDir = null;
 
