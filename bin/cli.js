@@ -1541,15 +1541,25 @@ function installForCursor(installDir, options = {}) {
     }
   }
 
-  // Cleanup old agentsys skill dirs from skills dir
+  // Collect known skill names from discovery before cleanup
+  const pluginDirs = discovery.discoverPlugins(installDir);
+  const knownSkillNames = new Set();
+  for (const pluginName of pluginDirs) {
+    const srcSkillsDir = path.join(installDir, 'plugins', pluginName, 'skills');
+    if (!fs.existsSync(srcSkillsDir)) continue;
+    for (const d of fs.readdirSync(srcSkillsDir, { withFileTypes: true })) {
+      if (d.isDirectory() && /^[a-zA-Z0-9_-]+$/.test(d.name)) knownSkillNames.add(d.name);
+    }
+  }
+
+  // Cleanup old agentsys skill dirs (only known names, preserve user-created skills)
   for (const entry of fs.readdirSync(skillsDir, { withFileTypes: true })) {
-    if (entry.isDirectory() && fs.existsSync(path.join(skillsDir, entry.name, 'SKILL.md'))) {
+    if (entry.isDirectory() && knownSkillNames.has(entry.name)) {
       fs.rmSync(path.join(skillsDir, entry.name), { recursive: true, force: true });
     }
   }
 
   // Install skills
-  const pluginDirs = discovery.discoverPlugins(installDir);
   let skillCount = 0;
   for (const pluginName of pluginDirs) {
     const srcSkillsDir = path.join(installDir, 'plugins', pluginName, 'skills');

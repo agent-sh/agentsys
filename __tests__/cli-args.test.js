@@ -368,8 +368,8 @@ describe('installForCursor', () => {
 
     // Unknown command files are preserved (scoped cleanup only removes known commands)
     expect(fs.existsSync(path.join(commandsDir, 'old-cmd.md'))).toBe(true);
-    // Old skill dirs with SKILL.md are cleaned up
-    expect(fs.existsSync(path.join(tmpDir, '.cursor', 'skills', 'old-skill'))).toBe(false);
+    // Unknown skill dirs are preserved (scoped cleanup only removes known skills)
+    expect(fs.existsSync(path.join(tmpDir, '.cursor', 'skills', 'old-skill', 'SKILL.md'))).toBe(true);
     // New files should exist
     expect(fs.existsSync(path.join(commandsDir, 'new-cmd.md'))).toBe(true);
     expect(fs.existsSync(path.join(tmpDir, '.cursor', 'skills', 'new-skill', 'SKILL.md'))).toBe(true);
