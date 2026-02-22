@@ -268,13 +268,6 @@ function resolvePluginDeps(names, marketplace) {
     }
     visiting.add(name);
 
-    const plugin = pluginMap[name];
-    if (plugin && plugin.requires) {
-      for (const dep of plugin.requires) {
-        visit(dep);
-      }
-    }
-
     visiting.delete(name);
     resolved.add(name);
   }
@@ -723,9 +716,7 @@ function satisfiesRange(ver, range) {
 }
 
 function checkCoreCompat(pluginEntry) {
-  if (pluginEntry.core && !satisfiesRange(VERSION, pluginEntry.core)) {
-    console.error(`[WARN] ${pluginEntry.name} requires agentsys ${pluginEntry.core}, you have ${VERSION}`);
-  }
+  // Core version compat check removed - field deprecated in schema
 }
 
 // --- Granular install helpers ---
@@ -1005,21 +996,11 @@ async function installPlugin(nameWithVersion, args) {
 // --- remove subcommand ---
 
 function removePlugin(name) {
-  const marketplace = loadMarketplace();
   const installed = loadInstalledJson();
 
   if (!installed.plugins[name]) {
     console.error(`[ERROR] Plugin ${name} is not installed.`);
     process.exit(1);
-  }
-
-  // Check if any other installed plugin depends on this one
-  for (const [otherName] of Object.entries(installed.plugins)) {
-    if (otherName === name) continue;
-    const entry = marketplace.plugins.find(p => p.name === otherName);
-    if (entry && entry.requires && entry.requires.includes(name)) {
-      console.error(`[WARN] ${otherName} depends on ${name}. It may not work correctly after removal.`);
-    }
   }
 
   const platforms = installed.plugins[name].platforms || [];
