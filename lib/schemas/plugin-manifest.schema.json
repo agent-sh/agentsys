@@ -52,20 +52,6 @@
       "type": "array",
       "maxItems": 20,
       "uniqueItems": true
-    },
-    "requires": {
-      "type": "array",
-      "items": {
-        "type": "string",
-        "pattern": "^[a-z][a-z0-9-]*$"
-      },
-      "uniqueItems": true,
-      "description": "Other plugins this plugin depends on"
-    },
-    "core": {
-      "type": "string",
-      "pattern": "^>=\\d+\\.\\d+\\.\\d+$",
-      "description": "Minimum agent-core version required"
     }
   }
 }
