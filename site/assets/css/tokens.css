@@ -25,5 +25,5 @@
  * 5. MONOCHROME + ONE ACCENT - Near-black canvas, purple-to-cyan signature gradient
  */
 
-@import '../../../../design-system/tokens.css';
-@import '../../../../design-system/base.css';
+@import './design-system/tokens.css';
+@import './design-system/base.css';
