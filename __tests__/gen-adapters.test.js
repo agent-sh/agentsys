@@ -423,6 +423,80 @@ describe('adapter-transforms', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Unit tests for getCursorRuleMappings
+// ---------------------------------------------------------------------------
+
+describe('getCursorRuleMappings', () => {
+  const os = require('os');
+  const tmpDir = path.join(os.tmpdir(), 'cursor-rule-test-' + Date.now());
+  const pluginName = 'test-plugin';
+
+  function setupPlugin(commands) {
+    // Create plugin structure
+    const pluginDir = path.join(tmpDir, 'plugins', pluginName);
+    const pluginJsonDir = path.join(pluginDir, '.claude-plugin');
+    const commandsDir = path.join(pluginDir, 'commands');
+    fs.mkdirSync(pluginJsonDir, { recursive: true });
+    fs.mkdirSync(commandsDir, { recursive: true });
+    fs.writeFileSync(path.join(pluginJsonDir, 'plugin.json'), '{}');
+    for (const [filename, content] of Object.entries(commands)) {
+      fs.writeFileSync(path.join(commandsDir, filename), content);
+    }
+  }
+
+  afterAll(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  test('uses cursor-description over codex-description over description', () => {
+    setupPlugin({
+      'all-three.md': '---\ndescription: generic\ncodex-description: codex\ncursor-description: cursor\n---\nbody',
+      'codex-and-desc.md': '---\ndescription: generic\ncodex-description: codex\n---\nbody',
+      'desc-only.md': '---\ndescription: generic\n---\nbody'
+    });
+    discovery.invalidateCache();
+    const mappings = discovery.getCursorRuleMappings(tmpDir);
+
+    const byName = {};
+    for (const m of mappings) byName[m[0]] = m;
+
+    expect(byName[`agentsys-${pluginName}-all-three`][3]).toBe('cursor');
+    expect(byName[`agentsys-${pluginName}-codex-and-desc`][3]).toBe('codex');
+    expect(byName[`agentsys-${pluginName}-desc-only`][3]).toBe('generic');
+  });
+
+  test('extracts globs from frontmatter', () => {
+    setupPlugin({
+      'with-globs.md': '---\ndescription: test\nglobs: "*.ts"\n---\nbody'
+    });
+    discovery.invalidateCache();
+    const mappings = discovery.getCursorRuleMappings(tmpDir);
+    const match = mappings.find(m => m[0] === `agentsys-${pluginName}-with-globs`);
+    expect(match[5]).toBe('*.ts');
+  });
+
+  test('names rules as agentsys-<plugin>-<name>', () => {
+    setupPlugin({
+      'my-command.md': '---\ndescription: test\n---\nbody'
+    });
+    discovery.invalidateCache();
+    const mappings = discovery.getCursorRuleMappings(tmpDir);
+    const names = mappings.map(m => m[0]);
+    expect(names).toContain('agentsys-test-plugin-my-command');
+  });
+
+  test('returns empty description for commands without any description field', () => {
+    setupPlugin({
+      'no-desc.md': '---\ntype: command\n---\nbody'
+    });
+    discovery.invalidateCache();
+    const mappings = discovery.getCursorRuleMappings(tmpDir);
+    const match = mappings.find(m => m[0] === `agentsys-${pluginName}-no-desc`);
+    expect(match[3]).toBe('');
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Integration tests for generation script
 // ---------------------------------------------------------------------------
 

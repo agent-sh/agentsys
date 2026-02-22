@@ -1971,5 +1971,6 @@ module.exports = {
   parseInstallTarget,
   loadComponents,
   resolveComponent,
-  buildFilterFromComponent
+  buildFilterFromComponent,
+  installForCursor
 };

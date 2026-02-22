@@ -6,7 +6,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Import parseArgs directly from cli.js (now exported for testing)
-const { parseArgs, VALID_TOOLS } = require('../bin/cli.js');
+const { parseArgs, VALID_TOOLS, installForCursor } = require('../bin/cli.js');
 
 describe('CLI argument parsing', () => {
   // Save original process.exit and restore after each test
@@ -226,5 +226,102 @@ describe('CLI integration', () => {
 
   test('cli.js has installForCodex function', () => {
     expect(cliSource.includes('function installForCodex(')).toBe(true);
+  });
+
+  test('cli.js has installForCursor function', () => {
+    expect(cliSource.includes('function installForCursor(')).toBe(true);
+  });
+});
+
+describe('installForCursor', () => {
+  const os = require('os');
+  let tmpDir;
+  let originalCwd;
+  let originalLog;
+
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cursor-install-test-'));
+    originalCwd = process.cwd();
+    process.chdir(tmpDir);
+    originalLog = console.log;
+    console.log = jest.fn();
+  });
+
+  afterEach(() => {
+    process.chdir(originalCwd);
+    console.log = originalLog;
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  function setupInstallDir(commands) {
+    const installDir = path.join(tmpDir, 'install');
+    const pluginName = 'test-plugin';
+    const pluginDir = path.join(installDir, 'plugins', pluginName);
+    const pluginJsonDir = path.join(pluginDir, '.claude-plugin');
+    const commandsDir = path.join(pluginDir, 'commands');
+    fs.mkdirSync(pluginJsonDir, { recursive: true });
+    fs.mkdirSync(commandsDir, { recursive: true });
+    fs.writeFileSync(path.join(pluginJsonDir, 'plugin.json'), '{}');
+    for (const [filename, content] of Object.entries(commands)) {
+      fs.writeFileSync(path.join(commandsDir, filename), content);
+    }
+    return installDir;
+  }
+
+  test('writes .mdc files to .cursor/rules/ for commands with descriptions', () => {
+    const installDir = setupInstallDir({
+      'my-cmd.md': '---\ndescription: A test command\n---\n# My Command\nBody content'
+    });
+
+    // Need to invalidate discovery cache
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    installForCursor(installDir);
+
+    const rulesDir = path.join(tmpDir, '.cursor', 'rules');
+    const files = fs.readdirSync(rulesDir);
+    const mdcFiles = files.filter(f => f.endsWith('.mdc'));
+    expect(mdcFiles.length).toBe(1);
+    expect(mdcFiles[0]).toBe('agentsys-test-plugin-my-cmd.mdc');
+
+    const content = fs.readFileSync(path.join(rulesDir, mdcFiles[0]), 'utf8');
+    expect(content).toContain('A test command');
+    expect(content).toContain('Body content');
+  });
+
+  test('skips commands without description', () => {
+    const installDir = setupInstallDir({
+      'no-desc.md': '---\ntype: command\n---\nBody'
+    });
+
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    installForCursor(installDir);
+
+    const rulesDir = path.join(tmpDir, '.cursor', 'rules');
+    const files = fs.readdirSync(rulesDir).filter(f => f.endsWith('.mdc'));
+    expect(files.length).toBe(0);
+  });
+
+  test('cleans up old agentsys-*.mdc files on reinstall', () => {
+    // Pre-create an old .mdc file
+    const rulesDir = path.join(tmpDir, '.cursor', 'rules');
+    fs.mkdirSync(rulesDir, { recursive: true });
+    fs.writeFileSync(path.join(rulesDir, 'agentsys-old-plugin-old-cmd.mdc'), 'old content');
+
+    const installDir = setupInstallDir({
+      'new-cmd.md': '---\ndescription: New command\n---\nNew body'
+    });
+
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    installForCursor(installDir);
+
+    const files = fs.readdirSync(rulesDir);
+    expect(files).not.toContain('agentsys-old-plugin-old-cmd.mdc');
+    expect(files).toContain('agentsys-test-plugin-new-cmd.mdc');
   });
 });

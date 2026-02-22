@@ -775,6 +775,10 @@ describe('cross-platform', () => {
     it('should define instruction files for Codex CLI', () => {
       expect(INSTRUCTION_FILES[PLATFORMS.CODEX_CLI]).toEqual(['AGENTS.md', 'AGENTS.override.md']);
     });
+
+    it('should define instruction files for Cursor', () => {
+      expect(INSTRUCTION_FILES[PLATFORMS.CURSOR]).toEqual(['.cursor/rules/*.mdc']);
+    });
   });
 
   describe('getInstructionFiles', () => {
