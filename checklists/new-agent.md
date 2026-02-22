@@ -174,3 +174,4 @@ Add to appropriate agent category table.
 | Claude Code | Plugin `agents/` | Claude format (tools, model) |
 | OpenCode | `~/.config/opencode/agents/` | Auto-transformed (permissions) |
 | Codex CLI | N/A (uses MCP) | N/A |
+| Cursor | N/A (use rules) | N/A |

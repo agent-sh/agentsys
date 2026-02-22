@@ -29,7 +29,7 @@ Build tools once, run everywhere. The core workflows are the same regardless of 
 
 ## Common Architecture
 
-All three platforms share:
+All four platforms share:
 
 1. **Agent/Subagent systems** - Specialized assistants with tool restrictions
 2. **Slash commands** - User-invoked actions

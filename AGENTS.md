@@ -240,7 +240,7 @@ Cannot skip in /next-task:
 - Use CHANGELOG.md for completion tracking (not summary files)
 - BEFORE starting → Read the relevant checklist (`checklists/*.md`)
 - BEFORE delivering any work, especially releases → Go through that checklist item by item
-- 3 platforms: Claude Code + OpenCode + Codex - ALL must work
+- 4 platforms: Claude Code + OpenCode + Codex + Cursor - ALL must work
 - Agent/Skill pattern: Agents invoke skills, skills have implementation
 - Create PRs for non-trivial changes
 </end-reminder>

@@ -142,6 +142,7 @@ echo "1 2 3" | agentsys  # Install all platforms
 # Claude Code: /new-command
 # OpenCode: /new-command
 # Codex CLI: $new-command
+# Cursor: auto-loaded from .cursor/commands/
 ```
 
 ## 9. Sync Library (if command uses lib/)
@@ -158,3 +159,4 @@ echo "1 2 3" | agentsys  # Install all platforms
 | Claude Code | `/command` | No limit | Not needed |
 | OpenCode | `/command` | **30 chars** | Not needed |
 | Codex CLI | `$command` | No limit | **Required** |
+| Cursor | Auto-applied | No limit | Not needed |

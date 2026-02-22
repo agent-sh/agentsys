@@ -59,6 +59,7 @@ echo "1 2 3" | agentsys
 - [ ] **OpenCode**: MCP config in `~/.config/opencode/opencode.json`
 - [ ] **Codex CLI**: Skills in `~/.codex/skills/` (8 directories)
 - [ ] **Codex CLI**: MCP config in `~/.codex/config.toml`
+- [ ] **Cursor**: Skills in `.cursor/skills/`, commands in `.cursor/commands/` (project-scoped)
 
 ### Verify Skill Descriptions (Codex)
 

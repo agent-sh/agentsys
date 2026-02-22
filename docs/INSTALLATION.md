@@ -1,6 +1,6 @@
 # Installation Guide
 
-One codebase works across three platforms—Claude Code, OpenCode, and Codex CLI. Install once, get the same workflows everywhere. State files adapt automatically to each platform's conventions.
+One codebase works across four platforms—Claude Code, OpenCode, Codex CLI, and Cursor. Install once, get the same workflows everywhere. State files adapt automatically to each platform's conventions.
 
 ---
 
@@ -50,7 +50,7 @@ Add the marketplace and install plugins directly in Claude Code:
 
 ## All Platforms (npm Global Install)
 
-Interactive installer for Claude Code, OpenCode, and Codex CLI:
+Interactive installer for Claude Code, OpenCode, Codex CLI, and Cursor:
 
 ```bash
 npm install -g agentsys@latest
