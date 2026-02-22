@@ -698,9 +698,10 @@ agent-knowledge/
 
 1. **Session Management** - Persistent browser sessions with AES-256-GCM encrypted storage
 2. **Auth Handoff** - Opens a headed browser for the user to complete login; agent monitors for success
-3. **Headless Browsing** - Navigate, click, type, fill, read, screenshot, capture network, evaluate JS
+3. **Headless Browsing** - Navigate, click, click-wait (SPA-friendly), type, fill, read, screenshot, capture network, evaluate JS
 4. **CAPTCHA/Checkpoint** - Escalates to headed browser for human verification
-5. **Prompt Injection Defense** - All web content wrapped in `[PAGE_CONTENT: ...]` delimiters; agent treats it as untrusted data
+5. **Actionable Errors** - Classified error codes with recovery suggestions instead of raw Playwright messages
+6. **Prompt Injection Defense** - All web content wrapped in `[PAGE_CONTENT: ...]` delimiters; agent treats it as untrusted data
 
 **Usage:**
 
