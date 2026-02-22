@@ -692,26 +692,64 @@ agent-knowledge/
 
 ### /web-ctl
 
-**Purpose:** Browser automation for AI agents — navigate, authenticate, and interact with web pages.
+**Purpose:** Browser automation for AI agents - navigate, authenticate, and interact with web pages.
 
-**What it does:**
+**How it works:**
 
-1. **Session Management** - Persistent browser sessions with AES-256-GCM encrypted storage
-2. **Auth Handoff** - Opens a headed browser for the user to complete login; agent monitors for success
-3. **Headless Browsing** - Navigate, click, type, fill, read, screenshot, capture network, evaluate JS
-4. **CAPTCHA/Checkpoint** - Escalates to headed browser for human verification
-5. **Prompt Injection Defense** - All web content wrapped in `[PAGE_CONTENT: ...]` delimiters; agent treats it as untrusted data
+Each invocation is a single Node.js process using Playwright. No daemon, no MCP server. Session state persists via Chrome's userDataDir with AES-256-GCM encrypted storage.
+
+```
+Agent calls skill -> node scripts/web-ctl.js <args> -> Playwright API -> JSON result
+```
+
+**Session lifecycle:**
+
+1. `session start <name>` - Create session (encrypted profile directory)
+2. `session auth <name> --url <login-url>` - Opens headed Chrome for human login (2FA, CAPTCHAs). Polls for success URL/selector, encrypts cookies on completion
+3. `run <name> <action>` - Headless actions using persisted cookies
+4. `session end <name>` - Cleanup
+
+**Actions:**
+
+| Action | Description | Key flag |
+|--------|-------------|----------|
+| `goto <url>` | Navigate to URL | |
+| `snapshot` | Get accessibility tree (primary page inspection) | |
+| `click <sel>` | Click element | `--wait-stable` |
+| `click-wait <sel>` | Click and wait for DOM + network stability | `--timeout <ms>` |
+| `type <sel> <text>` | Type with human-like delays | |
+| `read <sel>` | Read element text content | |
+| `fill <sel> <value>` | Clear field and set value | |
+| `wait <sel>` | Wait for element to appear | `--timeout <ms>` |
+| `evaluate <js>` | Execute JS in page context | `--allow-evaluate` |
+| `screenshot` | Full-page screenshot | `--path <file>` |
+| `network` | Capture network requests | `--filter <pattern>` |
+| `checkpoint` | Open headed browser for user (CAPTCHAs) | `--timeout <sec>` |
+
+`click-wait` waits for network idle + no DOM mutations for 500ms before returning. Cuts SPA interactions from multiple agent turns to one.
+
+**Error handling:**
+
+All errors return classified codes with actionable recovery suggestions:
+
+| Code | Recovery suggestion |
+|------|-------------------|
+| `element_not_found` | Snapshot included in response for selector discovery |
+| `timeout` | Increase `--timeout` |
+| `browser_closed` | `session start <name>` |
+| `network_error` | Check URL; verify cookies with `session status` |
+| `no_display` | Use `--vnc` flag |
+| `session_expired` | Re-authenticate |
+
+**Security:** Output sanitization (cookies/tokens redacted), prompt injection defense (`[PAGE_CONTENT: ...]` delimiters), AES-256-GCM encryption at rest, anti-bot measures (`webdriver=false`, random delays), read-only agent (no Write/Edit tools).
+
+**Selector syntax:** `role=button[name='Submit']`, `css=div.class`, `text=Click here`, `#id`
 
 **Usage:**
 
 ```bash
-# Navigate to a URL
 /web-ctl goto https://example.com
-
-# Authenticate to a site (opens browser for you to log in)
 /web-ctl auth twitter --url https://x.com/i/flow/login
-
-# Multi-step browsing
 /web-ctl   # describe what you want to do, agent orchestrates it
 ```
 
@@ -725,7 +763,7 @@ npx playwright install chromium
 
 **Agent:** web-session (sonnet model)
 
-**Skills:** web-auth, web-browse
+**Skills:** web-auth (human-in-the-loop auth), web-browse (headless actions)
 
 ---
 

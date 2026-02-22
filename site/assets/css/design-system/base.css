@@ -1,0 +1,151 @@
+/*
+ * ==========================================================================
+ * AGENT-SH DESIGN SYSTEM - BASE STYLES
+ * ==========================================================================
+ *
+ * Reset rules, element defaults, and utility classes built on the token
+ * system. Import AFTER tokens.css.
+ *
+ * NOTE: Do NOT import this file in Docusaurus sites - Infima provides its
+ * own reset and base styles. Use tokens.css + tokens-docusaurus.css instead.
+ *
+ * ==========================================================================
+ */
+
+/* --------------------------------------------------------------------------
+ * BASE RESET & DEFAULTS
+ *
+ * Minimal reset that sets up the token system on actual elements.
+ * This ensures tokens flow into the cascade properly.
+ * -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth; /* Overridden by reduced-motion below */
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: var(--font-normal);
+  line-height: var(--leading-normal);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-base);
+}
+
+/* Code elements use the mono stack */
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.9em; /* Slightly smaller than surrounding text to match x-height */
+}
+
+/* Links use the accent color */
+a {
+  color: var(--color-accent-purple);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+/* Selection uses accent tint */
+::selection {
+  background-color: rgba(var(--color-accent-purple-rgb), 0.3);
+  color: var(--color-text-primary);
+}
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* --------------------------------------------------------------------------
+ * UTILITY CLASSES
+ *
+ * Commonly needed utilities built on the token system.
+ * These provide quick access to the most-used patterns.
+ * -------------------------------------------------------------------------- */
+
+/* Accent gradient text - for headings and emphasis */
+.text-gradient {
+  background: var(--gradient-accent-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Glass panel - the signature component style */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-border);
+  border-radius: var(--radius-lg);
+}
+
+.glass-accent {
+  background: var(--glass-bg-accent);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-border-accent);
+  border-radius: var(--radius-lg);
+}
+
+/* Glow effect - for accent-highlighted elements */
+.glow {
+  box-shadow: var(--glow-accent);
+}
+
+.glow-strong {
+  box-shadow: var(--glow-accent-strong);
+}
+
+/* Accent border gradient (applied via pseudo-element) */
+.border-gradient {
+  position: relative;
+  border-radius: var(--radius-lg);
+}
+
+.border-gradient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: var(--gradient-accent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Visually hidden but accessible to screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
