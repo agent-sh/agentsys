@@ -618,6 +618,25 @@ describe('cli-enhancers', () => {
         rmSpy.mockRestore();
       });
 
+      it('should return null if temp directory creation fails', () => {
+        const mkdtempSpy = jest.spyOn(fs, 'mkdtempSync').mockImplementation(() => {
+          throw new Error('ENOSPC: no space left on device');
+        });
+
+        const mockExecFileSync = jest.fn((cmd, args) => {
+          if (cmd === 'jscpd' && args && args.includes('--version')) {
+            return 'jscpd v1.0.0';
+          }
+          return '';
+        });
+
+        const mod = loadWithMocks(mockExecFileSync);
+        const result = mod.runDuplicateDetection('/some/repo');
+
+        expect(result).toBeNull();
+        mkdtempSpy.mockRestore();
+      });
+
       it('should not reference NUL or /dev/null in jscpd args', () => {
         jest.spyOn(fs, 'rmSync').mockImplementation(() => {});
 
