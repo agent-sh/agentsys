@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Windows jscpd output bug (#270)** - Fixed `runDuplicateDetection` creating a mangled filename on Windows when `--output NUL` was passed to jscpd via `execFileSync` (no shell). Replaced platform-specific null device with a temp directory via `os.tmpdir()` that is cleaned up in a `finally` block. Added 5 regression tests for temp directory lifecycle.
+
 - **task-discoverer**: Exclude issues that already have an open PR from discovery results (GitHub source only). Detection uses branch name suffix, PR body closing keywords (`closes/fixes/resolves #N`), and PR title `(#N)` convention. Fixes #236.
 
 - **`/debate` 240s timeout enforcement** — All tool invocations in the debate workflow now enforce a hard 240-second timeout. Round 1 proposer timeouts abort the debate; round 1 challenger timeouts proceed with an uncontested position; round 2+ timeouts synthesize from completed rounds. Added "all rounds timeout" error path (`[ERROR] Debate failed: all tool invocations timed out.`). Timeout handling is consistent across the Claude Code command, OpenCode adapter, Codex adapter, and the `debate-orchestrator` agent. Restored missing "Round 2+: Challenger Follow-up" template in the OpenCode adapter SKILL.md. Fixes issue #233.

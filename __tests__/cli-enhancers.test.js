@@ -511,6 +511,160 @@ describe('cli-enhancers', () => {
       const result = runDuplicateDetection('/nonexistent/path', { minLines: 3 });
       expect(result === null || Array.isArray(result)).toBe(true);
     });
+
+    describe('temp directory for jscpd output (Windows NUL fix)', () => {
+      // The module destructures execFileSync from child_process at require time,
+      // so we must use jest.isolateModules to re-require with mocked child_process.
+      function loadWithMocks(execFileSyncMock) {
+        let mod;
+        jest.isolateModules(() => {
+          jest.doMock('child_process', () => ({
+            ...jest.requireActual('child_process'),
+            execFileSync: execFileSyncMock,
+            execSync: jest.requireActual('child_process').execSync
+          }));
+          mod = require('../lib/patterns/cli-enhancers');
+        });
+        return mod;
+      }
+
+      it('should use temp directory for jscpd output instead of NUL', () => {
+        const mkdtempSpy = jest.spyOn(fs, 'mkdtempSync');
+        const rmSpy = jest.spyOn(fs, 'rmSync').mockImplementation(() => {});
+
+        const mockExecFileSync = jest.fn((cmd, args) => {
+          if (cmd === 'jscpd' && args && args.includes('--version')) {
+            return 'jscpd v1.0.0';
+          }
+          if (cmd === 'jscpd' && args && args.includes('--reporters')) {
+            return JSON.stringify({ duplicates: [] });
+          }
+          return '';
+        });
+
+        const mod = loadWithMocks(mockExecFileSync);
+        mod.runDuplicateDetection('/some/repo');
+
+        // Verify mkdtempSync was called with os.tmpdir() prefix
+        expect(mkdtempSpy).toHaveBeenCalled();
+        const mkdtempArg = mkdtempSpy.mock.calls[0][0];
+        expect(mkdtempArg.startsWith(os.tmpdir())).toBe(true);
+
+        // Verify --output arg uses temp dir, not NUL or /dev/null
+        const jscpdCall = mockExecFileSync.mock.calls.find(
+          call => call[0] === 'jscpd' && call[1] && call[1].includes('--output')
+        );
+        expect(jscpdCall).toBeDefined();
+        const outputIndex = jscpdCall[1].indexOf('--output');
+        const outputValue = jscpdCall[1][outputIndex + 1];
+        expect(outputValue).not.toBe('NUL');
+        expect(outputValue).not.toBe('/dev/null');
+
+        mkdtempSpy.mockRestore();
+        rmSpy.mockRestore();
+      });
+
+      it('should clean up temp directory after successful execution', () => {
+        const rmSpy = jest.spyOn(fs, 'rmSync').mockImplementation(() => {});
+
+        const mockExecFileSync = jest.fn((cmd, args) => {
+          if (cmd === 'jscpd' && args && args.includes('--version')) {
+            return 'jscpd v1.0.0';
+          }
+          if (cmd === 'jscpd' && args && args.includes('--reporters')) {
+            return JSON.stringify({ duplicates: [] });
+          }
+          return '';
+        });
+
+        const mod = loadWithMocks(mockExecFileSync);
+        mod.runDuplicateDetection('/some/repo');
+
+        // Verify rmSync was called with recursive and force options
+        const rmCalls = rmSpy.mock.calls.filter(
+          call => call[1] && call[1].recursive && call[1].force
+        );
+        expect(rmCalls.length).toBeGreaterThan(0);
+        // The path should be in the temp directory
+        expect(rmCalls[0][0].startsWith(os.tmpdir())).toBe(true);
+
+        rmSpy.mockRestore();
+      });
+
+      it('should clean up temp directory even on jscpd failure', () => {
+        const rmSpy = jest.spyOn(fs, 'rmSync').mockImplementation(() => {});
+
+        const mockExecFileSync = jest.fn((cmd, args) => {
+          if (cmd === 'jscpd' && args && args.includes('--version')) {
+            return 'jscpd v1.0.0';
+          }
+          if (cmd === 'jscpd' && args && args.includes('--reporters')) {
+            throw new Error('jscpd execution failed');
+          }
+          return '';
+        });
+
+        const mod = loadWithMocks(mockExecFileSync);
+        const result = mod.runDuplicateDetection('/some/repo');
+
+        // Should return null on failure
+        expect(result).toBeNull();
+        // Should still clean up temp dir via finally block
+        const rmCalls = rmSpy.mock.calls.filter(
+          call => call[1] && call[1].recursive && call[1].force
+        );
+        expect(rmCalls.length).toBeGreaterThan(0);
+
+        rmSpy.mockRestore();
+      });
+
+      it('should return null if temp directory creation fails', () => {
+        const mkdtempSpy = jest.spyOn(fs, 'mkdtempSync').mockImplementation(() => {
+          throw new Error('ENOSPC: no space left on device');
+        });
+
+        const mockExecFileSync = jest.fn((cmd, args) => {
+          if (cmd === 'jscpd' && args && args.includes('--version')) {
+            return 'jscpd v1.0.0';
+          }
+          return '';
+        });
+
+        const mod = loadWithMocks(mockExecFileSync);
+        const result = mod.runDuplicateDetection('/some/repo');
+
+        expect(result).toBeNull();
+        mkdtempSpy.mockRestore();
+      });
+
+      it('should not reference NUL or /dev/null in jscpd args', () => {
+        jest.spyOn(fs, 'rmSync').mockImplementation(() => {});
+
+        const mockExecFileSync = jest.fn((cmd, args) => {
+          if (cmd === 'jscpd' && args && args.includes('--version')) {
+            return 'jscpd v1.0.0';
+          }
+          if (cmd === 'jscpd' && args && args.includes('--reporters')) {
+            return JSON.stringify({ duplicates: [] });
+          }
+          return '';
+        });
+
+        const mod = loadWithMocks(mockExecFileSync);
+        mod.runDuplicateDetection('/some/repo');
+
+        // Verify no args contain NUL or /dev/null as the output path
+        for (const call of mockExecFileSync.mock.calls) {
+          const args = call[1] || [];
+          const outputIdx = args.indexOf('--output');
+          if (outputIdx !== -1) {
+            const outputVal = args[outputIdx + 1];
+            expect(outputVal.toLowerCase()).not.toBe('nul');
+            expect(outputVal).not.toBe('/dev/null');
+          }
+        }
+      });
+    });
   });
 
   describe('runDependencyAnalysis', () => {
