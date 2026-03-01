@@ -100,6 +100,8 @@ Platform-aware state directory:
 - Claude Code: `.claude/`
 - OpenCode: `config/.opencode/`
 - Codex: `.codex/`
+- Cursor: `.cursor/`
+- Kiro: `.kiro/`
 </state-files>
 
 <workflow-agents>
