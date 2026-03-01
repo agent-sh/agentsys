@@ -546,6 +546,215 @@ describe('adapter-transforms', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Unit tests for Kiro transform functions
+// ---------------------------------------------------------------------------
+
+describe('Kiro transforms', () => {
+  describe('transformSkillForKiro', () => {
+    test('replaces PLUGIN_ROOT paths with install path', () => {
+      const input = '---\nname: test\n---\nPath: ${CLAUDE_PLUGIN_ROOT}/lib and $PLUGIN_ROOT/scripts';
+      const result = transforms.transformSkillForKiro(input, {
+        pluginInstallPath: '/home/user/.agentsys/plugins/test'
+      });
+      expect(result).toContain('/home/user/.agentsys/plugins/test/lib');
+      expect(result).toContain('/home/user/.agentsys/plugins/test/scripts');
+    });
+
+    test('strips plugin namespace prefixes', () => {
+      const input = 'invoke next-task:exploration-agent and deslop:deslop-agent';
+      const result = transforms.transformSkillForKiro(input, { pluginInstallPath: '/tmp' });
+      expect(result).toContain('exploration-agent');
+      expect(result).not.toContain('next-task:');
+    });
+
+    test('preserves frontmatter', () => {
+      const input = '---\nname: my-skill\ndescription: A cool skill\n---\nBody content';
+      const result = transforms.transformSkillForKiro(input, { pluginInstallPath: '/tmp' });
+      expect(result).toContain('name: my-skill');
+      expect(result).toContain('Body content');
+    });
+  });
+
+  describe('transformCommandForKiro', () => {
+    test('strips existing frontmatter and adds inclusion: manual', () => {
+      const input = '---\nmodel: opus\ndescription: old desc\n---\n# My command\nDo things.';
+      const result = transforms.transformCommandForKiro(input, {
+        pluginInstallPath: '/tmp',
+        name: 'my-cmd',
+        description: 'New description'
+      });
+      expect(result).toContain('inclusion: manual');
+      expect(result).toContain('name: "my-cmd"');
+      expect(result).toContain('description: "New description"');
+      expect(result).not.toContain('model: opus');
+      expect(result).toContain('# My command');
+    });
+
+    test('strips require() statements', () => {
+      const input = 'const { foo } = require("./lib");\n# Command\nDo work.';
+      const result = transforms.transformCommandForKiro(input, {
+        pluginInstallPath: '/tmp', name: 'test', description: 'test'
+      });
+      expect(result).not.toContain('require(');
+      expect(result).toContain('# Command');
+    });
+
+    test('strips Task() calls and replaces with agent reference', () => {
+      const input = 'await Task({ subagent_type: "next-task:exploration-agent", prompt: "explore" });';
+      const result = transforms.transformCommandForKiro(input, {
+        pluginInstallPath: '/tmp', name: 'test', description: 'test'
+      });
+      expect(result).toContain('Invoke the exploration-agent agent');
+      expect(result).not.toContain('Task(');
+    });
+
+    test('strips namespace prefixes', () => {
+      const input = 'Use deslop:deslop-agent for cleanup';
+      const result = transforms.transformCommandForKiro(input, {
+        pluginInstallPath: '/tmp', name: 'test', description: 'test'
+      });
+      expect(result).toContain('deslop-agent');
+      expect(result).not.toContain('deslop:deslop-agent');
+    });
+
+    test('replaces PLUGIN_ROOT paths', () => {
+      const input = 'Path: ${CLAUDE_PLUGIN_ROOT}/lib/foo.js';
+      const result = transforms.transformCommandForKiro(input, {
+        pluginInstallPath: '/home/user/.agentsys/plugins/test', name: 'test', description: 'test'
+      });
+      expect(result).toContain('/home/user/.agentsys/plugins/test/lib/foo.js');
+    });
+
+    test('escapes special characters in description', () => {
+      const input = '# Content';
+      const result = transforms.transformCommandForKiro(input, {
+        pluginInstallPath: '/tmp', name: 'test', description: 'Has "quotes" and \\backslash'
+      });
+      expect(result).toContain('Has \\"quotes\\"');
+    });
+  });
+
+  describe('transformAgentForKiro', () => {
+    test('converts markdown with frontmatter to JSON', () => {
+      const input = '---\nname: my-agent\ndescription: Does stuff\n---\nYou are a helpful agent.';
+      const result = transforms.transformAgentForKiro(input);
+      const parsed = JSON.parse(result);
+      expect(parsed.name).toBe('my-agent');
+      expect(parsed.description).toBe('Does stuff');
+      expect(parsed.prompt).toBe('You are a helpful agent.');
+    });
+
+    test('maps tool names correctly', () => {
+      const input = '---\nname: test\ntools: Read, Edit, Bash, Glob, Grep\n---\nPrompt';
+      const result = transforms.transformAgentForKiro(input);
+      const parsed = JSON.parse(result);
+      expect(parsed.tools).toContain('read');
+      expect(parsed.tools).toContain('write');
+      expect(parsed.tools).toContain('shell');
+      // Glob and Grep both map to 'read', which should be deduplicated
+      expect(parsed.tools.filter(t => t === 'read').length).toBe(1);
+    });
+
+    test('defaults to read/write/shell when no tools specified', () => {
+      const input = '---\nname: test\n---\nPrompt';
+      const result = transforms.transformAgentForKiro(input);
+      const parsed = JSON.parse(result);
+      expect(parsed.tools).toEqual(['read', 'write', 'shell']);
+    });
+
+    test('includes steering resources', () => {
+      const input = '---\nname: test\n---\nPrompt';
+      const result = transforms.transformAgentForKiro(input);
+      const parsed = JSON.parse(result);
+      expect(parsed.resources).toEqual(['file://.kiro/steering/**/*.md']);
+    });
+
+    test('replaces PLUGIN_ROOT in body', () => {
+      const input = '---\nname: test\n---\nLoad ${CLAUDE_PLUGIN_ROOT}/lib/helper.js';
+      const result = transforms.transformAgentForKiro(input, {
+        pluginInstallPath: '/home/user/.agentsys/plugins/test'
+      });
+      const parsed = JSON.parse(result);
+      expect(parsed.prompt).toContain('/home/user/.agentsys/plugins/test/lib/helper.js');
+    });
+
+    test('handles content without frontmatter', () => {
+      const input = 'Just a plain prompt with no frontmatter.';
+      const result = transforms.transformAgentForKiro(input);
+      const parsed = JSON.parse(result);
+      expect(parsed.name).toBe('');
+      expect(parsed.prompt).toBe('Just a plain prompt with no frontmatter.');
+      expect(parsed.tools).toEqual(['read', 'write', 'shell']);
+    });
+
+    test('strips quoted values from frontmatter', () => {
+      const input = '---\nname: "quoted-name"\ndescription: \'single-quoted\'\n---\nPrompt';
+      const result = transforms.transformAgentForKiro(input);
+      const parsed = JSON.parse(result);
+      expect(parsed.name).toBe('quoted-name');
+      expect(parsed.description).toBe('single-quoted');
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Unit tests for getKiroSteeringMappings
+// ---------------------------------------------------------------------------
+
+describe('getKiroSteeringMappings', () => {
+  const os = require('os');
+  const tmpDir = path.join(os.tmpdir(), 'kiro-steering-test-' + Date.now());
+
+  beforeAll(() => {
+    fs.mkdirSync(path.join(tmpDir, 'plugins', 'test-plugin', 'commands'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, 'plugins', 'test-plugin', '.claude-plugin'), { recursive: true });
+    fs.writeFileSync(path.join(tmpDir, 'plugins', 'test-plugin', '.claude-plugin', 'plugin.json'),
+      JSON.stringify({ name: 'test-plugin' }));
+  });
+
+  afterAll(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  test('returns steering mappings from commands', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, 'plugins', 'test-plugin', 'commands', 'my-cmd.md'),
+      '---\ndescription: A test command\n---\n# Content'
+    );
+    discovery.invalidateCache();
+    const mappings = discovery.getKiroSteeringMappings(tmpDir);
+    expect(mappings.length).toBeGreaterThan(0);
+    const mapping = mappings.find(m => m[0] === 'my-cmd');
+    expect(mapping).toBeDefined();
+    expect(mapping[3]).toBe('A test command');
+  });
+
+  test('uses kiro-description over other description fields', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, 'plugins', 'test-plugin', 'commands', 'desc-test.md'),
+      '---\ndescription: generic\ncursor-description: cursor\ncodex-description: codex\nkiro-description: kiro specific\n---\n# Content'
+    );
+    discovery.invalidateCache();
+    const mappings = discovery.getKiroSteeringMappings(tmpDir);
+    const mapping = mappings.find(m => m[0] === 'desc-test');
+    expect(mapping).toBeDefined();
+    expect(mapping[3]).toBe('kiro specific');
+  });
+
+  test('falls back through description chain', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, 'plugins', 'test-plugin', 'commands', 'fallback-test.md'),
+      '---\ndescription: generic\ncodex-description: codex\n---\n# Content'
+    );
+    discovery.invalidateCache();
+    const mappings = discovery.getKiroSteeringMappings(tmpDir);
+    const mapping = mappings.find(m => m[0] === 'fallback-test');
+    expect(mapping).toBeDefined();
+    expect(mapping[3]).toBe('codex');
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Unit tests for getCursorRuleMappings
 // ---------------------------------------------------------------------------
 
