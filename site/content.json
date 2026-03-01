@@ -5,7 +5,7 @@
     "url": "https://agent-sh.github.io/agentsys",
     "repo": "https://github.com/agent-sh/agentsys",
     "npm": "https://www.npmjs.com/package/agentsys",
-    "version": "5.2.0",
+    "version": "5.2.1",
     "author": "Avi Fenesh",
     "author_url": "https://github.com/avifenesh"
   },

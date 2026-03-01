@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.2.1] - 2026-03-01
+
+### Fixed
+
+- **Installer marketplace source parsing** — Added compatibility for both legacy string `source` values and structured source objects (`{ source: "url", url: "..." }`) so installs no longer crash with `plugin.source.startsWith is not a function`.
+- **Plugin fetch resilience and failure behavior** — Normalized `.git` repository URLs, added GitHub ref fallback order (`vX.Y.Z`, `X.Y.Z`, `main`, `master`), and fail-fast behavior when any plugin fetch fails.
+- **Cross-platform install ordering** — Fixed install sequence so local install directory reset no longer wipes the fetched plugin cache before OpenCode/Codex installation.
+
 ## [5.2.0] - 2026-02-27
 
 ### Added

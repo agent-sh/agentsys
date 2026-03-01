@@ -1,7 +1,7 @@
 {
   "name": "agentsys",
   "description": "14 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, repo mapping, perf investigations, topic research, agent config linting, cross-tool AI consultation, and structured AI debate",
-  "version": "5.2.0",
+  "version": "5.2.1",
   "owner": {
     "name": "Avi Fenesh",
     "url": "https://github.com/avifenesh"

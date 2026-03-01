@@ -231,16 +231,58 @@ function loadMarketplace() {
 }
 
 /**
- * Resolve the source URL string from a plugin's source field.
- * Handles both legacy string format ("https://...") and the new object
- * format ({ source: "url", url: "https://..." }) from Claude Code plugin schema.
- * Returns null for local/bundled sources or missing values.
+ * Normalize marketplace plugin source entries.
+ *
+ * Supported formats:
+ * - string URL/path (legacy)
+ * - object: { source: "url", url: "..." } (current)
+ * - object: { source: "path", path: "..." } (local/bundled)
+ *
+ * @param {string|Object} source
+ * @returns {{type: 'remote'|'local', value: string}|null}
+ */
+function resolvePluginSource(source) {
+  if (typeof source === 'string') {
+    const value = source.trim();
+    if (!value) return null;
+    if (value.startsWith('./') || value.startsWith('../')) {
+      return { type: 'local', value };
+    }
+    return { type: 'remote', value };
+  }
+
+  if (!source || typeof source !== 'object') return null;
+
+  const sourceType = typeof source.source === 'string' ? source.source.toLowerCase() : null;
+
+  if ((sourceType === 'path' || sourceType === 'local') && typeof source.path === 'string') {
+    return { type: 'local', value: source.path };
+  }
+
+  if (sourceType === 'url' && typeof source.url === 'string') {
+    return { type: 'remote', value: source.url };
+  }
+
+  // Backward/forward-compatible fallbacks
+  if (typeof source.path === 'string') {
+    return { type: 'local', value: source.path };
+  }
+  if (typeof source.url === 'string') {
+    return { type: 'remote', value: source.url };
+  }
+
+  return null;
+}
+
+/**
+ * Backward-compatible helper returning only the source URL/path value.
+ *
+ * @param {string|Object} source
+ * @returns {string|null}
  */
 function resolveSourceUrl(source) {
-  if (!source) return null;
-  if (typeof source === 'string') return source;
-  if (typeof source === 'object' && source.url) return source.url;
-  return null;
+  const normalized = resolvePluginSource(source);
+  return normalized ? normalized.value : null;
 }
 
 /**
@@ -313,45 +355,72 @@ async function fetchPlugin(name, source, version) {
     }
   }
 
+  const parsedSource = parseGitHubSource(source, version, name);
+  const owner = parsedSource.owner;
+  const repo = parsedSource.repo;
+
+  const refCandidates = parsedSource.explicitRef
+    ? [parsedSource.ref]
+    : [parsedSource.ref, version, 'main', 'master'];
+
+  let lastError = null;
+  for (const ref of [...new Set(refCandidates.filter(Boolean))]) {
+    const tarballUrl = `https://api.github.com/repos/${owner}/${repo}/tarball/${ref}`;
+
+    try {
+      console.log(`  Fetching ${name}@${version} from ${owner}/${repo} (${ref})...`);
+
+      // Clean and recreate
+      if (fs.existsSync(pluginDir)) {
+        fs.rmSync(pluginDir, { recursive: true, force: true });
+      }
+      fs.mkdirSync(pluginDir, { recursive: true });
+
+      // Download and extract tarball
+      await downloadAndExtractTarball(tarballUrl, pluginDir);
+
+      // Write version marker
+      fs.writeFileSync(versionFile, version);
+      return pluginDir;
+    } catch (err) {
+      lastError = err;
+      const isNotFound = /HTTP 404/.test(err.message);
+      if (isNotFound && !parsedSource.explicitRef) {
+        continue;
+      }
+      throw err;
+    }
+  }
+
+  throw new Error(
+    `Unable to fetch ${name} from ${owner}/${repo}. Tried refs: ${[...new Set(refCandidates.filter(Boolean))].join(', ')}. Last error: ${lastError ? lastError.message : 'unknown error'}`
+  );
+}
+
+/**
+ * Parse GitHub source URL formats and normalize repo name.
+ *
+ * @param {string} source
+ * @param {string} version
+ * @param {string} [name]
+ * @returns {{owner: string, repo: string, ref: string, explicitRef: boolean}}
+ */
+function parseGitHubSource(source, version, name = 'plugin') {
   // Parse source formats:
   //   "https://github.com/owner/repo" or "https://github.com/owner/repo#ref"
   //   "github:owner/repo" or "github:owner/repo#ref"
-  let owner, repo, ref;
   const urlMatch = source.match(/github\.com\/([^/]+)\/([^/#]+)(?:#(.+))?/);
   const shortMatch = !urlMatch && source.match(/^github:([^/]+)\/([^#]+)(?:#(.+))?$/);
   const match = urlMatch || shortMatch;
   if (!match) {
     throw new Error(`Unsupported source format for ${name}: ${source}`);
   }
-  owner = match[1];
-  repo = match[2].replace(/\.git$/, '');
-  ref = match[3] || `v${version}`;
 
-  console.log(`  Fetching ${name}@${version} from ${owner}/${repo}...`);
-
-  // Clean and recreate
-  if (fs.existsSync(pluginDir)) {
-    fs.rmSync(pluginDir, { recursive: true, force: true });
-  }
-  fs.mkdirSync(pluginDir, { recursive: true });
-
-  // Download and extract tarball, falling back to main branch if version tag 404s
-  const tarballUrl = `https://api.github.com/repos/${owner}/${repo}/tarball/${ref}`;
-  try {
-    await downloadAndExtractTarball(tarballUrl, pluginDir);
-  } catch (err) {
-    if (ref !== 'main' && err.message && err.message.includes('404')) {
-      const mainUrl = `https://api.github.com/repos/${owner}/${repo}/tarball/main`;
-      await downloadAndExtractTarball(mainUrl, pluginDir);
-    } else {
-      throw err;
-    }
-  }
-
-  // Write version marker
-  fs.writeFileSync(versionFile, version);
-
-  return pluginDir;
+  const owner = match[1];
+  const repo = match[2].replace(/\.git$/, '');
+  const explicitRef = Boolean(match[3]);
+  const ref = match[3] || `v${version}`;
+  return { owner, repo, ref, explicitRef };
 }
 
 /**
@@ -470,16 +539,17 @@ async function fetchExternalPlugins(pluginNames, marketplace) {
     const plugin = pluginMap[name];
     if (!plugin) continue;
 
-    // If source is local (starts with ./), plugin is bundled - just use PACKAGE_DIR
-    const sourceUrl = resolveSourceUrl(plugin.source);
-    if (!sourceUrl || sourceUrl.startsWith('./') || sourceUrl.startsWith('../')) {
+    const source = resolvePluginSource(plugin.source);
+
+    // Local/bundled plugin, no external fetch needed
+    if (!source || source.type === 'local') {
       // Bundled plugin, no fetch needed
       fetched.push(name);
       continue;
     }
 
     try {
-      await fetchPlugin(name, sourceUrl, plugin.version);
+      await fetchPlugin(name, source.value, plugin.version);
       fetched.push(name);
     } catch (err) {
       failed.push(name);
@@ -493,6 +563,8 @@ async function fetchExternalPlugins(pluginNames, marketplace) {
       console.error(`\n  [WARN] Missing dependencies: ${missingDeps.join(', ')}`);
       console.error(`  Some plugins may not work correctly without their dependencies.`);
     }
+
+    throw new Error(`Failed to fetch ${failed.length} plugin(s): ${failed.join(', ')}`);
   }
 
   return fetched;
@@ -917,12 +989,15 @@ async function installPlugin(nameWithVersion, args) {
   // Fetch all
   for (const depName of toFetch) {
     const dep = pluginMap[depName];
-    const depSourceUrl = resolveSourceUrl(dep && dep.source);
-    if (!dep || !depSourceUrl || depSourceUrl.startsWith('./')) continue;
+    if (!dep) continue;
+
+    const source = resolvePluginSource(dep.source);
+    if (!source || source.type === 'local') continue;
+
     checkCoreCompat(dep);
     const ver = depName === name && requestedVersion ? requestedVersion : dep.version;
     try {
-      await fetchPlugin(depName, depSourceUrl, ver);
+      await fetchPlugin(depName, source.value, ver);
     } catch (err) {
       console.error(`  [ERROR] Failed to fetch ${depName}: ${err.message}`);
     }
@@ -1931,8 +2006,6 @@ async function main() {
     if (entry) checkCoreCompat(entry);
   }
 
-  await fetchExternalPlugins(pluginNames, marketplace);
-
   // Only copy to ~/.agentsys if OpenCode, Codex, or Cursor selected (they need local files)
   const needsLocalInstall = selected.includes('opencode') || selected.includes('codex') || selected.includes('cursor');
   let installDir = null;
@@ -1943,6 +2016,8 @@ async function main() {
     copyFromPackage(installDir);
     installDependencies(installDir);
   }
+
+  await fetchExternalPlugins(pluginNames, marketplace);
 
   // Install for each platform
   const failedPlatforms = [];
@@ -2023,5 +2098,7 @@ module.exports = {
   loadComponents,
   resolveComponent,
   buildFilterFromComponent,
+  resolvePluginSource,
+  parseGitHubSource,
   installForCursor
 };

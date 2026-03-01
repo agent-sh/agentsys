@@ -20,7 +20,9 @@ const {
   parseInstallTarget,
   loadComponents,
   resolveComponent,
-  buildFilterFromComponent
+  buildFilterFromComponent,
+  resolvePluginSource,
+  parseGitHubSource
 } = require('../bin/cli.js');
 
 describe('CLI subcommand parsing', () => {
@@ -377,5 +379,54 @@ describe('loadMarketplace', () => {
       expect(p.source).toBeTruthy();
       expect(p.version).toBeTruthy();
     }
+  });
+});
+
+describe('resolvePluginSource', () => {
+  test('supports legacy string URL sources', () => {
+    expect(resolvePluginSource('https://github.com/agent-sh/ship.git')).toEqual({
+      type: 'remote',
+      value: 'https://github.com/agent-sh/ship.git'
+    });
+  });
+
+  test('supports structured URL source objects', () => {
+    expect(resolvePluginSource({
+      source: 'url',
+      url: 'https://github.com/agent-sh/ship.git'
+    })).toEqual({
+      type: 'remote',
+      value: 'https://github.com/agent-sh/ship.git'
+    });
+  });
+
+  test('classifies local path sources as local', () => {
+    expect(resolvePluginSource({
+      source: 'path',
+      path: './plugins/ship'
+    })).toEqual({
+      type: 'local',
+      value: './plugins/ship'
+    });
+  });
+});
+
+describe('parseGitHubSource', () => {
+  test('normalizes .git suffix in https URLs', () => {
+    expect(parseGitHubSource('https://github.com/agent-sh/ship.git', '1.0.0')).toEqual({
+      owner: 'agent-sh',
+      repo: 'ship',
+      ref: 'v1.0.0',
+      explicitRef: false
+    });
+  });
+
+  test('preserves explicit refs', () => {
+    expect(parseGitHubSource('https://github.com/agent-sh/ship.git#main', '1.0.0')).toEqual({
+      owner: 'agent-sh',
+      repo: 'ship',
+      ref: 'main',
+      explicitRef: true
+    });
   });
 });
