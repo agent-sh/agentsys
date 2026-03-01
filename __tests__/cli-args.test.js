@@ -6,7 +6,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Import parseArgs directly from cli.js (now exported for testing)
-const { parseArgs, VALID_TOOLS, installForCursor } = require('../bin/cli.js');
+const { parseArgs, VALID_TOOLS, installForCursor, installForKiro } = require('../bin/cli.js');
 
 describe('CLI argument parsing', () => {
   // Save original process.exit and restore after each test
@@ -190,7 +190,7 @@ describe('CLI argument parsing', () => {
 
 describe('VALID_TOOLS constant', () => {
   test('contains expected tools', () => {
-    expect(VALID_TOOLS).toEqual(['claude', 'opencode', 'codex', 'cursor']);
+    expect(VALID_TOOLS).toEqual(['claude', 'opencode', 'codex', 'cursor', 'kiro']);
   });
 });
 
@@ -230,6 +230,10 @@ describe('CLI integration', () => {
 
   test('cli.js has installForCursor function', () => {
     expect(cliSource.includes('function installForCursor(')).toBe(true);
+  });
+
+  test('cli.js has installForKiro function', () => {
+    expect(cliSource.includes('function installForKiro(')).toBe(true);
   });
 });
 
@@ -455,6 +459,203 @@ describe('installForCursor', () => {
 
     const commandsDir = path.join(tmpDir, '.cursor', 'commands');
     const files = fs.readdirSync(commandsDir);
+    expect(files.length).toBe(0);
+  });
+});
+
+describe('installForKiro', () => {
+  const os = require('os');
+  let tmpDir;
+  let originalCwd;
+  let originalLog;
+
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'kiro-install-test-'));
+    originalCwd = process.cwd();
+    process.chdir(tmpDir);
+    originalLog = console.log;
+    console.log = jest.fn();
+  });
+
+  afterEach(() => {
+    process.chdir(originalCwd);
+    console.log = originalLog;
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  function setupInstallDir(commands, skills, agents) {
+    const installDir = path.join(tmpDir, 'install');
+    const pluginName = 'test-plugin';
+    const pluginDir = path.join(installDir, 'plugins', pluginName);
+    const pluginJsonDir = path.join(pluginDir, '.claude-plugin');
+    const commandsDir = path.join(pluginDir, 'commands');
+    fs.mkdirSync(pluginJsonDir, { recursive: true });
+    fs.mkdirSync(commandsDir, { recursive: true });
+    fs.writeFileSync(path.join(pluginJsonDir, 'plugin.json'), '{}');
+    for (const [filename, content] of Object.entries(commands || {})) {
+      fs.writeFileSync(path.join(commandsDir, filename), content);
+    }
+    if (skills) {
+      const skillsDir = path.join(pluginDir, 'skills');
+      for (const [skillName, content] of Object.entries(skills)) {
+        const skillDir = path.join(skillsDir, skillName);
+        fs.mkdirSync(skillDir, { recursive: true });
+        fs.writeFileSync(path.join(skillDir, 'SKILL.md'), content);
+      }
+    }
+    if (agents) {
+      const agentsDir = path.join(pluginDir, 'agents');
+      fs.mkdirSync(agentsDir, { recursive: true });
+      for (const [filename, content] of Object.entries(agents)) {
+        fs.writeFileSync(path.join(agentsDir, filename), content);
+      }
+    }
+    return installDir;
+  }
+
+  test('installs skills to .kiro/skills/<name>/SKILL.md', () => {
+    const installDir = setupInstallDir({}, {
+      'my-skill': '---\nname: my-skill\ndescription: A test skill\n---\nSkill body'
+    });
+
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    installForKiro(installDir);
+
+    const skillPath = path.join(tmpDir, '.kiro', 'skills', 'my-skill', 'SKILL.md');
+    expect(fs.existsSync(skillPath)).toBe(true);
+    const content = fs.readFileSync(skillPath, 'utf8');
+    expect(content).toContain('Skill body');
+    expect(content).toContain('name: my-skill');
+  });
+
+  test('installs commands as steering files to .kiro/steering/<name>.md', () => {
+    const installDir = setupInstallDir({
+      'my-cmd.md': '---\ndescription: A test command\n---\n# My Command\nBody content'
+    });
+
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    installForKiro(installDir);
+
+    const steeringDir = path.join(tmpDir, '.kiro', 'steering');
+    const files = fs.readdirSync(steeringDir);
+    expect(files).toContain('my-cmd.md');
+
+    const content = fs.readFileSync(path.join(steeringDir, 'my-cmd.md'), 'utf8');
+    expect(content).toContain('Body content');
+    // Should have inclusion: manual frontmatter
+    expect(content).toContain('inclusion: manual');
+    // Old frontmatter should be stripped and replaced
+    expect(content).not.toMatch(/^---\ndescription: A test command/);
+  });
+
+  test('installs agents as JSON to .kiro/agents/<name>.json', () => {
+    const installDir = setupInstallDir({}, null, {
+      'my-agent.md': '---\nname: my-agent\ndescription: A test agent\ntools: Read, Write, Bash\n---\n# My Agent\nAgent instructions here'
+    });
+
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    installForKiro(installDir);
+
+    const agentPath = path.join(tmpDir, '.kiro', 'agents', 'my-agent.json');
+    expect(fs.existsSync(agentPath)).toBe(true);
+    const parsed = JSON.parse(fs.readFileSync(agentPath, 'utf8'));
+    expect(parsed.name).toBe('my-agent');
+    expect(parsed.description).toBe('A test agent');
+    expect(parsed.prompt).toContain('Agent instructions here');
+    expect(parsed.tools).toEqual(expect.arrayContaining(['read', 'write', 'shell']));
+    expect(parsed.resources).toEqual(['file://.kiro/steering/**/*.md']);
+  });
+
+  test('cleans up old steering files on reinstall', () => {
+    const steeringDir = path.join(tmpDir, '.kiro', 'steering');
+    fs.mkdirSync(steeringDir, { recursive: true });
+    fs.writeFileSync(path.join(steeringDir, 'user-custom.md'), 'custom');
+
+    const installDir = setupInstallDir({
+      'new-cmd.md': '---\ndescription: New\n---\nNew body'
+    });
+
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    installForKiro(installDir);
+
+    // User files preserved
+    expect(fs.existsSync(path.join(steeringDir, 'user-custom.md'))).toBe(true);
+    // New file installed
+    expect(fs.existsSync(path.join(steeringDir, 'new-cmd.md'))).toBe(true);
+  });
+
+  test('applies command filter', () => {
+    const installDir = setupInstallDir({
+      'allowed-cmd.md': '---\ndescription: Allowed\n---\nAllowed body',
+      'blocked-cmd.md': '---\ndescription: Blocked\n---\nBlocked body'
+    });
+
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    installForKiro(installDir, { filter: { commands: ['allowed-cmd'] } });
+
+    const steeringDir = path.join(tmpDir, '.kiro', 'steering');
+    const files = fs.readdirSync(steeringDir);
+    expect(files).toContain('allowed-cmd.md');
+    expect(files).not.toContain('blocked-cmd.md');
+  });
+
+  test('applies skill filter', () => {
+    const installDir = setupInstallDir({}, {
+      'allowed-skill': '---\nname: allowed\n---\nAllowed',
+      'blocked-skill': '---\nname: blocked\n---\nBlocked'
+    });
+
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    installForKiro(installDir, { filter: { skills: ['allowed-skill'] } });
+
+    const skillsDir = path.join(tmpDir, '.kiro', 'skills');
+    expect(fs.existsSync(path.join(skillsDir, 'allowed-skill', 'SKILL.md'))).toBe(true);
+    expect(fs.existsSync(path.join(skillsDir, 'blocked-skill'))).toBe(false);
+  });
+
+  test('replaces PLUGIN_ROOT in skills during install', () => {
+    const installDir = setupInstallDir({}, {
+      'root-skill': '---\nname: root-skill\ndescription: Test\n---\nLoad from ${CLAUDE_PLUGIN_ROOT}/lib/helper.js'
+    });
+
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    installForKiro(installDir);
+
+    const skillPath = path.join(tmpDir, '.kiro', 'skills', 'root-skill', 'SKILL.md');
+    const content = fs.readFileSync(skillPath, 'utf8');
+    expect(content).not.toContain('${CLAUDE_PLUGIN_ROOT}');
+    expect(content).toContain(path.join(installDir, 'plugins', 'test-plugin'));
+  });
+
+  test('does not throw when source command file is missing', () => {
+    const installDir = setupInstallDir({
+      'ghost-cmd.md': '---\ndescription: Ghost\n---\nBody'
+    });
+
+    const discovery = require('../lib/discovery');
+    discovery.invalidateCache();
+
+    // Remove source file after discovery
+    fs.unlinkSync(path.join(installDir, 'plugins', 'test-plugin', 'commands', 'ghost-cmd.md'));
+
+    expect(() => installForKiro(installDir)).not.toThrow();
+
+    const steeringDir = path.join(tmpDir, '.kiro', 'steering');
+    const files = fs.readdirSync(steeringDir);
     expect(files.length).toBe(0);
   });
 });

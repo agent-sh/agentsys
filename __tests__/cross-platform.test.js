@@ -94,10 +94,11 @@ describe('cross-platform', () => {
       expect(PLATFORMS.OPENCODE).toBe('opencode');
       expect(PLATFORMS.CODEX_CLI).toBe('codex-cli');
       expect(PLATFORMS.CURSOR).toBe('cursor');
+      expect(PLATFORMS.KIRO).toBe('kiro');
     });
 
-    it('should have exactly 4 platforms', () => {
-      expect(Object.keys(PLATFORMS)).toHaveLength(4);
+    it('should have exactly 5 platforms', () => {
+      expect(Object.keys(PLATFORMS)).toHaveLength(5);
     });
   });
 
@@ -107,6 +108,7 @@ describe('cross-platform', () => {
       expect(STATE_DIRS[PLATFORMS.OPENCODE]).toBe('.opencode');
       expect(STATE_DIRS[PLATFORMS.CODEX_CLI]).toBe('.codex');
       expect(STATE_DIRS[PLATFORMS.CURSOR]).toBe('.cursor');
+      expect(STATE_DIRS[PLATFORMS.KIRO]).toBe('.kiro');
     });
 
     it('should have a state dir for each platform', () => {
@@ -159,6 +161,11 @@ describe('cross-platform', () => {
     it('should detect Cursor when AI_STATE_DIR is .cursor', () => {
       process.env.AI_STATE_DIR = '.cursor';
       expect(detectPlatform()).toBe(PLATFORMS.CURSOR);
+    });
+
+    it('should detect Kiro when AI_STATE_DIR is .kiro', () => {
+      process.env.AI_STATE_DIR = '.kiro';
+      expect(detectPlatform()).toBe(PLATFORMS.KIRO);
     });
 
     it('should default to Claude Code for unknown AI_STATE_DIR values', () => {
@@ -778,6 +785,10 @@ describe('cross-platform', () => {
 
     it('should define instruction files for Cursor', () => {
       expect(INSTRUCTION_FILES[PLATFORMS.CURSOR]).toEqual(['.cursor/rules/*.mdc']);
+    });
+
+    it('should define instruction files for Kiro', () => {
+      expect(INSTRUCTION_FILES[PLATFORMS.KIRO]).toEqual(['AGENTS.md', '.kiro/steering/*.md']);
     });
   });
 

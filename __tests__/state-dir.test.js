@@ -88,6 +88,12 @@ describe('state-dir', () => {
       expect(getStateDir(base)).toBe('.codex');
     });
 
+    test('detects .kiro directory', () => {
+      const base = makeTempDir('state-dir-kiro-');
+      fs.mkdirSync(path.join(base, '.kiro'));
+      expect(getStateDir(base)).toBe('.kiro');
+    });
+
     test('defaults to .claude when only .claude directory exists', () => {
       const base = makeTempDir('state-dir-claude-');
       fs.mkdirSync(path.join(base, '.claude'));
@@ -139,6 +145,20 @@ describe('state-dir', () => {
       fs.mkdirSync(path.join(base, '.codex'));
       fs.mkdirSync(path.join(base, '.claude'));
       expect(getStateDir(base)).toBe('.codex');
+    });
+
+    test('.codex takes priority over .kiro', () => {
+      const base = makeTempDir('state-dir-priority-ck-');
+      fs.mkdirSync(path.join(base, '.codex'));
+      fs.mkdirSync(path.join(base, '.kiro'));
+      expect(getStateDir(base)).toBe('.codex');
+    });
+
+    test('.kiro takes priority over .claude', () => {
+      const base = makeTempDir('state-dir-priority-kc-');
+      fs.mkdirSync(path.join(base, '.kiro'));
+      fs.mkdirSync(path.join(base, '.claude'));
+      expect(getStateDir(base)).toBe('.kiro');
     });
 
     test('all three exist: .opencode wins', () => {
@@ -194,6 +214,12 @@ describe('state-dir', () => {
       expect(getPlatformName(base)).toBe('codex');
     });
 
+    test('returns kiro for .kiro directory', () => {
+      const base = makeTempDir('platform-kiro-');
+      fs.mkdirSync(path.join(base, '.kiro'));
+      expect(getPlatformName(base)).toBe('kiro');
+    });
+
     test('returns claude as default', () => {
       const base = makeTempDir('platform-claude-');
       expect(getPlatformName(base)).toBe('claude');
@@ -217,6 +243,12 @@ describe('state-dir', () => {
     test('ignores .codex if it is a file, not directory', () => {
       const base = makeTempDir('state-dir-file-codex-');
       fs.writeFileSync(path.join(base, '.codex'), 'not a directory');
+      expect(getStateDir(base)).toBe('.claude');
+    });
+
+    test('ignores .kiro if it is a file, not directory', () => {
+      const base = makeTempDir('state-dir-file-kiro-');
+      fs.writeFileSync(path.join(base, '.kiro'), 'not a directory');
       expect(getStateDir(base)).toBe('.claude');
     });
   });
