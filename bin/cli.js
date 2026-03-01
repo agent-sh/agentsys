@@ -786,10 +786,13 @@ function loadComponents(pluginDir) {
   if (fs.existsSync(componentsPath)) {
     try {
       const data = JSON.parse(fs.readFileSync(componentsPath, 'utf8'));
+      const normalize = (arr) => (arr || []).map(item =>
+        typeof item === 'string' ? { name: item } : item
+      );
       return {
-        agents: data.agents || [],
-        skills: data.skills || [],
-        commands: data.commands || []
+        agents: normalize(data.agents),
+        skills: normalize(data.skills),
+        commands: normalize(data.commands)
       };
     } catch {
       // Fall through to filesystem scan
