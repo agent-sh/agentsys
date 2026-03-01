@@ -599,13 +599,45 @@ describe('Kiro transforms', () => {
       expect(result).toContain('# Command');
     });
 
-    test('strips Task() calls and replaces with agent reference', () => {
-      const input = 'await Task({ subagent_type: "next-task:exploration-agent", prompt: "explore" });';
+    test('transforms Task() calls into subagent delegation with prompt', () => {
+      const input = 'await Task({ subagent_type: "next-task:exploration-agent", prompt: "explore the codebase" });';
       const result = transforms.transformCommandForKiro(input, {
         pluginInstallPath: '/tmp', name: 'test', description: 'test'
       });
-      expect(result).toContain('Invoke the exploration-agent agent');
+      expect(result).toContain('Delegate to the `exploration-agent` subagent:');
+      expect(result).toContain('> explore the codebase');
       expect(result).not.toContain('Task(');
+    });
+
+    test('transforms Task() calls without prompt into simple delegation', () => {
+      const input = 'await Task({ subagent_type: "deslop:deslop-agent" });';
+      const result = transforms.transformCommandForKiro(input, {
+        pluginInstallPath: '/tmp', name: 'test', description: 'test'
+      });
+      expect(result).toContain('Delegate to the `deslop-agent` subagent.');
+      expect(result).not.toContain('Task(');
+    });
+
+    test('transforms AskUserQuestion into markdown prompt', () => {
+      const input = `AskUserQuestion({ questions: [{ question: "Which task?", header: "Task", options: [{ label: "Bug fix", description: "Fix the auth issue" }, { label: "Feature", description: "Add dark mode" }] }] });`;
+      const result = transforms.transformCommandForKiro(input, {
+        pluginInstallPath: '/tmp', name: 'test', description: 'test'
+      });
+      expect(result).toContain('**Which task?**');
+      expect(result).toContain('1. **Bug fix** - Fix the auth issue');
+      expect(result).toContain('2. **Feature** - Add dark mode');
+      expect(result).toContain('Reply with the number or name of your choice.');
+      expect(result).not.toContain('AskUserQuestion');
+    });
+
+    test('transforms AskUserQuestion without parseable options into simple prompt', () => {
+      const input = 'await AskUserQuestion({ questions: [{ question: "What next?" }] });';
+      const result = transforms.transformCommandForKiro(input, {
+        pluginInstallPath: '/tmp', name: 'test', description: 'test'
+      });
+      expect(result).toContain('**What next?**');
+      expect(result).toContain('Reply in chat with your choice.');
+      expect(result).not.toContain('AskUserQuestion');
     });
 
     test('strips namespace prefixes', () => {
