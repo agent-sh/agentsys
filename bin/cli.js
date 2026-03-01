@@ -22,7 +22,7 @@ const discovery = require('../lib/discovery');
 const transforms = require('../lib/adapter-transforms');
 
 // Valid tool names
-const VALID_TOOLS = ['claude', 'opencode', 'codex', 'cursor'];
+const VALID_TOOLS = ['claude', 'opencode', 'codex', 'cursor', 'kiro'];
 
 function getInstallDir() {
   const home = process.env.HOME || process.env.USERPROFILE;
@@ -949,6 +949,9 @@ function detectInstalledPlatforms() {
   // Cursor rules are project-scoped; detect only if Cursor rules/commands/skills exist in CWD
   const cursorDir = path.join(process.cwd(), '.cursor');
   if (fs.existsSync(path.join(cursorDir, 'rules')) || fs.existsSync(path.join(cursorDir, 'commands')) || fs.existsSync(path.join(cursorDir, 'skills'))) platforms.push('cursor');
+  // Kiro is project-scoped; detect if .kiro/ directory exists in CWD
+  const kiroDir = path.join(process.cwd(), '.kiro');
+  if (fs.existsSync(path.join(kiroDir, 'steering')) || fs.existsSync(path.join(kiroDir, 'skills')) || fs.existsSync(path.join(kiroDir, 'agents'))) platforms.push('kiro');
   return platforms;
 }
 
@@ -1045,7 +1048,7 @@ async function installPlugin(nameWithVersion, args) {
 
   // Use cache as install source
   const installDir = getInstallDir();
-  const needsLocal = platforms.includes('opencode') || platforms.includes('codex') || platforms.includes('cursor');
+  const needsLocal = platforms.includes('opencode') || platforms.includes('codex') || platforms.includes('cursor') || platforms.includes('kiro');
   if (needsLocal && !fs.existsSync(path.join(installDir, 'lib'))) {
     // Need local install for transforms
     cleanOldInstallation(installDir);
@@ -1081,6 +1084,9 @@ async function installPlugin(nameWithVersion, args) {
   }
   if (platforms.includes('cursor') && installDir) {
     installForCursor(installDir, { filter });
+  }
+  if (platforms.includes('kiro') && installDir) {
+    installForKiro(installDir, { filter });
   }
 
   // Record in installed.json
@@ -1693,6 +1699,132 @@ function installForCursor(installDir, options = {}) {
   return true;
 }
 
+function installForKiro(installDir, options = {}) {
+  console.log('\n[INSTALL] Installing for Kiro...\n');
+  const { filter = null } = options;
+  const cwd = process.cwd();
+
+  // Create target directories (all project-scoped)
+  const skillsDir = path.join(cwd, '.kiro', 'skills');
+  const steeringDir = path.join(cwd, '.kiro', 'steering');
+  const agentsDir = path.join(cwd, '.kiro', 'agents');
+  fs.mkdirSync(skillsDir, { recursive: true });
+  fs.mkdirSync(steeringDir, { recursive: true });
+  fs.mkdirSync(agentsDir, { recursive: true });
+
+  // Cleanup old agentsys steering files (only those matching known commands)
+  const steeringMappingsForCleanup = discovery.getKiroSteeringMappings(installDir);
+  const knownSteeringFiles = new Set(steeringMappingsForCleanup.map(([name]) => `${name}.md`));
+  for (const f of fs.readdirSync(steeringDir).filter(f => f.endsWith('.md'))) {
+    if (knownSteeringFiles.has(f)) {
+      fs.unlinkSync(path.join(steeringDir, f));
+    }
+  }
+
+  // Collect known skill names from discovery before cleanup
+  const pluginDirs = discovery.discoverPlugins(installDir);
+  const knownSkillNames = new Set();
+  for (const pluginName of pluginDirs) {
+    const srcSkillsDir = path.join(installDir, 'plugins', pluginName, 'skills');
+    if (!fs.existsSync(srcSkillsDir)) continue;
+    for (const d of fs.readdirSync(srcSkillsDir, { withFileTypes: true })) {
+      if (d.isDirectory() && /^[a-zA-Z0-9_-]+$/.test(d.name)) knownSkillNames.add(d.name);
+    }
+  }
+
+  // Cleanup old agentsys skill dirs (only known names, preserve user-created skills)
+  for (const entry of fs.readdirSync(skillsDir, { withFileTypes: true })) {
+    if (entry.isDirectory() && knownSkillNames.has(entry.name)) {
+      fs.rmSync(path.join(skillsDir, entry.name), { recursive: true, force: true });
+    }
+  }
+
+  // Cleanup old agentsys agent JSON files (only those matching known agents)
+  const knownAgentFiles = new Set();
+  for (const pluginName of pluginDirs) {
+    const srcAgentsDir = path.join(installDir, 'plugins', pluginName, 'agents');
+    if (!fs.existsSync(srcAgentsDir)) continue;
+    for (const f of fs.readdirSync(srcAgentsDir).filter(f => f.endsWith('.md'))) {
+      knownAgentFiles.add(f.replace(/\.md$/, '.json'));
+    }
+  }
+  for (const f of fs.readdirSync(agentsDir).filter(f => f.endsWith('.json'))) {
+    if (knownAgentFiles.has(f)) {
+      fs.unlinkSync(path.join(agentsDir, f));
+    }
+  }
+
+  // Install skills
+  let skillCount = 0;
+  for (const pluginName of pluginDirs) {
+    const srcSkillsDir = path.join(installDir, 'plugins', pluginName, 'skills');
+    if (!fs.existsSync(srcSkillsDir)) continue;
+    const entries = fs.readdirSync(srcSkillsDir, { withFileTypes: true }).filter(d => d.isDirectory());
+    for (const entry of entries) {
+      if (!/^[a-zA-Z0-9_-]+$/.test(entry.name)) continue;
+      if (filter && filter.skills && filter.skills.length > 0 && !filter.skills.includes(entry.name)) continue;
+      const srcPath = path.join(srcSkillsDir, entry.name, 'SKILL.md');
+      if (!fs.existsSync(srcPath)) continue;
+      const destDir = path.join(skillsDir, entry.name);
+      fs.mkdirSync(destDir, { recursive: true });
+      let content = fs.readFileSync(srcPath, 'utf8');
+      content = transforms.transformSkillForKiro(content, {
+        pluginInstallPath: path.join(installDir, 'plugins', pluginName)
+      });
+      fs.writeFileSync(path.join(destDir, 'SKILL.md'), content);
+      skillCount++;
+    }
+  }
+
+  // Install commands as steering files
+  const steeringMappings = discovery.getKiroSteeringMappings(installDir);
+  let steeringCount = 0;
+  for (const [steeringName, plugin, sourceFile, description] of steeringMappings) {
+    if (filter && filter.commands && filter.commands.length > 0) {
+      if (!filter.commands.includes(steeringName)) continue;
+    }
+    const srcPath = path.join(installDir, 'plugins', plugin, 'commands', sourceFile);
+    if (!fs.existsSync(srcPath)) {
+      console.log(`  [WARN] Source file not found: ${srcPath}`);
+      continue;
+    }
+    let content = fs.readFileSync(srcPath, 'utf8');
+    content = transforms.transformCommandForKiro(content, {
+      pluginInstallPath: path.join(installDir, 'plugins', plugin),
+      name: steeringName,
+      description
+    });
+    fs.writeFileSync(path.join(steeringDir, `${steeringName}.md`), content);
+    steeringCount++;
+  }
+
+  // Install agents as JSON files
+  let agentCount = 0;
+  for (const pluginName of pluginDirs) {
+    const srcAgentsDir = path.join(installDir, 'plugins', pluginName, 'agents');
+    if (!fs.existsSync(srcAgentsDir)) continue;
+    const agentFiles = fs.readdirSync(srcAgentsDir).filter(f => f.endsWith('.md'));
+    for (const agentFile of agentFiles) {
+      const agentName = agentFile.replace(/\.md$/, '');
+      if (filter && filter.agents && filter.agents.length > 0 && !filter.agents.includes(agentName)) continue;
+      const srcPath = path.join(srcAgentsDir, agentFile);
+      let content = fs.readFileSync(srcPath, 'utf8');
+      const jsonContent = transforms.transformAgentForKiro(content, {
+        pluginInstallPath: path.join(installDir, 'plugins', pluginName)
+      });
+      fs.writeFileSync(path.join(agentsDir, `${agentName}.json`), jsonContent);
+      agentCount++;
+    }
+  }
+
+  console.log(`\n[OK] Kiro installation complete!`);
+  console.log(`   Skills: ${skillCount} installed to ${skillsDir}`);
+  console.log(`   Steering: ${steeringCount} installed to ${steeringDir}`);
+  console.log(`   Agents: ${agentCount} installed to ${agentsDir}`);
+  console.log('   All content is project-scoped under .kiro/.\n');
+  return true;
+}
+
 function removeInstallation() {
   const installDir = getInstallDir();
 
@@ -1710,6 +1842,7 @@ function removeInstallation() {
   console.log('  - OpenCode: Remove files under ~/.config/opencode/ (commands/*.md, agents/*.md, skills/*/SKILL.md) and ~/.config/opencode/plugins/agentsys.ts');
   console.log('  - Codex: Remove ~/.codex/skills/*/');
   console.log('  - Cursor: Remove .cursor/skills/, .cursor/commands/, and .cursor/rules/agentsys-*.mdc from your project');
+  console.log('  - Kiro: Remove .kiro/skills/, .kiro/steering/, and .kiro/agents/ from your project');
 }
 
 function printSubcommandHelp(subcommand) {
@@ -1730,7 +1863,7 @@ Examples:
   agentsys install perf@1.2.0            Install perf at version 1.2.0
 
 Options:
-  --tool <name>     Install for a specific platform (claude, opencode, codex, cursor)
+  --tool <name>     Install for a specific platform (claude, opencode, codex, cursor, kiro)
   --tools <list>    Install for multiple platforms (comma-separated)
 
 Notes:
@@ -1824,7 +1957,7 @@ agentsys v${VERSION} - Workflow automation for AI coding assistants
 
 Usage:
   agentsys                    Interactive installer (select platforms)
-  agentsys --tool <name>      Install for single tool (claude, opencode, codex, cursor)
+  agentsys --tool <name>      Install for single tool (claude, opencode, codex, cursor, kiro)
   agentsys --tools <list>     Install for multiple tools (comma-separated)
   agentsys --only <plugins>   Install only specified plugins (comma-separated, resolves deps)
   agentsys --development      Development mode: install to ~/.claude/plugins
@@ -1851,7 +1984,7 @@ Non-Interactive Examples:
   agentsys --tool claude              # Install for Claude Code only
   agentsys --tool opencode            # Install for OpenCode only
   agentsys --tools "claude,opencode"  # Install for both
-  agentsys --tools claude,opencode,codex,cursor  # Install for all
+  agentsys --tools claude,opencode,codex,cursor,kiro  # Install for all
   agentsys --only next-task           # Install next-task + its dependencies
   agentsys --only "next-task,perf"    # Install specific plugins + deps
 
@@ -1871,7 +2004,8 @@ Supported Platforms:
   claude   - Claude Code (marketplace install or development mode)
   opencode - OpenCode (local commands + native plugin)
   codex    - Codex CLI (local skills)
-  cursor   - Cursor (project-scoped .mdc rules)
+  cursor   - Cursor (project-scoped skills + commands)
+  kiro     - Kiro (project-scoped steering + skills + agents)
 
 Install:  npm install -g agentsys && agentsys
 Update:   npm update -g agentsys && agentsys
@@ -1977,7 +2111,8 @@ async function main() {
       { value: 'claude', label: 'Claude Code' },
       { value: 'opencode', label: 'OpenCode' },
       { value: 'codex', label: 'Codex CLI' },
-      { value: 'cursor', label: 'Cursor' }
+      { value: 'cursor', label: 'Cursor' },
+      { value: 'kiro', label: 'Kiro' }
     ];
 
     selected = await multiSelect(
@@ -2007,7 +2142,7 @@ async function main() {
   }
 
   // Only copy to ~/.agentsys if OpenCode, Codex, or Cursor selected (they need local files)
-  const needsLocalInstall = selected.includes('opencode') || selected.includes('codex') || selected.includes('cursor');
+  const needsLocalInstall = selected.includes('opencode') || selected.includes('codex') || selected.includes('cursor') || selected.includes('kiro');
   let installDir = null;
 
   if (needsLocalInstall) {
@@ -2045,6 +2180,11 @@ async function main() {
       case 'cursor':
         if (!installForCursor(installDir)) {
           failedPlatforms.push('cursor');
+        }
+        break;
+      case 'kiro':
+        if (!installForKiro(installDir)) {
+          failedPlatforms.push('kiro');
         }
         break;
     }
@@ -2100,5 +2240,6 @@ module.exports = {
   buildFilterFromComponent,
   resolvePluginSource,
   parseGitHubSource,
-  installForCursor
+  installForCursor,
+  installForKiro
 };
