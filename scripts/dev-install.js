@@ -194,6 +194,62 @@ function cleanAll() {
     }
   }
 
+  // Clean Kiro (project-scoped in CWD)
+  const cwd = process.cwd();
+  const kiroDir = path.join(cwd, '.kiro');
+  if (fs.existsSync(kiroDir)) {
+    const knownSteeringNames = new Set(discovery.getKiroSteeringMappings(SOURCE_DIR).map(([name]) => `${name}.md`));
+    const kiroSteeringDir = path.join(kiroDir, 'steering');
+    if (fs.existsSync(kiroSteeringDir)) {
+      let removedCount = 0;
+      for (const f of fs.readdirSync(kiroSteeringDir).filter(f => f.endsWith('.md'))) {
+        if (knownSteeringNames.has(f)) {
+          fs.unlinkSync(path.join(kiroSteeringDir, f));
+          removedCount++;
+        }
+      }
+      if (removedCount > 0) log(`  Removed ${removedCount} Kiro steering files`);
+    }
+    const kiroAgentsDir = path.join(kiroDir, 'agents');
+    if (fs.existsSync(kiroAgentsDir)) {
+      const knownAgentFiles = new Set();
+      for (const plugin of PLUGINS) {
+        const srcAgentsDir = path.join(SOURCE_DIR, 'plugins', plugin, 'agents');
+        if (!fs.existsSync(srcAgentsDir)) continue;
+        for (const f of fs.readdirSync(srcAgentsDir).filter(f => f.endsWith('.md'))) {
+          knownAgentFiles.add(f.replace(/\.md$/, '.json'));
+        }
+      }
+      let removedCount = 0;
+      for (const f of fs.readdirSync(kiroAgentsDir).filter(f => f.endsWith('.json'))) {
+        if (knownAgentFiles.has(f)) {
+          fs.unlinkSync(path.join(kiroAgentsDir, f));
+          removedCount++;
+        }
+      }
+      if (removedCount > 0) log(`  Removed ${removedCount} Kiro agent files`);
+    }
+    const kiroSkillsDir = path.join(kiroDir, 'skills');
+    if (fs.existsSync(kiroSkillsDir)) {
+      const knownSkillNames = new Set();
+      for (const plugin of PLUGINS) {
+        const srcSkillsDir = path.join(SOURCE_DIR, 'plugins', plugin, 'skills');
+        if (!fs.existsSync(srcSkillsDir)) continue;
+        for (const d of fs.readdirSync(srcSkillsDir, { withFileTypes: true })) {
+          if (d.isDirectory()) knownSkillNames.add(d.name);
+        }
+      }
+      let removedCount = 0;
+      for (const entry of fs.readdirSync(kiroSkillsDir, { withFileTypes: true })) {
+        if (entry.isDirectory() && knownSkillNames.has(entry.name)) {
+          fs.rmSync(path.join(kiroSkillsDir, entry.name), { recursive: true, force: true });
+          removedCount++;
+        }
+      }
+      if (removedCount > 0) log(`  Removed ${removedCount} Kiro skill dirs`);
+    }
+  }
+
   // Clean ~/.agentsys
   if (fs.existsSync(AGENTSYS_DIR)) {
     fs.rmSync(AGENTSYS_DIR, { recursive: true, force: true });
@@ -417,6 +473,83 @@ function installCodex() {
   return true;
 }
 
+function installKiro() {
+  log('Installing for Kiro...');
+
+  const cwd = process.cwd();
+  const skillsDir = path.join(cwd, '.kiro', 'skills');
+  const steeringDir = path.join(cwd, '.kiro', 'steering');
+  const agentsDir = path.join(cwd, '.kiro', 'agents');
+
+  fs.mkdirSync(skillsDir, { recursive: true });
+  fs.mkdirSync(steeringDir, { recursive: true });
+  fs.mkdirSync(agentsDir, { recursive: true });
+
+  // Copy to ~/.agentsys first (Kiro needs local files for transforms)
+  copyToAgentSys();
+
+  // Install skills
+  let skillCount = 0;
+  for (const plugin of PLUGINS) {
+    const srcSkillsDir = path.join(SOURCE_DIR, 'plugins', plugin, 'skills');
+    if (!fs.existsSync(srcSkillsDir)) continue;
+    const entries = fs.readdirSync(srcSkillsDir, { withFileTypes: true }).filter(d => d.isDirectory());
+    for (const entry of entries) {
+      if (!/^[a-zA-Z0-9_-]+$/.test(entry.name)) continue;
+      const srcPath = path.join(srcSkillsDir, entry.name, 'SKILL.md');
+      if (!fs.existsSync(srcPath)) continue;
+      const destDir = path.join(skillsDir, entry.name);
+      fs.mkdirSync(destDir, { recursive: true });
+      let content = fs.readFileSync(srcPath, 'utf8');
+      content = transforms.transformSkillForKiro(content, {
+        pluginInstallPath: path.join(AGENTSYS_DIR, 'plugins', plugin)
+      });
+      fs.writeFileSync(path.join(destDir, 'SKILL.md'), content);
+      skillCount++;
+    }
+  }
+  log(`  [OK] ${skillCount} skills`);
+
+  // Install commands as steering files
+  const steeringMappings = discovery.getKiroSteeringMappings(SOURCE_DIR);
+  let steeringCount = 0;
+  for (const [steeringName, plugin, sourceFile, description] of steeringMappings) {
+    const srcPath = path.join(SOURCE_DIR, 'plugins', plugin, 'commands', sourceFile);
+    if (!fs.existsSync(srcPath)) continue;
+    let content = fs.readFileSync(srcPath, 'utf8');
+    content = transforms.transformCommandForKiro(content, {
+      pluginInstallPath: path.join(AGENTSYS_DIR, 'plugins', plugin),
+      name: steeringName,
+      description
+    });
+    fs.writeFileSync(path.join(steeringDir, `${steeringName}.md`), content);
+    steeringCount++;
+  }
+  log(`  [OK] ${steeringCount} steering files`);
+
+  // Install agents as JSON
+  let agentCount = 0;
+  for (const plugin of PLUGINS) {
+    const srcAgentsDir = path.join(SOURCE_DIR, 'plugins', plugin, 'agents');
+    if (!fs.existsSync(srcAgentsDir)) continue;
+    const agentFiles = fs.readdirSync(srcAgentsDir).filter(f => f.endsWith('.md'));
+    for (const agentFile of agentFiles) {
+      const agentName = agentFile.replace(/\.md$/, '');
+      const srcPath = path.join(srcAgentsDir, agentFile);
+      let content = fs.readFileSync(srcPath, 'utf8');
+      const jsonContent = transforms.transformAgentForKiro(content, {
+        pluginInstallPath: path.join(AGENTSYS_DIR, 'plugins', plugin)
+      });
+      fs.writeFileSync(path.join(agentsDir, `${agentName}.json`), jsonContent);
+      agentCount++;
+    }
+  }
+  log(`  [OK] ${agentCount} agents`);
+
+  log('Kiro installation complete.');
+  return true;
+}
+
 let agentSysCopied = false;
 function copyToAgentSys() {
   if (agentSysCopied) return;
@@ -456,7 +589,7 @@ function main() {
   }
 
   // Determine which tools to install
-  const validTools = ['claude', 'opencode', 'codex'];
+  const validTools = ['claude', 'opencode', 'codex', 'kiro'];
   let tools = args.filter(a => validTools.includes(a.toLowerCase())).map(a => a.toLowerCase());
 
   if (tools.length === 0) {
@@ -478,6 +611,9 @@ function main() {
         break;
       case 'codex':
         results.codex = installCodex();
+        break;
+      case 'kiro':
+        results.kiro = installKiro();
         break;
     }
     console.log();

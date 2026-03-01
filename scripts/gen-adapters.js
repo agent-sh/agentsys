@@ -120,6 +120,68 @@ function computeAdapters() {
     process.exit(1);
   }
 
+  // --- Kiro adapters ---
+  const KIRO_PLUGIN_ROOT_PLACEHOLDER = '{{PLUGIN_INSTALL_PATH}}';
+
+  // Kiro steering files (from commands)
+  const kiroSteeringMappings = discovery.getKiroSteeringMappings(ROOT_DIR);
+  for (const [steeringName, plugin, sourceFile, description] of kiroSteeringMappings) {
+    const srcPath = path.join(ROOT_DIR, 'plugins', plugin, 'commands', sourceFile);
+    if (!fs.existsSync(srcPath)) continue;
+
+    let content = fs.readFileSync(srcPath, 'utf8');
+    content = transforms.transformCommandForKiro(content, {
+      pluginInstallPath: KIRO_PLUGIN_ROOT_PLACEHOLDER,
+      name: steeringName,
+      description
+    });
+
+    const relPath = normalizePath(path.join('adapters', 'kiro', 'steering', `${steeringName}.md`));
+    files.set(relPath, content);
+  }
+
+  // Kiro agents (JSON)
+  for (const pluginName of plugins) {
+    const srcAgentsDir = path.join(ROOT_DIR, 'plugins', pluginName, 'agents');
+    if (!fs.existsSync(srcAgentsDir)) continue;
+
+    const agentFiles = fs.readdirSync(srcAgentsDir).filter(f => f.endsWith('.md'));
+    for (const agentFile of agentFiles) {
+      const srcPath = path.join(srcAgentsDir, agentFile);
+      let content = fs.readFileSync(srcPath, 'utf8');
+
+      const jsonContent = transforms.transformAgentForKiro(content, {
+        pluginInstallPath: KIRO_PLUGIN_ROOT_PLACEHOLDER
+      });
+
+      const agentName = agentFile.replace(/\.md$/, '');
+      const relPath = normalizePath(path.join('adapters', 'kiro', 'agents', `${agentName}.json`));
+      files.set(relPath, jsonContent);
+    }
+  }
+
+  // Kiro skills
+  for (const pluginName of plugins) {
+    const srcSkillsDir = path.join(ROOT_DIR, 'plugins', pluginName, 'skills');
+    if (!fs.existsSync(srcSkillsDir)) continue;
+
+    const skillDirs = fs.readdirSync(srcSkillsDir, { withFileTypes: true })
+      .filter(d => d.isDirectory());
+    for (const skillDir of skillDirs) {
+      const skillName = skillDir.name;
+      const srcSkillPath = path.join(srcSkillsDir, skillName, 'SKILL.md');
+      if (!fs.existsSync(srcSkillPath)) continue;
+
+      let content = fs.readFileSync(srcSkillPath, 'utf8');
+      content = transforms.transformSkillForKiro(content, {
+        pluginInstallPath: KIRO_PLUGIN_ROOT_PLACEHOLDER
+      });
+
+      const relPath = normalizePath(path.join('adapters', 'kiro', 'skills', skillName, 'SKILL.md'));
+      files.set(relPath, content);
+    }
+  }
+
   const staleFiles = [];
   for (const [relPath, newContent] of files) {
     const absPath = path.resolve(ROOT_DIR, relPath);
@@ -162,7 +224,7 @@ function findOrphanedAdapters(generatedFiles) {
 
       if (entry.isDirectory()) {
         scanDirectory(absPath, relPath);
-      } else if (entry.isFile() && entry.name.endsWith('.md') && !EXCLUDED_FILES.has(entry.name)) {
+      } else if (entry.isFile() && (entry.name.endsWith('.md') || entry.name.endsWith('.json')) && !EXCLUDED_FILES.has(entry.name)) {
         if (!generatedFiles.has(relPath)) {
           orphans.push(relPath);
         }
@@ -170,8 +232,8 @@ function findOrphanedAdapters(generatedFiles) {
     }
   }
 
-  // Scan opencode/ and codex/ subdirectories
-  for (const subdir of ['opencode', 'codex']) {
+  // Scan opencode/, codex/, and kiro/ subdirectories
+  for (const subdir of ['opencode', 'codex', 'kiro']) {
     const dir = path.join(ADAPTERS_DIR, subdir);
     const relativeBase = normalizePath(path.join('adapters', subdir));
     scanDirectory(dir, relativeBase);
@@ -213,7 +275,7 @@ function main(args) {
   }
 
   if (!dryRun) {
-    console.log(`[OK] Generating adapters: ${files.size} files across OpenCode and Codex`);
+    console.log(`[OK] Generating adapters: ${files.size} files across OpenCode, Codex, and Kiro`);
   }
 
   const changedFiles = [];
