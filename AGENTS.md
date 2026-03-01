@@ -77,7 +77,7 @@
 ```
 lib/          → Shared library (vendored to plugins)
 plugins/      → 0 plugins, 10 agents (0 file-based + 10 role-based), 0 skills
-adapters/     → Platform adapters (opencode-plugin/, opencode/, codex/)
+adapters/     → Platform adapters (opencode-plugin/, opencode/, codex/, kiro/)
 checklists/   → Action checklists (9 files)
 bin/cli.js    → npm CLI installer
 ```
@@ -240,7 +240,7 @@ Cannot skip in /next-task:
 - Use CHANGELOG.md for completion tracking (not summary files)
 - BEFORE starting → Read the relevant checklist (`checklists/*.md`)
 - BEFORE delivering any work, especially releases → Go through that checklist item by item
-- 4 platforms: Claude Code + OpenCode + Codex + Cursor - ALL must work
+- 5 platforms: Claude Code + OpenCode + Codex + Cursor + Kiro - ALL must work
 - Agent/Skill pattern: Agents invoke skills, skills have implementation
 - Create PRs for non-trivial changes
 </end-reminder>

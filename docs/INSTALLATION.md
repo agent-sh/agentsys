@@ -1,6 +1,6 @@
 # Installation Guide
 
-One codebase works across four platforms—Claude Code, OpenCode, Codex CLI, and Cursor. Install once, get the same workflows everywhere. State files adapt automatically to each platform's conventions.
+One codebase works across five platforms - Claude Code, OpenCode, Codex CLI, Cursor, and Kiro. Install once, get the same workflows everywhere. State files adapt automatically to each platform's conventions.
 
 ---
 
@@ -50,7 +50,7 @@ Add the marketplace and install plugins directly in Claude Code:
 
 ## All Platforms (npm Global Install)
 
-Interactive installer for Claude Code, OpenCode, Codex CLI, and Cursor:
+Interactive installer for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro:
 
 ```bash
 npm install -g agentsys@latest
@@ -87,7 +87,7 @@ agentsys --tools claude,opencode,codex
 
 | Flag | Description |
 |------|-------------|
-| `--tool <name>` | Install for single tool (claude, opencode, codex) |
+| `--tool <name>` | Install for single tool (claude, opencode, codex, cursor, kiro) |
 | `--tools <list>` | Install for multiple tools (comma-separated) |
 | `--development`, `--dev` | Development mode: install directly to ~/.claude/plugins |
 | `--no-strip`, `-ns` | Include model specifications (stripped by default) |
@@ -164,6 +164,7 @@ Select your platform when prompted. The installer configures:
 | Claude Code | Marketplace | `.claude/` |
 | OpenCode | `~/.config/opencode/` | `.opencode/` |
 | Codex CLI | `~/.codex/` | `.codex/` |
+| Kiro | `.kiro/` (project-scoped) | `.kiro/` |
 
 > **Note:** Codex uses `$` prefix for skills (e.g., `$next-task` instead of `/next-task`).
 
@@ -344,6 +345,13 @@ gh auth login
 - Uses `$` prefix instead of `/` for commands
 - Skills defined in `~/.codex/skills/`
 - State stored in `.codex/`
+
+### Kiro
+- Project-scoped: installs to `.kiro/` in your project root
+- Commands become steering files in `.kiro/steering/` with `inclusion: manual`
+- Skills use standard SKILL.md format in `.kiro/skills/`
+- Agents converted to JSON in `.kiro/agents/`
+- Reads AGENTS.md and `.kiro/steering/*.md` for instructions
 
 ---
 

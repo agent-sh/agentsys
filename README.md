@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <b>14 plugins · 43 agents · 30 skills (across all repos) · 26k lines of lib code · 3,357 tests · 4 platforms</b><br>
+  <b>14 plugins · 43 agents · 30 skills (across all repos) · 26k lines of lib code · 3,357 tests · 5 platforms</b><br>
   <em>Plugins distributed as standalone repos under <a href="https://github.com/agent-sh">agent-sh</a> org — agentsys is the marketplace &amp; installer</em>
 </p>
 
@@ -30,7 +30,7 @@
 </p>
 
 <p align="center">
-  <b>Built for Claude Code · Codex CLI · OpenCode · Cursor</b>
+  <b>Built for Claude Code · Codex CLI · OpenCode · Cursor · Kiro</b>
 </p>
 
 <p align="center"><em>New skills, agents, and integrations ship constantly. Follow for real-time updates:</em></p>
@@ -51,7 +51,7 @@ An agent orchestration system — 14 plugins, 43 agents, and 30 skills that comp
 
 Each agent has a single responsibility, a specific model assignment, and defined inputs/outputs. Pipelines enforce phase gates so agents can't skip steps. State persists across sessions so work survives interruptions.
 
-The system runs on Claude Code, OpenCode, Codex CLI, and Cursor. Install via the marketplace or the npm installer, and the plugins are fetched automatically from their repos.
+The system runs on Claude Code, OpenCode, Codex CLI, Cursor, and Kiro. Install via the marketplace or the npm installer, and the plugins are fetched automatically from their repos.
 
 ---
 
@@ -916,12 +916,13 @@ Every command works standalone. [`/deslop`](#deslop) cleans code without needing
 npm install -g agentsys && agentsys
 ```
 
-Interactive installer for Claude Code, OpenCode, Codex CLI, and Cursor.
+Interactive installer for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.
 
 ```bash
 # Non-interactive install
 agentsys --tool claude              # Single tool
 agentsys --tool cursor              # Cursor (project-scoped skills + commands)
+agentsys --tool kiro                # Kiro (project-scoped steering + skills + agents)
 agentsys --tools "claude,opencode"  # Multiple tools
 agentsys --development              # Dev mode (bypasses marketplace)
 ```
@@ -972,7 +973,7 @@ The system is built on research, not guesswork.
 - 1,818 tests passing
 - Drift-detect validated on 1,000+ repositories
 - E2E workflow testing across all commands
-- Cross-platform validation (Claude Code, OpenCode, Codex CLI, Cursor)
+- Cross-platform validation (Claude Code, OpenCode, Codex CLI, Cursor, Kiro)
 
 **Methodology:**
 - `/perf` investigation phases based on recorded real performance investigation sessions

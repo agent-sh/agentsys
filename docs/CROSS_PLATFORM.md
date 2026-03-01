@@ -24,12 +24,14 @@ Build tools once, run everywhere. The core workflows are the same regardless of 
 | Claude Code | Native plugins | `/` (slash) | [OK] Full support |
 | OpenCode | Plugins + agent configs | `/` (slash) | [OK] Supported |
 | Codex CLI | Skills | `$` (dollar) | [OK] Supported |
+| Cursor | Skills + commands | N/A | [OK] Supported |
+| Kiro | Steering + skills + agents | N/A | [OK] Supported |
 
 > **Note:** Codex CLI uses `$` prefix for skills (e.g., `$next-task`, `$ship`) instead of `/` slash commands.
 
 ## Common Architecture
 
-All four platforms share:
+All five platforms share:
 
 1. **Agent/Subagent systems** - Specialized assistants with tool restrictions
 2. **Slash commands** - User-invoked actions
