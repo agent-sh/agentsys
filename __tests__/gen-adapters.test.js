@@ -659,7 +659,7 @@ describe('Kiro transforms', () => {
       const input = '---\nname: test\n---\nPrompt';
       const result = transforms.transformAgentForKiro(input);
       const parsed = JSON.parse(result);
-      expect(parsed.tools).toEqual(['read', 'write', 'shell']);
+      expect(parsed.tools).toEqual(['read']);
     });
 
     test('includes steering resources', () => {
@@ -684,7 +684,7 @@ describe('Kiro transforms', () => {
       const parsed = JSON.parse(result);
       expect(parsed.name).toBe('');
       expect(parsed.prompt).toBe('Just a plain prompt with no frontmatter.');
-      expect(parsed.tools).toEqual(['read', 'write', 'shell']);
+      expect(parsed.tools).toEqual(['read']);
     });
 
     test('strips quoted values from frontmatter', () => {
