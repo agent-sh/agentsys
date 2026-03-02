@@ -1817,10 +1817,36 @@ function installForKiro(installDir, options = {}) {
     }
   }
 
+  // Generate combined reviewer agents for Kiro's 4-agent experimental limit.
+  // These are fallback agents that merge 2 review passes into 1 agent session.
+  const combinedReviewers = [
+    {
+      name: 'reviewer-quality-security',
+      description: 'Combined code quality and security reviewer for Kiro',
+      roles: [
+        { name: 'Code Quality', focus: 'Error handling, maintainability, naming, duplication, dead code, logging quality' },
+        { name: 'Security', focus: 'Auth vulnerabilities, input validation, injection risks, secrets exposure, OWASP top 10' },
+      ]
+    },
+    {
+      name: 'reviewer-perf-test',
+      description: 'Combined performance and test coverage reviewer for Kiro',
+      roles: [
+        { name: 'Performance', focus: 'Hot paths, algorithmic complexity, unnecessary allocations, N+1 queries, caching opportunities' },
+        { name: 'Test Coverage', focus: 'Missing tests, edge cases, assertion quality, test isolation, mock correctness' },
+      ]
+    },
+  ];
+  for (const cr of combinedReviewers) {
+    const json = transforms.generateCombinedReviewerAgent(cr.roles, cr.name, cr.description);
+    fs.writeFileSync(path.join(agentsDir, `${cr.name}.json`), json);
+    agentCount++;
+  }
+
   console.log(`\n[OK] Kiro installation complete!`);
   console.log(`   Skills: ${skillCount} installed to ${skillsDir}`);
   console.log(`   Steering: ${steeringCount} installed to ${steeringDir}`);
-  console.log(`   Agents: ${agentCount} installed to ${agentsDir}`);
+  console.log(`   Agents: ${agentCount} installed to ${agentsDir} (includes 2 combined reviewers)`);
   console.log('   All content is project-scoped under .kiro/.\n');
   return true;
 }

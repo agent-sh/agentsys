@@ -727,6 +727,79 @@ describe('Kiro transforms', () => {
       expect(parsed.description).toBe('single-quoted');
     });
   });
+
+  describe('generateCombinedReviewerAgent', () => {
+    test('generates valid JSON with combined roles', () => {
+      const roles = [
+        { name: 'Code Quality', focus: 'Error handling, naming' },
+        { name: 'Security', focus: 'Injection, auth' },
+      ];
+      const result = transforms.generateCombinedReviewerAgent(roles, 'reviewer-quality-security', 'Combined reviewer');
+      const parsed = JSON.parse(result);
+      expect(parsed.name).toBe('reviewer-quality-security');
+      expect(parsed.description).toBe('Combined reviewer');
+      expect(parsed.prompt).toContain('Code Quality');
+      expect(parsed.prompt).toContain('Security');
+      expect(parsed.prompt).toContain('Error handling, naming');
+      expect(parsed.prompt).toContain('Injection, auth');
+      expect(parsed.tools).toEqual(['read']);
+      expect(parsed.resources).toEqual(['file://.kiro/steering/**/*.md']);
+    });
+
+    test('includes JSON output instruction', () => {
+      const roles = [{ name: 'Test', focus: 'coverage' }];
+      const result = transforms.generateCombinedReviewerAgent(roles, 'test', 'test');
+      const parsed = JSON.parse(result);
+      expect(parsed.prompt).toContain('JSON array');
+      expect(parsed.prompt).toContain('pass');
+      expect(parsed.prompt).toContain('severity');
+    });
+  });
+
+  describe('transformCommandForKiro parallel batching', () => {
+    test('batches 4+ consecutive reviewer delegations', () => {
+      const input = '---\nname: test\n---\nReview phase:\n' +
+        'Delegate to the `code-quality-reviewer` subagent.\n' +
+        'Delegate to the `security-reviewer` subagent.\n' +
+        'Delegate to the `performance-reviewer` subagent.\n' +
+        'Delegate to the `test-coverage-reviewer` subagent.\n' +
+        'Done.';
+      const result = transforms.transformCommandForKiro(input, { pluginInstallPath: '/tmp', name: 'test', description: 'test' });
+      expect(result).toContain('Review phase (Kiro - max 4 agents, fallback to 2 sequential)');
+      expect(result).toContain('reviewer-quality-security');
+      expect(result).toContain('reviewer-perf-test');
+    });
+
+    test('does not batch fewer than 4 delegations', () => {
+      const input = '---\nname: test\n---\n' +
+        'Delegate to the `agent-a` subagent.\n' +
+        'Delegate to the `agent-b` subagent.\n' +
+        'Done.';
+      const result = transforms.transformCommandForKiro(input, { pluginInstallPath: '/tmp', name: 'test', description: 'test' });
+      expect(result).not.toContain('Review phase (Kiro');
+    });
+
+    test('does not batch non-reviewer delegations', () => {
+      const input = '---\nname: test\n---\n' +
+        'Delegate to the `explorer` subagent.\n' +
+        'Delegate to the `planner` subagent.\n' +
+        'Delegate to the `implementer` subagent.\n' +
+        'Delegate to the `deployer` subagent.\n';
+      const result = transforms.transformCommandForKiro(input, { pluginInstallPath: '/tmp', name: 'test', description: 'test' });
+      expect(result).not.toContain('Review phase (Kiro');
+    });
+
+    test('preserves original delegations inside the fallback block', () => {
+      const input = '---\nname: test\n---\n' +
+        'Delegate to the `code-quality` subagent.\n' +
+        'Delegate to the `security` subagent.\n' +
+        'Delegate to the `performance` subagent.\n' +
+        'Delegate to the `test-coverage` subagent.\n';
+      const result = transforms.transformCommandForKiro(input, { pluginInstallPath: '/tmp', name: 'test', description: 'test' });
+      expect(result).toContain('Delegate to the `code-quality` subagent');
+      expect(result).toContain('Delegate to the `security` subagent');
+    });
+  });
 });
 
 // ---------------------------------------------------------------------------
