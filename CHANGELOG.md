@@ -7,6 +7,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.3.5] - 2026-03-02
+
+### Fixed
+
+- **Kiro commands install to ~/.kiro/prompts/** - Commands now install as prompts (invoked with `@name` in kiro-cli) instead of steering files. Legacy `~/.kiro/steering/` auto-cleaned on install.
+- **Cursor installs globally to ~/.cursor/** - Previously project-scoped (`cwd/.cursor/`). Now global like all other platforms.
+- **Agent resources updated** - Kiro agents reference `file://.kiro/prompts/**/*.md`.
+
 ## [5.3.4] - 2026-03-02
 
 ### Fixed
