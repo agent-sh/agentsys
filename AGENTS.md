@@ -77,7 +77,7 @@
 ```
 lib/          → Shared library (vendored to plugins)
 plugins/      → 0 plugins, 10 agents (0 file-based + 10 role-based), 0 skills
-adapters/     → Platform adapters (opencode-plugin/, opencode/, codex/, kiro/)
+adapters/     → Platform adapters (opencode-plugin/, opencode/, codex/)
 checklists/   → Action checklists (9 files)
 bin/cli.js    → npm CLI installer
 ```
