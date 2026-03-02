@@ -1663,7 +1663,7 @@ function installForCursor(installDir, options = {}) {
       const destDir = path.join(skillsDir, entry.name);
       fs.mkdirSync(destDir, { recursive: true });
       let content = fs.readFileSync(srcPath, 'utf8');
-      content = transforms.transformSkillForKiro(content, {
+      content = transforms.transformSkillForCursor(content, {
         pluginInstallPath: path.join(installDir, 'plugins', pluginName)
       });
       fs.writeFileSync(path.join(destDir, 'SKILL.md'), content);

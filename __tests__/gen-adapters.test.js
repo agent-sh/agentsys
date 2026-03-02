@@ -687,7 +687,7 @@ describe('Kiro transforms', () => {
       expect(parsed.tools.filter(t => t === 'read').length).toBe(1);
     });
 
-    test('defaults to read/write/shell when no tools specified', () => {
+    test('defaults to read-only when no tools specified (least privilege)', () => {
       const input = '---\nname: test\n---\nPrompt';
       const result = transforms.transformAgentForKiro(input);
       const parsed = JSON.parse(result);
