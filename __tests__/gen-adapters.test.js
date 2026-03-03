@@ -664,6 +664,26 @@ describe('Kiro transforms', () => {
       });
       expect(result).toContain('Has \\"quotes\\"');
     });
+
+    test('handles bare Task() with template-literal prompt containing ${...} interpolation', () => {
+      const input = 'await Task({ subagent_type: "next-task:explorer", prompt: `Explore ${repoRoot} for issues.` });';
+      const result = transforms.transformCommandForKiro(input, {
+        pluginInstallPath: '/tmp', name: 'test', description: 'test'
+      });
+      expect(result).toContain('Delegate to the `explorer` subagent:');
+      expect(result).toContain('${repoRoot}');
+      expect(result).not.toContain('Task(');
+    });
+
+    test('handles bare Task() with prompt containing literal $ not followed by {', () => {
+      const input = 'await Task({ subagent_type: "cost:cost-agent", prompt: `Estimate cost at $100 per item.` });';
+      const result = transforms.transformCommandForKiro(input, {
+        pluginInstallPath: '/tmp', name: 'test', description: 'test'
+      });
+      expect(result).toContain('Delegate to the `cost-agent` subagent:');
+      expect(result).toContain('$100');
+      expect(result).not.toContain('Task(');
+    });
   });
 
   describe('transformAgentForKiro', () => {
@@ -825,6 +845,31 @@ describe('Kiro transforms', () => {
       expect(result).toContain('Delegate to the `deslop-agent` subagent');
       expect(result).toContain('Delegate to the `test-checker` subagent');
       expect(result).not.toContain('Review phase (Kiro');
+    });
+
+    test('handles template-literal prompts with ${...} interpolations inside code block', () => {
+      const input = '---\nname: test\n---\n```javascript\nconst results = await Promise.all([\n' +
+        "  Task({ subagent_type: 'quality-reviewer', prompt: `Review ${filename} for code quality issues.` }),\n" +
+        "  Task({ subagent_type: 'security-reviewer', prompt: `Check ${filename} for security vulnerabilities.` })\n" +
+        ']);\n```';
+      const result = transforms.transformCommandForKiro(input, { pluginInstallPath: '/tmp', name: 'test', description: 'test' });
+      expect(result).toContain('Delegate to the `quality-reviewer` subagent');
+      expect(result).toContain('Delegate to the `security-reviewer` subagent');
+      expect(result).toContain('${filename}');
+      expect(result).not.toContain('```javascript');
+    });
+
+    test('handles literal $ not followed by { inside fenced code block prompts', () => {
+      const input = '---\nname: test\n---\n```javascript\nconst results = await Promise.all([\n' +
+        "  Task({ subagent_type: 'cost-agent', prompt: `Estimate the cost at $50 per unit.` }),\n" +
+        "  Task({ subagent_type: 'budget-agent', prompt: `Check if budget > $200 is needed.` })\n" +
+        ']);\n```';
+      const result = transforms.transformCommandForKiro(input, { pluginInstallPath: '/tmp', name: 'test', description: 'test' });
+      expect(result).toContain('Delegate to the `cost-agent` subagent');
+      expect(result).toContain('Delegate to the `budget-agent` subagent');
+      expect(result).toContain('$50');
+      expect(result).toContain('$200');
+      expect(result).not.toContain('```javascript');
     });
   });
 });
