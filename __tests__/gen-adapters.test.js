@@ -826,6 +826,17 @@ describe('Kiro transforms', () => {
       expect(result).toContain('Delegate to the `test-checker` subagent');
       expect(result).not.toContain('Review phase (Kiro');
     });
+
+    test('handles prompts containing standalone $ characters (e.g. $100)', () => {
+      const input = '---\nname: test\n---\n```javascript\nconst r = await Promise.all([\n' +
+        "  Task({ subagent_type: 'cost-checker', model: 'sonnet', prompt: `Check that cost is under $100.` }),\n" +
+        "  Task({ subagent_type: 'budget-agent', model: 'sonnet', prompt: `Ensure $BUDGET is not exceeded.` })\n" +
+        ']);\n```';
+      const result = transforms.transformCommandForKiro(input, { pluginInstallPath: '/tmp', name: 'test', description: 'test' });
+      expect(result).toContain('Delegate to the `cost-checker` subagent');
+      expect(result).toContain('cost is under $100');
+      expect(result).toContain('Delegate to the `budget-agent` subagent');
+    });
   });
 });
 
