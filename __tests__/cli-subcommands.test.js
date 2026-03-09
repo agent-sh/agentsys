@@ -366,10 +366,10 @@ describe('granular install recording', () => {
 });
 
 describe('loadMarketplace', () => {
-  test('loads marketplace.json with 14 plugins', () => {
+  test('loads marketplace.json with 15 plugins', () => {
     const marketplace = loadMarketplace();
     expect(marketplace.plugins).toBeDefined();
-    expect(marketplace.plugins.length).toBe(14);
+    expect(marketplace.plugins.length).toBe(15);
   });
 
   test('all plugins have name, source, version', () => {
