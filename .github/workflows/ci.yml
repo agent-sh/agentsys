@@ -33,3 +33,6 @@ jobs:
 
       - name: Validate adapter freshness
         run: node scripts/gen-adapters.js --check
+
+  agnix:
+    uses: agent-sh/.github/.github/workflows/ci-agnix.yml@main

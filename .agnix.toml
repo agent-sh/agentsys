@@ -25,8 +25,7 @@ mcp = true
 imports = true
 cross_platform = false # Intentional - we document all 3 platform paths
 agents_md = true
-copilot = false # Not targeting Copilot
-cursor = false # Not targeting Cursor
+kiro_agents = false # Kiro agent copies reference agentsys subagents not resolvable from .kiro/
 prompt_engineering = true
 generic_instructions = true
 frontmatter_validation = true
@@ -42,6 +41,17 @@ disabled_rules = [
     "PE-001",      # Reference docs have structured layout; middle placement is intentional
     "AS-012",      # enhance-hooks is a comprehensive hook reference (needs >500 lines)
     "CC-SK-009",   # enhance-skills contains example injections for teaching purposes
+    "CDX-AG-002",  # False positive - "tokens" in ecosystem boilerplate is not a secret
+    "CDX-AG-005",  # Codex agent instruction format - AGENTS.md uses agentsys conventions
+    "CC-MEM-005",  # "Be concise" is ecosystem-wide boilerplate
+    "CC-MEM-006",  # Negative instructions (NEVER/Do not) are ecosystem standard critical rules
+    "PE-005",      # Same as CC-MEM-005 for prompt engineering rules
+    "CC-SK-017",   # Intentional - version is a client-specific frontmatter field
+    "CC-SK-012",   # Intentional - argument-hint present for UI display
+    "XML-001",     # False positive - <login-url> is a placeholder in examples
+    "KR-SK-001",   # Kiro skill copies use Claude Code frontmatter fields (version, argument-hint)
+    "CC-HK-008",   # Hook script path resolution differs on Windows (forward slash prefix)
+    "AGM-005",     # Cursor platform examples are reference content in AGENTS.md
 ]
 
 [tool_versions]
