@@ -1,6 +1,6 @@
 {
   "name": "agentsys",
-  "description": "14 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, repo mapping, perf investigations, topic research, agent config linting, cross-tool AI consultation, and structured AI debate",
+  "description": "15 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, repo mapping, perf investigations, topic research, agent config linting, cross-tool AI consultation, structured AI debate, and workflow pattern learning",
   "version": "5.3.7",
   "owner": {
     "name": "Avi Fenesh",
@@ -175,6 +175,17 @@
       "version": "1.0.0",
       "category": "automation",
       "homepage": "https://github.com/agent-sh/web-ctl"
+    },
+    {
+      "name": "skillers",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/agent-sh/skillers.git"
+      },
+      "description": "Learn from workflow patterns across sessions and suggest skills, hooks, and agents to automate repetitive work",
+      "version": "1.0.0",
+      "category": "productivity",
+      "homepage": "https://github.com/agent-sh/skillers"
     }
   ]
 }
