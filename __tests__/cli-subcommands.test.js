@@ -107,7 +107,7 @@ describe('searchPlugins', () => {
     const output = logOutput.join('\n');
     expect(output).toContain('next-task');
     expect(output).toContain('deslop');
-    expect(output).toContain('14 plugin(s) found');
+    expect(output).toContain('15 plugin(s) found');
   });
 
   test('filters by name', () => {
