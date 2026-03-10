@@ -7,6 +7,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.4.1] - 2026-03-10
+
+### Added
+
+- **Project base branch** (`--base=BRANCH`) - `/next-task` now supports configuring a project-level base branch for batch workflows. All downstream operations (worktrees, diffs, PRs) use the configured branch instead of main.
+- **Free-text preference caching** - When users select "Other" for any policy decision and type a custom response, it gets cached and offered as an option next time. Auto-removed after 3 skips.
+- **Gate 0 hook** - SubagentStop hook blocks Phase 2 unless policy decisions are persisted to preference cache.
+- **Multi-tool transcript support** - `/skillers compact` now reads from Claude Code, Codex CLI, and OpenCode (was Claude Code only).
+
+### Fixed
+
+- **ship target branch validation** - `/ship` now reads `baseBranch` from flow state and validates non-default targets with user confirmation.
+- **Quality sweep** - Removed 95 lines of prose slop and duplication across ship and skillers.
+- **Pre-push hooks** - Fixed for repos without `npm test` script (falls back to JS syntax check).
+- **Cached source null check** - `getPolicyQuestions` no longer crashes when preference file has freeText but no source.
+
 ## [5.4.0] - 2026-03-10
 
 ### Added
