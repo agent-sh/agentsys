@@ -60,12 +60,12 @@ npm run validate  # All validators
 <project-memory>
 
 <agents>
-43 agents across 14 plugins. Key agents by model:
+35 agents across 15 plugins. Key agents by model:
 
 | Model | Agents | Use Case |
 |-------|--------|----------|
-| **opus** | planning, implementation, perf-orchestrator, debate-orchestrator | Complex reasoning, judgment |
-| **sonnet** | exploration, learn, task-discoverer, delivery-validator, ci-fixer, deslop-agent, reporters | Validation, pattern matching |
+| **opus** | planning, implementation, perf-orchestrator, debate-orchestrator, skillers-recommender | Complex reasoning, judgment |
+| **sonnet** | exploration, learn, task-discoverer, delivery-validator, ci-fixer, deslop-agent, reporters, release-agent, skillers-compactor | Validation, pattern matching |
 | **haiku** | worktree-manager, ci-monitor, simple-fixer | Mechanical execution |
 
 See [README.md](./README.md#command-details) and [docs/reference/AGENTS.md](./docs/reference/AGENTS.md) for full agent list.
@@ -74,7 +74,7 @@ See [README.md](./README.md#command-details) and [docs/reference/AGENTS.md](./do
 <skills>
 ## Skills
 
-30 skills across plugins. Agents invoke skills for reusable implementation.
+32 skills across plugins. Agents invoke skills for reusable implementation.
 
 | Category | Key Skills |
 |----------|------------|
