@@ -7,6 +7,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.4.0] - 2026-03-10
+
+### Added
+
+- **`/release` command** - Discovery-first release workflow that detects how a repo releases before executing. Supports 12+ ecosystems (npm, cargo, python, go, maven, gradle, ruby, nuget, dart, hex, packagist, swift) and 7 release tool configurations (semantic-release, release-it, goreleaser, changesets, cargo-release, lerna, standard-version).
+- **`/skillers` command** - Transcript-based workflow pattern learning. Analyzes Claude Code conversation history, clusters recurring patterns into weighted themes, and suggests skills/hooks/agents to automate repetitive work.
+- **release-agent** (sonnet) - Discovers release method via tool configs, CI workflows, scripts, and manifests before performing the release.
+- **skillers-compactor** (sonnet) - Extracts observations from conversation transcripts and clusters them into knowledge themes.
+- **skillers-recommender** (opus) - Analyzes accumulated knowledge and classifies patterns as hook/skill/agent recommendations.
+- **Agnix CI validation** - All plugins now run agnix lint in CI pipelines.
+- **agent-knowledge submodule** - Research guides available as a git submodule.
+- **Website additions** - How It Works content for consult, debate, web-ctl tabs.
+
+### Fixed
+
+- **Accurate ecosystem counts** - Stats now show 15 plugins, 35 agents, 32 skills, 3,751 tests, 14 commands. Previously showed inflated/stale counts.
+- **Pinned action SHAs** - Updated to latest stable versions for security.
+- **CodeQL regex** - Fixed inefficient regular expression flagged by code scanning.
+- **Go test fixture** - Added go.mod so CodeQL can analyze Go fixtures.
+- **Website CSS** - Reduced commands section bottom padding, removed inline how-it-works paragraphs.
+
 ## [5.3.7] - 2026-03-02
 
 ### Fixed

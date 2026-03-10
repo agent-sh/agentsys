@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "agentsys",
-    "description": "A modular runtime and orchestration system for AI agents. 14 plugins, 43 agents, 30 skills — structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.",
+    "description": "A modular runtime and orchestration system for AI agents. 15 plugins, 35 agents, 32 skills â€” structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.",
     "url": "https://agent-sh.github.io/agentsys",
     "repo": "https://github.com/agent-sh/agentsys",
     "npm": "https://www.npmjs.com/package/agentsys",
@@ -43,7 +43,7 @@
       "suffix": ""
     },
     {
-      "value": "3,750",
+      "value": "3,751",
       "label": "Tests",
       "suffix": ""
     },
@@ -463,7 +463,7 @@
   ],
   "research": {
     "knowledge_base": "8,000 lines of curated documentation from Anthropic, OpenAI, Google, and Microsoft",
-    "testing": "3,750 tests passing",
+    "testing": "3,751 tests passing",
     "drift_detect_repos": "1,000+ repositories validated",
     "token_reduction": "77% fewer tokens for drift-detect vs multi-agent approaches"
   },

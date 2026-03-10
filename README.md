@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <b>14 plugins · 43 agents · 30 skills (across all repos) · 30k lines of lib code · 3,750 tests · 5 platforms</b><br>
+  <b>15 plugins · 35 agents · 32 skills (across all repos) · 30k lines of lib code · 3,751 tests · 5 platforms</b><br>
   <em>Plugins distributed as standalone repos under <a href="https://github.com/agent-sh">agent-sh</a> org — agentsys is the marketplace &amp; installer</em>
 </p>
 
@@ -47,7 +47,7 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 
 ## What This Is
 
-An agent orchestration system — 14 plugins, 43 agents, and 30 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
+An agent orchestration system — 15 plugins, 35 agents, and 32 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
 
 Each agent has a single responsibility, a specific model assignment, and defined inputs/outputs. Pipelines enforce phase gates so agents can't skip steps. State persists across sessions so work survives interruptions.
 
@@ -104,8 +104,8 @@ Skills are the reusable implementation units. Agents invoke skills; commands orc
 | Section | What's there |
 |---------|--------------|
 | [The Approach](#the-approach) | Why it's built this way |
-| [Commands](#commands) | All 13 commands overview |
-| [Skills](#skills) | 30 skills across plugins |
+| [Commands](#commands) | All 14 commands overview |
+| [Skills](#skills) | 32 skills across plugins |
 | [Command Details](#command-details) | Deep dive into each command |
 | [How Commands Work Together](#how-commands-work-together) | Standalone vs integrated |
 | [Design Philosophy](#design-philosophy) | The thinking behind the architecture |
@@ -765,6 +765,47 @@ npx playwright install chromium
 
 **Skills:** web-auth (human-in-the-loop auth), web-browse (headless actions)
 
+### /release
+
+> Versioned release with automatic ecosystem and tooling detection
+
+```bash
+/release                # Patch release (auto-discovers how this repo releases)
+/release minor          # Minor version bump
+/release major --dry-run # Preview what would happen
+```
+
+The release agent discovers how your repo releases before executing:
+
+1. **Checks for release tools** - semantic-release, release-it, goreleaser, changesets, cargo-release
+2. **Checks for scripts** - Makefile `release:` target, npm `release` script, `scripts/release.*`
+3. **Falls back to generic** - Version bump, changelog, tag, push, GitHub release, publish
+
+Supports 12+ ecosystems: npm, cargo, python, go, maven, gradle, ruby, nuget, dart, hex, packagist, swift.
+
+**Agent:** release-agent (sonnet model)
+
+**Skill:** release (generic fallback workflow)
+
+### /skillers
+
+> Learn from your workflow patterns and suggest automations
+
+```bash
+/skillers show              # Display current config and knowledge stats
+/skillers compact           # Analyze recent transcripts, extract patterns
+/skillers compact --days=14 # Analyze older transcripts
+/skillers recommend         # Get automation suggestions from accumulated knowledge
+```
+
+Reads your Claude Code conversation transcripts, identifies recurring patterns (pain points, repeated workflows, wishes), clusters them into weighted themes, and suggests skills, hooks, or agents to automate them.
+
+No per-turn overhead - it reads transcripts that Claude Code already saves.
+
+**Agents:** skillers-compactor (sonnet), skillers-recommender (opus)
+
+**Skills:** compact, recommend
+
 ---
 
 ## How Commands Work Together
@@ -970,7 +1011,7 @@ The system is built on research, not guesswork.
 - Instruction following reliability
 
 **Testing:**
-- 3,750 tests passing
+- 3,751 tests passing
 - Drift-detect validated on 1,000+ repositories
 - E2E workflow testing across all commands
 - Cross-platform validation (Claude Code, OpenCode, Codex CLI, Cursor, Kiro)
