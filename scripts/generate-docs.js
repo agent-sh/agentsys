@@ -191,12 +191,13 @@ function generateCommandsTable(commands) {
     if (!cmdMap[cmd.name]) cmdMap[cmd.name] = cmd;
   }
 
-  // Emit in curated order (uses hardcoded summaries as fallback for cross-repo plugins)
+  // Emit in curated order. Prefer curated summaries; fall back to discovered frontmatter.
   const emitted = new Set();
   for (const name of COMMAND_ORDER) {
-    const summary = (cmdMap[name] && !COMMAND_SUMMARIES[name])
-      ? cmdMap[name].frontmatter.description || ''
-      : COMMAND_SUMMARIES[name] || '';
+    let summary = COMMAND_SUMMARIES[name] || '';
+    if (!summary && cmdMap[name]) {
+      summary = cmdMap[name].frontmatter.description || '';
+    }
     if (!summary && !cmdMap[name]) continue;
     emitted.add(name);
     lines.push(`| [\`/${name}\`](#${name}) | ${summary} |`);
@@ -606,5 +607,6 @@ module.exports = {
   updateSiteContent,
   CATEGORY_MAP,
   PURPOSE_MAP,
-  ROLE_BASED_AGENT_COUNT
+  ROLE_BASED_AGENT_COUNT,
+  STATIC_SKILLS
 };
