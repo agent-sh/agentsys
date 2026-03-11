@@ -53,11 +53,50 @@ const CATEGORY_MAP = {
   'sync-docs': 'Cleanup',
   'drift-detect': 'Analysis',
   'repo-map': 'Analysis',
-  'learn': 'Learning',
+  'learn': 'AI Collaboration',
   'agnix': 'Linting',
-  'consult': 'Productivity',
-  'debate': 'Analysis'
+  'consult': 'AI Collaboration',
+  'debate': 'AI Collaboration',
+  'skillers': 'AI Collaboration',
+  'web-ctl': 'Web',
+  'ship': 'Release'
 };
+
+// Static skill definitions for cross-repo plugins (not discoverable locally)
+const STATIC_SKILLS = [
+  { plugin: 'next-task', name: 'orchestrate-review' },
+  { plugin: 'next-task', name: 'discover-tasks' },
+  { plugin: 'next-task', name: 'validate-delivery' },
+  { plugin: 'enhance', name: 'enhance-orchestrator' },
+  { plugin: 'enhance', name: 'enhance-plugins' },
+  { plugin: 'enhance', name: 'enhance-agent-prompts' },
+  { plugin: 'enhance', name: 'enhance-claude-memory' },
+  { plugin: 'enhance', name: 'enhance-docs' },
+  { plugin: 'enhance', name: 'enhance-prompts' },
+  { plugin: 'enhance', name: 'enhance-hooks' },
+  { plugin: 'enhance', name: 'enhance-skills' },
+  { plugin: 'enhance', name: 'enhance-cross-file' },
+  { plugin: 'perf', name: 'baseline' },
+  { plugin: 'perf', name: 'benchmark' },
+  { plugin: 'perf', name: 'profile' },
+  { plugin: 'perf', name: 'theory-tester' },
+  { plugin: 'perf', name: 'theory-gatherer' },
+  { plugin: 'perf', name: 'code-paths' },
+  { plugin: 'perf', name: 'investigation-logger' },
+  { plugin: 'perf', name: 'perf-analyzer' },
+  { plugin: 'deslop', name: 'deslop' },
+  { plugin: 'sync-docs', name: 'sync-docs' },
+  { plugin: 'drift-detect', name: 'drift-analysis' },
+  { plugin: 'repo-map', name: 'repo-mapping' },
+  { plugin: 'consult', name: 'consult' },
+  { plugin: 'debate', name: 'debate' },
+  { plugin: 'learn', name: 'learn' },
+  { plugin: 'web-ctl', name: 'web-auth' },
+  { plugin: 'web-ctl', name: 'web-browse' },
+  { plugin: 'ship', name: 'release' },
+  { plugin: 'skillers', name: 'compact' },
+  { plugin: 'skillers', name: 'recommend' }
+];
 
 // Purpose mapping for architecture table
 const PURPOSE_MAP = {
@@ -122,22 +161,28 @@ function generateCommandsTable(commands) {
   const COMMAND_ORDER = [
     'next-task', 'agnix', 'ship', 'deslop', 'perf',
     'drift-detect', 'audit-project', 'enhance',
-    'repo-map', 'sync-docs', 'learn'
+    'repo-map', 'sync-docs', 'learn', 'consult',
+    'debate', 'web-ctl', 'release', 'skillers'
   ];
 
   // Command descriptions for the table (short, human-written summaries)
   const COMMAND_SUMMARIES = {
-    'next-task': 'Task \u2192 exploration \u2192 plan \u2192 implementation \u2192 review \u2192 ship',
-    'agnix': '**Lint agent configs** - 155 rules for Skills, Memory, Hooks, MCP across 10+ AI tools',
-    'ship': 'Branch \u2192 PR \u2192 CI \u2192 reviews addressed \u2192 merge \u2192 cleanup',
-    'deslop': '3-phase detection pipeline, certainty-graded findings',
-    'perf': '10-phase performance investigation with baselines and profiling',
-    'drift-detect': 'AST-based plan vs code analysis, finds what\'s documented but not built',
-    'audit-project': 'Multi-agent code review, iterates until issues resolved',
-    'enhance': 'Analyzes prompts, agents, plugins, docs, hooks, skills',
-    'repo-map': 'AST symbol and import mapping via ast-grep',
-    'sync-docs': 'Finds outdated references, stale examples, missing CHANGELOG entries',
-    'learn': 'Research any topic, gather online sources, create learning guide with RAG index'
+    'next-task': 'Task workflow: discovery, implementation, PR, merge',
+    'agnix': 'Lint agent configurations (342 rules)',
+    'ship': 'PR creation, CI monitoring, merge',
+    'deslop': 'Clean AI slop patterns',
+    'perf': 'Performance investigation with baselines and profiling',
+    'drift-detect': 'Compare plan vs implementation',
+    'audit-project': 'Multi-agent iterative code review',
+    'enhance': 'Plugin, agent, and prompt analyzers',
+    'repo-map': 'AST-based repository map',
+    'sync-docs': 'Sync documentation with code changes',
+    'learn': 'Research topics, create learning guides',
+    'consult': 'Cross-tool AI consultation',
+    'debate': 'Structured debate between AI tools',
+    'web-ctl': 'Browser automation for AI agents',
+    'release': 'Versioned release with ecosystem detection',
+    'skillers': 'Workflow pattern learning and automation'
   };
 
   // Build lookup of discovered commands
@@ -146,12 +191,14 @@ function generateCommandsTable(commands) {
     if (!cmdMap[cmd.name]) cmdMap[cmd.name] = cmd;
   }
 
-  // Emit in curated order, then any new commands not in the list
+  // Emit in curated order (uses hardcoded summaries as fallback for cross-repo plugins)
   const emitted = new Set();
   for (const name of COMMAND_ORDER) {
-    if (!cmdMap[name]) continue;
+    const summary = (cmdMap[name] && !COMMAND_SUMMARIES[name])
+      ? cmdMap[name].frontmatter.description || ''
+      : COMMAND_SUMMARIES[name] || '';
+    if (!summary && !cmdMap[name]) continue;
     emitted.add(name);
-    const summary = COMMAND_SUMMARIES[name] || cmdMap[name].frontmatter.description || '';
     lines.push(`| [\`/${name}\`](#${name}) | ${summary} |`);
   }
 
@@ -171,14 +218,16 @@ function generateCommandsTable(commands) {
  * Generate the skills table for README.md grouped by category.
  */
 function generateSkillsTable(skills) {
-  const totalSkills = skills.length;
+  // Use static skills as fallback when discovery finds nothing (cross-repo plugins)
+  const effectiveSkills = skills.length > 0 ? skills : STATIC_SKILLS;
+  const totalSkills = effectiveSkills.length;
 
   // Group skills by category
   const groups = {};
-  for (const skill of skills) {
+  for (const skill of effectiveSkills) {
     const category = CATEGORY_MAP[skill.plugin] || 'Other';
     if (!groups[category]) groups[category] = [];
-    groups[category].push(`\`${skill.plugin}:${skill.name}\``);
+    groups[category].push(`\`${skill.name}\``);
   }
 
   // Sort skills within each group
@@ -188,8 +237,9 @@ function generateSkillsTable(skills) {
 
   // Defined category order
   const categoryOrder = [
-    'Performance', 'Enhancement', 'Workflow', 'Cleanup',
-    'Analysis', 'Productivity', 'Learning', 'Linting', 'Other'
+    'Workflow', 'Enhancement', 'Performance', 'Cleanup',
+    'AI Collaboration', 'Web', 'Release', 'Analysis',
+    'Linting', 'Other'
   ];
 
   const lines = [

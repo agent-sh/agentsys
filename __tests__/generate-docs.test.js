@@ -89,7 +89,9 @@ describe('generate-docs', () => {
     test('shows correct total skill count', () => {
       const skills = discovery.discoverSkills(REPO_ROOT);
       const table = genDocs.generateSkillsTable(skills);
-      expect(table).toContain(`${skills.length} skills included`);
+      // When discovery finds 0 skills, static fallback is used (cross-repo plugins)
+      const expectedCount = skills.length > 0 ? skills.length : 32;
+      expect(table).toContain(`${expectedCount} skills included`);
     });
 
     test('includes category headers when skills exist', () => {
@@ -103,8 +105,9 @@ describe('generate-docs', () => {
     test('all skills are represented in the table', () => {
       const skills = discovery.discoverSkills(REPO_ROOT);
       const table = genDocs.generateSkillsTable(skills);
+      // When discovery finds skills, each should appear in the table
       for (const skill of skills) {
-        expect(table).toContain(`${skill.plugin}:${skill.name}`);
+        expect(table).toContain(`\`${skill.name}\``);
       }
     });
   });

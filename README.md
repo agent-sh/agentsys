@@ -43,7 +43,7 @@
 AI models can write code. That's not the hard part anymore. The hard part is everything around it — task selection, branch management, code review, artifact cleanup, CI, PR comments, deployment. **AgentSys is the runtime that orchestrates agents to handle all of it** — structured pipelines, gated phases, specialized agents, and persistent state that survives session boundaries.
 
 ---
-> Building custom skills, agents, hooks, or MCP tools? [agnix](https://github.com/agent-sh/agnix) is the CLI + LSP linter that catches config errors before they fail silently - real-time IDE validation, auto suggestions, auto-fix, and 155 rules for Cursor, Claude Code, Cline, Copilot, Codex, Windsurf, and more.
+> Building custom skills, agents, hooks, or MCP tools? [agnix](https://github.com/agent-sh/agnix) is the CLI + LSP linter that catches config errors before they fail silently - real-time IDE validation, auto suggestions, auto-fix, and 342 rules for Claude Code, Codex, OpenCode, Cursor, Kiro, Copilot, Gemini CLI, Cline, Windsurf, Roo Code, Amp, and more.
 
 ## What This Is
 
@@ -80,6 +80,22 @@ This came from testing on 1,000+ repositories.
 <!-- GEN:START:readme-commands -->
 | Command | What it does |
 |---------|--------------|
+| [`/next-task`](#next-task) | Task workflow: discovery, implementation, PR, merge |
+| [`/agnix`](#agnix) | Lint agent configurations (342 rules) |
+| [`/ship`](#ship) | PR creation, CI monitoring, merge |
+| [`/deslop`](#deslop) | Clean AI slop patterns |
+| [`/perf`](#perf) | Performance investigation with baselines and profiling |
+| [`/drift-detect`](#drift-detect) | Compare plan vs implementation |
+| [`/audit-project`](#audit-project) | Multi-agent iterative code review |
+| [`/enhance`](#enhance) | Plugin, agent, and prompt analyzers |
+| [`/repo-map`](#repo-map) | AST-based repository map |
+| [`/sync-docs`](#sync-docs) | Sync documentation with code changes |
+| [`/learn`](#learn) | Research topics, create learning guides |
+| [`/consult`](#consult) | Cross-tool AI consultation |
+| [`/debate`](#debate) | Structured debate between AI tools |
+| [`/web-ctl`](#web-ctl) | Browser automation for AI agents |
+| [`/release`](#release) | Versioned release with ecosystem detection |
+| [`/skillers`](#skillers) | Workflow pattern learning and automation |
 <!-- GEN:END:readme-commands -->
 
 Each command works standalone. Together, they compose into end-to-end pipelines.
@@ -89,10 +105,18 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 ## Skills
 
 <!-- GEN:START:readme-skills -->
-0 skills included across the plugins:
+32 skills included across the plugins:
 
 | Category | Skills |
 |----------|--------|
+| **Workflow** | `discover-tasks`, `orchestrate-review`, `validate-delivery` |
+| **Enhancement** | `enhance-agent-prompts`, `enhance-claude-memory`, `enhance-cross-file`, `enhance-docs`, `enhance-hooks`, `enhance-orchestrator`, `enhance-plugins`, `enhance-prompts`, `enhance-skills` |
+| **Performance** | `baseline`, `benchmark`, `code-paths`, `investigation-logger`, `perf-analyzer`, `profile`, `theory-gatherer`, `theory-tester` |
+| **Cleanup** | `deslop`, `sync-docs` |
+| **AI Collaboration** | `compact`, `consult`, `debate`, `learn`, `recommend` |
+| **Web** | `web-auth`, `web-browse` |
+| **Release** | `release` |
+| **Analysis** | `drift-analysis`, `repo-mapping` |
 <!-- GEN:END:readme-skills -->
 
 Skills are the reusable implementation units. Agents invoke skills; commands orchestrate agents. When you install a plugin, its skills become available to all agents in that session.
@@ -104,7 +128,7 @@ Skills are the reusable implementation units. Agents invoke skills; commands orc
 | Section | What's there |
 |---------|--------------|
 | [The Approach](#the-approach) | Why it's built this way |
-| [Commands](#commands) | All 14 commands overview |
+| [Commands](#commands) | All 16 commands overview |
 | [Skills](#skills) | 32 skills across plugins |
 | [Command Details](#command-details) | Deep dive into each command |
 | [How Commands Work Together](#how-commands-work-together) | Standalone vs integrated |
@@ -144,7 +168,7 @@ Phase 9 uses the `orchestrate-review` skill to spawn parallel reviewers (code qu
 |-------|-------|------|
 | task-discoverer | sonnet | Finds and ranks tasks from your source |
 | worktree-manager | haiku | Creates git worktrees and branches |
-| exploration-agent | opus | Deep codebase analysis before planning |
+| exploration-agent | sonnet | Deep codebase analysis before planning |
 | planning-agent | opus | Designs step-by-step implementation plan |
 | implementation-agent | opus | Writes the actual code |
 | test-coverage-checker | sonnet | Validates tests exist and are meaningful |
@@ -192,10 +216,10 @@ agnix catches these issues before they cause problems.
 | **Security** | Prompt injection vectors, overpermissive tools, exposed secrets |
 | **Consistency** | Conflicting rules, duplicate definitions, broken references |
 | **Best Practices** | Tool restrictions, model selection, trigger phrase quality |
-| **Cross-Platform** | Compatibility across Claude Code, Cursor, Copilot, Codex, OpenCode, Gemini CLI, Cline, and more |
+| **Cross-Platform** | Compatibility across Claude Code, Codex, OpenCode, Cursor, Kiro, Copilot, Gemini CLI, Cline, Windsurf, Roo Code, Amp, and more |
 
-**155 validation rules** (57 auto-fixable) derived from:
-- Official tool specifications (Claude Code, Cursor, GitHub Copilot, Codex CLI, OpenCode, Gemini CLI, and more)
+**342 validation rules** (102 auto-fixable) derived from:
+- Official tool specifications (Claude Code, Codex CLI, OpenCode, Cursor, Kiro, GitHub Copilot, Gemini CLI, Cline, Windsurf, Roo Code, Amp, and more)
 - Research papers on agent reliability and prompt injection
 - Real-world testing across 500+ repositories
 - Community-reported issues and edge cases
@@ -210,6 +234,12 @@ agnix catches these issues before they cause problems.
 | MCP | `*.mcp.json`, MCP server configs |
 | Cursor | `.cursor/rules/*.mdc`, `.cursorrules` |
 | Copilot | `.github/copilot-instructions.md` |
+| Kiro | `.kiro/steering/**/*.md`, `.kiro/agents/*.json`, `.kiro/hooks/*.kiro.hook`, `POWER.md` |
+| Windsurf | `.windsurf/rules/**/*.md`, `.windsurf/workflows/**/*.md`, `.windsurfrules` |
+| Roo Code | `.roo/rules/*.md`, `.roo/rules-{mode}/*.md`, `.roomodes`, `.rooignore`, `.roorules` |
+| Gemini CLI | `GEMINI.md`, `.gemini/settings.json`, `gemini-extension.json` |
+| OpenCode | `opencode.json` |
+| Amp | `.agents/checks/**/*.md`, `.amp/settings.json` |
 
 **CI/CD Integration:**
 
@@ -610,7 +640,7 @@ agent-knowledge/
 /learn python async --no-enhance    # Skip enhancement pass
 ```
 
-**Agent:** learn-agent (opus model for research quality)
+**Agent:** learn-agent (sonnet model)
 
 ---
 
@@ -898,7 +928,7 @@ Approve the plan. See the results. The middle is automated. One plan approval un
 **8. Right model for the task**
 
 Match model capability to task complexity:
-- **opus** - Exploration, planning, implementation, review orchestration
+- **opus** - Planning, implementation, review orchestration
 - **sonnet** - Pattern matching, validation, discovery
 - **haiku** - Git operations, file moves, CI polling
 
@@ -988,7 +1018,7 @@ agentsys --development              # Dev mode (bypasses marketplace)
 - ast-grep (`sg`) installed
 
 **For /agnix:**
-- [agnix CLI](https://github.com/agent-sh/agnix) installed (`cargo install agnix-cli` or `brew install agnix`)
+- [agnix CLI](https://github.com/agent-sh/agnix) installed (`npm install -g agnix`, `cargo install agnix-cli`, or `brew install agnix`)
 
 **Local diagnostics (optional):**
 ```bash
