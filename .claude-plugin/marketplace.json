@@ -186,6 +186,17 @@
       "version": "1.0.0",
       "category": "productivity",
       "homepage": "https://github.com/agent-sh/skillers"
+    },
+    {
+      "name": "git-map",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/agent-sh/git-map.git"
+      },
+      "description": "Git history analysis: hotspots, coupling, ownership, bus factor, AI commit detection - backed by agent-analyzer Rust binary with lazy download",
+      "version": "1.0.0",
+      "category": "development",
+      "homepage": "https://github.com/agent-sh/git-map"
     }
   ]
 }
