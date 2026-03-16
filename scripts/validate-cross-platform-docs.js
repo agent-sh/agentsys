@@ -251,11 +251,14 @@ function validateFeatureParity() {
   });
 
   // Check that all platforms document all required features
+  // Features documented in general docs (README.md) count for all platforms
+  const generalFeatures = featuresByPlatform.general || new Set();
+
   REQUIRED_FEATURES.forEach(feature => {
     Object.entries(featuresByPlatform).forEach(([platform, features]) => {
-      if (platform === 'general') return; // General docs don't need to list all features
+      if (platform === 'general') return;
 
-      if (!features.has(feature)) {
+      if (!features.has(feature) && !generalFeatures.has(feature)) {
         issues.push({
           platform,
           feature,

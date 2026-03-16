@@ -120,11 +120,13 @@ function computeAdapters() {
     process.exit(1);
   }
 
-  // --- Kiro adapters ---
+  // --- Kiro adapters (disabled - Kiro adapter generation removed) ---
   const KIRO_PLUGIN_ROOT_PLACEHOLDER = '{{PLUGIN_INSTALL_PATH}}';
 
   // Kiro steering files (from commands)
-  const kiroSteeringMappings = discovery.getKiroSteeringMappings(ROOT_DIR);
+  const kiroSteeringMappings = typeof discovery.getKiroSteeringMappings === 'function'
+    ? discovery.getKiroSteeringMappings(ROOT_DIR)
+    : [];
   for (const [steeringName, plugin, sourceFile, description] of kiroSteeringMappings) {
     const srcPath = path.join(ROOT_DIR, 'plugins', plugin, 'commands', sourceFile);
     if (!fs.existsSync(srcPath)) continue;
