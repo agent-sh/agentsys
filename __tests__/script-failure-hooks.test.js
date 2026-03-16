@@ -193,7 +193,7 @@ describe('script failure enforcement hooks', () => {
     });
   });
 
-  describe('CLAUDE.md rule #13', () => {
+  describe('CLAUDE.md rule #7', () => {
     let claudeContent;
 
     beforeAll(() => {
@@ -204,19 +204,8 @@ describe('script failure enforcement hooks', () => {
       expect(claudeContent).toContain('Report script failures before manual fallback');
     });
 
-    test('rule references npm/scripts/agentsys-dev patterns', () => {
-      expect(claudeContent).toContain('npm test/run/build');
-      expect(claudeContent).toContain('scripts/*');
-      expect(claudeContent).toContain('agentsys-dev');
-      expect(claudeContent).toContain('node bin/dev-cli.js');
-    });
-
-    test('rule requires failure reporting', () => {
-      expect(claudeContent).toContain('Report the failure with exact error output');
-    });
-
-    test('rule prohibits silent fallback', () => {
-      expect(claudeContent).toContain('NEVER silently fall back');
+    test('rule prohibits silent bypass of broken tooling', () => {
+      expect(claudeContent).toContain('Never silently bypass broken tooling');
     });
   });
 

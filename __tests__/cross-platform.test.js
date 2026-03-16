@@ -93,12 +93,10 @@ describe('cross-platform', () => {
       expect(PLATFORMS.CLAUDE_CODE).toBe('claude-code');
       expect(PLATFORMS.OPENCODE).toBe('opencode');
       expect(PLATFORMS.CODEX_CLI).toBe('codex-cli');
-      expect(PLATFORMS.CURSOR).toBe('cursor');
-      expect(PLATFORMS.KIRO).toBe('kiro');
     });
 
-    it('should have exactly 5 platforms', () => {
-      expect(Object.keys(PLATFORMS)).toHaveLength(5);
+    it('should have exactly 3 platforms', () => {
+      expect(Object.keys(PLATFORMS)).toHaveLength(3);
     });
   });
 
@@ -107,8 +105,6 @@ describe('cross-platform', () => {
       expect(STATE_DIRS[PLATFORMS.CLAUDE_CODE]).toBe('.claude');
       expect(STATE_DIRS[PLATFORMS.OPENCODE]).toBe('.opencode');
       expect(STATE_DIRS[PLATFORMS.CODEX_CLI]).toBe('.codex');
-      expect(STATE_DIRS[PLATFORMS.CURSOR]).toBe('.cursor');
-      expect(STATE_DIRS[PLATFORMS.KIRO]).toBe('.kiro');
     });
 
     it('should have a state dir for each platform', () => {
@@ -156,16 +152,6 @@ describe('cross-platform', () => {
     it('should detect Codex CLI when AI_STATE_DIR is .codex', () => {
       process.env.AI_STATE_DIR = '.codex';
       expect(detectPlatform()).toBe(PLATFORMS.CODEX_CLI);
-    });
-
-    it('should detect Cursor when AI_STATE_DIR is .cursor', () => {
-      process.env.AI_STATE_DIR = '.cursor';
-      expect(detectPlatform()).toBe(PLATFORMS.CURSOR);
-    });
-
-    it('should detect Kiro when AI_STATE_DIR is .kiro', () => {
-      process.env.AI_STATE_DIR = '.kiro';
-      expect(detectPlatform()).toBe(PLATFORMS.KIRO);
     });
 
     it('should default to Claude Code for unknown AI_STATE_DIR values', () => {
@@ -783,13 +769,6 @@ describe('cross-platform', () => {
       expect(INSTRUCTION_FILES[PLATFORMS.CODEX_CLI]).toEqual(['AGENTS.md', 'AGENTS.override.md']);
     });
 
-    it('should define instruction files for Cursor', () => {
-      expect(INSTRUCTION_FILES[PLATFORMS.CURSOR]).toEqual(['.cursor/rules/*.mdc']);
-    });
-
-    it('should define instruction files for Kiro', () => {
-      expect(INSTRUCTION_FILES[PLATFORMS.KIRO]).toEqual(['AGENTS.md', '.kiro/steering/*.md']);
-    });
   });
 
   describe('getInstructionFiles', () => {
