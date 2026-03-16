@@ -59,7 +59,11 @@ const CATEGORY_MAP = {
   'debate': 'AI Collaboration',
   'skillers': 'AI Collaboration',
   'web-ctl': 'Web',
-  'ship': 'Release'
+  'ship': 'Release',
+  'git-map': 'Analysis',
+  'onboard': 'Onboarding',
+  'can-i-help': 'Onboarding',
+  'audit-project': 'Code Review'
 };
 
 // Static skill definitions for cross-repo plugins (not discoverable locally)
@@ -94,8 +98,12 @@ const STATIC_SKILLS = [
   { plugin: 'web-ctl', name: 'web-auth' },
   { plugin: 'web-ctl', name: 'web-browse' },
   { plugin: 'ship', name: 'release' },
-  { plugin: 'skillers', name: 'compact' },
-  { plugin: 'skillers', name: 'recommend' }
+  { plugin: 'skillers', name: 'skillers-compact' },
+  { plugin: 'skillers', name: 'recommend' },
+  { plugin: 'git-map', name: 'git-mapping' },
+  { plugin: 'onboard', name: 'onboard' },
+  { plugin: 'can-i-help', name: 'can-i-help' },
+  { plugin: 'audit-project', name: 'audit-project' }
 ];
 
 // Purpose mapping for architecture table
@@ -112,7 +120,12 @@ const PURPOSE_MAP = {
   'learn': 'Topic research and learning guides',
   'agnix': 'Agent config linting',
   'consult': 'Cross-tool AI consultation',
-  'debate': 'Multi-perspective debate analysis'
+  'debate': 'Multi-perspective debate analysis',
+  'web-ctl': 'Browser automation for AI agents',
+  'skillers': 'Workflow pattern learning',
+  'git-map': 'Git history analysis',
+  'onboard': 'Codebase onboarding',
+  'can-i-help': 'Contributor guidance'
 };
 
 // ---------------------------------------------------------------------------
@@ -162,7 +175,8 @@ function generateCommandsTable(commands) {
     'next-task', 'agnix', 'ship', 'deslop', 'perf',
     'drift-detect', 'audit-project', 'enhance',
     'repo-map', 'sync-docs', 'learn', 'consult',
-    'debate', 'web-ctl', 'release', 'skillers'
+    'debate', 'web-ctl', 'release', 'skillers',
+    'git-map', 'onboard', 'can-i-help'
   ];
 
   // Command descriptions for the table (short, human-written summaries)
@@ -182,7 +196,10 @@ function generateCommandsTable(commands) {
     'debate': 'Structured debate between AI tools',
     'web-ctl': 'Browser automation for AI agents',
     'release': 'Versioned release with ecosystem detection',
-    'skillers': 'Workflow pattern learning and automation'
+    'skillers': 'Workflow pattern learning and automation',
+    'git-map': 'Git history analysis: hotspots, coupling, ownership, bus factor',
+    'onboard': 'Codebase orientation for newcomers',
+    'can-i-help': 'Match contributor skills to project needs'
   };
 
   // Build lookup of discovered commands
@@ -239,8 +256,8 @@ function generateSkillsTable(skills) {
   // Defined category order
   const categoryOrder = [
     'Workflow', 'Enhancement', 'Performance', 'Cleanup',
-    'AI Collaboration', 'Web', 'Release', 'Analysis',
-    'Linting', 'Other'
+    'Code Review', 'AI Collaboration', 'Onboarding',
+    'Web', 'Release', 'Analysis', 'Linting', 'Other'
   ];
 
   const lines = [

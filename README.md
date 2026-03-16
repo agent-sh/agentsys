@@ -115,11 +115,11 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 | **Performance** | `baseline`, `benchmark`, `code-paths`, `investigation-logger`, `perf-analyzer`, `profile`, `theory-gatherer`, `theory-tester` |
 | **Cleanup** | `deslop`, `sync-docs` |
 | **Code Review** | `audit-project` |
-| **AI Collaboration** | `skillers-compact`, `consult`, `debate`, `learn`, `recommend` |
-| **Onboarding** | `onboard`, `can-i-help` |
+| **AI Collaboration** | `consult`, `debate`, `learn`, `recommend`, `skillers-compact` |
+| **Onboarding** | `can-i-help`, `onboard` |
 | **Web** | `web-auth`, `web-browse` |
 | **Release** | `release` |
-| **Analysis** | `drift-analysis`, `repo-mapping`, `git-mapping` |
+| **Analysis** | `drift-analysis`, `git-mapping`, `repo-mapping` |
 <!-- GEN:END:readme-skills -->
 
 Skills are the reusable implementation units. Agents invoke skills; commands orchestrate agents. When you install a plugin, its skills become available to all agents in that session.
