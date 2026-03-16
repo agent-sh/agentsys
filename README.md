@@ -885,7 +885,7 @@ The plugin wraps the [agent-analyzer](https://github.com/agent-sh/agent-analyzer
 
 **What happens when you run it:**
 
-1. **Collect** (68ms median) - Pure JavaScript scans manifest, structure, README, CI, git, repo-intel (no LLM tokens)
+1. **Collect** (68ms median) - Pure JavaScript scans manifest, structure, README, CLAUDE.md/AGENTS.md, CI, git, repo-intel (no LLM tokens)
 2. **Synthesize** - Opus agent produces a structured overview: tech stack, key files, active areas, conventions
 3. **Guide** - Interactive Q&A: ask about specific files, areas, or patterns
 
@@ -896,7 +896,7 @@ The plugin wraps the [agent-analyzer](https://github.com/agent-sh/agent-analyzer
 | Level | Time | Data |
 |-------|------|------|
 | quick | ~2s | Manifest + README + structure |
-| normal | ~5s | + CLAUDE.md + CI + repo-intel |
+| normal | ~5s | + CLAUDE.md/AGENTS.md + CI + repo-intel |
 | deep | ~15s | + repo-map AST symbols |
 
 **Supported manifests:** package.json, Cargo.toml, go.mod, pyproject.toml, deno.json, CMakeLists.txt, meson.build, setup.py, pom.xml, build.gradle. Detects monorepos (npm/pnpm/lerna/Cargo workspaces, Python libs/, Deno workspaces).
