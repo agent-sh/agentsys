@@ -1,6 +1,6 @@
 {
   "name": "agentsys",
-  "description": "16 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, repo mapping, git intelligence, perf investigations, topic research, agent config linting, cross-tool AI consultation, structured AI debate, workflow pattern learning, and codebase onboarding",
+  "description": "17 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, repo mapping, git intelligence, perf investigations, topic research, agent config linting, cross-tool AI consultation, structured AI debate, workflow pattern learning, and codebase onboarding",
   "version": "5.4.1",
   "owner": {
     "name": "Avi Fenesh",
@@ -204,10 +204,21 @@
         "source": "url",
         "url": "https://github.com/agent-sh/onboard.git"
       },
-      "description": "Codebase onboarding and contributor guidance - /onboard for project orientation, /can-i-help for finding where to contribute",
+      "description": "Codebase onboarding - automated data collection and interactive project orientation",
       "version": "0.1.0",
       "category": "productivity",
       "homepage": "https://github.com/agent-sh/onboard"
+    },
+    {
+      "name": "can-i-help",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/agent-sh/can-i-help.git"
+      },
+      "description": "Find where to contribute to any project - matches developer skills to test gaps, stale docs, bugspots, and open issues",
+      "version": "0.1.0",
+      "category": "productivity",
+      "homepage": "https://github.com/agent-sh/can-i-help"
     }
   ]
 }
