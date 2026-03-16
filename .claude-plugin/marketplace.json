@@ -1,6 +1,6 @@
 {
   "name": "agentsys",
-  "description": "17 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, repo mapping, git intelligence, perf investigations, topic research, agent config linting, cross-tool AI consultation, structured AI debate, workflow pattern learning, and codebase onboarding",
+  "description": "18 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, repo mapping, git intelligence, perf investigations, topic research, agent config linting, cross-tool AI consultation, structured AI debate, workflow pattern learning, codebase onboarding, and contributor guidance",
   "version": "5.4.1",
   "owner": {
     "name": "Avi Fenesh",
@@ -138,7 +138,7 @@
         "source": "url",
         "url": "https://github.com/agent-sh/agnix.git"
       },
-      "description": "Lint agent configuration files (SKILL.md, CLAUDE.md, hooks, MCP) against 155 rules across 10+ AI tools",
+      "description": "Lint agent configuration files (SKILL.md, CLAUDE.md, hooks, MCP) against 342 rules across 10+ AI tools",
       "version": "1.0.0",
       "category": "development",
       "homepage": "https://github.com/agent-sh/agnix"

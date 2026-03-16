@@ -8,8 +8,6 @@
   <strong>A modular runtime and orchestration system for AI agents.</strong>
 </p>
 
-> **Renamed from `awesome-slash`** — The `awesome-` prefix implies a curated list of links, but this project is a functional software suite and runtime. Please update your installs: `npm install -g agentsys`
-
 <p align="center">
   <a href="https://www.npmjs.com/package/agentsys"><img src="https://img.shields.io/npm/v/agentsys.svg" alt="npm version"></a>
   <a href="https://www.npmjs.com/package/agentsys"><img src="https://img.shields.io/npm/dm/agentsys.svg" alt="npm downloads"></a>
@@ -21,7 +19,7 @@
 </p>
 
 <p align="center">
-  <b>15 plugins · 35 agents · 32 skills (across all repos) · 30k lines of lib code · 3,751 tests · 5 platforms</b><br>
+  <b>18 plugins · 38 agents · 36 skills (across all repos) · 30k lines of lib code · 3,575 tests · 5 platforms</b><br>
   <em>Plugins distributed as standalone repos under <a href="https://github.com/agent-sh">agent-sh</a> org — agentsys is the marketplace &amp; installer</em>
 </p>
 
@@ -47,7 +45,7 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 
 ## What This Is
 
-An agent orchestration system — 15 plugins, 35 agents, and 32 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
+An agent orchestration system — 18 plugins, 38 agents, and 36 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
 
 Each agent has a single responsibility, a specific model assignment, and defined inputs/outputs. Pipelines enforce phase gates so agents can't skip steps. State persists across sessions so work survives interruptions.
 
@@ -96,6 +94,9 @@ This came from testing on 1,000+ repositories.
 | [`/web-ctl`](#web-ctl) | Browser automation for AI agents |
 | [`/release`](#release) | Versioned release with ecosystem detection |
 | [`/skillers`](#skillers) | Workflow pattern learning and automation |
+| [`/git-map`](#git-map) | Git history analysis: hotspots, coupling, ownership, bus factor |
+| [`/onboard`](#onboard) | Codebase orientation for newcomers |
+| [`/can-i-help`](#can-i-help) | Match contributor skills to project needs |
 <!-- GEN:END:readme-commands -->
 
 Each command works standalone. Together, they compose into end-to-end pipelines.
@@ -105,7 +106,7 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 ## Skills
 
 <!-- GEN:START:readme-skills -->
-32 skills included across the plugins:
+36 skills included across the plugins:
 
 | Category | Skills |
 |----------|--------|
@@ -113,10 +114,12 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 | **Enhancement** | `enhance-agent-prompts`, `enhance-claude-memory`, `enhance-cross-file`, `enhance-docs`, `enhance-hooks`, `enhance-orchestrator`, `enhance-plugins`, `enhance-prompts`, `enhance-skills` |
 | **Performance** | `baseline`, `benchmark`, `code-paths`, `investigation-logger`, `perf-analyzer`, `profile`, `theory-gatherer`, `theory-tester` |
 | **Cleanup** | `deslop`, `sync-docs` |
-| **AI Collaboration** | `compact`, `consult`, `debate`, `learn`, `recommend` |
+| **Code Review** | `audit-project` |
+| **AI Collaboration** | `skillers-compact`, `consult`, `debate`, `learn`, `recommend` |
+| **Onboarding** | `onboard`, `can-i-help` |
 | **Web** | `web-auth`, `web-browse` |
 | **Release** | `release` |
-| **Analysis** | `drift-analysis`, `repo-mapping` |
+| **Analysis** | `drift-analysis`, `repo-mapping`, `git-mapping` |
 <!-- GEN:END:readme-skills -->
 
 Skills are the reusable implementation units. Agents invoke skills; commands orchestrate agents. When you install a plugin, its skills become available to all agents in that session.
@@ -128,8 +131,8 @@ Skills are the reusable implementation units. Agents invoke skills; commands orc
 | Section | What's there |
 |---------|--------------|
 | [The Approach](#the-approach) | Why it's built this way |
-| [Commands](#commands) | All 16 commands overview |
-| [Skills](#skills) | 32 skills across plugins |
+| [Commands](#commands) | All 19 commands overview |
+| [Skills](#skills) | 36 skills across plugins |
 | [Command Details](#command-details) | Deep dive into each command |
 | [How Commands Work Together](#how-commands-work-together) | Standalone vs integrated |
 | [Design Philosophy](#design-philosophy) | The thinking behind the architecture |
@@ -834,7 +837,111 @@ No per-turn overhead - it reads transcripts that Claude Code already saves.
 
 **Agents:** skillers-compactor (sonnet), skillers-recommender (opus)
 
-**Skills:** compact, recommend
+**Skills:** skillers-compact, recommend
+
+---
+
+### /git-map
+
+**Purpose:** Analyze git history to surface hotspots, coupling, ownership, bus factor, bugspots, area health, and AI attribution.
+
+**How it works:**
+
+The plugin wraps the [agent-analyzer](https://github.com/agent-sh/agent-analyzer) Rust binary. Run `init` once to scan git history and cache the result as `repo-intel.json`. Then run queries instantly.
+
+**21 query types:**
+
+| Category | Queries |
+|----------|---------|
+| Activity | `hotspots`, `coldspots`, `file-history` |
+| Quality | `bugspots`, `test-gaps`, `diff-risk` |
+| People | `ownership`, `contributors`, `bus-factor` |
+| Coupling | `coupling` |
+| Standards | `norms`, `conventions` |
+| Health | `areas`, `health`, `release-info` |
+| AI | `ai-ratio`, `recent-ai` |
+| Guidance | `onboard`, `can-i-help` |
+| Docs | `doc-drift` |
+
+**9 plugins consume git-map data automatically** - deslop, sync-docs, drift-detect, audit-project, next-task, enhance, ship, onboard, can-i-help.
+
+**Usage:**
+
+```bash
+/git-map init                      # First-time scan
+/git-map update                    # Add new commits
+/git-map query hotspots            # Most active files
+/git-map query ownership src/      # Who owns a path
+/git-map query bus-factor          # Knowledge risk
+```
+
+[Full query reference ->](https://github.com/agent-sh/git-map)
+
+---
+
+### /onboard
+
+**Purpose:** Get oriented in any codebase in under 3 minutes.
+
+**What happens when you run it:**
+
+1. **Collect** - Pure JavaScript scans manifest, structure, README, CI, git, repo-intel, repo-map (no LLM tokens)
+2. **Synthesize** - Opus agent produces a structured overview: tech stack, key files, active areas, conventions
+3. **Guide** - Interactive Q&A: ask about specific files, areas, or patterns
+
+**Depth levels:**
+
+| Level | Time | Data |
+|-------|------|------|
+| quick | ~2s | Manifest + README + structure |
+| normal | ~5s | + CLAUDE.md + CI + repo-intel |
+| deep | ~15s | + repo-map AST symbols |
+
+**Usage:**
+
+```bash
+/onboard                    # Current repo
+/onboard /path/to/repo      # Specific repo
+/onboard --depth=deep       # Include AST data
+```
+
+**Agent:** onboard-agent (opus model)
+
+[Full documentation ->](https://github.com/agent-sh/onboard)
+
+---
+
+### /can-i-help
+
+**Purpose:** Match a contributor's skills to specific areas where they can help.
+
+**What happens when you run it:**
+
+1. **Collect** - Gathers project data + contributor signals (test gaps, doc drift, bugspots, good-first areas, open issues)
+2. **Match** - Opus agent asks about developer background and matches skills to project needs
+3. **Guide** - For each recommendation: reads code, explains what needs doing, gives a concrete first step
+
+**Matching:**
+
+| Developer profile | Gets recommended |
+|-------------------|------------------|
+| New to stack | Good-first areas with clear patterns |
+| Experienced | Hard problems in pain-point areas |
+| Test-focused | Test gaps in frequently-changed files |
+| Bug-focused | Bugspot files + relevant open issues |
+| Docs-focused | Stale documentation with code examples |
+
+**Usage:**
+
+```bash
+/can-i-help                       # Current repo
+/can-i-help /path/to/repo         # Specific repo
+/can-i-help --depth=deep          # Include AST data
+```
+
+**Agent:** can-i-help-agent (opus model)
+
+[Full documentation ->](https://github.com/agent-sh/can-i-help)
 
 ---
 
@@ -1041,7 +1148,7 @@ The system is built on research, not guesswork.
 - Instruction following reliability
 
 **Testing:**
-- 3,751 tests passing
+- 3,575 tests passing
 - Drift-detect validated on 1,000+ repositories
 - E2E workflow testing across all commands
 - Cross-platform validation (Claude Code, OpenCode, Codex CLI, Cursor, Kiro)
