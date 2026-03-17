@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "agentsys",
-    "description": "A modular runtime and orchestration system for AI agents. 15 plugins, 35 agents, 32 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.",
+    "description": "A modular runtime and orchestration system for AI agents. 18 plugins, 38 agents, 36 skills - structured pipelines for Claude Code, OpenCode, and Codex CLI.",
     "url": "https://agent-sh.github.io/agentsys",
     "repo": "https://github.com/agent-sh/agentsys",
     "npm": "https://www.npmjs.com/package/agentsys",
@@ -11,7 +11,7 @@
   },
   "hero": {
     "title": "A modular runtime and orchestration system for AI agents",
-    "subtitle": "AI models can write code. That's not the hard part anymore. The hard part is everything around it -- task selection, branch management, code review, artifact cleanup, CI, deployment. AgentSys is the runtime that orchestrates agents to handle all of it.",
+    "subtitle": "AI models can write code. That's not the hard part anymore. The hard part is everything around it - task selection, branch management, code review, artifact cleanup, CI, deployment. AgentSys is the runtime that orchestrates agents to handle all of it.",
     "cta_primary": {
       "text": "Get Started",
       "url": "#installation"
@@ -23,17 +23,17 @@
   },
   "stats": [
     {
-      "value": "0",
+      "value": "18",
       "label": "Plugins",
       "suffix": ""
     },
     {
-      "value": "10",
+      "value": "38",
       "label": "Agents",
       "suffix": ""
     },
     {
-      "value": "0",
+      "value": "36",
       "label": "Skills",
       "suffix": ""
     },
@@ -43,7 +43,7 @@
       "suffix": ""
     },
     {
-      "value": "3,751",
+      "value": "3,575",
       "label": "Tests",
       "suffix": ""
     },
@@ -57,18 +57,18 @@
     "title": "The bottleneck isn't code generation",
     "description": "Frontier models write good code. That's solved. What's not solved is context management, compaction amnesia, task drift, skipped steps, token waste, babysitting, and repetitive requests. You shouldn't have to orchestrate each phase manually, every single session.",
     "points": [
-      "Context management -- models forget what they're doing mid-session",
-      "Compaction amnesia -- long sessions get summarized, losing critical state",
-      "Task drift -- without structure, agents wander from the actual goal",
-      "Skipped steps -- agents skip reviews, tests, or cleanup when not enforced",
-      "Token waste -- using LLM calls for work that static analysis can do faster",
-      "Babysitting -- manually orchestrating each phase of development",
-      "Repetitive requests -- asking for the same workflow every single session"
+      "Context management - models forget what they're doing mid-session",
+      "Compaction amnesia - long sessions get summarized, losing critical state",
+      "Task drift - without structure, agents wander from the actual goal",
+      "Skipped steps - agents skip reviews, tests, or cleanup when not enforced",
+      "Token waste - using LLM calls for work that static analysis can do faster",
+      "Babysitting - manually orchestrating each phase of development",
+      "Repetitive requests - asking for the same workflow every single session"
     ]
   },
   "approach": {
     "title": "Code does code work. AI does AI work.",
-    "description": "Detection uses regex, AST analysis, and static analysis -- fast, deterministic, no tokens wasted. Judgment uses LLM calls for synthesis, planning, and review -- where reasoning matters. Result: 77% fewer tokens for drift-detect vs multi-agent approaches.",
+    "description": "Detection uses regex, AST analysis, and static analysis - fast, deterministic, no tokens wasted. Judgment uses LLM calls for synthesis, planning, and review - where reasoning matters. Result: 77% fewer tokens for drift-detect vs multi-agent approaches.",
     "certainty_levels": [
       {
         "level": "HIGH",
@@ -98,7 +98,7 @@
     {
       "name": "/agnix",
       "tagline": "Lint agent configs before they break",
-      "description": "230+ validation rules (57 auto-fixable) for Skills, Memory, Hooks, MCP, and Plugins across 10+ AI tools including Claude Code, Cursor, Kiro, GitHub Copilot, Codex CLI, OpenCode, and Gemini CLI. SARIF output for GitHub Code Scanning.",
+      "description": "342 validation rules (102 auto-fixable) for Skills, Memory, Hooks, MCP, and Plugins across 10+ AI tools including Claude Code, Cursor, GitHub Copilot, Codex CLI, OpenCode, Gemini CLI, Cline, Windsurf, Roo Code, and Amp. SARIF output for GitHub Code Scanning.",
       "example": "/agnix --fix",
       "category": "linting"
     },
@@ -185,6 +185,41 @@
       "description": "Navigate, authenticate, and interact with web pages via headless Playwright. Persistent encrypted sessions, human-in-the-loop auth handoff with CAPTCHA detection, and anti-bot measures.",
       "example": "/web-ctl browse https://example.com",
       "category": "maintenance"
+    },
+    {
+      "name": "/release",
+      "tagline": "Versioned release with ecosystem detection",
+      "description": "Discovers how your repo releases before executing. Checks for semantic-release, release-it, goreleaser, changesets, cargo-release, then falls back to generic tag-and-publish. Supports 12+ ecosystems.",
+      "example": "/release minor",
+      "category": "workflow"
+    },
+    {
+      "name": "/skillers",
+      "tagline": "Learn from your workflow patterns",
+      "description": "Reads Claude Code conversation transcripts, identifies recurring patterns, clusters them into weighted themes, and suggests skills, hooks, or agents to automate them. No per-turn overhead.",
+      "example": "/skillers compact",
+      "category": "learning"
+    },
+    {
+      "name": "/git-map",
+      "tagline": "Git history intelligence for AI agents",
+      "description": "21 queries backed by a Rust binary: hotspots, coupling, ownership, bus factor, bugspots, area health, AI detection, test gaps, doc drift, and more. Cached, incrementally updatable. 9 plugins consume the data automatically.",
+      "example": "/git-map query hotspots",
+      "category": "analysis"
+    },
+    {
+      "name": "/onboard",
+      "tagline": "Oriented in any codebase in 3 minutes",
+      "description": "Pure JS collector pre-structures project data (68ms median, 74% token savings vs manual), then Opus synthesizes a guided tour. Validated on 100 repos across 8 languages. Supports 12 manifest types and monorepo detection.",
+      "example": "/onboard",
+      "category": "learning"
+    },
+    {
+      "name": "/can-i-help",
+      "tagline": "Match contributor skills to project needs",
+      "description": "Collects 5 contributor signals (good-first areas, test gaps, doc drift, bugspots, open issues), asks about developer background, then recommends specific areas with concrete first steps.",
+      "example": "/can-i-help",
+      "category": "learning"
     }
   ],
   "philosophy": [
@@ -194,7 +229,7 @@
     },
     {
       "title": "Pipeline with gates, not a monolith",
-      "description": "Same principle as DevOps. Each step must pass before the next begins. Can't push before review. Can't merge before CI passes. Hooks enforce this -- agents cannot skip phases."
+      "description": "Same principle as DevOps. Each step must pass before the next begins. Can't push before review. Can't merge before CI passes. Hooks enforce this - agents cannot skip phases."
     },
     {
       "title": "Tools do tool work, agents do agent work",
@@ -202,7 +237,7 @@
     },
     {
       "title": "Right model for the task",
-      "description": "Opus for complex reasoning and analysis. Sonnet for pattern matching and validation. Haiku for mechanical execution. Quality compounds -- early phases deserve the best model."
+      "description": "Opus for complex reasoning and analysis. Sonnet for pattern matching and validation. Haiku for mechanical execution. Quality compounds - early phases deserve the best model."
     },
     {
       "title": "Validate plan and results, not every step",
@@ -255,16 +290,6 @@
         "name": "Codex CLI",
         "prefix": "$",
         "state_dir": "~/.codex/"
-      },
-      "cursor": {
-        "name": "Cursor",
-        "prefix": "/",
-        "state_dir": ".cursor/"
-      },
-      "kiro": {
-        "name": "Kiro",
-        "prefix": "steering",
-        "state_dir": "~/.kiro/"
       }
     }
   },
@@ -277,7 +302,7 @@
     {
       "step": 2,
       "name": "Task Discovery",
-      "description": "Shows top 5 prioritized tasks -- you pick one"
+      "description": "Shows top 5 prioritized tasks - you pick one"
     },
     {
       "step": 3,
@@ -331,7 +356,7 @@
     }
   ],
   "agents": {
-    "total": 10,
+    "total": 38,
     "file_based": 0,
     "role_based": 10,
     "by_model": [
@@ -370,21 +395,30 @@
   },
   "recent_releases": [
     {
-      "version": "5.3.7",
-      "date": "2026-03-02",
+      "version": "5.5.0",
+      "date": "2026-03-16",
       "highlights": [
-        "Kiro platform support -- global install to ~/.kiro/ with agents, prompts, and skills",
-        "ACP (Agent Client Protocol) transport for /consult and /debate",
-        "Combined reviewer agents for Kiro's 4-agent limit",
-        "Cursor global install to ~/.cursor/"
+        "New /onboard plugin - codebase orientation in 3 minutes, 74% token savings, validated on 100 repos",
+        "New /can-i-help plugin - contributor guidance with 5 data-backed signals",
+        "New /git-map plugin - 21 git history queries backed by Rust binary",
+        "15 plugin READMEs written or upgraded, agent-analyzer v0.2.0 query tuning"
+      ]
+    },
+    {
+      "version": "5.4.0",
+      "date": "2026-03-10",
+      "highlights": [
+        "Agent-analyzer Phase 1 - git intelligence with 21 queries",
+        "Repo-intel integration across 11 plugins",
+        "agnix v0.16.0 - 342 validation rules"
       ]
     },
     {
       "version": "5.2.0",
       "date": "2026-02-28",
       "highlights": [
-        "New /consult plugin -- cross-tool AI consultation via ACP and CLI transports",
-        "New /debate plugin -- structured adversarial debates between AI tools",
+        "New /consult plugin - cross-tool AI consultation",
+        "New /debate plugin - structured adversarial debates between AI tools",
         "User-extensible provider registry for 6 AI tools"
       ]
     },
@@ -392,18 +426,9 @@
       "version": "5.0.0",
       "date": "2026-02-20",
       "highlights": [
-        "New /web-ctl plugin -- browser automation with encrypted session persistence",
+        "New /web-ctl plugin - browser automation with encrypted session persistence",
         "Human-in-the-loop auth handoff with CAPTCHA detection",
-        "5 platform support: Claude Code, OpenCode, Codex CLI, Cursor, Kiro"
-      ]
-    },
-    {
-      "version": "4.1.0",
-      "date": "2026-02-05",
-      "highlights": [
-        "New /agnix plugin -- lint agent configurations with 230+ validation rules",
-        "SARIF output for GitHub Code Scanning integration",
-        "Cross-platform validation for 10+ AI tools"
+        "Multi-platform support: Claude Code, OpenCode, Codex CLI"
       ]
     }
   ],
@@ -463,7 +488,7 @@
   ],
   "research": {
     "knowledge_base": "8,000 lines of curated documentation from Anthropic, OpenAI, Google, and Microsoft",
-    "testing": "3,751 tests passing",
+    "testing": "3,575 tests passing",
     "drift_detect_repos": "1,000+ repositories validated",
     "token_reduction": "77% fewer tokens for drift-detect vs multi-agent approaches"
   },

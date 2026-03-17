@@ -386,25 +386,33 @@ function generateAgentCounts(agents, plugins) {
 /**
  * Update counts in site/content.json programmatically.
  */
+// Static counts for cross-repo plugins not discoverable locally
+const STATIC_PLUGIN_COUNT = 18;
+const STATIC_AGENT_COUNT = 38;
+
 function updateSiteContent(plugins, agents, skills) {
   const contentPath = path.join(ROOT_DIR, 'site', 'content.json');
   if (!fs.existsSync(contentPath)) return null;
 
   const content = JSON.parse(fs.readFileSync(contentPath, 'utf8'));
-  const totalAgents = agents.length + ROLE_BASED_AGENT_COUNT;
+
+  // Use static counts as fallback (cross-repo plugins not discoverable locally)
+  const effectivePlugins = plugins.length > 0 ? plugins.length : STATIC_PLUGIN_COUNT;
+  const effectiveAgents = agents.length > 0 ? agents.length + ROLE_BASED_AGENT_COUNT : STATIC_AGENT_COUNT;
+  const effectiveSkills = skills.length > 0 ? skills.length : STATIC_SKILLS.length;
 
   // Update stats array
   if (content.stats && Array.isArray(content.stats)) {
     for (const stat of content.stats) {
-      if (stat.label === 'Plugins') stat.value = String(plugins.length);
-      if (stat.label === 'Agents') stat.value = String(totalAgents);
-      if (stat.label === 'Skills') stat.value = String(skills.length);
+      if (stat.label === 'Plugins') stat.value = String(effectivePlugins);
+      if (stat.label === 'Agents') stat.value = String(effectiveAgents);
+      if (stat.label === 'Skills') stat.value = String(effectiveSkills);
     }
   }
 
   // Update agents section
   if (content.agents) {
-    content.agents.total = totalAgents;
+    content.agents.total = effectiveAgents;
     content.agents.file_based = agents.length;
     content.agents.role_based = ROLE_BASED_AGENT_COUNT;
   }
