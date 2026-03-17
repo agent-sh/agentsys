@@ -413,7 +413,7 @@ function updateSiteContent(plugins, agents, skills) {
   // Update agents section
   if (content.agents) {
     content.agents.total = effectiveAgents;
-    content.agents.file_based = agents.length;
+    content.agents.file_based = effectiveAgents - ROLE_BASED_AGENT_COUNT;
     content.agents.role_based = ROLE_BASED_AGENT_COUNT;
   }
 

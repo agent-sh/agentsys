@@ -357,7 +357,7 @@
   ],
   "agents": {
     "total": 38,
-    "file_based": 0,
+    "file_based": 28,
     "role_based": 10,
     "by_model": [
       {

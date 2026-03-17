@@ -849,7 +849,7 @@ No per-turn overhead - it reads transcripts that Claude Code already saves.
 
 The plugin wraps the [agent-analyzer](https://github.com/agent-sh/agent-analyzer) Rust binary. Run `init` once to scan git history and cache the result as `repo-intel.json`. Then run queries instantly.
 
-**21 query types:**
+**20 query types:**
 
 | Category | Queries |
 |----------|---------|
@@ -875,7 +875,7 @@ The plugin wraps the [agent-analyzer](https://github.com/agent-sh/agent-analyzer
 /git-map query bus-factor          # Knowledge risk
 ```
 
-[Full query reference ->](https://github.com/agent-sh/git-map)
+[Full query reference →](https://github.com/agent-sh/git-map)
 
 ---
 
@@ -885,7 +885,7 @@ The plugin wraps the [agent-analyzer](https://github.com/agent-sh/agent-analyzer
 
 **What happens when you run it:**
 
-1. **Collect** (68ms median) - Pure JavaScript scans manifest, structure, README, CLAUDE.md/AGENTS.md, CI, git, repo-intel (no LLM tokens)
+1. **Collect** (68ms median) - Pure JavaScript scans manifest, structure, README, CI, git info. Normal depth adds CLAUDE.md/AGENTS.md and repo-intel. No LLM tokens.
 2. **Synthesize** - Opus agent produces a structured overview: tech stack, key files, active areas, conventions
 3. **Guide** - Interactive Q&A: ask about specific files, areas, or patterns
 
@@ -911,7 +911,7 @@ The plugin wraps the [agent-analyzer](https://github.com/agent-sh/agent-analyzer
 
 **Agent:** onboard-agent (opus model)
 
-[Full documentation ->](https://github.com/agent-sh/onboard)
+[Full documentation →](https://github.com/agent-sh/onboard)
 
 ---
 
@@ -945,7 +945,7 @@ The plugin wraps the [agent-analyzer](https://github.com/agent-sh/agent-analyzer
 
 **Agent:** can-i-help-agent (opus model)
 
-[Full documentation ->](https://github.com/agent-sh/can-i-help)
+[Full documentation →](https://github.com/agent-sh/can-i-help)
 
 ---
 
