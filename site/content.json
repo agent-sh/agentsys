@@ -1,11 +1,11 @@
 {
   "meta": {
     "title": "agentsys",
-    "description": "A modular runtime and orchestration system for AI agents. 18 plugins, 38 agents, 36 skills - structured pipelines for Claude Code, OpenCode, and Codex CLI.",
+    "description": "A modular runtime and orchestration system for AI agents. 19 plugins, 38 agents, 39 skills - structured pipelines for Claude Code, OpenCode, and Codex CLI.",
     "url": "https://agent-sh.github.io/agentsys",
     "repo": "https://github.com/agent-sh/agentsys",
     "npm": "https://www.npmjs.com/package/agentsys",
-    "version": "5.5.0",
+    "version": "5.6.0",
     "author": "Avi Fenesh",
     "author_url": "https://github.com/avifenesh"
   },
@@ -395,7 +395,7 @@
   },
   "recent_releases": [
     {
-      "version": "5.5.0",
+      "version": "5.6.0",
       "date": "2026-03-16",
       "highlights": [
         "New /onboard plugin - codebase orientation in 3 minutes, 74% token savings, validated on 100 repos",

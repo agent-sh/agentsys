@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <b>18 plugins · 38 agents · 36 skills (across all repos) · 30k lines of lib code · 3,575 tests · 5 platforms</b><br>
+  <b>19 plugins · 38 agents · 39 skills (across all repos) · 30k lines of lib code · 3,575 tests · 5 platforms</b><br>
   <em>Plugins distributed as standalone repos under <a href="https://github.com/agent-sh">agent-sh</a> org — agentsys is the marketplace &amp; installer</em>
 </p>
 
@@ -45,7 +45,7 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 
 ## What This Is
 
-An agent orchestration system — 18 plugins, 38 agents, and 36 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
+An agent orchestration system — 19 plugins, 38 agents, and 39 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
 
 Each agent has a single responsibility, a specific model assignment, and defined inputs/outputs. Pipelines enforce phase gates so agents can't skip steps. State persists across sessions so work survives interruptions.
 
@@ -122,6 +122,12 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 | **Analysis** | `drift-analysis`, `git-mapping`, `repo-mapping` |
 <!-- GEN:END:readme-skills -->
 
+**External skill plugins** (standalone repos, installed separately):
+
+| Category | Skills | Plugin |
+|----------|--------|--------|
+| **Message Queues** | `glide-mq`, `glide-mq-migrate-bullmq`, `glide-mq-migrate-bee` | [agent-sh/glidemq](https://github.com/agent-sh/glidemq) |
+
 Skills are the reusable implementation units. Agents invoke skills; commands orchestrate agents. When you install a plugin, its skills become available to all agents in that session.
 
 ---
@@ -132,7 +138,7 @@ Skills are the reusable implementation units. Agents invoke skills; commands orc
 |---------|--------------|
 | [The Approach](#the-approach) | Why it's built this way |
 | [Commands](#commands) | All 19 commands overview |
-| [Skills](#skills) | 36 skills across plugins |
+| [Skills](#skills) | 39 skills across plugins |
 | [Command Details](#command-details) | Deep dive into each command |
 | [How Commands Work Together](#how-commands-work-together) | Standalone vs integrated |
 | [Design Philosophy](#design-philosophy) | The thinking behind the architecture |
@@ -946,6 +952,28 @@ The plugin wraps the [agent-analyzer](https://github.com/agent-sh/agent-analyzer
 **Agent:** can-i-help-agent (opus model)
 
 [Full documentation →](https://github.com/agent-sh/can-i-help)
+
+---
+
+## Skill-Only Plugins
+
+Plugins that provide skills without a `/` command. Installed alongside agentsys; skills become available to all agents.
+
+### glide-mq
+
+**Purpose:** Build message queues, background jobs, and workflow orchestration with [glide-mq](https://github.com/avifenesh/glide-mq) - high-performance Node.js queue on Valkey/Redis.
+
+**Skills:**
+
+| Skill | What it does |
+|-------|--------------|
+| `glide-mq` | Greenfield queue development - queues, workers, ordering, rate limiting, flows, broadcast, step jobs |
+| `glide-mq-migrate-bullmq` | Migrate from BullMQ to glide-mq - API mapping, breaking changes, feature comparison |
+| `glide-mq-migrate-bee` | Migrate from Bee-Queue to glide-mq - API mapping, pattern conversion |
+
+**Key features covered:** per-key ordering, group concurrency, runtime group rate limiting (`job.rateLimitGroup()`), token bucket, DAG workflows, broadcast pub/sub, step jobs, deduplication, serverless producers.
+
+[Full documentation →](https://github.com/agent-sh/glidemq) | [glide-mq docs →](https://avifenesh.github.io/glide-mq.dev/)
 
 ---
 

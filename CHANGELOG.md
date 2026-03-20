@@ -7,6 +7,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.6.0] - 2026-03-20
+
+### Added
+
+- **glide-mq plugin** - New skill-only plugin with 3 skills for message queue development and migration:
+  - `glide-mq` - Greenfield queue development with glide-mq (ordering, rate limiting, flows, broadcast)
+  - `glide-mq-migrate-bullmq` - Migrate from BullMQ to glide-mq
+  - `glide-mq-migrate-bee` - Migrate from Bee-Queue to glide-mq
+- Skills updated for glide-mq v0.12.0: runtime per-group rate limiting (`job.rateLimitGroup()`), ordering path unification, `GroupRateLimitError`
+- Plugin count: 18 -> 19, skill count: 36 -> 39
+
 ## [5.4.1] - 2026-03-10
 
 ### Added
