@@ -30,7 +30,7 @@
    - New skill → `checklists/new-skill.md`
    - New lib module → `checklists/new-lib-module.md`
    - OpenCode plugin update → `checklists/update-opencode-plugin.md`
-   - Repo intel changes → `checklists/repo-map.md`
+   - Repo intel changes → `checklists/repo-intel.md`
    *WHY: Multi-file changes have hidden dependencies. Checklists prevent missed updates.*
 
 7. **Especially Before release, and when delivering ANY work** - Check the relevant checklist for completion requirements:

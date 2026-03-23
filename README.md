@@ -75,7 +75,7 @@ This came from testing on 1,000+ repositories.
 
 ## Benchmarks
 
-Structured prompts and enriched context do more for output quality than model tier. Benchmarked on real tasks (`/can-i-help` and `/onboard` against [glide-mq](https://github.com/avifenesh/glide-mq)), measured with `claude -p --output-format json`.
+Structured prompts and enriched context do more for output quality than model tier. Benchmarked March 2026 on real tasks (`/can-i-help` and `/onboard` against [glide-mq](https://github.com/avifenesh/glide-mq)), measured with `claude -p --output-format json`. Models: Claude Opus 4 and Claude Sonnet 4.
 
 ### Sonnet + AgentSys vs raw Opus
 
@@ -171,6 +171,7 @@ Skills are the reusable implementation units. Agents invoke skills; commands orc
 | Section | What's there |
 |---------|--------------|
 | [The Approach](#the-approach) | Why it's built this way |
+| [Benchmarks](#benchmarks) | Sonnet + agentsys vs raw Opus |
 | [Commands](#commands) | All 19 commands overview |
 | [Skills](#skills) | 39 skills across plugins |
 | [Skill-Only Plugins](#skill-only-plugins) | glide-mq and other non-command plugins |
