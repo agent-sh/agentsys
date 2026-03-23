@@ -39,7 +39,7 @@ const CHECKLIST_PATTERNS = {
   'new-skill': ['plugins/*/skills/'],
   'new-lib-module': ['lib/'],
   'release': ['package.json'],
-  'repo-map': ['plugins/repo-map/', 'lib/repo-map/'],
+  'repo-intel': ['plugins/repo-intel/', 'lib/repo-map/'],
   'opencode-plugin': ['adapters/opencode-plugin/'],
   'cross-platform': [] // triggered when any plugin/ or lib/ file changes
 };
@@ -68,9 +68,9 @@ const MANUAL_CHECKS = {
     'Test on Claude Code, OpenCode, and Codex CLI',
     'Create git tag and push'
   ],
-  'repo-map': [
-    'Verify ast-grep detection works',
-    'Test repo-map update with added/modified/deleted files'
+  'repo-intel': [
+    'Verify agent-analyzer binary is available',
+    'Test repo-intel update with added/modified/deleted files'
   ],
   'opencode-plugin': [
     'Test plugin with OpenCode locally',

@@ -44,7 +44,7 @@ When user runs `agentsys` and selects Codex:
 ├── ship/SKILL.md
 ├── audit-project/SKILL.md
 ├── drift-detect/SKILL.md
-├── repo-map/SKILL.md
+├── repo-intel/SKILL.md
 ├── sync-docs/SKILL.md
 ├── perf/SKILL.md
 └── ... (15 more internal skills)

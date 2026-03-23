@@ -52,7 +52,7 @@ const CATEGORY_MAP = {
   'deslop': 'Cleanup',
   'sync-docs': 'Cleanup',
   'drift-detect': 'Analysis',
-  'repo-map': 'Analysis',
+  'repo-intel': 'Analysis',
   'learn': 'AI Collaboration',
   'agnix': 'Linting',
   'consult': 'AI Collaboration',
@@ -60,7 +60,6 @@ const CATEGORY_MAP = {
   'skillers': 'AI Collaboration',
   'web-ctl': 'Web',
   'ship': 'Release',
-  'git-map': 'Analysis',
   'onboard': 'Onboarding',
   'can-i-help': 'Onboarding',
   'audit-project': 'Code Review',
@@ -92,7 +91,7 @@ const STATIC_SKILLS = [
   { plugin: 'deslop', name: 'deslop' },
   { plugin: 'sync-docs', name: 'sync-docs' },
   { plugin: 'drift-detect', name: 'drift-analysis' },
-  { plugin: 'repo-map', name: 'repo-mapping' },
+  { plugin: 'repo-intel', name: 'repo-intel' },
   { plugin: 'consult', name: 'consult' },
   { plugin: 'debate', name: 'debate' },
   { plugin: 'learn', name: 'learn' },
@@ -101,7 +100,6 @@ const STATIC_SKILLS = [
   { plugin: 'ship', name: 'release' },
   { plugin: 'skillers', name: 'skillers-compact' },
   { plugin: 'skillers', name: 'recommend' },
-  { plugin: 'git-map', name: 'git-mapping' },
   { plugin: 'onboard', name: 'onboard' },
   { plugin: 'can-i-help', name: 'can-i-help' },
   { plugin: 'audit-project', name: 'audit-project' },
@@ -119,7 +117,7 @@ const PURPOSE_MAP = {
   'audit-project': 'Multi-agent code review',
   'deslop': 'AI slop cleanup',
   'drift-detect': 'Plan drift detection',
-  'repo-map': 'AST repo mapping',
+  'repo-intel': 'Unified static analysis',
   'sync-docs': 'Documentation sync',
   'learn': 'Topic research and learning guides',
   'agnix': 'Agent config linting',
@@ -127,7 +125,6 @@ const PURPOSE_MAP = {
   'debate': 'Multi-perspective debate analysis',
   'web-ctl': 'Browser automation for AI agents',
   'skillers': 'Workflow pattern learning',
-  'git-map': 'Git history analysis',
   'onboard': 'Codebase onboarding',
   'can-i-help': 'Contributor guidance'
 };
@@ -178,9 +175,9 @@ function generateCommandsTable(commands) {
   const COMMAND_ORDER = [
     'next-task', 'agnix', 'ship', 'deslop', 'perf',
     'drift-detect', 'audit-project', 'enhance',
-    'repo-map', 'sync-docs', 'learn', 'consult',
+    'repo-intel', 'sync-docs', 'learn', 'consult',
     'debate', 'web-ctl', 'release', 'skillers',
-    'git-map', 'onboard', 'can-i-help'
+    'onboard', 'can-i-help'
   ];
 
   // Command descriptions for the table (short, human-written summaries)
@@ -193,7 +190,7 @@ function generateCommandsTable(commands) {
     'drift-detect': 'Compare plan vs implementation',
     'audit-project': 'Multi-agent iterative code review',
     'enhance': 'Plugin, agent, and prompt analyzers',
-    'repo-map': 'AST-based repository map',
+    'repo-intel': 'Unified static analysis - git history, AST symbols, project metadata',
     'sync-docs': 'Sync documentation with code changes',
     'learn': 'Research topics, create learning guides',
     'consult': 'Cross-tool AI consultation',
@@ -201,7 +198,6 @@ function generateCommandsTable(commands) {
     'web-ctl': 'Browser automation for AI agents',
     'release': 'Versioned release with ecosystem detection',
     'skillers': 'Workflow pattern learning and automation',
-    'git-map': 'Git history analysis: hotspots, coupling, ownership, bus factor',
     'onboard': 'Codebase orientation for newcomers',
     'can-i-help': 'Match contributor skills to project needs'
   };

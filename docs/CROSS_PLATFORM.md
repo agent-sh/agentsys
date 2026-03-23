@@ -87,7 +87,7 @@ claude --plugin-dir /path/to/agentsys/plugins/next-task
 - `/deslop` - AI slop cleanup
 - `/audit-project` - Multi-agent code review
 - `/drift-detect` - Plan drift detection
-- `/repo-map` - AST repo map generation
+- `/repo-intel` - Unified static analysis
 - `/enhance` - Enhancement analyzer suite
 - `/sync-docs` - Documentation sync
 
@@ -150,11 +150,11 @@ Conditional: architecture-reviewer, database-specialist, api-designer, frontend-
 
 *Data collection uses JavaScript collectors (77% token reduction vs multi-agent)*
 
-**repo-map: Repo Mapping (1 agent)**
+**repo-intel: Unified Static Analysis (1 agent)**
 
 | Agent | Model | Purpose |
 |-------|-------|---------|
-| map-validator | haiku | Validate repo-map output |
+| map-validator | haiku | Validate repo-intel output |
 
 ## OpenCode Integration
 
@@ -175,7 +175,7 @@ agentsys --tool opencode --no-strip
 ```
 
 This installs:
-- Slash commands (`/next-task`, `/ship`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-map`, `/sync-docs`)
+- Slash commands (`/next-task`, `/ship`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/sync-docs`)
 - **Native OpenCode plugin** with advanced features:
 
 ### Native Plugin Features
@@ -256,7 +256,7 @@ agentsys  # Select option 3 for Codex CLI
 agentsys --tool codex
 ```
 
-This installs skills to `~/.codex/skills/` (`$next-task`, `$ship`, `$deslop`, `$audit-project`, `$repo-map`, `$sync-docs`).
+This installs skills to `~/.codex/skills/` (`$next-task`, `$ship`, `$deslop`, `$audit-project`, `$repo-intel`, `$sync-docs`).
 
 ### Option 2: Custom Skills
 

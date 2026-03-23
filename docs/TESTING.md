@@ -228,10 +228,10 @@ git add app.js
 - Runs issue/doc/code scans
 - Produces a summary of drift and gaps
 
-### Test `/repo-map`
+### Test `/repo-intel`
 
 ```text
-/repo-map init
+/repo-intel init
 ```
 
 **Expected**:
@@ -279,7 +279,7 @@ npm run detect
 - [ ] `/sync-docs` reports documentation issues
 - [ ] `/delivery-approval` runs validation checks
 - [ ] `/drift-detect` produces a drift report
-- [ ] `/repo-map` generates a repo map
+- [ ] `/repo-intel` generates a repo map
 
 ---
 

@@ -30,7 +30,7 @@
    - New skill → `checklists/new-skill.md`
    - New lib module → `checklists/new-lib-module.md`
    - OpenCode plugin update → `checklists/update-opencode-plugin.md`
-   - Repo map changes → `checklists/repo-map.md`
+   - Repo intel changes → `checklists/repo-map.md`
    *WHY: Multi-file changes have hidden dependencies. Checklists prevent missed updates.*
 
 7. **Especially Before release, and when delivering ANY work** - Check the relevant checklist for completion requirements:
@@ -102,7 +102,7 @@ bin/cli.js    → npm CLI installer
 - `/deslop` - Clean AI slop patterns
 - `/drift-detect` - Compare plan vs implementation
 - `/perf` - Performance investigation
-- `/repo-map` - Generate AST-based repo map
+- `/repo-intel` - Unified static analysis - git history, AST symbols, project metadata
 
 ### Maintenance
 - `/sync-docs` - Update documentation to match code
@@ -171,7 +171,7 @@ See [README.md](./README.md#command-details) and [docs/reference/AGENTS.md](./do
 | Workflow | `orchestrate-review`, `discover-tasks`, `validate-delivery` |
 | Enhancement | `enhance-*` (9 skills for plugins, agents, docs, prompts, hooks) |
 | Performance | `baseline`, `benchmark`, `profile`, `theory-tester` |
-| Cleanup | `deslop`, `sync-docs`, `drift-analysis`, `repo-mapping` |
+| Cleanup | `deslop`, `sync-docs`, `drift-analysis`, `repo-intel` |
 
 See [README.md](./README.md#skills) for full skill list.
 </skills>

@@ -1,12 +1,12 @@
 ---
-name: repo-mapping
-description: "Use when user asks to \"create repo map\", \"generate repo map\", \"update repo map\", \"repo map status\", or \"map symbols/imports\". Builds and validates an AST-based repo map using ast-grep."
+name: repo-intel
+description: "Use when user asks to \"run repo intel\", \"generate repo map\", \"analyze repo\", \"query hotspots\", \"check ownership\", or \"bus factor\". Unified static analysis - git history, AST symbols, project metadata."
 argument-hint: "[action] [--force]"
 ---
 
-# Repo Mapping Skill
+# Repo Intel Skill
 
-Build and maintain a cached AST-based map of repository symbols and imports using ast-grep.
+Unified static analysis - git history intelligence, AST symbol mapping, and project metadata via agent-analyzer.
 
 ## Parse Arguments
 
@@ -18,59 +18,38 @@ const force = args.includes('--force');
 
 ## Primary Responsibilities
 
-1. **Generate map** on demand (`/repo-map init`)
-2. **Update map** incrementally (`/repo-map update`)
-3. **Check status** and staleness (`/repo-map status`)
-4. **Validate output** with the map-validator agent
+1. **Initialize** on demand (`/repo-intel init`)
+2. **Update** incrementally (`/repo-intel update`)
+3. **Query** git history data (`/repo-intel query hotspots`)
+4. **Check status** and staleness (`/repo-intel status`)
+5. **Validate output** with the map-validator agent
 
 ## Core Data Contract
 
-Repo map is stored in the platform state directory:
+Repo intel data is stored in the platform state directory:
 
-- Claude Code: `.claude/repo-map.json`
-- OpenCode: `.opencode/repo-map.json`
-- Codex CLI: `.codex/repo-map.json`
-
-Minimal structure:
-
-```json
-{
-  "version": "1.0.0",
-  "generated": "2026-01-25T12:00:00Z",
-  "updated": "2026-01-25T12:05:00Z",
-  "git": { "commit": "abc123", "branch": "main" },
-  "project": { "languages": ["typescript", "python"] },
-  "stats": { "totalFiles": 142, "totalSymbols": 847 },
-  "files": {
-    "src/auth/login.ts": {
-      "hash": "deadbeef1234abcd",
-      "language": "typescript",
-      "symbols": { "exports": [], "functions": [], "classes": [] },
-      "imports": [ { "source": "./utils", "kind": "named" } ]
-    }
-  }
-}
-```
+- Claude Code: `.claude/repo-intel.json`, `.claude/repo-map.json`
+- OpenCode: `.opencode/repo-intel.json`, `.opencode/repo-map.json`
+- Codex CLI: `.codex/repo-intel.json`, `.codex/repo-map.json`
 
 ## Behavior Rules
 
-- **Never** run ast-grep without user approval if it is not installed
 - **Never** install dependencies without explicit user consent
-- **Always** validate map output with `map-validator` after init/update
-- **Prefer** incremental update unless map is stale or history rewritten
+- **Always** validate output with `map-validator` after init/update
+- **Prefer** incremental update unless data is stale or history rewritten
 
-## When to Suggest Repo Map
+## When to Suggest Repo Intel
 
-If a user asks for drift detection, documentation alignment, or repo analysis and repo-map is missing:
+If a user asks for drift detection, documentation alignment, or repo analysis and repo-intel data is missing:
 
 ```
-Repo map not found. For better analysis, run:
-  /repo-map init
+Repo intel data not found. For better analysis, run:
+  /repo-intel init
 ```
 
 ## Staleness Signals
 
-- Map commit not found (rebased)
+- Data commit not found (rebased)
 - Branch changed
 - Git hooks marked stale
 - Commits behind HEAD
@@ -80,4 +59,5 @@ Repo map not found. For better analysis, run:
 Keep outputs concise:
 
 - **init/update**: file count, symbol count, commit, warnings
+- **query**: formatted query results
 - **status**: staleness, commits behind, last updated

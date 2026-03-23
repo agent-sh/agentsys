@@ -36,7 +36,7 @@ This document defines how /perf investigations are executed. It complements perf
 
 ## 6. Code Paths
 
-- Use repo-map to identify entrypoints, handlers, and data access layers.
+- Use repo-intel to identify entrypoints, handlers, and data access layers.
 - List top candidate files/symbols for profiling focus.
 - Record imports/exports when relevant to show wiring.
 

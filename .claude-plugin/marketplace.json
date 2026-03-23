@@ -1,6 +1,6 @@
 {
   "name": "agentsys",
-  "description": "18 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, repo mapping, git intelligence, perf investigations, topic research, agent config linting, cross-tool AI consultation, structured AI debate, workflow pattern learning, codebase onboarding, and contributor guidance",
+  "description": "17 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, unified static analysis, perf investigations, topic research, agent config linting, cross-tool AI consultation, structured AI debate, workflow pattern learning, codebase onboarding, and contributor guidance",
   "version": "5.6.4",
   "owner": {
     "name": "Avi Fenesh",
@@ -100,15 +100,15 @@
       "homepage": "https://github.com/agent-sh/sync-docs"
     },
     {
-      "name": "repo-map",
+      "name": "repo-intel",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/repo-map.git"
+        "url": "https://github.com/agent-sh/repo-intel.git"
       },
-      "description": "AST-based repository map generation using ast-grep with incremental updates for faster drift analysis",
+      "description": "Unified static analysis via agent-analyzer - git history, AST symbols, project metadata, and doc-code sync",
       "version": "1.0.0",
       "category": "development",
-      "homepage": "https://github.com/agent-sh/repo-map"
+      "homepage": "https://github.com/agent-sh/repo-intel"
     },
     {
       "name": "perf",
@@ -186,17 +186,6 @@
       "version": "1.0.0",
       "category": "productivity",
       "homepage": "https://github.com/agent-sh/skillers"
-    },
-    {
-      "name": "git-map",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/agent-sh/git-map.git"
-      },
-      "description": "Git history analysis: hotspots, coupling, ownership, bus factor, AI commit detection - backed by agent-analyzer Rust binary with lazy download",
-      "version": "1.0.0",
-      "category": "development",
-      "homepage": "https://github.com/agent-sh/git-map"
     },
     {
       "name": "onboard",

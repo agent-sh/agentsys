@@ -26,14 +26,14 @@ const WORK_DIR = '/tmp/fix-repos';
 // 12 graduated plugins (agnix excluded — it stays in monorepo)
 const PLUGINS = [
   'next-task', 'ship', 'enhance', 'deslop', 'learn', 'consult',
-  'debate', 'drift-detect', 'repo-map', 'sync-docs', 'audit-project',
+  'debate', 'drift-detect', 'repo-intel', 'sync-docs', 'audit-project',
   'perf'
 ];
 
 // All 13 plugin dir names that may exist in the repos
 const ALL_PLUGIN_DIRS = [
   'next-task', 'ship', 'enhance', 'deslop', 'learn', 'consult',
-  'debate', 'drift-detect', 'repo-map', 'sync-docs', 'audit-project',
+  'debate', 'drift-detect', 'repo-intel', 'sync-docs', 'audit-project',
   'perf', 'agnix'
 ];
 

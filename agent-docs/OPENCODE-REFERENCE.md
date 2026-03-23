@@ -44,7 +44,7 @@ When user runs `agentsys` and selects OpenCode:
 ├── enhance.md
 ├── audit-project.md
 ├── drift-detect.md
-├── repo-map.md
+├── repo-intel.md
 ├── sync-docs.md
 └── perf.md
 

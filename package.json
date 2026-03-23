@@ -64,8 +64,8 @@
     "cli",
     "pr-automation",
     "productivity",
-    "repo-map",
-    "ast-grep",
+    "repo-intel",
+    "static-analysis",
     "drift-detect"
   ],
   "author": {

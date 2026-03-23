@@ -19,7 +19,7 @@ Action-specific checklists to ensure consistency across the codebase.
 | [new-skill.md](./new-skill.md) | Adding a new skill (Agent Skills Open Standard) |
 | [new-lib-module.md](./new-lib-module.md) | Adding a new library module |
 | [update-opencode-plugin.md](./update-opencode-plugin.md) | Updating native OpenCode plugin |
-| [repo-map.md](./repo-map.md) | Repo-map plugin changes |
+| [repo-map.md](./repo-map.md) | Repo-intel plugin changes |
 
 ## Every Checklist Includes
 

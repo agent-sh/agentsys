@@ -25,7 +25,7 @@ const TODAY = new Date().toISOString().slice(0, 10);
 
 const PLUGINS = [
   'next-task', 'ship', 'enhance', 'deslop', 'learn', 'consult',
-  'debate', 'drift-detect', 'repo-map', 'sync-docs', 'audit-project',
+  'debate', 'drift-detect', 'repo-intel', 'sync-docs', 'audit-project',
   'perf', 'agnix'
 ];
 

@@ -493,7 +493,7 @@ If pushing version tag (v*):
 **installForClaude()** - Line 116
 - Adds marketplace: `claude plugin marketplace add agent-sh/agentsys`
 - Installs 9 plugins: `claude plugin install {plugin}@agentsys`
-- Commands: /next-task, /ship, /deslop, /audit-project, /drift-detect, /enhance, /perf, /sync-docs, /repo-map
+- Commands: /next-task, /ship, /deslop, /audit-project, /drift-detect, /enhance, /perf, /sync-docs, /repo-intel
 
 **installForOpenCode(installDir, options)** - Line 165
 - Creates dirs: `~/.config/opencode/commands/`, `~/.config/opencode/plugins/agentsys.ts`
@@ -520,7 +520,7 @@ const commandMappings = [
   ['sync-docs.md', 'sync-docs', 'sync-docs.md'],
   ['audit-project.md', 'audit-project', 'audit-project.md'],
   ['drift-detect.md', 'drift-detect', 'drift-detect.md'],
-  ['repo-map.md', 'repo-map', 'repo-map.md'],
+  ['repo-intel.md', 'repo-intel', 'repo-intel.md'],
   ['perf.md', 'perf', 'perf.md'],
   ['ship.md', 'ship', 'ship.md']
 ];
@@ -933,7 +933,7 @@ If you find any of these while working:
 5. audit-project
 6. deslop
 7. drift-detect
-8. repo-map
+8. repo-intel
 9. sync-docs
 
 **Agents:** 39 total = 29 file-based + 10 role-based
@@ -943,7 +943,7 @@ If you find any of these while working:
 - enhance: 9
 - perf: 6
 - drift-detect: 1
-- repo-map: 1
+- repo-intel: 1
 
 **Role-based (10):** Defined inline in audit-project command
 - code-quality-reviewer, security-expert, performance-engineer, test-quality-guardian
@@ -955,7 +955,7 @@ If you find any of these while working:
 - enhance: 10 (orchestrator, reporter, agent-prompts, claude-memory, docs, plugins, prompts, hooks, skills)
 - perf: 8 (analyzer, baseline, benchmark, code-paths, investigation-logger, profile, theory, theory-tester)
 - drift-detect: 1 (drift-analysis)
-- repo-map: 1 (repo-mapping)
+- repo-intel: 1 (repo-intel)
 
 **Version Fields:** 11 files
 - 1x package.json

@@ -12,7 +12,7 @@ Follow `docs/perf-requirements.md` as the canonical contract.
 
 ## Required Steps
 
-1. Use repo-map if available; otherwise use grep for entrypoints and handlers.
+1. Use repo-intel if available; otherwise use grep for entrypoints and handlers.
 2. List top candidate files/symbols tied to the scenario.
 3. Include imports/exports or call chains when relevant.
 

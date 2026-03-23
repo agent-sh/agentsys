@@ -86,7 +86,7 @@ This came from testing on 1,000+ repositories.
 | [`/drift-detect`](#drift-detect) | Compare plan vs implementation |
 | [`/audit-project`](#audit-project) | Multi-agent iterative code review |
 | [`/enhance`](#enhance) | Plugin, agent, and prompt analyzers |
-| [`/repo-map`](#repo-map) | AST-based repository map |
+| [`/repo-intel`](#repo-intel) | Unified static analysis - git history, AST symbols, project metadata |
 | [`/sync-docs`](#sync-docs) | Sync documentation with code changes |
 | [`/learn`](#learn) | Research topics, create learning guides |
 | [`/consult`](#consult) | Cross-tool AI consultation |
@@ -94,7 +94,6 @@ This came from testing on 1,000+ repositories.
 | [`/web-ctl`](#web-ctl) | Browser automation for AI agents |
 | [`/release`](#release) | Versioned release with ecosystem detection |
 | [`/skillers`](#skillers) | Workflow pattern learning and automation |
-| [`/git-map`](#git-map) | Git history analysis: hotspots, coupling, ownership, bus factor |
 | [`/onboard`](#onboard) | Codebase orientation for newcomers |
 | [`/can-i-help`](#can-i-help) | Match contributor skills to project needs |
 <!-- GEN:END:readme-commands -->
@@ -120,7 +119,7 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 | **Onboarding** | `can-i-help`, `onboard` |
 | **Web** | `web-auth`, `web-browse` |
 | **Release** | `release` |
-| **Analysis** | `drift-analysis`, `git-mapping`, `repo-mapping` |
+| **Analysis** | `drift-analysis`, `repo-intel` |
 <!-- GEN:END:readme-skills -->
 
 **External skill plugins** (standalone repos, installed separately):
@@ -420,7 +419,7 @@ Three phases run in sequence:
 3. **Breaking Point** - Binary search to find failure threshold
 4. **Constraints** - CPU/memory limits, measure delta vs baseline
 5. **Hypotheses** - Generate up to 5 hypotheses with evidence and confidence
-6. **Code Paths** - Use repo-map to identify entrypoints and hot files
+6. **Code Paths** - Use repo-intel to identify entrypoints and hot files
 7. **Profiling** - Language-specific tools (--cpu-prof, JFR, cProfile, pprof)
 8. **Optimization** - One change per experiment, 2+ validation passes
 9. **Decision** - Continue or stop based on measurable improvement
@@ -567,30 +566,33 @@ Findings are collected and categorized by severity (critical/high/medium/low). A
 
 ---
 
-### /repo-map
+### /repo-intel
 
-**Purpose:** Builds an AST-based map of symbols and imports for fast repo analysis.
+**Purpose:** Unified static analysis - git history, AST symbols, and project metadata in one plugin.
 
-**What it generates:**
+**What it provides:**
 
-- Cached file→symbols map (exports, functions, classes)
-- Import graph for dependency hints
+- Git history intelligence: hotspots, coupling, ownership, bus factor, bugspots, AI detection
+- AST symbol mapping: exports, functions, classes, imports
+- Project metadata and health metrics
 
-Output is cached at `{state-dir}/repo-map.json` and exposed via the MCP `repo_map` tool.
+Output is cached at `{state-dir}/repo-intel.json` and `{state-dir}/repo-map.json`.
 
 **Why it matters:**
 
-Tools like `/drift-detect` and planners can use the map instead of re-scanning the repo every time.
+Tools like `/drift-detect`, `/onboard`, `/can-i-help`, and planners consume this data instead of re-scanning the repo every time. 9 plugins use repo-intel data automatically.
 
 **Usage:**
 
 ```bash
-/repo-map init        # First-time map generation
-/repo-map update      # Incremental update
-/repo-map status      # Check freshness
+/repo-intel init                   # First-time scan
+/repo-intel update                 # Incremental update
+/repo-intel query hotspots         # Most active files
+/repo-intel query ownership src/   # Who owns a path
+/repo-intel query bus-factor       # Knowledge risk
 ```
 
-**Required:** ast-grep (`sg`) must be installed.
+Backed by [agent-analyzer](https://github.com/agent-sh/agent-analyzer) Rust binary.
 
 ---
 
@@ -869,44 +871,6 @@ No per-turn overhead - it reads transcripts that Claude Code already saves.
 
 ---
 
-### /git-map
-
-**Purpose:** Analyze git history to surface hotspots, coupling, ownership, bus factor, bugspots, area health, and AI attribution.
-
-**How it works:**
-
-The plugin wraps the [agent-analyzer](https://github.com/agent-sh/agent-analyzer) Rust binary. Run `init` once to scan git history and cache the result as `repo-intel.json`. Then run queries instantly.
-
-**20 query types:**
-
-| Category | Queries |
-|----------|---------|
-| Activity | `hotspots`, `coldspots`, `file-history` |
-| Quality | `bugspots`, `test-gaps`, `diff-risk` |
-| People | `ownership`, `contributors`, `bus-factor` |
-| Coupling | `coupling` |
-| Standards | `norms`, `conventions` |
-| Health | `areas`, `health`, `release-info` |
-| AI | `ai-ratio`, `recent-ai` |
-| Guidance | `onboard`, `can-i-help` |
-| Docs | `doc-drift` |
-
-**9 plugins consume git-map data automatically** - deslop, sync-docs, drift-detect, audit-project, next-task, enhance, ship, onboard, can-i-help.
-
-**Usage:**
-
-```bash
-/git-map init                      # First-time scan
-/git-map update                    # Add new commits
-/git-map query hotspots            # Most active files
-/git-map query ownership src/      # Who owns a path
-/git-map query bus-factor          # Knowledge risk
-```
-
-[Full query reference →](https://github.com/agent-sh/git-map)
-
----
-
 ### /onboard
 
 **Purpose:** Get oriented in any codebase in under 3 minutes.
@@ -925,7 +889,7 @@ The plugin wraps the [agent-analyzer](https://github.com/agent-sh/agent-analyzer
 |-------|------|------|
 | quick | ~2s | Manifest + README + structure |
 | normal | ~5s | + CLAUDE.md/AGENTS.md + CI + repo-intel |
-| deep | ~15s | + repo-map AST symbols |
+| deep | ~15s | + repo-intel AST symbols |
 
 **Supported manifests:** package.json, Cargo.toml, go.mod, pyproject.toml, deno.json, CMakeLists.txt, meson.build, setup.py, pom.xml, build.gradle. Detects monorepos (npm/pnpm/lerna/Cargo workspaces, Python libs/, Deno workspaces).
 
@@ -1153,8 +1117,8 @@ agentsys --development              # Dev mode (bypasses marketplace)
 **For GitLab workflows:**
 - GitLab CLI (`glab`) authenticated
 
-**For /repo-map:**
-- ast-grep (`sg`) installed
+**For /repo-intel:**
+- agent-analyzer (installed automatically via npm)
 
 **For /agnix:**
 - [agnix CLI](https://github.com/agent-sh/agnix) installed (`npm install -g agnix`, `cargo install agnix-cli`, or `brew install agnix`)

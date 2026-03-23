@@ -474,12 +474,12 @@ AgentSys uses 41 specialized agents across 12 plugins (11 have agents - ship use
 
 ---
 
-## repo-map Plugin Agent
+## repo-intel Plugin Agent
 
 ### map-validator
 
 **Model:** haiku
-**Purpose:** Validate repo-map output for obvious errors.
+**Purpose:** Validate repo-intel output for obvious errors.
 
 **What it does:**
 1. Verifies map isn't empty

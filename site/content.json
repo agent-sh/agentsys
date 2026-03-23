@@ -145,11 +145,11 @@
       "category": "analysis"
     },
     {
-      "name": "/repo-map",
-      "tagline": "AST symbol and import mapping",
-      "description": "Builds a cached map of exports, functions, classes, and imports via ast-grep. Tools like drift-detect and planners use it instead of re-scanning the repo every time.",
-      "example": "/repo-map init",
-      "category": "maintenance"
+      "name": "/repo-intel",
+      "tagline": "Unified static analysis for AI agents",
+      "description": "Git history intelligence, AST symbol mapping, and project metadata in one plugin. 20 query types backed by a Rust binary. 9 plugins consume the data automatically.",
+      "example": "/repo-intel init",
+      "category": "analysis"
     },
     {
       "name": "/sync-docs",
@@ -199,13 +199,6 @@
       "description": "Reads Claude Code conversation transcripts, identifies recurring patterns, clusters them into weighted themes, and suggests skills, hooks, or agents to automate them. No per-turn overhead.",
       "example": "/skillers compact",
       "category": "learning"
-    },
-    {
-      "name": "/git-map",
-      "tagline": "Git history intelligence for AI agents",
-      "description": "21 queries backed by a Rust binary: hotspots, coupling, ownership, bus factor, bugspots, area health, AI detection, test gaps, doc drift, and more. Cached, incrementally updatable. 9 plugins consume the data automatically.",
-      "example": "/git-map query hotspots",
-      "category": "analysis"
     },
     {
       "name": "/onboard",
@@ -449,8 +442,8 @@
         "description": "For PR operations and issue discovery"
       },
       {
-        "name": "ast-grep (sg)",
-        "description": "For /repo-map generation"
+        "name": "agent-analyzer",
+        "description": "For /repo-intel static analysis (installed automatically)"
       }
     ],
     "optional": [

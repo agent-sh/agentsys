@@ -13,7 +13,7 @@ Follow `docs/perf-requirements.md` as the canonical contract.
 ## Required Steps
 
 1. Review recent git history (scope to relevant paths when possible).
-2. Identify code paths involved in the scenario (repo-map or grep).
+2. Identify code paths involved in the scenario (repo-intel or grep).
 3. Produce up to 5 hypotheses with evidence + confidence.
 
 ## Output Format

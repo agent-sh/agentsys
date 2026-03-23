@@ -265,7 +265,7 @@ Done. Task to merged PR in 12 minutes.
   - On mobile: naturally scrollable, slight gradient fade on right edge to indicate scrollability (20px gradient from transparent to section background)
 
 ### Tab Order
-`/next-task`, `/ship`, `/deslop`, `/perf`, `/drift-detect`, `/audit-project`, `/enhance`, `/repo-map`, `/sync-docs`, `/learn`, `/agnix`
+`/next-task`, `/ship`, `/deslop`, `/perf`, `/drift-detect`, `/audit-project`, `/enhance`, `/repo-intel`, `/sync-docs`, `/learn`, `/agnix`
 
 (Most impactful first: the full workflow command, then the shipper, then individual tools)
 

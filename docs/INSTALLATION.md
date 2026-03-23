@@ -28,7 +28,7 @@ Add the marketplace and install plugins directly in Claude Code:
 /plugin install deslop@agentsys
 /plugin install audit-project@agentsys
 /plugin install drift-detect@agentsys
-/plugin install repo-map@agentsys
+/plugin install repo-intel@agentsys
 /plugin install enhance@agentsys
 /plugin install perf@agentsys
 /plugin install sync-docs@agentsys
@@ -184,7 +184,7 @@ You should see commands:
 - `/deslop` - AI slop cleanup
 - `/audit-project` - Multi-agent code review
 - `/drift-detect` - Plan drift detection
-- `/repo-map` - AST repo map generation
+- `/repo-intel` - Unified static analysis
 - `/enhance` - Enhancement analyzer suite
 - `/perf` - Performance investigation workflow
 - `/sync-docs` - Documentation sync
@@ -219,9 +219,9 @@ npm run verify   # Tool availability + versions
 
 - **Node.js 18+** - For library functions
 
-### Recommended (Repo Map)
+### Recommended (Repo Intel)
 
-- **ast-grep (`sg`)** - Required for `/repo-map` generation. Install upfront for the best experience.
+- **agent-analyzer** - Used by `/repo-intel` for static analysis. Installed automatically via npm.
 
 ### Required for GitHub Workflows
 

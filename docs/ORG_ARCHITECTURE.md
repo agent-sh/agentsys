@@ -21,7 +21,7 @@
 | [perf](https://github.com/agent-sh/perf) | Performance investigation plugin | Active |
 | [drift-detect](https://github.com/agent-sh/drift-detect) | Plan drift detection plugin | Active |
 | [sync-docs](https://github.com/agent-sh/sync-docs) | Documentation sync plugin | Active |
-| [repo-map](https://github.com/agent-sh/repo-map) | AST repo mapping plugin | Active |
+| [repo-intel](https://github.com/agent-sh/repo-intel) | Unified static analysis plugin | Active |
 | [learn](https://github.com/agent-sh/learn) | Topic research and learning guides plugin | Active |
 | [consult](https://github.com/agent-sh/consult) | Cross-tool AI consultation plugin | Active |
 | [debate](https://github.com/agent-sh/debate) | Multi-perspective debate analysis plugin | Active |

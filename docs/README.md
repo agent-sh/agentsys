@@ -67,7 +67,7 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 | `/deslop` | 3-phase slop detection and cleanup |
 | `/audit-project` | Multi-agent code review |
 | `/drift-detect` | Compare docs to actual code |
-| `/repo-map` | Build cached AST repo map |
+| `/repo-intel` | Unified static analysis - git history, AST symbols, project metadata |
 | `/perf` | Performance investigation workflow |
 | `/enhance` | Analyze prompts, plugins, agents, docs, hooks, skills |
 | `/sync-docs` | Sync docs with code changes |

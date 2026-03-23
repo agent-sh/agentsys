@@ -72,7 +72,7 @@ const REQUIRED_FEATURES = [
   '/enhance',
   '/audit-project',
   '/drift-detect',
-  '/repo-map',
+  '/repo-intel',
   '/perf',
   '/sync-docs'
 ];
@@ -110,7 +110,7 @@ function validateCommandPrefixes() {
 
       // Check for wrong prefix usage
       const wrongPrefix = platform === 'codex' ? '/' : '$';
-      const commandPattern = new RegExp(`${wrongPrefix}(next-task|ship|deslop|enhance|audit-project|drift-detect|repo-map|perf|sync-docs)`, 'g');
+      const commandPattern = new RegExp(`${wrongPrefix}(next-task|ship|deslop|enhance|audit-project|drift-detect|repo-intel|perf|sync-docs)`, 'g');
 
       const matches = content.match(commandPattern);
       if (matches && matches.length > 0) {

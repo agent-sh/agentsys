@@ -117,16 +117,16 @@ describe('detectRelevantChecklists', () => {
     expect(result.has('release')).toBe(true);
   });
 
-  test('repo-map plugin files trigger repo-map', () => {
-    const files = ['plugins/repo-map/skills/repo-mapping/SKILL.md'];
+  test('repo-intel plugin files trigger repo-intel', () => {
+    const files = ['plugins/repo-intel/skills/repo-intel/SKILL.md'];
     const result = detectRelevantChecklists(files);
-    expect(result.has('repo-map')).toBe(true);
+    expect(result.has('repo-intel')).toBe(true);
   });
 
-  test('lib/repo-map files trigger repo-map', () => {
+  test('lib/repo-map files trigger repo-intel', () => {
     const files = ['lib/repo-map/index.js'];
     const result = detectRelevantChecklists(files);
-    expect(result.has('repo-map')).toBe(true);
+    expect(result.has('repo-intel')).toBe(true);
   });
 
   test('empty array triggers no checklists', () => {
@@ -490,7 +490,7 @@ describe('CHECKLIST_PATTERNS', () => {
   test('has expected checklist keys', () => {
     const expected = [
       'new-command', 'new-agent', 'new-skill', 'new-lib-module',
-      'release', 'repo-map', 'opencode-plugin', 'cross-platform'
+      'release', 'repo-intel', 'opencode-plugin', 'cross-platform'
     ];
     for (const key of expected) {
       expect(CHECKLIST_PATTERNS).toHaveProperty(key);
