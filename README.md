@@ -73,6 +73,44 @@ This came from testing on 1,000+ repositories.
 
 ---
 
+## Benchmarks
+
+Structured prompts and enriched context do more for output quality than model tier. Benchmarked on real tasks (`/can-i-help` and `/onboard` against [glide-mq](https://github.com/avifenesh/glide-mq)), measured with `claude -p --output-format json`.
+
+### Sonnet + AgentSys vs raw Opus
+
+Same task, same repo, same prompt ("I want to improve docs"):
+
+| Configuration | Cost | Output tokens | Result quality |
+|---------------|------|---------------|----------------|
+| Opus, no agentsys | $1.10 | 2,841 | Generic recommendations, no project-specific context |
+| Opus + agentsys | $1.95 | 5,879 | Specific recommendations with effort estimates, convention awareness, breaking change detection |
+| **Sonnet + agentsys** | **$0.66** | **6,084** | **Comparable to Opus + agentsys: specific, actionable, project-aware** |
+
+Sonnet + agentsys produced more output with higher specificity than raw Opus - at 40% lower cost.
+
+### With agentsys, model tier matters less
+
+Once the pipeline provides structured prompts, enriched repo-intel data, and phase-gated workflows, the model does less heavy lifting. The gap between Sonnet and Opus narrows:
+
+| Plugin | Opus | Sonnet | Savings |
+|--------|------|--------|---------|
+| /onboard | $1.10 | $0.30 | 73% |
+| /can-i-help | $1.34 | $0.23 | 83% |
+
+Both models reached the same outcome quality - Sonnet just costs less to get there. The structured pipeline captures most of the gains that would otherwise require a more expensive model.
+
+### What this means
+
+| Scenario | Model cost | Quality |
+|----------|-----------|---------|
+| Without agentsys | Need Opus for good results | Depends on model capability |
+| **With agentsys** | **Sonnet is sufficient** | **Pipeline handles the structure, model handles judgment** |
+
+The investment shifts from model spend to pipeline design. Better prompts, richer context, enforced phases - these compound in ways that model upgrades alone don't.
+
+---
+
 ## Commands
 
 <!-- GEN:START:readme-commands -->
