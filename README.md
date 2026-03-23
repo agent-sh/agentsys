@@ -113,7 +113,6 @@ The investment shifts from model spend to pipeline design. Better prompts, riche
 
 ## Commands
 
-<!-- GEN:START:readme-commands -->
 | Command | What it does |
 |---------|--------------|
 | [`/next-task`](#next-task) | Task workflow: discovery, implementation, PR, merge |
@@ -134,7 +133,6 @@ The investment shifts from model spend to pipeline design. Better prompts, riche
 | [`/skillers`](#skillers) | Workflow pattern learning and automation |
 | [`/onboard`](#onboard) | Codebase orientation for newcomers |
 | [`/can-i-help`](#can-i-help) | Match contributor skills to project needs |
-<!-- GEN:END:readme-commands -->
 
 Each command works standalone. Together, they compose into end-to-end pipelines.
 
@@ -142,7 +140,6 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 
 ## Skills
 
-<!-- GEN:START:readme-skills -->
 38 skills included across the plugins:
 
 | Category | Skills |
@@ -158,7 +155,6 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 | **Web** | `web-auth`, `web-browse` |
 | **Release** | `release` |
 | **Analysis** | `drift-analysis`, `repo-intel` |
-<!-- GEN:END:readme-skills -->
 
 **External skill plugins** (standalone repos, installed separately):
 
