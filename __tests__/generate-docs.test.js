@@ -224,24 +224,24 @@ describe('generate-docs', () => {
     });
 
     test('returns stale when docs are tampered with', () => {
-      const readmePath = path.join(REPO_ROOT, 'README.md');
-      const original = fs.readFileSync(readmePath, 'utf8');
+      const agentsPath = path.join(REPO_ROOT, 'AGENTS.md');
+      const original = fs.readFileSync(agentsPath, 'utf8');
 
       try {
         // Tamper with generated section
         const tampered = original.replace(
-          /<!-- GEN:START:readme-skills -->\n[\s\S]*?\n<!-- GEN:END:readme-skills -->/,
-          '<!-- GEN:START:readme-skills -->\ntampered content\n<!-- GEN:END:readme-skills -->'
+          /<!-- GEN:START:claude-architecture -->\n[\s\S]*?\n<!-- GEN:END:claude-architecture -->/,
+          '<!-- GEN:START:claude-architecture -->\ntampered content\n<!-- GEN:END:claude-architecture -->'
         );
-        fs.writeFileSync(readmePath, tampered);
+        fs.writeFileSync(agentsPath, tampered);
         discovery.invalidateCache();
 
         const result = genDocs.checkFreshness();
         expect(result.status).toBe('stale');
-        expect(result.staleFiles).toContain('README.md');
+        expect(result.staleFiles).toContain('AGENTS.md');
       } finally {
         // Restore original
-        fs.writeFileSync(readmePath, original);
+        fs.writeFileSync(agentsPath, original);
       }
     });
   });
