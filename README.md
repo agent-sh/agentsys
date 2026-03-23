@@ -105,7 +105,7 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 ## Skills
 
 <!-- GEN:START:readme-skills -->
-39 skills included across the plugins:
+38 skills included across the plugins:
 
 | Category | Skills |
 |----------|--------|
