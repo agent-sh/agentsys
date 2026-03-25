@@ -49,6 +49,8 @@ const CATEGORY_MAP = {
   'perf': 'Performance',
   'enhance': 'Enhancement',
   'next-task': 'Workflow',
+  'prepare-delivery': 'Workflow',
+  'gate-and-ship': 'Workflow',
   'deslop': 'Cleanup',
   'sync-docs': 'Cleanup',
   'drift-detect': 'Analysis',
@@ -68,9 +70,11 @@ const CATEGORY_MAP = {
 
 // Static skill definitions for cross-repo plugins (not discoverable locally)
 const STATIC_SKILLS = [
-  { plugin: 'next-task', name: 'orchestrate-review' },
   { plugin: 'next-task', name: 'discover-tasks' },
-  { plugin: 'next-task', name: 'validate-delivery' },
+  { plugin: 'prepare-delivery', name: 'prepare-delivery' },
+  { plugin: 'prepare-delivery', name: 'check-test-coverage' },
+  { plugin: 'prepare-delivery', name: 'orchestrate-review' },
+  { plugin: 'prepare-delivery', name: 'validate-delivery' },
   { plugin: 'enhance', name: 'enhance-orchestrator' },
   { plugin: 'enhance', name: 'enhance-plugins' },
   { plugin: 'enhance', name: 'enhance-agent-prompts' },
@@ -111,6 +115,8 @@ const STATIC_SKILLS = [
 // Purpose mapping for architecture table
 const PURPOSE_MAP = {
   'next-task': 'Master workflow orchestration',
+  'prepare-delivery': 'Pre-ship quality gates',
+  'gate-and-ship': 'Quality gates then ship',
   'enhance': 'Code quality analyzers',
   'ship': 'PR creation and deployment',
   'perf': 'Performance investigation',
@@ -173,7 +179,8 @@ function generateCommandsTable(commands) {
 
   // Curated display order (featured commands first, then alphabetical)
   const COMMAND_ORDER = [
-    'next-task', 'agnix', 'ship', 'deslop', 'perf',
+    'next-task', 'prepare-delivery', 'gate-and-ship',
+    'agnix', 'ship', 'deslop', 'perf',
     'drift-detect', 'audit-project', 'enhance',
     'repo-intel', 'sync-docs', 'learn', 'consult',
     'debate', 'web-ctl', 'release', 'skillers',
@@ -183,6 +190,8 @@ function generateCommandsTable(commands) {
   // Command descriptions for the table (short, human-written summaries)
   const COMMAND_SUMMARIES = {
     'next-task': 'Task workflow: discovery, implementation, PR, merge',
+    'prepare-delivery': 'Pre-ship quality gates: deslop, review, validation, docs sync',
+    'gate-and-ship': 'Quality gates then ship (/prepare-delivery + /ship)',
     'agnix': 'Lint agent configurations (342 rules)',
     'ship': 'PR creation, CI monitoring, merge',
     'deslop': 'Clean AI slop patterns',

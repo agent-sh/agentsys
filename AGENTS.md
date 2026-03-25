@@ -94,6 +94,8 @@ bin/cli.js    → npm CLI installer
 
 ### Core Workflow
 - `/next-task` - Master workflow: task → implementation → PR → merge
+- `/prepare-delivery` - Pre-ship quality gates: deslop, review, validation, docs sync
+- `/gate-and-ship` - Quality gates then ship (/prepare-delivery + /ship)
 - `/ship` - PR creation, CI monitoring, merge
 - `/enhance` - Run all enhancement analyzers
 
@@ -150,12 +152,12 @@ agentsys                # Run installer
 <agents>
 ## Agents
 
-35 agents across 15 plugins. Key agents by model:
+47 agents across 19 plugins. Key agents by model:
 
 | Model | Agents | Use Case |
 |-------|--------|----------|
 | **opus** | exploration, planning, implementation, perf-orchestrator, debate-orchestrator, skillers-recommender | Complex reasoning, analysis |
-| **sonnet** | task-discoverer, delivery-validator, ci-fixer, deslop-agent, reporters, learn, release-agent, skillers-compactor | Validation, pattern matching |
+| **sonnet** | task-discoverer, delivery-validator (prepare-delivery), ci-fixer, deslop-agent, reporters, learn, release-agent, skillers-compactor | Validation, pattern matching |
 | **haiku** | worktree-manager, ci-monitor, simple-fixer | Mechanical execution |
 
 See [README.md](./README.md#command-details) and [docs/reference/AGENTS.md](./docs/reference/AGENTS.md) for full agent list.
@@ -164,7 +166,7 @@ See [README.md](./README.md#command-details) and [docs/reference/AGENTS.md](./do
 <skills>
 ## Skills
 
-32 skills across plugins. Agents invoke skills for reusable implementation.
+40 skills across plugins. Agents invoke skills for reusable implementation.
 
 | Category | Key Skills |
 |----------|------------|
@@ -188,7 +190,7 @@ See [README.md](./README.md#skills) for full skill list.
 
 Platform-aware state directory:
 - Claude Code: `.claude/`
-- OpenCode: `config/.opencode/`
+- OpenCode: `.opencode/`
 - Codex: `.codex/`
 - Cursor: `.cursor/`
 - Kiro: `.kiro/`
@@ -201,7 +203,7 @@ Cannot skip in /next-task:
 - `exploration-agent` → before planning
 - `planning-agent` → before implementation
 - **Phase 9 review loop** → MUST use orchestrate-review skill
-- `delivery-validator` → before sync-docs:sync-docs-agent
+- `prepare-delivery:delivery-validator` → before sync-docs:sync-docs-agent
 - `sync-docs:sync-docs-agent` → before /ship
 </workflow-agents>
 

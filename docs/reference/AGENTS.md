@@ -24,7 +24,7 @@ Complete reference for all agents in AgentSys.
 
 ## Overview
 
-AgentSys uses 41 specialized agents across 12 plugins (11 have agents - ship uses commands only). Each agent is optimized for a specific task and assigned a model based on complexity:
+AgentSys uses 47 specialized agents across 19 plugins (17 have agents - ship and gate-and-ship use commands only). Each agent is optimized for a specific task and assigned a model based on complexity:
 
 | Model | Use Case | Cost |
 |-------|----------|------|
@@ -33,7 +33,7 @@ AgentSys uses 41 specialized agents across 12 plugins (11 have agents - ship use
 | haiku | Mechanical execution, no judgment | Low |
 
 **Agent types:**
-- **File-based agents** (32) - Defined in `plugins/*/agents/*.md` with frontmatter <!-- AGENT_COUNT_FILE_BASED: 32 -->
+- **File-based agents** (37) - Defined in `plugins/*/agents/*.md` with frontmatter <!-- AGENT_COUNT_FILE_BASED: 37 -->
 - **Role-based agents** (10) - Defined inline via Task tool with specialized prompts <!-- AGENT_COUNT_ROLE_BASED: 10 -->
 
 ---
@@ -159,49 +159,7 @@ AgentSys uses 41 specialized agents across 12 plugins (11 have agents - ship use
 
 ---
 
-### test-coverage-checker
-
-**Model:** sonnet
-**Purpose:** Validate test quality for new code.
-
-**What it does:**
-1. Identifies new/modified functions
-2. Checks if tests exist
-3. Checks if tests are meaningful (not just path matching)
-4. Reports coverage status
-
-**Tools available:**
-- Bash (git, npm)
-- Read, Grep, Glob
-
-**Advisory only:** Does not block workflow. Reports findings but continues.
-
----
-
-### delivery-validator
-
-**Model:** sonnet
-**Purpose:** Final validation before shipping.
-
-**Checks:**
-1. Review status - no open issues (or explicit override)
-2. Tests pass
-3. Build passes
-4. Task requirements met (extracts from task, maps to changes)
-5. No regressions
-
-**Tools available:**
-- Bash (git, npm)
-- Read, Grep, Glob
-
-**On failure:** Returns to implementation with fix instructions.
-
-**Restrictions:**
-- MUST NOT create PR
-- MUST NOT push
-- MUST NOT skip sync-docs:sync-docs-agent
-
----
+> **Note:** delivery-validator and test-coverage-checker moved to prepare-delivery plugin.
 
 ### sync-docs-agent
 
@@ -744,6 +702,212 @@ These are role-based agents invoked via Task tool with specialized prompts. They
 
 ---
 
+## prepare-delivery Plugin Agents
+
+### prepare-delivery-agent
+
+**Model:** sonnet
+**Purpose:** Orchestrate pre-ship quality gate pipeline via skill.
+
+**What it does:**
+1. Runs prepare-delivery:test-coverage-checker and prepare-delivery:delivery-validator in sequence
+2. Aggregates pass/fail results into a single quality gate verdict
+3. Blocks shipping if any mandatory check fails
+
+**Tools available:**
+- Bash (git, npm)
+- Skill, Task, Read, Grep, Glob
+
+---
+
+### test-coverage-checker
+
+**Model:** sonnet
+**Purpose:** Validate test quality for new code.
+
+**What it does:**
+1. Identifies new/modified functions
+2. Checks if tests exist
+3. Checks if tests are meaningful (not just path matching)
+4. Reports coverage status
+
+**Tools available:**
+- Bash (git, npm)
+- Read, Grep, Glob
+
+**Advisory only:** Does not block workflow. Reports findings but continues.
+
+---
+
+### delivery-validator
+
+**Model:** sonnet
+**Purpose:** Final validation before shipping.
+
+**Checks:**
+1. Review status - no open issues (or explicit override)
+2. Tests pass
+3. Build passes
+4. Task requirements met (extracts from task, maps to changes)
+5. No regressions
+
+**Tools available:**
+- Bash (git, npm)
+- Read, Grep, Glob
+
+**On failure:** Returns to implementation with fix instructions.
+
+**Restrictions:**
+- MUST NOT create PR
+- MUST NOT push
+- MUST NOT skip sync-docs:sync-docs-agent
+
+---
+
+## gate-and-ship Plugin
+
+No agents - command-only orchestrator that delegates to prepare-delivery and ship plugins.
+
+---
+
+## consult Plugin Agent
+
+### consult-agent
+
+**Model:** sonnet
+**Purpose:** Cross-tool AI consultation - get a second opinion from another AI tool.
+
+**What it does:**
+1. Formats context and question for the target tool (Gemini, Codex, Claude, OpenCode, Copilot)
+2. Invokes the target tool non-interactively
+3. Returns the structured response for comparison
+
+**Tools available:**
+- Bash, Read, Glob, Grep, Skill
+
+---
+
+## debate Plugin Agent
+
+### debate-orchestrator
+
+**Model:** sonnet
+**Purpose:** Structured multi-round debate between AI tools.
+
+**What it does:**
+1. Frames the debate topic and assigns positions to AI tools
+2. Manages rounds - each tool argues, then rebuts
+3. Synthesizes final summary with key agreements and disagreements
+
+**Tools available:**
+- Bash, Read, Glob, Grep, Skill
+
+---
+
+## web-ctl Plugin Agent
+
+### web-session
+
+**Model:** sonnet
+**Purpose:** Browser automation with persistent state.
+
+**What it does:**
+1. Manages headless browser sessions with auth handoff
+2. Navigates pages, extracts content, fills forms
+3. Maintains session state across multiple interactions
+
+**Tools available:**
+- Bash, Read, Write, Skill
+
+---
+
+## ship Plugin Agent
+
+### release-agent
+
+**Model:** sonnet
+**Purpose:** Versioned release with automatic ecosystem detection.
+
+**What it does:**
+1. Detects ecosystem (npm, cargo, go, etc.) and version strategy
+2. Bumps version, creates changelog entry, tags release
+3. Delegates publish to CI via tag push or `gh release create`
+
+**Tools available:**
+- Bash (git, gh, npm, cargo)
+- Read, Write, Glob, Grep
+
+---
+
+## skillers Plugin Agents
+
+### skillers-recommender
+
+**Model:** opus
+**Purpose:** Suggest skills, hooks, and agents from observed workflow patterns.
+
+**What it does:**
+1. Reads compacted knowledge themes from transcript analysis
+2. Identifies repetitive manual patterns that could be automated
+3. Recommends new skills, hooks, or agents with draft implementations
+
+**Tools available:**
+- Read, Glob, Grep, Write
+
+**Why opus:** Pattern synthesis across diverse workflows requires deep reasoning to distinguish signal from noise.
+
+---
+
+### skillers-compactor
+
+**Model:** sonnet
+**Purpose:** Compact transcripts into knowledge files.
+
+**What it does:**
+1. Reads raw transcripts from Claude Code, Codex, or OpenCode
+2. Extracts observations and clusters them into knowledge themes
+3. Writes compacted knowledge files for skillers-recommender
+
+**Tools available:**
+- Read, Write, Glob, Grep, Bash
+
+---
+
+## onboard Plugin Agent
+
+### onboard-agent
+
+**Model:** sonnet
+**Purpose:** Codebase onboarding - project orientation for newcomers.
+
+**What it does:**
+1. Scans project structure, README, and config files
+2. Identifies architecture patterns, key entry points, and conventions
+3. Generates a concise orientation guide tailored to the contributor's role
+
+**Tools available:**
+- Read, Glob, Grep, Bash (git)
+
+---
+
+## can-i-help Plugin Agent
+
+### can-i-help-agent
+
+**Model:** sonnet
+**Purpose:** Match contributor skills to project needs.
+
+**What it does:**
+1. Scans open issues, good-first-issue labels, and help-wanted tags
+2. Profiles contributor strengths from their history or stated skills
+3. Returns ranked list of issues the contributor is best suited to tackle
+
+**Tools available:**
+- Bash (gh, git)
+- Read, Glob, Grep
+
+---
+
 ## Model Selection Rationale
 
 | Agent Type | Model | Reasoning |
@@ -763,7 +927,7 @@ Agents have restricted tool access for safety:
 | Agent | Restricted From | Why |
 |-------|-----------------|-----|
 | implementation-agent | PR creation, git push | Workflow enforces order |
-| delivery-validator | PR creation, git push | Must pass validation first |
+| prepare-delivery:delivery-validator | PR creation, git push | Must pass validation first |
 | worktree-manager | Most tools | Only needs git |
 | simple-fixer | Most tools | Only needs edit |
 

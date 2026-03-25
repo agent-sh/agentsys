@@ -208,10 +208,10 @@ git add app.js
 - Scans documentation
 - Reports any outdated references
 
-### Test `/delivery-approval`
+### Test `/prepare-delivery`
 
 ```text
-/delivery-approval --verbose
+/prepare-delivery --verbose
 ```
 
 **Expected**:
@@ -235,7 +235,7 @@ git add app.js
 ```
 
 **Expected**:
-- Generates repo-map.json in platform state dir
+- Generates repo-intel.json in platform state dir
 - Reports file and symbol counts
 - Validates output with map-validator
 
@@ -277,7 +277,7 @@ npm run detect
 - [ ] `/audit-project` finds real issues
 - [ ] `/ship` creates PR and merges successfully
 - [ ] `/sync-docs` reports documentation issues
-- [ ] `/delivery-approval` runs validation checks
+- [ ] `/prepare-delivery` runs validation checks
 - [ ] `/drift-detect` produces a drift report
 - [ ] `/repo-intel` generates a repo map
 

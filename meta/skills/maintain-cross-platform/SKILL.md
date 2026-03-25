@@ -951,7 +951,8 @@ If you find any of these while working:
 - frontend-specialist, backend-specialist, devops-reviewer
 
 **Skills:** 23 - Count SKILL.md in `plugins/*/skills/*/SKILL.md`
-- next-task: 4 (orchestrate-review, discover-tasks, validate-delivery, update-docs)
+- next-task: 1 (discover-tasks)
+- prepare-delivery: 4 (prepare-delivery, check-test-coverage, orchestrate-review, validate-delivery)
 - enhance: 10 (orchestrator, reporter, agent-prompts, claude-memory, docs, plugins, prompts, hooks, skills)
 - perf: 8 (analyzer, baseline, benchmark, code-paths, investigation-logger, profile, theory, theory-tester)
 - drift-detect: 1 (drift-analysis)

@@ -44,7 +44,7 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 
 | Document | Description |
 |----------|-------------|
-| [reference/AGENTS.md](./reference/AGENTS.md) | All 42 agents: purpose, model, tools, restrictions. <!-- AGENT_COUNT_TOTAL: 42 --> |
+| [reference/AGENTS.md](./reference/AGENTS.md) | All 47 agents: purpose, model, tools, restrictions. <!-- AGENT_COUNT_TOTAL: 47 --> |
 | [reference/SLOP-PATTERNS.md](./reference/SLOP-PATTERNS.md) | All detection patterns by language, severity, auto-fix. |
 
 ### Platform & Architecture
@@ -71,6 +71,17 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 | `/perf` | Performance investigation workflow |
 | `/enhance` | Analyze prompts, plugins, agents, docs, hooks, skills |
 | `/sync-docs` | Sync docs with code changes |
+| `/learn` | Research topics online, create learning guides |
+| `/consult` | Cross-tool AI consultation |
+| `/debate` | Structured multi-round debate between AI tools |
+| `/web-ctl` | Browser automation and web interaction |
+| `/skillers` | Workflow pattern learning and automation suggestions |
+| `/onboard` | Codebase onboarding - project orientation |
+| `/can-i-help` | Contributor guidance - match skills to project needs |
+| `/release` | Versioned release with automatic ecosystem detection |
+| `/agnix` | Linter for AI agent configs |
+| `/prepare-delivery` | Pre-ship validation checks |
+| `/gate-and-ship` | Gated shipping workflow |
 
 ### Internal Skills
 
@@ -83,12 +94,14 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 | `tasks.json` | `{state-dir}/` | Which task is active |
 | `flow.json` | `{state-dir}/` (worktree) | Which phase you're in |
 | `preference.json` | `{state-dir}/sources/` | Cached task source preference |
-| `repo-map.json` | `{state-dir}/` | Cached AST repo map |
+| `repo-intel.json` | `{state-dir}/` | Cached symbol map |
 
 State directories by platform:
 - Claude Code: `.claude/`
 - OpenCode: `.opencode/`
 - Codex CLI: `.codex/`
+- Cursor: `.cursor/`
+- Kiro: `.kiro/`
 
 ### Agent Models
 

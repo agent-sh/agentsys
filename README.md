@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <b>19 plugins · 47 agents · 39 skills (across all repos) · 30k lines of lib code · 3,583 tests · 5 platforms</b><br>
+  <b>19 plugins · 47 agents · 40 skills (across all repos) · 30k lines of lib code · 3,583 tests · 5 platforms</b><br>
   <em>Plugins distributed as standalone repos under <a href="https://github.com/agent-sh">agent-sh</a> org — agentsys is the marketplace &amp; installer</em>
 </p>
 
@@ -45,7 +45,7 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 
 ## What This Is
 
-An agent orchestration system — 19 plugins, 47 agents, and 39 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
+An agent orchestration system — 19 plugins, 47 agents, and 40 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
 
 Each agent has a single responsibility, a specific model assignment, and defined inputs/outputs. Pipelines enforce phase gates so agents can't skip steps. State persists across sessions so work survives interruptions.
 
@@ -116,6 +116,8 @@ The investment shifts from model spend to pipeline design. Better prompts, riche
 | Command | What it does |
 |---------|--------------|
 | [`/next-task`](#next-task) | Task workflow: discovery, implementation, PR, merge |
+| [`/prepare-delivery`](#prepare-delivery) | Pre-ship quality gates: deslop, review, validation, docs sync |
+| [`/gate-and-ship`](#gate-and-ship) | Quality gates then ship (/prepare-delivery + /ship) |
 | [`/agnix`](#agnix) | Lint agent configurations (342 rules) |
 | [`/ship`](#ship) | PR creation, CI monitoring, merge |
 | [`/deslop`](#deslop) | Clean AI slop patterns |
@@ -140,11 +142,11 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 
 ## Skills
 
-38 skills included across the plugins:
+40 skills included across the plugins:
 
 | Category | Skills |
 |----------|--------|
-| **Workflow** | `discover-tasks`, `orchestrate-review`, `validate-delivery` |
+| **Workflow** | `discover-tasks`, `prepare-delivery`, `check-test-coverage`, `orchestrate-review`, `validate-delivery` |
 | **Message Queues** | `glide-mq-migrate-bee`, `glide-mq-migrate-bullmq`, `glide-mq` |
 | **Enhancement** | `enhance-agent-prompts`, `enhance-claude-memory`, `enhance-cross-file`, `enhance-docs`, `enhance-hooks`, `enhance-orchestrator`, `enhance-plugins`, `enhance-prompts`, `enhance-skills` |
 | **Performance** | `baseline`, `benchmark`, `code-paths`, `investigation-logger`, `perf-analyzer`, `profile`, `theory-gatherer`, `theory-tester` |
@@ -172,8 +174,8 @@ Skills are the reusable implementation units. Agents invoke skills; commands orc
 |---------|--------------|
 | [The Approach](#the-approach) | Why it's built this way |
 | [Benchmarks](#benchmarks) | Sonnet + agentsys vs raw Opus |
-| [Commands](#commands) | All 19 commands overview |
-| [Skills](#skills) | 39 skills across plugins |
+| [Commands](#commands) | All 20 commands overview |
+| [Skills](#skills) | 40 skills across plugins |
 | [Skill-Only Plugins](#skill-only-plugins) | glide-mq and other non-command plugins |
 | [Command Details](#command-details) | Deep dive into each command |
 | [How Commands Work Together](#how-commands-work-together) | Standalone vs integrated |
@@ -219,7 +221,7 @@ Key features: per-key ordering, group concurrency, runtime group rate limiting (
 5. **Planning** - Designs implementation approach
 6. **User Approval** - You review and approve the plan (last human interaction)
 7. **Implementation** - Executes the plan
-8. **Pre-Review** - Runs [deslop](#deslop)-agent and test-coverage-checker
+8. **Pre-Review** - Runs [deslop](#deslop)-agent and prepare-delivery:test-coverage-checker
 9. **Review Loop** - Multi-agent review iterates until clean
 10. **Delivery Validation** - Verifies tests pass, build passes, requirements met
 11. **Docs Update** - Updates CHANGELOG and related documentation
@@ -236,8 +238,8 @@ Phase 9 uses the `orchestrate-review` skill to spawn parallel reviewers (code qu
 | exploration-agent | sonnet | Deep codebase analysis before planning |
 | planning-agent | opus | Designs step-by-step implementation plan |
 | implementation-agent | opus | Writes the actual code |
-| test-coverage-checker | sonnet | Validates tests exist and are meaningful |
-| delivery-validator | sonnet | Final checks before shipping |
+| prepare-delivery:test-coverage-checker | sonnet | Validates tests exist and are meaningful |
+| prepare-delivery:delivery-validator | sonnet | Final checks before shipping |
 | ci-monitor | haiku | Watches CI status |
 | ci-fixer | sonnet | Fixes CI failures and review comments |
 | simple-fixer | haiku | Executes mechanical edits |
@@ -258,6 +260,49 @@ Phase 9 uses the `orchestrate-review` skill to spawn parallel reviewers (code qu
 ```
 
 [Full workflow documentation →](./docs/workflows/NEXT-TASK.md)
+
+---
+
+### /prepare-delivery
+
+**Purpose:** Run all pre-ship quality gates without shipping. Use after completing implementation manually or outside `/next-task`.
+
+**What it runs (in order):**
+
+1. **Pre-review gates** (parallel) - deslop + /simplify + prepare-delivery:test-coverage-checker
+2. **Config lint** (conditional) - agnix + /enhance when changes touch agent/skill/plugin files
+3. **Review loop** - 4 core reviewers + conditional specialists, max 5 iterations
+4. **Delivery validation** - tests pass, build passes, requirements met
+5. **Docs sync** - sync-docs agent updates documentation
+
+```bash
+/prepare-delivery                    # Run all quality gates
+/prepare-delivery --skip-review      # Skip review loop
+/prepare-delivery --skip-docs        # Skip docs sync
+/prepare-delivery --base=develop     # Against a specific base branch
+```
+
+Does NOT create PRs or push - use `/ship` or `/gate-and-ship` after.
+
+---
+
+### /gate-and-ship
+
+**Purpose:** Quality gates then ship in one command. Chains `/prepare-delivery` then `/ship`.
+
+```bash
+/gate-and-ship                       # Full: quality gates + ship
+/gate-and-ship --skip-review         # Skip review, still ship
+/gate-and-ship --base=develop        # Against a specific base branch
+```
+
+**Composability:**
+
+```
+/gate-and-ship = /prepare-delivery + /ship
+```
+
+Each piece runs independently - use `/prepare-delivery` alone to review before deciding to ship, or `/ship` alone if already validated.
 
 ---
 
@@ -983,11 +1028,22 @@ No per-turn overhead - it reads transcripts that Claude Code already saves.
 ```bash
 /deslop apply          # Just clean up your code
 /sync-docs             # Just check if docs need updates
+/prepare-delivery      # Run all quality gates (no ship)
 /ship                  # Just ship this branch
+/gate-and-ship         # Quality gates + ship in one command
 /audit-project         # Just review the codebase
 ```
 
-**Integrated workflow:**
+**Composable delivery chain:**
+
+```
+/prepare-delivery  = quality gates only (deslop, review, validation, docs)
+/ship              = PR + CI + merge only
+/gate-and-ship     = /prepare-delivery + /ship
+/next-task         = full workflow (discovery → implementation → /prepare-delivery → /ship)
+```
+
+**Full integrated workflow:**
 
 When you run [`/next-task`](#next-task), it orchestrates everything:
 
@@ -996,15 +1052,15 @@ When you run [`/next-task`](#next-task), it orchestrates everything:
     ↓
 implementation-agent writes code
     ↓
-deslop-agent cleans AI artifacts
+deslop-agent + prepare-delivery:test-coverage-checker + /simplify (parallel)
     ↓
-Phase 9 review loop iterates until approved
+review loop iterates until approved
     ↓
-delivery-validator checks requirements
+prepare-delivery:delivery-validator checks requirements
     ↓
 sync-docs-agent syncs documentation
     ↓
-[/ship](#ship) creates PR → monitors CI → merges
+/ship creates PR → monitors CI → merges
 ```
 
 The workflow tracks state so you can resume from any point.

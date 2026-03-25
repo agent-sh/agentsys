@@ -7,6 +7,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- prepare-delivery plugin - pre-ship quality gates (deslop, simplify, agnix, enhance, review loop, validation, docs sync)
+- gate-and-ship plugin - orchestrator that chains /prepare-delivery then /ship
+- /prepare-delivery and /gate-and-ship commands in marketplace, README, and AGENTS.md
+
+### Changed
+- Moved orchestrate-review, validate-delivery skills from next-task to prepare-delivery in STATIC_SKILLS
+- Updated plugin count from 17 to 19 across marketplace.json, tests, and docs
+
 ## [5.7.0] - 2026-03-23
 
 ### Changed

@@ -161,7 +161,7 @@ The agent:
 
 ### Phase 8: Pre-Review Gates
 
-**Agents:** deslop:deslop-agent (sonnet), test-coverage-checker (sonnet)
+**Agents:** deslop:deslop-agent (sonnet), prepare-delivery:test-coverage-checker (sonnet)
 **Human interaction: No**
 **Triggered by:** SubagentStop hook after implementation
 
@@ -173,7 +173,7 @@ Both agents run in parallel:
 - Applies HIGH certainty fixes automatically
 - Flags LOW certainty for manual review
 
-**test-coverage-checker:**
+**prepare-delivery:test-coverage-checker:**
 - Validates tests exist for new code
 - Checks tests are meaningful (not just path matching)
 - Advisory only - does not block workflow
@@ -221,7 +221,7 @@ The loop continues until clean, but stops early if iteration limits or stall det
 
 ### Phase 10: Delivery Validation
 
-**Agent:** delivery-validator (sonnet)
+**Agent:** prepare-delivery:delivery-validator (sonnet)
 **Human interaction: No**
 
 Five checks run:
@@ -328,9 +328,9 @@ The workflow:
 A SubagentStop hook enforces the workflow sequence. When any agent completes, the hook determines what runs next.
 
 **Enforced rules:**
-- Cannot skip deslop:deslop-agent or test-coverage-checker
+- Cannot skip deslop:deslop-agent or prepare-delivery:test-coverage-checker
 - Cannot skip Phase 9 review loop
-- Cannot skip delivery-validator
+- Cannot skip prepare-delivery:delivery-validator
 - Cannot skip sync-docs:sync-docs-agent
 - Cannot create PR before `/ship` is invoked
 - Cannot push to remote before `/ship` is invoked
@@ -342,7 +342,7 @@ A SubagentStop hook enforces the workflow sequence. When any agent completes, th
 | Model | Agents | Why |
 |-------|--------|-----|
 | **opus** | exploration-agent, planning-agent, implementation-agent | Complex reasoning, quality-critical phases |
-| **sonnet** | task-discoverer, deslop:deslop-agent, test-coverage-checker, delivery-validator, sync-docs:sync-docs-agent, ci-fixer | Moderate reasoning, structured tasks |
+| **sonnet** | task-discoverer, deslop:deslop-agent, prepare-delivery:test-coverage-checker, prepare-delivery:delivery-validator, sync-docs:sync-docs-agent, ci-fixer | Moderate reasoning, structured tasks |
 | **haiku** | worktree-manager, simple-fixer, ci-monitor | Mechanical execution, no judgment needed |
 
 ---
@@ -414,7 +414,7 @@ User: /next-task
 
 [Pre-Review Gates]
 → deslop: Removed 2 console.logs
-→ test-coverage-checker: 94% coverage [OK]
+→ prepare-delivery:test-coverage-checker: 94% coverage [OK]
 
 [Review Loop]
 → Round 1: Found 3 issues (1 high, 2 medium)

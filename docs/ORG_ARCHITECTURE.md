@@ -25,6 +25,15 @@
 | [learn](https://github.com/agent-sh/learn) | Topic research and learning guides plugin | Active |
 | [consult](https://github.com/agent-sh/consult) | Cross-tool AI consultation plugin | Active |
 | [debate](https://github.com/agent-sh/debate) | Multi-perspective debate analysis plugin | Active |
+| [skillers](https://github.com/agent-sh/skillers) | Workflow pattern learning and automation suggestions | Active |
+| [onboard](https://github.com/agent-sh/onboard) | Codebase onboarding - project orientation for newcomers | Active |
+| [can-i-help](https://github.com/agent-sh/can-i-help) | Contributor guidance - match skills to project needs | Active |
+| [agent-analyzer](https://github.com/agent-sh/agent-analyzer) | Shared Rust binary for static analysis (git history, AI detection) | Active |
+| [agent-sh.dev](https://github.com/agent-sh/agent-sh.dev) | Organization website and documentation | Active |
+| [design-system](https://github.com/agent-sh/design-system) | Shared CSS design tokens and base styles | Active |
+| [glidemq](https://github.com/agent-sh/glidemq) | Glide-MQ message queue skills | Active |
+| [prepare-delivery](https://github.com/agent-sh/prepare-delivery) | Pre-ship quality gates plugin | Active |
+| [gate-and-ship](https://github.com/agent-sh/gate-and-ship) | Quality gates then ship plugin | Active |
 
 **Org**: [github.com/agent-sh](https://github.com/agent-sh)
 **npm scope**: `@agentsys` (claimed on npmjs.com, not yet used)
@@ -87,12 +96,12 @@
 **Depends on**: #256 (cross-repo sync)
 
 **Implemented:**
-- [x] All 13 plugins extracted to standalone repos under agent-sh org
+- [x] All 19 plugins extracted to standalone repos under agent-sh org
 - [x] `plugins/` directory removed from agentsys monorepo
 - [x] `scripts/graduate-plugin.js` — extraction script for future plugins
 - [x] `bin/cli.js` updated to fetch plugins from GitHub at install time
 - [x] marketplace `requires` field added for peer dependency tracking
-- [x] agent-core sync pipeline extended to all 13 plugin repos
+- [x] agent-core sync pipeline extended to all 19 plugin repos
 
 ---
 
@@ -217,7 +226,7 @@ Phase 1 (Immediate — no dependencies):  [DONE]
   #256  Cross-Repo Sync (research/decision)
 
 Phase 2 (After Phase 1 decisions):  [DONE]
-  #250  Repo Structure & Graduation Criteria  ← all 13 plugins extracted
+  #250  Repo Structure & Graduation Criteria  ← all 19 plugins extracted
   #254  Versioning & Release Coordination     ← baseline + requires field
 
 Phase 3 (After Phase 2):
@@ -243,4 +252,4 @@ Parallel (independent):
 ---
 
 *Created: 2026-02-21*
-*Last updated: 2026-02-21 (Phase 1-3 complete, 6/7 tracks done)*
+*Last updated: 2026-03-25 (Phase 1-3 complete, 6/7 tracks done)*
