@@ -159,49 +159,7 @@ AgentSys uses 47 specialized agents across 19 plugins (17 have agents - ship and
 
 ---
 
-### test-coverage-checker
-
-**Model:** sonnet
-**Purpose:** Validate test quality for new code.
-
-**What it does:**
-1. Identifies new/modified functions
-2. Checks if tests exist
-3. Checks if tests are meaningful (not just path matching)
-4. Reports coverage status
-
-**Tools available:**
-- Bash (git, npm)
-- Read, Grep, Glob
-
-**Advisory only:** Does not block workflow. Reports findings but continues.
-
----
-
-### delivery-validator
-
-**Model:** sonnet
-**Purpose:** Final validation before shipping.
-
-**Checks:**
-1. Review status - no open issues (or explicit override)
-2. Tests pass
-3. Build passes
-4. Task requirements met (extracts from task, maps to changes)
-5. No regressions
-
-**Tools available:**
-- Bash (git, npm)
-- Read, Grep, Glob
-
-**On failure:** Returns to implementation with fix instructions.
-
-**Restrictions:**
-- MUST NOT create PR
-- MUST NOT push
-- MUST NOT skip sync-docs:sync-docs-agent
-
----
+> **Note:** delivery-validator and test-coverage-checker moved to prepare-delivery plugin.
 
 ### sync-docs-agent
 
@@ -759,6 +717,50 @@ These are role-based agents invoked via Task tool with specialized prompts. They
 **Tools available:**
 - Bash (git, npm)
 - Skill, Task, Read, Grep, Glob
+
+---
+
+### test-coverage-checker
+
+**Model:** sonnet
+**Purpose:** Validate test quality for new code.
+
+**What it does:**
+1. Identifies new/modified functions
+2. Checks if tests exist
+3. Checks if tests are meaningful (not just path matching)
+4. Reports coverage status
+
+**Tools available:**
+- Bash (git, npm)
+- Read, Grep, Glob
+
+**Advisory only:** Does not block workflow. Reports findings but continues.
+
+---
+
+### delivery-validator
+
+**Model:** sonnet
+**Purpose:** Final validation before shipping.
+
+**Checks:**
+1. Review status - no open issues (or explicit override)
+2. Tests pass
+3. Build passes
+4. Task requirements met (extracts from task, maps to changes)
+5. No regressions
+
+**Tools available:**
+- Bash (git, npm)
+- Read, Grep, Glob
+
+**On failure:** Returns to implementation with fix instructions.
+
+**Restrictions:**
+- MUST NOT create PR
+- MUST NOT push
+- MUST NOT skip sync-docs:sync-docs-agent
 
 ---
 
