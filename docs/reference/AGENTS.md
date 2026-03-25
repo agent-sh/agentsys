@@ -24,7 +24,7 @@ Complete reference for all agents in AgentSys.
 
 ## Overview
 
-AgentSys uses 41 specialized agents across 12 plugins (11 have agents - ship uses commands only). Each agent is optimized for a specific task and assigned a model based on complexity:
+AgentSys uses 47 specialized agents across 19 plugins (17 have agents - ship and gate-and-ship use commands only). Each agent is optimized for a specific task and assigned a model based on complexity:
 
 | Model | Use Case | Cost |
 |-------|----------|------|
@@ -33,7 +33,7 @@ AgentSys uses 41 specialized agents across 12 plugins (11 have agents - ship use
 | haiku | Mechanical execution, no judgment | Low |
 
 **Agent types:**
-- **File-based agents** (32) - Defined in `plugins/*/agents/*.md` with frontmatter <!-- AGENT_COUNT_FILE_BASED: 32 -->
+- **File-based agents** (37) - Defined in `plugins/*/agents/*.md` with frontmatter <!-- AGENT_COUNT_FILE_BASED: 37 -->
 - **Role-based agents** (10) - Defined inline via Task tool with specialized prompts <!-- AGENT_COUNT_ROLE_BASED: 10 -->
 
 ---
@@ -741,6 +741,168 @@ These are role-based agents invoked via Task tool with specialized prompts. They
 - Structured JSON with error/warning counts
 - List of diagnostics with file, line, rule, message
 - Fix status if --fix was used
+
+---
+
+## prepare-delivery Plugin Agents
+
+### prepare-delivery-agent
+
+**Model:** sonnet
+**Purpose:** Orchestrate pre-ship quality gate pipeline via skill.
+
+**What it does:**
+1. Runs test-coverage-checker and delivery-validator in sequence
+2. Aggregates pass/fail results into a single quality gate verdict
+3. Blocks shipping if any mandatory check fails
+
+**Tools available:**
+- Bash (git, npm)
+- Skill, Task, Read, Grep, Glob
+
+---
+
+## gate-and-ship Plugin
+
+No agents - command-only orchestrator that delegates to prepare-delivery and ship plugins.
+
+---
+
+## consult Plugin Agent
+
+### consult-agent
+
+**Model:** sonnet
+**Purpose:** Cross-tool AI consultation - get a second opinion from another AI tool.
+
+**What it does:**
+1. Formats context and question for the target tool (Gemini, Codex, Claude, OpenCode, Copilot)
+2. Invokes the target tool non-interactively
+3. Returns the structured response for comparison
+
+**Tools available:**
+- Bash, Read, Glob, Grep, Skill
+
+---
+
+## debate Plugin Agent
+
+### debate-orchestrator
+
+**Model:** sonnet
+**Purpose:** Structured multi-round debate between AI tools.
+
+**What it does:**
+1. Frames the debate topic and assigns positions to AI tools
+2. Manages rounds - each tool argues, then rebuts
+3. Synthesizes final summary with key agreements and disagreements
+
+**Tools available:**
+- Bash, Read, Glob, Grep, Skill
+
+---
+
+## web-ctl Plugin Agent
+
+### web-session
+
+**Model:** sonnet
+**Purpose:** Browser automation with persistent state.
+
+**What it does:**
+1. Manages headless browser sessions with auth handoff
+2. Navigates pages, extracts content, fills forms
+3. Maintains session state across multiple interactions
+
+**Tools available:**
+- Bash, Read, Write, Skill
+
+---
+
+## ship Plugin Agent
+
+### release-agent
+
+**Model:** sonnet
+**Purpose:** Versioned release with automatic ecosystem detection.
+
+**What it does:**
+1. Detects ecosystem (npm, cargo, go, etc.) and version strategy
+2. Bumps version, creates changelog entry, tags release
+3. Delegates publish to CI via tag push or `gh release create`
+
+**Tools available:**
+- Bash (git, gh, npm, cargo)
+- Read, Write, Glob, Grep
+
+---
+
+## skillers Plugin Agents
+
+### skillers-recommender
+
+**Model:** opus
+**Purpose:** Suggest skills, hooks, and agents from observed workflow patterns.
+
+**What it does:**
+1. Reads compacted knowledge themes from transcript analysis
+2. Identifies repetitive manual patterns that could be automated
+3. Recommends new skills, hooks, or agents with draft implementations
+
+**Tools available:**
+- Read, Glob, Grep, Write
+
+**Why opus:** Pattern synthesis across diverse workflows requires deep reasoning to distinguish signal from noise.
+
+---
+
+### skillers-compactor
+
+**Model:** sonnet
+**Purpose:** Compact transcripts into knowledge files.
+
+**What it does:**
+1. Reads raw transcripts from Claude Code, Codex, or OpenCode
+2. Extracts observations and clusters them into knowledge themes
+3. Writes compacted knowledge files for skillers-recommender
+
+**Tools available:**
+- Read, Write, Glob, Grep, Bash
+
+---
+
+## onboard Plugin Agent
+
+### onboard-agent
+
+**Model:** sonnet
+**Purpose:** Codebase onboarding - project orientation for newcomers.
+
+**What it does:**
+1. Scans project structure, README, and config files
+2. Identifies architecture patterns, key entry points, and conventions
+3. Generates a concise orientation guide tailored to the contributor's role
+
+**Tools available:**
+- Read, Glob, Grep, Bash (git)
+
+---
+
+## can-i-help Plugin Agent
+
+### can-i-help-agent
+
+**Model:** sonnet
+**Purpose:** Match contributor skills to project needs.
+
+**What it does:**
+1. Scans open issues, good-first-issue labels, and help-wanted tags
+2. Profiles contributor strengths from their history or stated skills
+3. Returns ranked list of issues the contributor is best suited to tackle
+
+**Tools available:**
+- Bash (gh, git)
+- Read, Glob, Grep
 
 ---
 

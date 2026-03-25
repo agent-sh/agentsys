@@ -96,6 +96,20 @@
       "category": "workflow"
     },
     {
+      "name": "/prepare-delivery",
+      "tagline": "Pre-ship quality gates",
+      "description": "Pre-ship quality gates: deslop, simplify, review loop, delivery validation, docs sync",
+      "example": "/prepare-delivery",
+      "category": "workflow"
+    },
+    {
+      "name": "/gate-and-ship",
+      "tagline": "Quality gates then ship",
+      "description": "Quality gates then ship - chains /prepare-delivery then /ship",
+      "example": "/gate-and-ship",
+      "category": "workflow"
+    },
+    {
       "name": "/agnix",
       "tagline": "Lint agent configs before they break",
       "description": "342 validation rules (102 auto-fixable) for Skills, Memory, Hooks, MCP, and Plugins across 10+ AI tools including Claude Code, Cursor, GitHub Copilot, Codex CLI, OpenCode, Gemini CLI, Cline, Windsurf, Roo Code, and Amp. SARIF output for GitHub Code Scanning.",
@@ -283,6 +297,16 @@
         "name": "Codex CLI",
         "prefix": "$",
         "state_dir": "~/.codex/"
+      },
+      "cursor": {
+        "name": "Cursor",
+        "prefix": "/",
+        "state_dir": ".cursor/"
+      },
+      "kiro": {
+        "name": "Kiro",
+        "prefix": "/",
+        "state_dir": ".kiro/"
       }
     }
   },
