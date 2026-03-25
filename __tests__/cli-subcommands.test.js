@@ -107,7 +107,7 @@ describe('searchPlugins', () => {
     const output = logOutput.join('\n');
     expect(output).toContain('next-task');
     expect(output).toContain('deslop');
-    expect(output).toContain('17 plugin(s) found');
+    expect(output).toContain('19 plugin(s) found');
   });
 
   test('filters by name', () => {
@@ -366,10 +366,10 @@ describe('granular install recording', () => {
 });
 
 describe('loadMarketplace', () => {
-  test('loads marketplace.json with 17 plugins', () => {
+  test('loads marketplace.json with 19 plugins', () => {
     const marketplace = loadMarketplace();
     expect(marketplace.plugins).toBeDefined();
-    expect(marketplace.plugins.length).toBe(17);
+    expect(marketplace.plugins.length).toBe(19);
   });
 
   test('all plugins have name, source, version', () => {

@@ -1,6 +1,6 @@
 {
   "name": "agentsys",
-  "description": "17 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, unified static analysis, perf investigations, topic research, agent config linting, cross-tool AI consultation, structured AI debate, workflow pattern learning, codebase onboarding, and contributor guidance",
+  "description": "19 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, unified static analysis, perf investigations, topic research, agent config linting, cross-tool AI consultation, structured AI debate, workflow pattern learning, codebase onboarding, and contributor guidance",
   "version": "5.7.0",
   "owner": {
     "name": "Avi Fenesh",
@@ -32,6 +32,28 @@
       "version": "1.0.0",
       "category": "productivity",
       "homepage": "https://github.com/agent-sh/next-task"
+    },
+    {
+      "name": "prepare-delivery",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/agent-sh/prepare-delivery.git"
+      },
+      "description": "Pre-ship quality gates: deslop, simplify, agnix, enhance, review loop, delivery validation, docs sync",
+      "version": "0.1.0",
+      "category": "productivity",
+      "homepage": "https://github.com/agent-sh/prepare-delivery"
+    },
+    {
+      "name": "gate-and-ship",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/agent-sh/gate-and-ship.git"
+      },
+      "description": "Quality gates then ship - chains /prepare-delivery then /ship in one command",
+      "version": "0.1.0",
+      "category": "deployment",
+      "homepage": "https://github.com/agent-sh/gate-and-ship"
     },
     {
       "name": "ship",
