@@ -288,7 +288,6 @@ lib/
 │   └── slop-analyzers.js      # Multi-pass analyzers (MEDIUM)
 ├── platform/                  # Project type detection
 ├── drift-detect/             # Drift detection collectors
-├── repo-map/                 # AST repo map generation
 ├── schemas/                   # JSON schemas for validation
 ├── sources/                   # Task source discovery
 ├── state/                     # Workflow state management

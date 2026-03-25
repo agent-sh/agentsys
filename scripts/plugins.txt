@@ -12,7 +12,7 @@ next-task
 onboard
 perf
 prepare-delivery
-repo-map
+repo-intel
 ship
 skillers
 sync-docs

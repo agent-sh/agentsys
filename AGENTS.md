@@ -94,6 +94,8 @@ bin/cli.js    → npm CLI installer
 
 ### Core Workflow
 - `/next-task` - Master workflow: task → implementation → PR → merge
+- `/prepare-delivery` - Pre-ship quality gates: deslop, review, validation, docs sync
+- `/gate-and-ship` - Quality gates then ship (/prepare-delivery + /ship)
 - `/ship` - PR creation, CI monitoring, merge
 - `/enhance` - Run all enhancement analyzers
 
@@ -150,7 +152,7 @@ agentsys                # Run installer
 <agents>
 ## Agents
 
-35 agents across 15 plugins. Key agents by model:
+47 agents across 19 plugins. Key agents by model:
 
 | Model | Agents | Use Case |
 |-------|--------|----------|
@@ -164,7 +166,7 @@ See [README.md](./README.md#command-details) and [docs/reference/AGENTS.md](./do
 <skills>
 ## Skills
 
-32 skills across plugins. Agents invoke skills for reusable implementation.
+40 skills across plugins. Agents invoke skills for reusable implementation.
 
 | Category | Key Skills |
 |----------|------------|

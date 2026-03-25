@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <b>19 plugins · 47 agents · 39 skills (across all repos) · 30k lines of lib code · 3,583 tests · 5 platforms</b><br>
+  <b>19 plugins · 47 agents · 40 skills (across all repos) · 30k lines of lib code · 3,583 tests · 5 platforms</b><br>
   <em>Plugins distributed as standalone repos under <a href="https://github.com/agent-sh">agent-sh</a> org — agentsys is the marketplace &amp; installer</em>
 </p>
 
@@ -45,7 +45,7 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 
 ## What This Is
 
-An agent orchestration system — 19 plugins, 47 agents, and 39 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
+An agent orchestration system — 19 plugins, 47 agents, and 40 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
 
 Each agent has a single responsibility, a specific model assignment, and defined inputs/outputs. Pipelines enforce phase gates so agents can't skip steps. State persists across sessions so work survives interruptions.
 
@@ -175,7 +175,7 @@ Skills are the reusable implementation units. Agents invoke skills; commands orc
 | [The Approach](#the-approach) | Why it's built this way |
 | [Benchmarks](#benchmarks) | Sonnet + agentsys vs raw Opus |
 | [Commands](#commands) | All 20 commands overview |
-| [Skills](#skills) | 39 skills across plugins |
+| [Skills](#skills) | 40 skills across plugins |
 | [Skill-Only Plugins](#skill-only-plugins) | glide-mq and other non-command plugins |
 | [Command Details](#command-details) | Deep dive into each command |
 | [How Commands Work Together](#how-commands-work-together) | Standalone vs integrated |
