@@ -25,6 +25,15 @@
 | [learn](https://github.com/agent-sh/learn) | Topic research and learning guides plugin | Active |
 | [consult](https://github.com/agent-sh/consult) | Cross-tool AI consultation plugin | Active |
 | [debate](https://github.com/agent-sh/debate) | Multi-perspective debate analysis plugin | Active |
+| [skillers](https://github.com/agent-sh/skillers) | Workflow pattern learning and automation suggestions | Active |
+| [onboard](https://github.com/agent-sh/onboard) | Codebase onboarding - project orientation for newcomers | Active |
+| [can-i-help](https://github.com/agent-sh/can-i-help) | Contributor guidance - match skills to project needs | Active |
+| [agent-analyzer](https://github.com/agent-sh/agent-analyzer) | Shared Rust binary for static analysis (git history, AI detection) | Active |
+| [agent-sh.dev](https://github.com/agent-sh/agent-sh.dev) | Organization website and documentation | Active |
+| [design-system](https://github.com/agent-sh/design-system) | Shared CSS design tokens and base styles | Active |
+| [glidemq](https://github.com/agent-sh/glidemq) | Glide-MQ message queue skills | Active |
+| [prepare-delivery](https://github.com/agent-sh/prepare-delivery) | Pre-ship quality gates plugin | Active |
+| [gate-and-ship](https://github.com/agent-sh/gate-and-ship) | Quality gates then ship plugin | Active |
 
 **Org**: [github.com/agent-sh](https://github.com/agent-sh)
 **npm scope**: `@agentsys` (claimed on npmjs.com, not yet used)
@@ -243,4 +252,4 @@ Parallel (independent):
 ---
 
 *Created: 2026-02-21*
-*Last updated: 2026-02-21 (Phase 1-3 complete, 6/7 tracks done)*
+*Last updated: 2026-03-25 (Phase 1-3 complete, 6/7 tracks done)*

@@ -25,6 +25,8 @@ AgentSys supports five AI coding assistants through a unified architecture:
 1. **Claude Code** - Anthropic's official CLI (primary target)
 2. **OpenCode** - Multi-model AI coding assistant
 3. **Codex CLI** - OpenAI's command-line interface
+4. **Cursor** - AI-native code editor
+5. **Kiro** - Amazon's agentic IDE
 
 ## Quick Install
 
@@ -122,7 +124,10 @@ The package provides these capabilities through commands, agents, and skills:
 | Capability | Command | Description |
 |------------|---------|-------------|
 | Workflow orchestration | `/next-task` | Task discovery through PR merge |
+| Pre-ship quality gates | `/prepare-delivery` | Deslop, review, validation, docs sync |
+| Quality gates + ship | `/gate-and-ship` | /prepare-delivery + /ship combined |
 | PR workflow | `/ship` | Commit, push, CI monitor, merge |
+| Versioned release | `/release` | Release with automatic ecosystem detection |
 | Code quality | `/deslop` | AI slop detection and cleanup |
 | Enhancement | `/enhance` | Analyze plugins, agents, docs, prompts |
 | Performance | `/perf` | Performance investigation workflow |
@@ -130,6 +135,14 @@ The package provides these capabilities through commands, agents, and skills:
 | Documentation | `/sync-docs` | Sync docs with code changes |
 | Drift detection | `/drift-detect` | Plan vs implementation analysis |
 | Code review | `/audit-project` | Multi-agent code review |
+| Config linting | `/agnix` | Lint agent configurations (342 rules) |
+| Research | `/learn` | Research topics, create learning guides |
+| AI consultation | `/consult` | Cross-tool AI consultation |
+| AI debate | `/debate` | Structured debate between AI tools |
+| Browser automation | `/web-ctl` | Browser automation for AI agents |
+| Workflow learning | `/skillers` | Workflow pattern learning and automation |
+| Onboarding | `/onboard` | Codebase orientation for newcomers |
+| Contributor guidance | `/can-i-help` | Match contributor skills to project needs |
 
 **Slop detection** uses the full 3-phase pipeline:
 - Phase 1: Regex patterns (HIGH certainty)
@@ -151,7 +164,7 @@ agentsys  # Select option 1
 
 **Location:** `~/.claude/plugins/agentsys/`
 
-**Commands:** `/next-task`, `/ship`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/perf`, `/sync-docs`
+**Commands:** `/next-task`, `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/perf`, `/sync-docs`, `/agnix`, `/learn`, `/consult`, `/debate`, `/web-ctl`, `/skillers`, `/onboard`, `/can-i-help`
 
 ### OpenCode
 
@@ -165,7 +178,7 @@ agentsys  # Select option 2
 - Skills: `~/.config/opencode/skills/`
 - Native plugin: `~/.config/opencode/plugins/agentsys.ts`
 
-**Commands:** `/next-task`, `/ship`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/perf`, `/sync-docs`
+**Commands:** `/next-task`, `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/perf`, `/sync-docs`, `/agnix`, `/learn`, `/consult`, `/debate`, `/web-ctl`, `/skillers`, `/onboard`, `/can-i-help`
 
 **Native Plugin Features:**
 - Auto-thinking selection per agent
@@ -182,7 +195,7 @@ agentsys  # Select option 3
 - Config: `~/.codex/config.toml`
 - Skills: `~/.codex/skills/`
 
-**Skills:** `$next-task`, `$ship`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$perf`, `$sync-docs`
+**Skills:** `$next-task`, `$prepare-delivery`, `$gate-and-ship`, `$ship`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$perf`, `$sync-docs`, `$agnix`, `$learn`, `$consult`, `$debate`, `$web-ctl`, `$skillers`, `$onboard`, `$can-i-help`
 
 **Internal skill:** `orchestrate-review` (Phase 9 review pass definitions used by /next-task and /audit-project)
 
@@ -202,7 +215,10 @@ description: Master workflow orchestrator for task-to-production automation
 | Command | Claude Code | OpenCode | Codex CLI | Notes |
 |---------|-------------|----------|-----------|-------|
 | `/next-task` | [OK] Full | [OK] Full | [OK] Full | Master workflow |
+| `/prepare-delivery` | [OK] Full | [OK] Full | [OK] Full | Pre-ship quality gates |
+| `/gate-and-ship` | [OK] Full | [OK] Full | [OK] Full | /prepare-delivery + /ship |
 | `/ship` | [OK] Full | [OK] Full | [OK] Full | Requires `gh` CLI |
+| `/release` | [OK] Full | [OK] Full | [OK] Full | Versioned release |
 | `/deslop` | [OK] Full | [OK] Full | [OK] Full | Uses pipeline.js |
 | `/audit-project` | [OK] Full | [OK] Full | [OK] Full | Multi-agent review |
 | `/drift-detect` | [OK] Full | [OK] Full | [OK] Full | JS collectors + Opus |
@@ -210,6 +226,14 @@ description: Master workflow orchestrator for task-to-production automation
 | `/enhance` | [OK] Full | [OK] Full | [OK] Full | Orchestrates all enhancers |
 | `/perf` | [OK] Full | [OK] Full | [OK] Full | Performance investigations |
 | `/sync-docs` | [OK] Full | [OK] Full | [OK] Full | Documentation sync |
+| `/agnix` | [OK] Full | [OK] Full | [OK] Full | Requires `agnix` CLI |
+| `/learn` | [OK] Full | [OK] Full | [OK] Full | Research and learning |
+| `/consult` | [OK] Full | [OK] Full | [OK] Full | Cross-tool consultation |
+| `/debate` | [OK] Full | [OK] Full | [OK] Full | Multi-round AI debate |
+| `/web-ctl` | [OK] Full | [OK] Full | [OK] Full | Browser automation |
+| `/skillers` | [OK] Full | [OK] Full | [OK] Full | Workflow pattern learning |
+| `/onboard` | [OK] Full | [OK] Full | [OK] Full | Codebase orientation |
+| `/can-i-help` | [OK] Full | [OK] Full | [OK] Full | Contributor guidance |
 
 ## Knowledge Base
 
@@ -242,8 +266,8 @@ Research documents informing the implementation (in `agent-docs/`):
 - [x] Codex CLI (MCP + skills)
 
 ### Testing [OK]
-- [x] All 1400+ tests passing
-- [x] npm pack creates valid package (338 KB)
+- [x] All 3,445+ tests passing
+- [x] npm pack creates valid package (~400 KB)
 - [x] Interactive installer works for all platforms
 
 ## Maintenance

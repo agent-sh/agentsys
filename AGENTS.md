@@ -190,7 +190,7 @@ See [README.md](./README.md#skills) for full skill list.
 
 Platform-aware state directory:
 - Claude Code: `.claude/`
-- OpenCode: `config/.opencode/`
+- OpenCode: `.opencode/`
 - Codex: `.codex/`
 - Cursor: `.cursor/`
 - Kiro: `.kiro/`

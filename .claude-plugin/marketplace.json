@@ -28,8 +28,8 @@
         "source": "url",
         "url": "https://github.com/agent-sh/next-task.git"
       },
-      "description": "Master workflow orchestrator: autonomous workflow with model optimization (opus/sonnet/haiku), two-file state management, workflow enforcement gates, 14 specialist agents",
-      "version": "1.0.0",
+      "description": "Master workflow orchestrator: autonomous workflow with model optimization (opus/sonnet/haiku), two-file state management, workflow enforcement gates, 8 specialist agents",
+      "version": "1.1.0",
       "category": "productivity",
       "homepage": "https://github.com/agent-sh/next-task"
     },

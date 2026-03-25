@@ -83,15 +83,27 @@ claude --plugin-dir /path/to/agentsys/plugins/next-task
 
 ### Available Commands
 - `/next-task` - Master workflow orchestrator
+- `/prepare-delivery` - Pre-ship quality gates
+- `/gate-and-ship` - Quality gates then ship
 - `/ship` - Complete PR workflow
+- `/release` - Versioned release with ecosystem detection
 - `/deslop` - AI slop cleanup
 - `/audit-project` - Multi-agent code review
 - `/drift-detect` - Plan drift detection
 - `/repo-intel` - Unified static analysis
 - `/enhance` - Enhancement analyzer suite
 - `/sync-docs` - Documentation sync
+- `/perf` - Performance investigation
+- `/learn` - Research topics and create learning guides
+- `/agnix` - Lint agent configuration files
+- `/consult` - Cross-tool AI consultation
+- `/debate` - Structured AI debate
+- `/web-ctl` - Browser automation
+- `/skillers` - Workflow pattern learning
+- `/onboard` - Codebase onboarding
+- `/can-i-help` - Contributor guidance
 
-### Available Agents (39 total: 29 file-based agents + 10 role-based)
+### Available Agents (47 total: 37 file-based agents + 10 role-based)
 
 **Key agents shown below:**
 
@@ -129,12 +141,12 @@ claude --plugin-dir /path/to/agentsys/plugins/next-task
 
 | Agent | Model | Purpose |
 |-------|-------|---------|
-| perf-orchestrator | sonnet | Coordinate perf investigation |
-| perf-theory-gatherer | sonnet | Generate hypotheses |
-| perf-theory-tester | sonnet | Validate hypotheses |
+| perf-orchestrator | opus | Coordinate perf investigation |
+| perf-theory-gatherer | opus | Generate hypotheses |
+| perf-theory-tester | opus | Validate hypotheses |
 | perf-code-paths | sonnet | Map hot paths |
 | perf-investigation-logger | sonnet | Log evidence |
-| perf-analyzer | sonnet | Synthesize findings |
+| perf-analyzer | opus | Synthesize findings |
 
 **audit-project: Code Review (10 role-based agents)**
 
@@ -175,7 +187,7 @@ agentsys --tool opencode --no-strip
 ```
 
 This installs:
-- Slash commands (`/next-task`, `/ship`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/sync-docs`)
+- Slash commands (`/next-task`, `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/sync-docs`, `/perf`, `/learn`, `/agnix`, `/consult`, `/debate`, `/web-ctl`, `/skillers`, `/onboard`, `/can-i-help`)
 - **Native OpenCode plugin** with advanced features:
 
 ### Native Plugin Features
@@ -256,7 +268,7 @@ agentsys  # Select option 3 for Codex CLI
 agentsys --tool codex
 ```
 
-This installs skills to `~/.codex/skills/` (`$next-task`, `$ship`, `$deslop`, `$audit-project`, `$repo-intel`, `$sync-docs`).
+This installs skills to `~/.codex/skills/` (`$next-task`, `$prepare-delivery`, `$gate-and-ship`, `$ship`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$sync-docs`, `$perf`, `$learn`, `$agnix`, `$consult`, `$debate`, `$web-ctl`, `$skillers`, `$onboard`, `$can-i-help`).
 
 ### Option 2: Custom Skills
 
@@ -326,8 +338,8 @@ The plugin auto-detects the platform and uses the appropriate directory. Overrid
 - Works with any model provider (Claude, OpenAI, Google, local)
 - State directory: `.opencode/`
 - Slash commands in `~/.config/opencode/commands/`
-- Agents in `~/.config/opencode/agents/` (31 agents)
-- Skills in `~/.config/opencode/skills/` (28 skills)
+- Agents in `~/.config/opencode/agents/` (47 agents)
+- Skills in `~/.config/opencode/skills/` (42 skills)
 - Native plugin in `~/.config/opencode/plugins/agentsys.ts`
 - **Native plugin features:**
   - Auto-thinking selection (adjusts budget per agent)

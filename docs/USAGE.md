@@ -32,6 +32,17 @@ You shouldn't have to repeat the same requests every session. These commands han
 | `/enhance` | Analyze prompts, plugins, agents, docs, hooks, skills | Quality improvement |
 | `/sync-docs` | Sync docs with code changes | Documentation sync |
 | `/perf` | Performance investigation workflow | Baselines, profiling, evidence |
+| `/learn` | Research topics online, create learning guides | Topic research with RAG |
+| `/consult` | Cross-tool AI consultation | Second opinion from other AI tools |
+| `/debate` | Structured multi-round debate between AI tools | AI dialectic with verdict |
+| `/web-ctl` | Browser automation and web interaction | Headless control, auth handoff |
+| `/skillers` | Workflow pattern learning and automation suggestions | Pattern extraction |
+| `/onboard` | Codebase onboarding - project orientation | Newcomer guidance |
+| `/can-i-help` | Contributor guidance - match skills to project needs | Contributor matching |
+| `/release` | Versioned release with automatic ecosystem detection | Tag, changelog, publish |
+| `/agnix` | Linter for AI agent configs | Rule validation (342 rules) |
+| `/prepare-delivery` | Pre-ship validation checks | Tests, build, lint verification |
+| `/gate-and-ship` | Gated shipping workflow | Validation gate then ship |
 
 ---
 

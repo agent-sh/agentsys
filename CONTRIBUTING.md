@@ -10,7 +10,7 @@ PRs may receive AI-assisted reviews (Copilot, Claude, Gemini, Codex) at the owne
 
 ## What Matters Here
 
-**This is a plugin for OTHER projects** - workflow automation for Claude Code, Codex CLI, and OpenCode users.
+**This is a plugin for OTHER projects** - workflow automation for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro users.
 
 ### Core Priorities (In Order)
 
@@ -49,13 +49,9 @@ For changes touching multiple files, **read the relevant checklist first**:
 # Edit in lib/
 vim lib/patterns/pipeline.js
 
-# Sync to all plugins
-./scripts/sync-lib.sh
-# Or: agentsys-dev sync-lib
-
-# Commit both
-git add lib/ plugins/*/lib/
-git commit -m "fix(lib): description"
+# Plugins are now standalone repos under agent-sh org.
+# lib/ syncs to all plugin repos via agent-core CI pipeline.
+# After merging lib/ changes here, agent-core propagates to plugins automatically.
 ```
 
 ### Adapter Generation

@@ -191,6 +191,14 @@ You should see commands:
 - `/learn` - Topic research and learning guides
 - `/consult` - Cross-tool AI consultation
 - `/debate` - Structured AI dialectic with verdict
+- `/web-ctl` - Browser automation and web interaction
+- `/skillers` - Workflow pattern learning and automation suggestions
+- `/onboard` - Codebase onboarding
+- `/can-i-help` - Contributor guidance
+- `/release` - Versioned release with ecosystem detection
+- `/agnix` - Linter for AI agent configs
+- `/prepare-delivery` - Pre-ship validation checks
+- `/gate-and-ship` - Gated shipping workflow
 
 ### OpenCode / Codex
 
