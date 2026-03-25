@@ -221,7 +221,7 @@ Key features: per-key ordering, group concurrency, runtime group rate limiting (
 5. **Planning** - Designs implementation approach
 6. **User Approval** - You review and approve the plan (last human interaction)
 7. **Implementation** - Executes the plan
-8. **Pre-Review** - Runs [deslop](#deslop)-agent and test-coverage-checker
+8. **Pre-Review** - Runs [deslop](#deslop)-agent and prepare-delivery:test-coverage-checker
 9. **Review Loop** - Multi-agent review iterates until clean
 10. **Delivery Validation** - Verifies tests pass, build passes, requirements met
 11. **Docs Update** - Updates CHANGELOG and related documentation
@@ -238,8 +238,8 @@ Phase 9 uses the `orchestrate-review` skill to spawn parallel reviewers (code qu
 | exploration-agent | sonnet | Deep codebase analysis before planning |
 | planning-agent | opus | Designs step-by-step implementation plan |
 | implementation-agent | opus | Writes the actual code |
-| test-coverage-checker | sonnet | Validates tests exist and are meaningful |
-| delivery-validator | sonnet | Final checks before shipping |
+| prepare-delivery:test-coverage-checker | sonnet | Validates tests exist and are meaningful |
+| prepare-delivery:delivery-validator | sonnet | Final checks before shipping |
 | ci-monitor | haiku | Watches CI status |
 | ci-fixer | sonnet | Fixes CI failures and review comments |
 | simple-fixer | haiku | Executes mechanical edits |
@@ -269,7 +269,7 @@ Phase 9 uses the `orchestrate-review` skill to spawn parallel reviewers (code qu
 
 **What it runs (in order):**
 
-1. **Pre-review gates** (parallel) - deslop + /simplify + test-coverage-checker
+1. **Pre-review gates** (parallel) - deslop + /simplify + prepare-delivery:test-coverage-checker
 2. **Config lint** (conditional) - agnix + /enhance when changes touch agent/skill/plugin files
 3. **Review loop** - 4 core reviewers + conditional specialists, max 5 iterations
 4. **Delivery validation** - tests pass, build passes, requirements met
@@ -1052,11 +1052,11 @@ When you run [`/next-task`](#next-task), it orchestrates everything:
     ↓
 implementation-agent writes code
     ↓
-deslop-agent + test-coverage-checker + /simplify (parallel)
+deslop-agent + prepare-delivery:test-coverage-checker + /simplify (parallel)
     ↓
 review loop iterates until approved
     ↓
-delivery-validator checks requirements
+prepare-delivery:delivery-validator checks requirements
     ↓
 sync-docs-agent syncs documentation
     ↓

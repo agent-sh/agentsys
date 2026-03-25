@@ -710,7 +710,7 @@ These are role-based agents invoked via Task tool with specialized prompts. They
 **Purpose:** Orchestrate pre-ship quality gate pipeline via skill.
 
 **What it does:**
-1. Runs test-coverage-checker and delivery-validator in sequence
+1. Runs prepare-delivery:test-coverage-checker and prepare-delivery:delivery-validator in sequence
 2. Aggregates pass/fail results into a single quality gate verdict
 3. Blocks shipping if any mandatory check fails
 
@@ -927,7 +927,7 @@ Agents have restricted tool access for safety:
 | Agent | Restricted From | Why |
 |-------|-----------------|-----|
 | implementation-agent | PR creation, git push | Workflow enforces order |
-| delivery-validator | PR creation, git push | Must pass validation first |
+| prepare-delivery:delivery-validator | PR creation, git push | Must pass validation first |
 | worktree-manager | Most tools | Only needs git |
 | simple-fixer | Most tools | Only needs edit |
 

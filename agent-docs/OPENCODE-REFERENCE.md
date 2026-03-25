@@ -53,7 +53,7 @@ When user runs `agentsys` and selects OpenCode:
 ├── exploration-agent.md
 ├── planning-agent.md
 ├── implementation-agent.md
-├── delivery-validator.md
+├── prepare-delivery:delivery-validator.md
 └── ...
 
 ~/.config/opencode/skills/           # 24 skills (global)
@@ -906,7 +906,7 @@ Add to user's `opencode.json`:
       "model": "anthropic/claude-sonnet-4",
       "options": { "thinking": { "type": "enabled", "budgetTokens": 16000 } }
     },
-    "delivery-validator": {
+    "prepare-delivery:delivery-validator": {
       "model": "anthropic/claude-sonnet-4",
       "options": { "thinking": { "type": "enabled", "budgetTokens": 16000 } }
     }

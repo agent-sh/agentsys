@@ -24,9 +24,9 @@ The main orchestrator **MUST spawn these agents in order**:
 | 6 | **USER APPROVAL** | - | - | Last human touchpoint |
 | 7 | `implementation-agent` | opus | Read, Write, Edit, Bash | Execute plan |
 | 8 | `deslop:deslop-agent` | sonnet | Read, Grep, Glob, Bash(git:*) | Clean AI slop (uses deslop skill) |
-| 8 | `test-coverage-checker` | sonnet | Bash(npm:*), Read, Grep | Validate test coverage |
+| 8 | `prepare-delivery:test-coverage-checker` | sonnet | Bash(npm:*), Read, Grep | Validate test coverage |
 | 9 | Phase 9 review loop | sonnet reviewers | Task(general-purpose) | Multi-pass review with parallel agents |
-| 10 | `delivery-validator` | sonnet | Bash(npm:*), Read | Validate completion |
+| 10 | `prepare-delivery:delivery-validator` | sonnet | Bash(npm:*), Read | Validate completion |
 | 11 | `docs-updater` | sonnet | Read, Edit, Task(simple-fixer) | Update documentation |
 | 12 | `/ship` command | - | - | PR creation and merge |
 
@@ -35,7 +35,7 @@ The main orchestrator **MUST spawn these agents in order**:
 - **`exploration-agent`** - Required for understanding codebase before planning
 - **`planning-agent`** - Required for creating implementation plan
 - **Phase 9 review loop** - Required for code review before shipping (uses orchestrate-review skill)
-- **`delivery-validator`** - Required before calling /ship
+- **`prepare-delivery:delivery-validator`** - Required before calling /ship
 
 ### Review Decision Gate
 
@@ -110,7 +110,7 @@ Agents that run in parallel after implementation, before review:
 | Agent | Purpose | Key Files |
 |-------|---------|-----------|
 | `deslop:deslop-agent` | Clean AI slop from committed work | `deslop skill + lib/patterns/` |
-| `test-coverage-checker` | Validate new code has tests | Advisory only |
+| `prepare-delivery:test-coverage-checker` | Validate new code has tests | Advisory only |
 
 **deslop:deslop-agent** uses the 3-phase pipeline:
 - Phase 1: Regex patterns (HIGH certainty, auto-fix)

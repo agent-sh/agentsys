@@ -102,8 +102,8 @@ claude --plugin-dir /path/to/agentsys/plugins/next-task
 | exploration-agent | opus | Deep codebase analysis |
 | planning-agent | opus | Design implementation plans |
 | implementation-agent | opus | Execute plans with quality code |
-| test-coverage-checker | sonnet | Validate test coverage |
-| delivery-validator | sonnet | Autonomous delivery validation |
+| prepare-delivery:test-coverage-checker | sonnet | Validate test coverage |
+| prepare-delivery:delivery-validator | sonnet | Autonomous delivery validation |
 | task-discoverer | sonnet | Find and prioritize tasks |
 | worktree-manager | haiku | Create isolated worktrees |
 | ci-monitor | haiku | Monitor CI status |

@@ -417,7 +417,7 @@
       "highlights": [
         "New /onboard plugin - codebase orientation in 3 minutes, 74% token savings, validated on 100 repos",
         "New /can-i-help plugin - contributor guidance with 5 data-backed signals",
-        "New /git-map plugin - 21 git history queries backed by Rust binary",
+        "New /repo-intel plugin (originally /git-map) - 21 git history queries backed by Rust binary",
         "15 plugin READMEs written or upgraded, agent-analyzer v0.2.0 query tuning"
       ]
     },
