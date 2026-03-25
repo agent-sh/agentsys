@@ -9,14 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.8.0] - 2026-03-25
+
 ### Added
 - prepare-delivery plugin - pre-ship quality gates (deslop, simplify, agnix, enhance, review loop, validation, docs sync)
 - gate-and-ship plugin - orchestrator that chains /prepare-delivery then /ship
 - /prepare-delivery and /gate-and-ship commands in marketplace, README, and AGENTS.md
+- 9 missing agent sections in docs/reference/AGENTS.md (prepare-delivery, consult, debate, web-ctl, ship, skillers, onboard, can-i-help)
+- Cursor and Kiro platform entries in site/content.json
 
 ### Changed
 - Moved orchestrate-review, validate-delivery skills from next-task to prepare-delivery in STATIC_SKILLS
 - Updated plugin count from 17 to 19 across marketplace.json, tests, and docs
+- Comprehensive documentation sync: all command tables, agent counts, skill counts, platform lists updated across 22 files
+- next-task marketplace entry: agent count 14 -> 8 (delivery agents moved to prepare-delivery), version 1.0.0 -> 1.1.0
 
 ## [5.7.0] - 2026-03-23
 
