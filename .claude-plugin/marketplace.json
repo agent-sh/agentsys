@@ -52,7 +52,7 @@
       },
       "description": "Quality gates then ship - chains /prepare-delivery then /ship in one command",
       "version": "0.1.0",
-      "category": "deployment",
+      "category": "productivity",
       "homepage": "https://github.com/agent-sh/gate-and-ship"
     },
     {

@@ -179,7 +179,8 @@ function generateCommandsTable(commands) {
 
   // Curated display order (featured commands first, then alphabetical)
   const COMMAND_ORDER = [
-    'next-task', 'agnix', 'ship', 'deslop', 'perf',
+    'next-task', 'prepare-delivery', 'gate-and-ship',
+    'agnix', 'ship', 'deslop', 'perf',
     'drift-detect', 'audit-project', 'enhance',
     'repo-intel', 'sync-docs', 'learn', 'consult',
     'debate', 'web-ctl', 'release', 'skillers',
@@ -189,6 +190,8 @@ function generateCommandsTable(commands) {
   // Command descriptions for the table (short, human-written summaries)
   const COMMAND_SUMMARIES = {
     'next-task': 'Task workflow: discovery, implementation, PR, merge',
+    'prepare-delivery': 'Pre-ship quality gates: deslop, review, validation, docs sync',
+    'gate-and-ship': 'Quality gates then ship (/prepare-delivery + /ship)',
     'agnix': 'Lint agent configurations (342 rules)',
     'ship': 'PR creation, CI monitoring, merge',
     'deslop': 'Clean AI slop patterns',
