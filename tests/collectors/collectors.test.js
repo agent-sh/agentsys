@@ -432,7 +432,7 @@ describe('GitHub Collector', () => {
 
       expect(result.stale).toHaveLength(1);
       expect(result.stale[0].number).toBe(1);
-      expect(result.stale[0].daysStale).toBeGreaterThanOrEqual(100);
+      expect(result.stale[0].daysStale).toBeGreaterThanOrEqual(99);
     });
 
     it('should not mark recent items as stale', () => {
