@@ -128,7 +128,7 @@
         "url": "https://github.com/agent-sh/repo-intel.git"
       },
       "description": "Unified static analysis via agent-analyzer - git history, AST symbols, project metadata, and doc-code sync",
-      "version": "1.0.0",
+      "version": "0.2.0",
       "category": "development",
       "homepage": "https://github.com/agent-sh/repo-intel"
     },
