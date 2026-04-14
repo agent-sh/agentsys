@@ -657,7 +657,7 @@ Findings are collected and categorized by severity (critical/high/medium/low). A
 - AST symbol mapping: exports, functions, classes, imports
 - Project metadata and health metrics
 
-Output is cached at `{state-dir}/repo-intel.json` (where `{state-dir}` is `.claude/`, `.opencode/`, or `.codex/` depending on your platform).
+Output is cached at `{state-dir}/repo-intel.json` (external repo-intel plugin) and `{state-dir}/repo-map.json` (agentsys internal repo-map library). `{state-dir}` is `.claude/`, `.opencode/`, or `.codex/` depending on your platform.
 
 **Why it matters:**
 

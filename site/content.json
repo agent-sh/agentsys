@@ -28,7 +28,7 @@
       "suffix": ""
     },
     {
-      "value": "47",
+      "value": "39",
       "label": "Agents",
       "suffix": ""
     },
@@ -154,7 +154,7 @@
     {
       "name": "/enhance",
       "tagline": "Analyze everything that shapes agent behavior",
-      "description": "Seven parallel analyzers check your prompts, agents, plugins, docs, hooks, and skills. Certainty-graded findings with auto-fix support. Auto-learns false positives over time.",
+      "description": "Eight parallel analyzers check your prompts, agents, plugins, docs, hooks, and skills. Certainty-graded findings with auto-fix support. Auto-learns false positives over time.",
       "example": "/enhance",
       "category": "analysis"
     },
@@ -373,8 +373,8 @@
     }
   ],
   "agents": {
-    "total": 47,
-    "file_based": 37,
+    "total": 39,
+    "file_based": 39,
     "role_based": 10,
     "by_model": [
       {
