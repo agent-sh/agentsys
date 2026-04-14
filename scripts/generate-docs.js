@@ -395,9 +395,10 @@ function generateAgentCounts(agents, plugins) {
 /**
  * Update counts in site/content.json programmatically.
  */
-// Static counts for cross-repo plugins not discoverable locally
+// Static counts for cross-repo plugins not discoverable locally.
+// 39 file-based agents across 17 plugin repos + 10 role-based specialists in audit-project = 49.
 const STATIC_PLUGIN_COUNT = 19;
-const STATIC_AGENT_COUNT = 47;
+const STATIC_AGENT_COUNT = 49;
 
 function updateSiteContent(plugins, agents, skills) {
   const contentPath = path.join(ROOT_DIR, 'site', 'content.json');
