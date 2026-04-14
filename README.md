@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <b>19 plugins · 47 agents · 40 skills (across all repos) · 30k lines of lib code · 3,583 tests · 5 platforms</b><br>
+  <b>19 plugins · 39 agents · 40 skills (across all repos) · 30k lines of lib code · 3,583 tests · 5 platforms</b><br>
   <em>Plugins distributed as standalone repos under <a href="https://github.com/agent-sh">agent-sh</a> org — agentsys is the marketplace &amp; installer</em>
 </p>
 
@@ -41,11 +41,11 @@
 AI models can write code. That's not the hard part anymore. The hard part is everything around it — task selection, branch management, code review, artifact cleanup, CI, PR comments, deployment. **AgentSys is the runtime that orchestrates agents to handle all of it** — structured pipelines, gated phases, specialized agents, and persistent state that survives session boundaries.
 
 ---
-> Building custom skills, agents, hooks, or MCP tools? [agnix](https://github.com/agent-sh/agnix) is the CLI + LSP linter that catches config errors before they fail silently - real-time IDE validation, auto suggestions, auto-fix, and 385 rules for Claude Code, Codex, OpenCode, Cursor, Kiro, Copilot, Gemini CLI, Cline, Windsurf, Roo Code, Amp, and more.
+> Building custom skills, agents, hooks, or MCP tools? [agnix](https://github.com/agent-sh/agnix) is the CLI + LSP linter that catches config errors before they fail silently - real-time IDE validation, auto suggestions, auto-fix, and 399 rules for Claude Code, Codex, OpenCode, Cursor, Kiro, Copilot, Gemini CLI, Cline, Windsurf, Roo Code, Amp, and more.
 
 ## What This Is
 
-An agent orchestration system — 19 plugins, 47 agents, and 40 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
+An agent orchestration system — 19 plugins, 39 agents, and 40 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
 
 Each agent has a single responsibility, a specific model assignment, and defined inputs/outputs. Pipelines enforce phase gates so agents can't skip steps. State persists across sessions so work survives interruptions.
 
@@ -118,7 +118,7 @@ The investment shifts from model spend to pipeline design. Better prompts, riche
 | [`/next-task`](#next-task) | Task workflow: discovery, implementation, PR, merge |
 | [`/prepare-delivery`](#prepare-delivery) | Pre-ship quality gates: deslop, review, validation, docs sync |
 | [`/gate-and-ship`](#gate-and-ship) | Quality gates then ship (/prepare-delivery + /ship) |
-| [`/agnix`](#agnix) | Lint agent configurations (385 rules) |
+| [`/agnix`](#agnix) | Lint agent configurations (399 rules) |
 | [`/ship`](#ship) | PR creation, CI monitoring, merge |
 | [`/deslop`](#deslop) | Clean AI slop patterns |
 | [`/perf`](#perf) | Performance investigation with baselines and profiling |
@@ -328,7 +328,7 @@ agnix catches these issues before they cause problems.
 | **Best Practices** | Tool restrictions, model selection, trigger phrase quality |
 | **Cross-Platform** | Compatibility across Claude Code, Codex, OpenCode, Cursor, Kiro, Copilot, Gemini CLI, Cline, Windsurf, Roo Code, Amp, and more |
 
-**385 validation rules** (102 auto-fixable) derived from:
+**399 validation rules** (126 auto-fixable) derived from:
 - Official tool specifications (Claude Code, Codex CLI, OpenCode, Cursor, Kiro, GitHub Copilot, Gemini CLI, Cline, Windsurf, Roo Code, Amp, and more)
 - Research papers on agent reliability and prompt injection
 - Real-world testing across 500+ repositories
@@ -613,13 +613,14 @@ Findings are collected and categorized by severity (critical/high/medium/low). A
 
 **Purpose:** Analyzes your prompts, plugins, agents, docs, hooks, and skills for improvement opportunities.
 
-**Seven analyzers run in parallel:**
+**Eight analyzers run in parallel:**
 
 | Analyzer | What it checks |
 |----------|----------------|
 | plugin-enhancer | Plugin structure, MCP tool definitions, security patterns |
 | agent-enhancer | Agent frontmatter, prompt quality |
 | claudemd-enhancer | CLAUDE.md/AGENTS.md structure, token efficiency |
+| cross-file-enhancer | Cross-file consistency (tools vs frontmatter, duplicate rules, conflicts) |
 | docs-enhancer | Documentation readability, RAG optimization |
 | prompt-enhancer | Prompt engineering patterns, clarity, examples |
 | hooks-enhancer | Hook frontmatter, structure, safety |
@@ -656,7 +657,7 @@ Findings are collected and categorized by severity (critical/high/medium/low). A
 - AST symbol mapping: exports, functions, classes, imports
 - Project metadata and health metrics
 
-Output is cached at `{state-dir}/repo-intel.json` and `{state-dir}/repo-map.json`.
+Output is cached at `{state-dir}/repo-intel.json` (where `{state-dir}` is `.claude/`, `.opencode/`, or `.codex/` depending on your platform).
 
 **Why it matters:**
 
@@ -958,7 +959,7 @@ No per-turn overhead - it reads transcripts that Claude Code already saves.
 **What happens when you run it:**
 
 1. **Collect** (68ms median) - Pure JavaScript scans manifest, structure, README, CI, git info. Normal depth adds CLAUDE.md/AGENTS.md and repo-intel. No LLM tokens.
-2. **Synthesize** - Opus agent produces a structured overview: tech stack, key files, active areas, conventions
+2. **Synthesize** - Sonnet agent produces a structured overview: tech stack, key files, active areas, conventions
 3. **Guide** - Interactive Q&A: ask about specific files, areas, or patterns
 
 **74% fewer tokens** than manual onboarding. Validated on 100 repos across JS/TS, Rust, Go, Python, C/C++, Java, and Deno.
@@ -981,7 +982,7 @@ No per-turn overhead - it reads transcripts that Claude Code already saves.
 /onboard --depth=deep       # Include AST data
 ```
 
-**Agent:** onboard-agent (opus model)
+**Agent:** onboard-agent (sonnet model)
 
 [Full documentation →](https://github.com/agent-sh/onboard)
 
@@ -994,7 +995,7 @@ No per-turn overhead - it reads transcripts that Claude Code already saves.
 **What happens when you run it:**
 
 1. **Collect** - Gathers project data + contributor signals (test gaps, doc drift, bugspots, good-first areas, open issues). Validated on 100 repos.
-2. **Match** - Opus agent asks about developer background and matches skills to project needs
+2. **Match** - Sonnet agent asks about developer background and matches skills to project needs
 3. **Guide** - For each recommendation: reads code, explains what needs doing, gives a concrete first step
 
 **Matching:**
@@ -1015,7 +1016,7 @@ No per-turn overhead - it reads transcripts that Claude Code already saves.
 /can-i-help --depth=deep          # Include AST data
 ```
 
-**Agent:** can-i-help-agent (opus model)
+**Agent:** can-i-help-agent (sonnet model)
 
 [Full documentation →](https://github.com/agent-sh/can-i-help)
 
