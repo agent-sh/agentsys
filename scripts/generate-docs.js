@@ -420,7 +420,7 @@ const STATIC_PLUGIN_AGENT_COUNTS = {
   'can-i-help': 1
 };
 const STATIC_PLUGIN_COUNT = Object.keys(STATIC_PLUGIN_AGENT_COUNTS).length;
-const STATIC_FILE_BASED_AGENT_COUNT = Object.values(STATIC_PLUGIN_AGENT_COUNTS).reduce((a, b) => a + b, 0);
+const STATIC_FILE_BASED_AGENT_COUNT = Object.values(STATIC_PLUGIN_AGENT_COUNTS).reduce((sum, count) => sum + count, 0);
 // Total = file-based + role-based (audit-project specialists, spawned dynamically)
 const STATIC_AGENT_COUNT = STATIC_FILE_BASED_AGENT_COUNT + ROLE_BASED_AGENT_COUNT;
 
