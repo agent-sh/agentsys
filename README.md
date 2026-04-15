@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <b>19 plugins · 49 agents · 40 skills (across all repos) · 30k lines of lib code · 3,583 tests · 5 platforms</b><br>
+  <b>19 plugins · 49 agents · 40 skills (across all repos) · 30k lines of lib code · 3,507 tests · 5 platforms</b><br>
   <em>Plugins distributed as standalone repos under <a href="https://github.com/agent-sh">agent-sh</a> org — agentsys is the marketplace &amp; installer</em>
 </p>
 
@@ -1236,7 +1236,7 @@ The system is built on research, not guesswork.
 - Instruction following reliability
 
 **Testing:**
-- 3,583 tests passing
+- 3,507 tests passing
 - Drift-detect validated on 1,000+ repositories
 - E2E workflow testing across all commands
 - Cross-platform validation (Claude Code, OpenCode, Codex CLI, Cursor, Kiro)

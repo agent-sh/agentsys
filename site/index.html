@@ -114,7 +114,7 @@
             for AI agents.
           </h1>
           <p class="hero__subtitle anim-fade-up" data-delay="350">
-            Structured pipelines, gated phases, specialized agents. Works with Claude Code, OpenCode, Codex CLI, Cursor, and Kiro. 3,750 tests. Production-grade.
+            Structured pipelines, gated phases, specialized agents. Works with Claude Code, OpenCode, Codex CLI, Cursor, and Kiro. 3,507 tests. Production-grade.
           </p>
           <div class="hero__ctas anim-fade-up" data-delay="500">
             <a href="#install" class="btn btn--primary">Get Started</a>
@@ -168,7 +168,7 @@
           <span class="stats__label">Skills</span>
         </div>
         <div class="stats__item">
-          <span class="stats__number" aria-live="polite" data-target="3750">0</span>
+          <span class="stats__number" aria-live="polite" data-target="3507">0</span>
           <span class="stats__label">Tests Passing</span>
         </div>
       </div>
@@ -668,8 +668,8 @@
         <!-- Agent tier tabs -->
         <div class="agents-skills__tabs anim-fade-up" data-delay="200">
           <div class="agent-tabs" role="tablist" aria-label="Agent tiers">
-            <button class="agent-tabs__tab agent-tabs__tab--active" role="tab" aria-selected="true" aria-controls="agent-tier-opus" id="agent-tab-opus" data-index="0">Opus <span class="agent-tabs__count">15</span></button>
-            <button class="agent-tabs__tab" role="tab" aria-selected="false" aria-controls="agent-tier-sonnet" id="agent-tab-sonnet" tabindex="-1" data-index="1">Sonnet <span class="agent-tabs__count">18</span></button>
+            <button class="agent-tabs__tab agent-tabs__tab--active" role="tab" aria-selected="true" aria-controls="agent-tier-opus" id="agent-tab-opus" data-index="0">Opus <span class="agent-tabs__count">14</span></button>
+            <button class="agent-tabs__tab" role="tab" aria-selected="false" aria-controls="agent-tier-sonnet" id="agent-tab-sonnet" tabindex="-1" data-index="1">Sonnet <span class="agent-tabs__count">21</span></button>
             <button class="agent-tabs__tab" role="tab" aria-selected="false" aria-controls="agent-tier-haiku" id="agent-tab-haiku" tabindex="-1" data-index="2">Haiku <span class="agent-tabs__count">4</span></button>
             <button class="agent-tabs__tab" role="tab" aria-selected="false" aria-controls="agent-tier-specialists" id="agent-tab-specialists" tabindex="-1" data-index="3">Specialists <span class="agent-tabs__count">10</span></button>
           </div>
@@ -677,13 +677,12 @@
           <!-- Opus agents -->
           <div class="agent-tier tabs__panel tabs__panel--active" role="tabpanel" id="agent-tier-opus" aria-labelledby="agent-tab-opus">
             <div class="agent-grid">
-              <div class="agent-card"><span class="agent-card__name">exploration-agent</span><span class="tier-badge tier-badge--opus">opus</span><p class="agent-card__desc">Deep codebase analysis and context gathering</p></div>
               <div class="agent-card"><span class="agent-card__name">planning-agent</span><span class="tier-badge tier-badge--opus">opus</span><p class="agent-card__desc">Step-by-step implementation design</p></div>
               <div class="agent-card"><span class="agent-card__name">implementation-agent</span><span class="tier-badge tier-badge--opus">opus</span><p class="agent-card__desc">Autonomous code writing and modification</p></div>
               <div class="agent-card"><span class="agent-card__name">perf-orchestrator</span><span class="tier-badge tier-badge--opus">opus</span><p class="agent-card__desc">Performance investigation coordination</p></div>
               <div class="agent-card"><span class="agent-card__name">perf-analyzer</span><span class="tier-badge tier-badge--opus">opus</span><p class="agent-card__desc">Deep performance analysis and profiling</p></div>
-              <div class="agent-card"><span class="agent-card__name">learn-agent</span><span class="tier-badge tier-badge--opus">opus</span><p class="agent-card__desc">Web research and learning guide creation</p></div>
-              <div class="agent-card"><span class="agent-card__name">plan-synthesizer</span><span class="tier-badge tier-badge--opus">opus</span><p class="agent-card__desc">Multi-source plan synthesis and merging</p></div>
+              <div class="agent-card"><span class="agent-card__name">perf-theory-gatherer</span><span class="tier-badge tier-badge--opus">opus</span><p class="agent-card__desc">Performance hypothesis generation</p></div>
+              <div class="agent-card"><span class="agent-card__name">perf-theory-tester</span><span class="tier-badge tier-badge--opus">opus</span><p class="agent-card__desc">Controlled experiment execution</p></div>
               <div class="agent-card"><span class="agent-card__name">agent-enhancer</span><span class="tier-badge tier-badge--opus">opus</span><p class="agent-card__desc">Agent configuration quality analysis</p></div>
               <div class="agent-card"><span class="agent-card__name">claudemd-enhancer</span><span class="tier-badge tier-badge--opus">opus</span><p class="agent-card__desc">CLAUDE.md file optimization</p></div>
               <div class="agent-card"><span class="agent-card__name">docs-enhancer</span><span class="tier-badge tier-badge--opus">opus</span><p class="agent-card__desc">Documentation quality improvement</p></div>
@@ -699,6 +698,8 @@
           <div class="agent-tier tabs__panel" role="tabpanel" id="agent-tier-sonnet" aria-labelledby="agent-tab-sonnet" hidden>
             <div class="agent-grid">
               <div class="agent-card"><span class="agent-card__name">task-discoverer</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Task source scanning and prioritization</p></div>
+              <div class="agent-card"><span class="agent-card__name">exploration-agent</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Deep codebase analysis and context gathering</p></div>
+              <div class="agent-card"><span class="agent-card__name">prepare-delivery-agent</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Pre-ship quality gate orchestration</p></div>
               <div class="agent-card"><span class="agent-card__name">delivery-validator</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Pre-ship quality gate validation</p></div>
               <div class="agent-card"><span class="agent-card__name">ci-fixer</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">CI failure diagnosis and auto-repair</p></div>
               <div class="agent-card"><span class="agent-card__name">test-coverage-checker</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Test coverage analysis and gap detection</p></div>
@@ -707,8 +708,8 @@
               <div class="agent-card"><span class="agent-card__name">plugin-enhancer</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Plugin configuration validation</p></div>
               <div class="agent-card"><span class="agent-card__name">perf-code-paths</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Hot code path identification</p></div>
               <div class="agent-card"><span class="agent-card__name">perf-investigation-logger</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Performance investigation logging</p></div>
-              <div class="agent-card"><span class="agent-card__name">perf-theory-gatherer</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Performance hypothesis generation</p></div>
-              <div class="agent-card"><span class="agent-card__name">perf-theory-tester</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Controlled experiment execution</p></div>
+              <div class="agent-card"><span class="agent-card__name">plan-synthesizer</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Multi-source plan synthesis and merging</p></div>
+              <div class="agent-card"><span class="agent-card__name">learn-agent</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Web research and learning guide creation</p></div>
               <div class="agent-card"><span class="agent-card__name">sync-docs-agent</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Documentation sync and update</p></div>
               <div class="agent-card"><span class="agent-card__name">agnix-agent</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Agent config linting orchestration</p></div>
               <div class="agent-card"><span class="agent-card__name">consult-agent</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Cross-tool AI consultation orchestration</p></div>
@@ -716,6 +717,7 @@
               <div class="agent-card"><span class="agent-card__name">skillers-compactor</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Transcript compaction into knowledge themes</p></div>
               <div class="agent-card"><span class="agent-card__name">release-agent</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Versioned release with ecosystem detection</p></div>
               <div class="agent-card"><span class="agent-card__name">onboard-agent</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Codebase orientation and guided onboarding</p></div>
+              <div class="agent-card"><span class="agent-card__name">can-i-help-agent</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Contributor guidance matching skills to project needs</p></div>
             </div>
           </div>
 

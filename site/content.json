@@ -43,7 +43,7 @@
       "suffix": ""
     },
     {
-      "value": "3,750",
+      "value": "3,507",
       "label": "Tests",
       "suffix": ""
     },
@@ -381,11 +381,20 @@
         "model": "Opus",
         "use_case": "Complex reasoning, analysis",
         "agents": [
-          "exploration-agent",
           "planning-agent",
           "implementation-agent",
           "perf-orchestrator",
-          "learn-agent"
+          "perf-analyzer",
+          "perf-theory-gatherer",
+          "perf-theory-tester",
+          "agent-enhancer",
+          "claudemd-enhancer",
+          "docs-enhancer",
+          "hooks-enhancer",
+          "prompt-enhancer",
+          "skills-enhancer",
+          "debate-orchestrator",
+          "skillers-recommender"
         ]
       },
       {
@@ -393,10 +402,26 @@
         "use_case": "Validation, pattern matching",
         "agents": [
           "task-discoverer",
+          "exploration-agent",
+          "prepare-delivery-agent",
           "delivery-validator",
           "ci-fixer",
+          "test-coverage-checker",
           "deslop-agent",
-          "enhancement reporters"
+          "cross-file-enhancer",
+          "plugin-enhancer",
+          "perf-code-paths",
+          "perf-investigation-logger",
+          "plan-synthesizer",
+          "learn-agent",
+          "sync-docs-agent",
+          "agnix-agent",
+          "consult-agent",
+          "web-session",
+          "skillers-compactor",
+          "release-agent",
+          "onboard-agent",
+          "can-i-help-agent"
         ]
       },
       {
@@ -405,7 +430,8 @@
         "agents": [
           "worktree-manager",
           "ci-monitor",
-          "simple-fixer"
+          "simple-fixer",
+          "map-validator"
         ]
       }
     ]
@@ -505,7 +531,7 @@
   ],
   "research": {
     "knowledge_base": "8,000 lines of curated documentation from Anthropic, OpenAI, Google, and Microsoft",
-    "testing": "3,750 tests passing",
+    "testing": "3,507 tests passing",
     "drift_detect_repos": "1,000+ repositories validated",
     "token_reduction": "77% fewer tokens for drift-detect vs multi-agent approaches"
   },
