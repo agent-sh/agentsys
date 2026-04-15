@@ -109,7 +109,8 @@ const STATIC_SKILLS = [
   { plugin: 'audit-project', name: 'audit-project' },
   { plugin: 'glidemq', name: 'glide-mq' },
   { plugin: 'glidemq', name: 'glide-mq-migrate-bullmq' },
-  { plugin: 'glidemq', name: 'glide-mq-migrate-bee' }
+  { plugin: 'glidemq', name: 'glide-mq-migrate-bee' },
+  { plugin: 'agnix', name: 'agnix' }
 ];
 
 // Purpose mapping for architecture table
