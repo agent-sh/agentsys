@@ -650,7 +650,7 @@ This disables:
 ### Head Content
 ```html
 <title>AgentSys - Agent Runtime &amp; Orchestration System</title>
-<meta name="description" content="A modular runtime and orchestration system for AI agents. 19 plugins, 49 agents, 40 skills — structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.">
+<meta name="description" content="A modular runtime and orchestration system for AI agents. 19 plugins, 49 agents, 40 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0a0a0f">
 
