@@ -193,7 +193,7 @@ function generateCommandsTable(commands) {
     'next-task': 'Task workflow: discovery, implementation, PR, merge',
     'prepare-delivery': 'Pre-ship quality gates: deslop, review, validation, docs sync',
     'gate-and-ship': 'Quality gates then ship (/prepare-delivery + /ship)',
-    'agnix': 'Lint agent configurations (385 rules)',
+    'agnix': 'Lint agent configurations (399 rules)',
     'ship': 'PR creation, CI monitoring, merge',
     'deslop': 'Clean AI slop patterns',
     'perf': 'Performance investigation with baselines and profiling',

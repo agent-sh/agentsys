@@ -152,12 +152,12 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 | **Performance** | `baseline`, `benchmark`, `code-paths`, `investigation-logger`, `perf-analyzer`, `profile`, `theory-gatherer`, `theory-tester` |
 | **Cleanup** | `deslop`, `sync-docs` |
 | **Code Review** | `audit-project` |
-| **Linting** | `agnix` |
 | **AI Collaboration** | `consult`, `debate`, `learn`, `recommend`, `skillers-compact` |
 | **Onboarding** | `can-i-help`, `onboard` |
 | **Web** | `web-auth`, `web-browse` |
 | **Release** | `release` |
 | **Analysis** | `drift-analysis`, `repo-intel` |
+| **Linting** | `agnix` |
 
 **External skill plugins** (standalone repos, installed separately):
 
