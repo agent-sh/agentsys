@@ -25,9 +25,9 @@ const workflowState = require('../../lib/state/workflow-state.js');
 const state = workflowState.readState();
 const policy = state.policy;
 
-// Load claimed tasks from registry
-const claimedTasks = workflowState.readTasks().tasks || [];
-const claimedIds = new Set(claimedTasks.map(t => t.id));
+// Load claimed task IDs from registry (tasks[] contains worktree-manager claims)
+const tasksRegistry = workflowState.readTasks();
+const claimedIds = new Set(tasksRegistry.tasks.map(t => t.id));
 ```
 
 ### Phase 2: Fetch Tasks by Source

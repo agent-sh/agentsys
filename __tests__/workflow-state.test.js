@@ -10,8 +10,11 @@ const {
   PHASES,
   readTasks,
   writeTasks,
+  updateTasks,
   setActiveTask,
   clearActiveTask,
+  claimTask,
+  releaseTask,
   hasActiveTask,
   readFlow,
   writeFlow,
@@ -61,18 +64,44 @@ describe('workflow-state', () => {
   });
 
   describe('tasks.json operations', () => {
-    test('readTasks returns null active when file does not exist', () => {
+    test('readTasks returns default schema when file does not exist', () => {
       const tasks = readTasks(testDir);
-      expect(tasks).toEqual({ active: null });
+      expect(tasks).toEqual({ active: null, tasks: [], _version: 0 });
     });
 
-    test('writeTasks creates .claude directory and file', () => {
-      const tasks = { active: { taskId: '123' } };
+    test('writeTasks creates .claude directory, file, and increments _version', () => {
+      const tasks = { active: { taskId: '123' }, tasks: [], _version: 0 };
       writeTasks(tasks, testDir);
 
       const claudeDir = path.join(testDir, '.claude');
       expect(fs.existsSync(claudeDir)).toBe(true);
       expect(fs.existsSync(path.join(claudeDir, 'tasks.json'))).toBe(true);
+
+      const saved = readTasks(testDir);
+      expect(saved._version).toBe(1);
+    });
+
+    test('readTasks normalizes legacy { active } format', () => {
+      const claudeDir = path.join(testDir, '.claude');
+      fs.mkdirSync(claudeDir, { recursive: true });
+      fs.writeFileSync(path.join(claudeDir, 'tasks.json'), JSON.stringify({ active: { taskId: 'x' } }));
+
+      const tasks = readTasks(testDir);
+      expect(tasks.active.taskId).toBe('x');
+      expect(Array.isArray(tasks.tasks)).toBe(true);
+      expect(typeof tasks._version).toBe('number');
+    });
+
+    test('readTasks normalizes legacy { version, tasks[] } format', () => {
+      const claudeDir = path.join(testDir, '.claude');
+      fs.mkdirSync(claudeDir, { recursive: true });
+      fs.writeFileSync(path.join(claudeDir, 'tasks.json'), JSON.stringify({ version: '1.0.0', tasks: [{ id: '42' }] }));
+
+      const tasks = readTasks(testDir);
+      expect(tasks.active).toBeNull();
+      expect(tasks.tasks).toHaveLength(1);
+      expect(tasks.tasks[0].id).toBe('42');
+      expect(typeof tasks._version).toBe('number');
     });
 
     test('setActiveTask sets active task with timestamp', () => {
@@ -96,6 +125,90 @@ describe('workflow-state', () => {
       expect(hasActiveTask(testDir)).toBe(false);
       setActiveTask({ taskId: '123' }, testDir);
       expect(hasActiveTask(testDir)).toBe(true);
+    });
+
+    test('claimTask adds entry to tasks[] array', () => {
+      const ok = claimTask({ id: '42', source: 'gh-issues', title: 'Fix bug', branch: 'feat/42', worktreePath: '/tmp/wt', claimedBy: 'wf-1' }, testDir);
+      expect(ok).toBe(true);
+
+      const tasks = readTasks(testDir);
+      expect(tasks.tasks).toHaveLength(1);
+      expect(tasks.tasks[0].id).toBe('42');
+      expect(tasks.tasks[0].status).toBe('claimed');
+      expect(tasks.tasks[0].lastActivityAt).toBeDefined();
+    });
+
+    test('claimTask updates existing entry (upsert)', () => {
+      claimTask({ id: '42', source: 'gh-issues', title: 'Fix bug', branch: 'feat/42', worktreePath: '/tmp/wt', claimedBy: 'wf-1' }, testDir);
+      claimTask({ id: '42', source: 'gh-issues', title: 'Fix bug (updated)', branch: 'feat/42', worktreePath: '/tmp/wt2', claimedBy: 'wf-1' }, testDir);
+
+      const tasks = readTasks(testDir);
+      expect(tasks.tasks).toHaveLength(1);
+      expect(tasks.tasks[0].title).toBe('Fix bug (updated)');
+    });
+
+    test('claimTask increments _version', () => {
+      claimTask({ id: '1', source: 'gh-issues', title: 'A', branch: 'b', worktreePath: '/tmp/x', claimedBy: 'w' }, testDir);
+      const v1 = readTasks(testDir)._version;
+      claimTask({ id: '2', source: 'gh-issues', title: 'B', branch: 'c', worktreePath: '/tmp/y', claimedBy: 'w' }, testDir);
+      const v2 = readTasks(testDir)._version;
+      expect(v2).toBeGreaterThan(v1);
+    });
+
+    test('releaseTask removes entry from tasks[]', () => {
+      claimTask({ id: '42', source: 'gh-issues', title: 'Fix bug', branch: 'feat/42', worktreePath: '/tmp/wt', claimedBy: 'wf-1' }, testDir);
+      expect(readTasks(testDir).tasks).toHaveLength(1);
+
+      const ok = releaseTask('42', testDir);
+      expect(ok).toBe(true);
+      expect(readTasks(testDir).tasks).toHaveLength(0);
+    });
+
+    test('releaseTask is idempotent — returns true when task not found', () => {
+      const ok = releaseTask('nonexistent', testDir);
+      expect(ok).toBe(true);
+    });
+
+    test('claimTask rejects missing id', () => {
+      const ok = claimTask({ source: 'gh-issues' }, testDir);
+      expect(ok).toBe(false);
+    });
+
+    test('updateTasks applies mutation and increments _version', () => {
+      const ok = updateTasks(tasks => {
+        tasks.active = { taskId: 'x' };
+        return tasks;
+      }, testDir);
+
+      expect(ok).toBe(true);
+      const saved = readTasks(testDir);
+      expect(saved.active.taskId).toBe('x');
+      expect(saved._version).toBe(1);
+    });
+
+    test('updateTasks detects and retries on version conflict', () => {
+      // Simulate a concurrent writer by intercepting writeJsonAtomic to also
+      // bump the file a second time, causing a version mismatch on first attempt.
+      const { writeJsonAtomic } = require('../lib/utils/atomic-write');
+      let callCount = 0;
+      const original = writeJsonAtomic;
+      jest.spyOn(require('../lib/utils/atomic-write'), 'writeJsonAtomic').mockImplementation((filePath, data) => {
+        original(filePath, data); // our write
+        callCount++;
+        if (callCount === 1) {
+          // Simulate a concurrent writer bumping the version again
+          original(filePath, { ...data, _version: data._version + 1 });
+        }
+      });
+
+      const ok = updateTasks(tasks => {
+        tasks.active = { taskId: 'retry-test' };
+        return tasks;
+      }, testDir);
+
+      jest.restoreAllMocks();
+      // Should eventually succeed (retried)
+      expect(ok).toBe(true);
     });
   });
 
@@ -420,7 +533,7 @@ describe('workflow-state', () => {
       fs.writeFileSync(path.join(testDir, '.claude', 'tasks.json'), 'invalid json');
 
       const tasks = readTasks(testDir);
-      expect(tasks).toEqual({ active: null });
+      expect(tasks).toEqual({ active: null, tasks: [], _version: 0 });
     });
 
     test('readFlow handles corrupted JSON gracefully', () => {
