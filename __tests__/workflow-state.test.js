@@ -69,9 +69,9 @@ describe('workflow-state', () => {
       expect(tasks).toEqual({ active: null, tasks: [], _version: 0 });
     });
 
-    test('writeTasks creates .claude directory, file, and increments _version', () => {
+    test('writeTasks creates .claude directory, file, increments _version, and stamps _writerId', () => {
       const tasks = { active: { taskId: '123' }, tasks: [], _version: 0 };
-      writeTasks(tasks, testDir);
+      const writerId = writeTasks(tasks, testDir);
 
       const claudeDir = path.join(testDir, '.claude');
       expect(fs.existsSync(claudeDir)).toBe(true);
@@ -79,6 +79,8 @@ describe('workflow-state', () => {
 
       const saved = readTasks(testDir);
       expect(saved._version).toBe(1);
+      expect(typeof writerId).toBe('string');
+      expect(saved._writerId).toBe(writerId);
     });
 
     test('readTasks normalizes legacy { active } format', () => {
@@ -186,18 +188,24 @@ describe('workflow-state', () => {
       expect(saved._version).toBe(1);
     });
 
-    test('updateTasks detects and retries on version conflict', () => {
-      // Simulate a concurrent writer by intercepting writeJsonAtomic to also
-      // bump the file a second time, causing a version mismatch on first attempt.
-      const { writeJsonAtomic } = require('../lib/utils/atomic-write');
+    test('updateTasks detects and retries when concurrent writer stamps a different _writerId', () => {
+      // Prime the file with a valid initial state
+      writeTasks({ active: null, tasks: [], _version: 0 }, testDir);
+
+      // Intercept writeJsonAtomic: after our write, immediately overwrite with a
+      // different _writerId (simulating a concurrent writer that also won the rename).
+      // On the second call (retry), let it go through normally.
+      const atomicWrite = require('../lib/utils/atomic-write');
       let callCount = 0;
-      const original = writeJsonAtomic;
-      jest.spyOn(require('../lib/utils/atomic-write'), 'writeJsonAtomic').mockImplementation((filePath, data) => {
-        original(filePath, data); // our write
+      jest.spyOn(atomicWrite, 'writeJsonAtomic').mockImplementation((filePath, data) => {
+        // Always do our write first (real atomic write)
+        const fsReal = require('fs');
+        fsReal.mkdirSync(require('path').dirname(filePath), { recursive: true });
+        fsReal.writeFileSync(filePath, JSON.stringify(data, null, 2));
         callCount++;
         if (callCount === 1) {
-          // Simulate a concurrent writer bumping the version again
-          original(filePath, { ...data, _version: data._version + 1 });
+          // Overwrite with a different writerId — our writerId won't match on re-read
+          fsReal.writeFileSync(filePath, JSON.stringify({ ...data, _writerId: 'concurrent-winner' }, null, 2));
         }
       });
 
@@ -207,8 +215,8 @@ describe('workflow-state', () => {
       }, testDir);
 
       jest.restoreAllMocks();
-      // Should eventually succeed (retried)
       expect(ok).toBe(true);
+      expect(readTasks(testDir).active.taskId).toBe('retry-test');
     });
   });
 
@@ -528,12 +536,22 @@ describe('workflow-state', () => {
   });
 
   describe('error handling', () => {
-    test('readTasks handles corrupted JSON gracefully', () => {
+    test('readTasks throws on corrupted JSON to prevent silent data loss', () => {
       fs.mkdirSync(path.join(testDir, '.claude'), { recursive: true });
       fs.writeFileSync(path.join(testDir, '.claude', 'tasks.json'), 'invalid json');
 
-      const tasks = readTasks(testDir);
-      expect(tasks).toEqual({ active: null, tasks: [], _version: 0 });
+      expect(() => readTasks(testDir)).toThrow(/Corrupted tasks\.json/);
+    });
+
+    test('updateTasks returns false and does not write when tasks.json is corrupted', () => {
+      fs.mkdirSync(path.join(testDir, '.claude'), { recursive: true });
+      fs.writeFileSync(path.join(testDir, '.claude', 'tasks.json'), 'invalid json');
+
+      const ok = updateTasks(tasks => { tasks.active = { taskId: 'x' }; return tasks; }, testDir);
+      expect(ok).toBe(false);
+      // File must remain corrupted — no silent overwrite
+      const raw = fs.readFileSync(path.join(testDir, '.claude', 'tasks.json'), 'utf8');
+      expect(raw).toBe('invalid json');
     });
 
     test('readFlow handles corrupted JSON gracefully', () => {
