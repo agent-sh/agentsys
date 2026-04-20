@@ -189,32 +189,35 @@ describe('workflow-state', () => {
     });
 
     test('updateTasks detects and retries when concurrent writer stamps a different _writerId', () => {
-      // Prime the file with a valid initial state
-      writeTasks({ active: null, tasks: [], _version: 0 }, testDir);
-
-      // Intercept writeJsonAtomic: after our write, immediately overwrite with a
-      // different _writerId (simulating a concurrent writer that also won the rename).
-      // On the second call (retry), let it go through normally.
-      const atomicWrite = require('../lib/utils/atomic-write');
-      let callCount = 0;
-      jest.spyOn(atomicWrite, 'writeJsonAtomic').mockImplementation((filePath, data) => {
-        // Always do our write first (real atomic write)
-        const fsReal = require('fs');
-        fsReal.mkdirSync(require('path').dirname(filePath), { recursive: true });
-        fsReal.writeFileSync(filePath, JSON.stringify(data, null, 2));
-        callCount++;
-        if (callCount === 1) {
-          // Overwrite with a different writerId — our writerId won't match on re-read
-          fsReal.writeFileSync(filePath, JSON.stringify({ ...data, _writerId: 'concurrent-winner' }, null, 2));
+      // The key insight: jest.spyOn cannot intercept writeJsonAtomic because
+      // workflow-state.js captures it via destructuring at require() time.
+      // Instead, simulate a concurrent writer by directly overwriting the file
+      // on disk between our write and the re-read, changing the _writerId.
+      //
+      // We do this by monkey-patching fs.renameSync — the final step of the
+      // atomic write — to additionally overwrite the file with a foreign
+      // _writerId the first time it is called.
+      const fsActual = require('fs');
+      const originalRename = fsActual.renameSync.bind(fsActual);
+      let renameCallCount = 0;
+      fsActual.renameSync = function (src, dest) {
+        originalRename(src, dest); // complete our write
+        renameCallCount++;
+        if (renameCallCount === 1) {
+          // Concurrent writer wins: stamp a different _writerId
+          const current = JSON.parse(fsActual.readFileSync(dest, 'utf8'));
+          current._writerId = 'concurrent-winner-foreign-id';
+          fsActual.writeFileSync(dest, JSON.stringify(current, null, 2));
         }
-      });
+      };
 
       const ok = updateTasks(tasks => {
         tasks.active = { taskId: 'retry-test' };
         return tasks;
       }, testDir);
 
-      jest.restoreAllMocks();
+      fsActual.renameSync = originalRename; // restore
+
       expect(ok).toBe(true);
       expect(readTasks(testDir).active.taskId).toBe('retry-test');
     });
