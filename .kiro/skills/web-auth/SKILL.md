@@ -25,10 +25,10 @@ Double-quote all URL arguments containing `?`, `&`, or `#` to prevent shell glob
 
 ```bash
 # Correct
-node /Users/avifen/.agentsys/plugins/web-ctl/scripts/web-ctl.js session auth myapp --url "https://myapp.com/login?redirect=/dashboard"
+node ~/.agentsys/plugins/web-ctl/scripts/web-ctl.js session auth myapp --url "https://myapp.com/login?redirect=/dashboard"
 
 # Wrong - ? triggers shell glob expansion
-node /Users/avifen/.agentsys/plugins/web-ctl/scripts/web-ctl.js session auth myapp --url https://myapp.com/login?redirect=/dashboard
+node ~/.agentsys/plugins/web-ctl/scripts/web-ctl.js session auth myapp --url https://myapp.com/login?redirect=/dashboard
 ```
 
 ## Auth Handoff Protocol
@@ -36,7 +36,7 @@ node /Users/avifen/.agentsys/plugins/web-ctl/scripts/web-ctl.js session auth mya
 ### 1. Start Session (Optional)
 
 ```bash
-node /Users/avifen/.agentsys/plugins/web-ctl/scripts/web-ctl.js session start <session-name>
+node ~/.agentsys/plugins/web-ctl/scripts/web-ctl.js session start <session-name>
 ```
 
 Sessions auto-create on first use, so explicit creation is optional.
@@ -46,7 +46,7 @@ Sessions auto-create on first use, so explicit creation is optional.
 For known providers, use `--provider` to auto-configure login URL and success detection:
 
 ```bash
-node /Users/avifen/.agentsys/plugins/web-ctl/scripts/web-ctl.js session auth <session-name> --provider <provider>
+node ~/.agentsys/plugins/web-ctl/scripts/web-ctl.js session auth <session-name> --provider <provider>
 ```
 
 Available providers: github, google, microsoft, x (alias: twitter), reddit, discord, slack, linkedin, gitlab, atlassian, aws-console (alias: aws), notion.
@@ -54,13 +54,13 @@ Available providers: github, google, microsoft, x (alias: twitter), reddit, disc
 For custom or self-hosted providers, create a JSON file following the same schema as the built-in providers and pass it via `--providers-file`:
 
 ```bash
-node /Users/avifen/.agentsys/plugins/web-ctl/scripts/web-ctl.js session auth <session-name> --provider my-corp --providers-file ./custom-providers.json
+node ~/.agentsys/plugins/web-ctl/scripts/web-ctl.js session auth <session-name> --provider my-corp --providers-file ./custom-providers.json
 ```
 
 For one-off custom sites, specify the URL and success conditions manually:
 
 ```bash
-node /Users/avifen/.agentsys/plugins/web-ctl/scripts/web-ctl.js session auth <session-name> --url <login-url> [--success-url <url>] [--success-selector <selector>] [--timeout <seconds>]
+node ~/.agentsys/plugins/web-ctl/scripts/web-ctl.js session auth <session-name> --url <login-url> [--success-url <url>] [--success-selector <selector>] [--timeout <seconds>]
 ```
 
 You can combine `--provider` with explicit flags to override specific settings (CLI flags win).
@@ -125,13 +125,13 @@ On error: Check the error message. Common issues:
 After successful auth, verify the session is still authenticated:
 
 ```bash
-node /Users/avifen/.agentsys/plugins/web-ctl/scripts/web-ctl.js session verify <session-name> --url <protected-page-url>
+node ~/.agentsys/plugins/web-ctl/scripts/web-ctl.js session verify <session-name> --url <protected-page-url>
 ```
 
 For known providers, use `--provider` to use the pre-configured success URL and selectors:
 
 ```bash
-node /Users/avifen/.agentsys/plugins/web-ctl/scripts/web-ctl.js session verify <session-name> --provider <provider>
+node ~/.agentsys/plugins/web-ctl/scripts/web-ctl.js session verify <session-name> --provider <provider>
 ```
 
 The command returns structured JSON:
@@ -145,28 +145,28 @@ The command returns structured JSON:
 
 ```bash
 # Start session
-node /Users/avifen/.agentsys/plugins/web-ctl/scripts/web-ctl.js session start twitter
+node ~/.agentsys/plugins/web-ctl/scripts/web-ctl.js session start twitter
 
 # Auth using pre-built provider
-node /Users/avifen/.agentsys/plugins/web-ctl/scripts/web-ctl.js session auth twitter --provider twitter
+node ~/.agentsys/plugins/web-ctl/scripts/web-ctl.js session auth twitter --provider twitter
 
 # Verify - check if we see the home timeline
-node /Users/avifen/.agentsys/plugins/web-ctl/scripts/web-ctl.js run twitter goto "https://x.com/home"
-node /Users/avifen/.agentsys/plugins/web-ctl/scripts/web-ctl.js run twitter snapshot
+node ~/.agentsys/plugins/web-ctl/scripts/web-ctl.js run twitter goto "https://x.com/home"
+node ~/.agentsys/plugins/web-ctl/scripts/web-ctl.js run twitter snapshot
 ```
 
 ## Example: GitHub Login (with provider)
 
 ```bash
-node /Users/avifen/.agentsys/plugins/web-ctl/scripts/web-ctl.js session start github
-node /Users/avifen/.agentsys/plugins/web-ctl/scripts/web-ctl.js session auth github --provider github
+node ~/.agentsys/plugins/web-ctl/scripts/web-ctl.js session start github
+node ~/.agentsys/plugins/web-ctl/scripts/web-ctl.js session auth github --provider github
 ```
 
 ## Example: Custom Site (manual config)
 
 ```bash
-node /Users/avifen/.agentsys/plugins/web-ctl/scripts/web-ctl.js session start myapp
-node /Users/avifen/.agentsys/plugins/web-ctl/scripts/web-ctl.js session auth myapp --url "https://myapp.com/login" --success-url "https://myapp.com/dashboard"
+node ~/.agentsys/plugins/web-ctl/scripts/web-ctl.js session start myapp
+node ~/.agentsys/plugins/web-ctl/scripts/web-ctl.js session auth myapp --url "https://myapp.com/login" --success-url "https://myapp.com/dashboard"
 ```
 
 ## Session Lifecycle
