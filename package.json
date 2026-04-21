@@ -38,7 +38,7 @@
     "detect": "node bin/dev-cli.js detect",
     "verify": "node bin/dev-cli.js verify",
     "version": "node scripts/stamp-version.js && git add -A",
-    "prepare": "node bin/dev-cli.js setup-hooks"
+    "setup-hooks": "node bin/dev-cli.js setup-hooks"
   },
   "repository": {
     "type": "git",

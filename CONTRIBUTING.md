@@ -31,6 +31,17 @@ PRs may receive AI-assisted reviews (Copilot, Claude, Gemini, Codex) at the owne
 
 ## Before You Start
 
+### First-Time Setup
+
+After cloning the repo, install git hooks manually:
+
+```bash
+npm install
+npm run setup-hooks
+```
+
+The `setup-hooks` script installs pre-commit and pre-push hooks into your local `.git/hooks/`. It does **not** run automatically on `npm install` — you must opt in.
+
 ### Multi-File Changes
 
 For changes touching multiple files, **read the relevant checklist first**:
