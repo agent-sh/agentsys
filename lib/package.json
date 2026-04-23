@@ -13,6 +13,8 @@
     "./discovery": "./discovery/index.js",
     "./enhance": "./enhance/index.js",
     "./perf": "./perf/index.js",
+    "./repo-intel": "./repo-intel/index.js",
+    "./repo-intel/queries": "./repo-intel/queries.js",
     "./repo-map": "./repo-map/index.js",
     "./collectors/codebase": "./collectors/codebase.js",
     "./collectors/docs-patterns": "./collectors/docs-patterns.js",
