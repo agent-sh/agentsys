@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.8.5] - 2026-04-23
+
+### Fixed
+- **Hardcoded developer paths in web-ctl skills** (#333) - replaced 76 occurrences of `/Users/avifen/.agentsys/plugins/web-ctl/scripts/web-ctl.js` with `~/.agentsys/...` across `.kiro/skills/web-auth/SKILL.md` (16 sites) and `.kiro/skills/web-browse/SKILL.md` (60 sites). The original absolute path only existed on the maintainer's machine, so every CLI example silently failed for any other user. The portable form matches the install path documented in `meta/skills/maintain-cross-platform/SKILL.md` and works for both shell copy-paste and agent execution (Bash tool's `bash -c` performs tilde expansion).
+- **`prepare` lifecycle hook auto-installed git hooks on every `npm install`** (#334) - moved hook installation from npm's `prepare` script to an explicit `setup-hooks` script so consumers no longer get hooks injected as a side effect of `npm install`. Documented opt-in flow in `CONTRIBUTING.md`. Also removed the no-op pre-commit placeholder (it just wrote a comment file - lib/ sync is handled by agent-core CI now), so only the actually-active pre-push hook (preflight + `/enhance` reminder + release-tag validation) is installed.
+- **`npm version` lifecycle dropped downstream version stamps** (#339) - replaced `git add -A` (which would sweep unrelated working-tree changes into the version commit) with an explicit allowlist covering every file `stamp-version.js` writes plus npm's own lockfile: `package.json`, `package-lock.json`, `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `site/content.json`. Preserves the original intent (no working-tree sweep) while keeping all version manifests consistent after `npm version`.
+
+### Changed
+- **`js-yaml` dependency range tightened from `^4.1.1` to `~4.1.1`** (#335) - blocks unintended `4.x` minor bumps while still allowing `4.1.x` patch updates so runtime security fixes flow in automatically. Lockfile root entry synced to match.
+
 ## [5.8.4] - 2026-04-20
 
 ### Fixed
