@@ -37,7 +37,7 @@
     "bump": "node bin/dev-cli.js bump",
     "detect": "node bin/dev-cli.js detect",
     "verify": "node bin/dev-cli.js verify",
-    "version": "node scripts/stamp-version.js && git add -A",
+    "version": "node scripts/stamp-version.js && git add package.json package-lock.json .claude-plugin/plugin.json .claude-plugin/marketplace.json site/content.json",
     "setup-hooks": "node bin/dev-cli.js setup-hooks"
   },
   "repository": {
