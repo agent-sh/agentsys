@@ -908,18 +908,22 @@ describe('docs-patterns', () => {
     });
 
     describe('ensureRepoMap (async)', () => {
+      // Async path can spawn ast-grep (checkAstGrepInstalled + init), which is
+      // slow to start on Windows. Default 5s jest timeout is too tight.
+      const ASYNC_TIMEOUT = 30_000;
+
       test('returns unavailable when repo-map not initialized', async () => {
         const result = await ensureRepoMap({ cwd: testDir });
         expect(result.available).toBe(false);
         expect(result.fallbackReason).toBeTruthy();
-      });
+      }, ASYNC_TIMEOUT);
 
       test('returns correct structure', async () => {
         const result = await ensureRepoMap({ cwd: testDir });
         expect(result).toHaveProperty('available');
         expect(result).toHaveProperty('map');
         expect(result).toHaveProperty('fallbackReason');
-      });
+      }, ASYNC_TIMEOUT);
 
       test('does not call askUser if repo-map module not found', async () => {
         const askUser = jest.fn();
@@ -927,7 +931,7 @@ describe('docs-patterns', () => {
         // askUser should not be called when module isn't available or no ast-grep
         // This depends on environment, but at minimum the structure should be correct
         expect(result).toHaveProperty('available');
-      });
+      }, ASYNC_TIMEOUT);
     });
 
     describe('findUndocumentedExports', () => {
