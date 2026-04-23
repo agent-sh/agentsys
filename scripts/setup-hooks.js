@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 /**
  * Setup git hooks for development
- * - pre-commit: Placeholder (lib/ sync handled by agent-core CI)
  * - pre-push: Runs preflight checks, /enhance reminder, release validation
  */
 
@@ -9,12 +8,7 @@ const fs = require('fs');
 const path = require('path');
 
 const hookDir = path.join(__dirname, '..', '.git', 'hooks');
-const preCommitPath = path.join(hookDir, 'pre-commit');
 const prePushPath = path.join(hookDir, 'pre-push');
-
-const preCommitHook = `#!/bin/sh
-# Pre-commit hook (lib/ sync now handled by agent-core)
-`;
 
 const prePushHook = `#!/bin/sh
 # Pre-push validations:
@@ -133,14 +127,6 @@ function main() {
   if (!fs.existsSync(hookDir)) {
     // Not a git repo or installed as dependency - skip silently
     return 0;
-  }
-
-  try {
-    fs.writeFileSync(preCommitPath, preCommitHook, { mode: 0o755 });
-    console.log('Git pre-commit hook installed');
-  } catch (err) {
-    // Non-fatal - might not have write permissions
-    console.warn('Could not install pre-commit hook:', err.message);
   }
 
   try {

@@ -63,7 +63,7 @@ agentsys/
 │       └── maintain-cross-platform/  # Cross-platform compatibility skill
 │           └── SKILL.md
 ├── scripts/
-│   ├── setup-hooks.js            # Git hooks installer (npm prepare)
+│   ├── setup-hooks.js            # Git hooks installer (manual: npm run setup-hooks)
 │   └── graduate-plugin.js        # Extract a plugin to a new standalone repo
 ├── docs/                         # User documentation
 │   ├── CROSS_PLATFORM.md

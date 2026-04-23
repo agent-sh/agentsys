@@ -40,7 +40,7 @@ npm install
 npm run setup-hooks
 ```
 
-The `setup-hooks` script installs pre-commit and pre-push hooks into your local `.git/hooks/`. It does **not** run automatically on `npm install` — you must opt in.
+The `setup-hooks` script installs the pre-push hook into your local `.git/hooks/` (it runs preflight checks, an `/enhance` reminder, and release-tag validation). It does **not** run automatically on `npm install` - you must opt in.
 
 ### Multi-File Changes
 
