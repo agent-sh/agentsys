@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.8.6] - 2026-04-23
+
+### Added
+- **`@agentsys/lib`'s `repoIntel.queries` module** - typed wrappers over every `agent-analyzer repo-intel query <type>` subcommand (28 functions). Consumer plugins can now call `require('@agentsys/lib').repoIntel.queries.hotspots(cwd, { limit: 20 })` instead of constructing raw CLI argv themselves. Functions returned in JSON match the binary's output shape per query.
+- **4 new graph-derived query wrappers** for the analyzer-graph crate landed in agent-analyzer v0.4.0:
+  - `communities(cwd)` - lists Louvain-discovered file clusters (the natural feature areas, independent of directory layout)
+  - `boundaries(cwd, { limit })` - files bridging multiple communities by betweenness centrality (architectural seams - highest-leverage files for refactoring)
+  - `areaOf(cwd, file)` - which community a file belongs to
+  - `communityHealth(cwd, id)` - composite per-community roll-up (size, total/recent changes, bug-fix rate, AI ratio, stale-owner count)
+
+### Changed
+- **`ANALYZER_MIN_VERSION` bumped 0.3.0 -> 0.4.0** to match agent-analyzer v0.4.0 which adds the graph subcommands. Older binaries get auto-upgraded on first call by `lib/binary.ensureBinary()`.
+
 ## [5.8.5] - 2026-04-23
 
 ### Fixed
