@@ -29,27 +29,6 @@
 4. Quality output
 5. Simplicity
 
-## Website (site/)
-
-The website at `site/index.html` is **hardcoded HTML** - not generated from content.json or any template. When plugins, commands, agents, or skills are added/removed/renamed, the site must be manually updated:
-
-- `site/index.html` - all counts (meta tags, hero stats, section headers), command tabs + panels, agent tier cards, skills grid
-- `site/content.json` - commands array, stats, meta description, research section, recent_releases
-- `site/ux-spec.md` - design spec counts
-
-**Checklist when adding a new command:**
-1. Add tab button to the commands tablist (with correct index)
-2. Add tab panel with tagline, 4 features, code block (copy the SVG from an existing panel)
-3. Update "N Commands. One Toolkit." heading count
-4. Update all meta tag counts (description, og:description, twitter:description)
-5. Update hero badge counts
-6. Update stats bar data-target attributes
-7. Add entry to content.json commands array
-8. If new agent: add to agent tier cards + update tier counts
-9. If new skill: add to skills grid + update skills count
-
-**How It Works sections** for new commands must also be created manually in the HTML.
-
 ## Dev Commands
 
 ```bash
