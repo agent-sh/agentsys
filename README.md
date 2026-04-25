@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <b>19 plugins · 49 agents · 41 skills (across all repos) · 30k lines of lib code · 3,507 tests · 5 platforms</b><br>
+  <b>20 plugins · 49 agents · 41 skills (across all repos) · 30k lines of lib code · 3,507 tests · 5 platforms</b><br>
   <em>Plugins distributed as standalone repos under <a href="https://github.com/agent-sh">agent-sh</a> org - agentsys is the marketplace &amp; installer</em>
 </p>
 
@@ -45,7 +45,7 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 
 ## What This Is
 
-An agent orchestration system - 19 plugins, 49 agents (39 file-based + 10 role-based specialists in audit-project), and 41 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
+An agent orchestration system - 20 plugins, 49 agents (39 file-based + 10 role-based specialists in audit-project), and 41 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
 
 Each agent has a single responsibility, a specific model assignment, and defined inputs/outputs. Pipelines enforce phase gates so agents can't skip steps. State persists across sessions so work survives interruptions.
 

@@ -152,7 +152,7 @@ agentsys                # Run installer
 <agents>
 ## Agents
 
-47 agents across 19 plugins. Key agents by model:
+47 agents across 20 plugins (zig-lsp ships as a config-only LSP plugin with no agents). Key agents by model:
 
 | Model | Agents | Use Case |
 |-------|--------|----------|

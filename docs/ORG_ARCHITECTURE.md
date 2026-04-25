@@ -103,6 +103,10 @@
 - [x] marketplace `requires` field added for peer dependency tracking
 - [x] agent-core sync pipeline extended to all 19 plugin repos
 
+**Post-extraction additions:**
+- [x] `zig-lsp` registered as 20th plugin (born standalone, not extracted; LSP plugin distributed via Claude Code marketplace mechanism)
+- [ ] agent-core sync pipeline extended to `zig-lsp` (config-only plugin; sync surface is smaller — likely just CLAUDE.md/AGENTS.md mirror enforcement)
+
 ---
 
 ### 2. Plugin Distribution Registry

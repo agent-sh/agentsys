@@ -73,11 +73,12 @@ agentsys/
     ├── KNOWLEDGE-LIBRARY.md      # Index
     └── *-REFERENCE.md            # Research documents
 
-NOTE: plugins/ has been removed. All 19 plugins are now standalone repos
+NOTE: plugins/ has been removed. All 20 plugins are now standalone repos
 under the agent-sh org. The installer fetches them from GitHub at install time.
 Plugin repos: agent-sh/{next-task,prepare-delivery,gate-and-ship,ship,deslop,
               audit-project,enhance,perf,drift-detect,sync-docs,repo-intel,
-              learn,consult,debate,agnix,web-ctl,skillers,onboard,can-i-help}
+              learn,consult,debate,agnix,web-ctl,skillers,onboard,can-i-help,
+              zig-lsp}
 ```
 
 ### Cross-Platform Library (`lib/cross-platform/`)
@@ -274,7 +275,7 @@ Research documents informing the implementation (in `agent-docs/`):
 
 **Update workflow:**
 1. Edit files in `lib/` (canonical source in this repo)
-2. Push to main — agent-core sync pipeline automatically opens PRs in all 19 plugin repos
+2. Push to main — agent-core sync pipeline automatically opens PRs in all 20 plugin repos
 3. Merge those PRs in each plugin repo
 4. Publish agentsys: `npm version patch && npm publish`
 

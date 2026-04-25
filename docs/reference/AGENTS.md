@@ -24,7 +24,7 @@ Complete reference for all agents in AgentSys.
 
 ## Overview
 
-AgentSys uses 47 specialized agents across 19 plugins (17 have agents - ship and gate-and-ship use commands only). Each agent is optimized for a specific task and assigned a model based on complexity:
+AgentSys uses 47 specialized agents across 20 plugins (17 have agents; ship and gate-and-ship are commands-only; zig-lsp is a config-only LSP plugin with no commands or agents). Each agent is optimized for a specific task and assigned a model based on complexity:
 
 | Model | Use Case | Cost |
 |-------|----------|------|
