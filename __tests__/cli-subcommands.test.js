@@ -107,7 +107,11 @@ describe('searchPlugins', () => {
     const output = logOutput.join('\n');
     expect(output).toContain('next-task');
     expect(output).toContain('deslop');
-    expect(output).toContain('20 plugin(s) found');
+    // Count derived from marketplace.json so this test stays stable as
+    // the marketplace grows. Asserts the suffix and uses the same
+    // source-of-truth the production code reads.
+    const expectedCount = loadMarketplace().plugins.length;
+    expect(output).toContain(`${expectedCount} plugin(s) found`);
   });
 
   test('filters by name', () => {
@@ -366,10 +370,17 @@ describe('granular install recording', () => {
 });
 
 describe('loadMarketplace', () => {
-  test('loads marketplace.json with 20 plugins', () => {
+  test('loads marketplace.json with at least one plugin including the canonical core set', () => {
     const marketplace = loadMarketplace();
     expect(marketplace.plugins).toBeDefined();
-    expect(marketplace.plugins.length).toBe(20);
+    expect(marketplace.plugins.length).toBeGreaterThan(0);
+    // Spot-check a few plugins that anchor the marketplace identity.
+    // These are unlikely to ever be removed - if any of them is, the
+    // change deserves an explicit, visible test update.
+    const names = marketplace.plugins.map(p => p.name);
+    for (const required of ['next-task', 'ship', 'agnix']) {
+      expect(names).toContain(required);
+    }
   });
 
   test('all plugins have name, source, version', () => {

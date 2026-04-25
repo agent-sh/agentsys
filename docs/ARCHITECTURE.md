@@ -275,7 +275,7 @@ Research documents informing the implementation (in `agent-docs/`):
 
 **Update workflow:**
 1. Edit files in `lib/` (canonical source in this repo)
-2. Push to main — agent-core sync pipeline automatically opens PRs in all 20 plugin repos
+2. Push to main — agent-core sync pipeline automatically opens PRs in 19 plugin repos today (`zig-lsp` sync wire-up still pending; tracked in docs/ORG_ARCHITECTURE.md)
 3. Merge those PRs in each plugin repo
 4. Publish agentsys: `npm version patch && npm publish`
 

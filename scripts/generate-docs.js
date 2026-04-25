@@ -373,20 +373,31 @@ function generateAgentNavTable(agents, plugins) {
 
 /**
  * Generate the agents count summary line for docs/reference/AGENTS.md.
+ *
+ * Uses static fallbacks when local discovery returns nothing — the agentsys
+ * monorepo no longer contains plugins/, so discovery is empty in CI. Static
+ * counts are derived from STATIC_PLUGIN_AGENT_COUNTS so they stay in sync as
+ * plugins are added.
  */
 function generateAgentCounts(agents, plugins) {
-  const fileBasedAgents = agents.length;
-  const totalAgents = fileBasedAgents + ROLE_BASED_AGENT_COUNT;
+  const totalAgents = agents.length > 0
+    ? agents.length + ROLE_BASED_AGENT_COUNT
+    : STATIC_AGENT_COUNT;
+  const totalPlugins = plugins.length > 0 ? plugins.length : STATIC_PLUGIN_COUNT;
 
-  // Count plugins with agents (file-based or role-based)
-  const pluginsWithAgents = new Set();
-  for (const agent of agents) {
-    pluginsWithAgents.add(agent.plugin);
+  let pluginsWithAgentsCount;
+  if (agents.length > 0) {
+    const pluginsWithAgents = new Set(agents.map(a => a.plugin));
+    pluginsWithAgents.add('audit-project'); // role-based
+    pluginsWithAgentsCount = pluginsWithAgents.size;
+  } else {
+    // Static fallback: file-based plugins (count > 0 in static map) plus
+    // audit-project (role-based, count is 0 in the map but still has agents).
+    const fileBasedPluginsWithAgents = Object.values(STATIC_PLUGIN_AGENT_COUNTS).filter(c => c > 0).length;
+    pluginsWithAgentsCount = fileBasedPluginsWithAgents + 1;
   }
-  pluginsWithAgents.add('audit-project'); // role-based
-  const pluginCount = pluginsWithAgents.size;
 
-  return `**TL;DR:** ${totalAgents} agents across ${plugins.length} plugins (${pluginCount} have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: ${totalAgents} -->`;
+  return `**TL;DR:** ${totalAgents} agents across ${totalPlugins} plugins (${pluginsWithAgentsCount} have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: ${totalAgents} -->`;
 }
 
 // ---------------------------------------------------------------------------

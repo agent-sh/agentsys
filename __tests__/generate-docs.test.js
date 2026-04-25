@@ -166,20 +166,28 @@ describe('generate-docs', () => {
   });
 
   describe('generateAgentCounts', () => {
+    // Mirrors the production fallback in generateAgentCounts: when local
+    // discovery is empty (post-graduation, plugins live in standalone repos)
+    // the function reports the canonical project-wide STATIC_AGENT_COUNT
+    // instead of just the locally-discoverable agents.
+    function expectedTotalAgents(agents) {
+      return agents.length > 0
+        ? agents.length + genDocs.ROLE_BASED_AGENT_COUNT
+        : genDocs.STATIC_AGENT_COUNT;
+    }
+
     test('includes total agent count', () => {
       const agents = discovery.discoverAgents(REPO_ROOT);
       const plugins = discovery.discoverPlugins(REPO_ROOT);
       const counts = genDocs.generateAgentCounts(agents, plugins);
-      const totalAgents = agents.length + genDocs.ROLE_BASED_AGENT_COUNT;
-      expect(counts).toContain(`${totalAgents} agents`);
+      expect(counts).toContain(`${expectedTotalAgents(agents)} agents`);
     });
 
     test('includes AGENT_COUNT_TOTAL comment', () => {
       const agents = discovery.discoverAgents(REPO_ROOT);
       const plugins = discovery.discoverPlugins(REPO_ROOT);
       const counts = genDocs.generateAgentCounts(agents, plugins);
-      const totalAgents = agents.length + genDocs.ROLE_BASED_AGENT_COUNT;
-      expect(counts).toContain(`<!-- AGENT_COUNT_TOTAL: ${totalAgents} -->`);
+      expect(counts).toContain(`<!-- AGENT_COUNT_TOTAL: ${expectedTotalAgents(agents)} -->`);
     });
 
     test('counts plugins with agents correctly', () => {

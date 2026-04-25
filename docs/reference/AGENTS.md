@@ -3,7 +3,7 @@
 Complete reference for all agents in AgentSys.
 
 <!-- GEN:START:agents-counts -->
-**TL;DR:** 10 agents across 0 plugins (1 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 10 -->
+**TL;DR:** 49 agents across 20 plugins (18 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 49 -->
 <!-- GEN:END:agents-counts -->
 
 ---
@@ -24,7 +24,7 @@ Complete reference for all agents in AgentSys.
 
 ## Overview
 
-AgentSys uses 47 specialized agents across 20 plugins (17 have agents; ship and gate-and-ship are commands-only; zig-lsp is a config-only LSP plugin with no commands or agents). Each agent is optimized for a specific task and assigned a model based on complexity:
+AgentSys uses 49 specialized agents across 20 plugins (18 have agents; gate-and-ship is commands-only; zig-lsp is a config-only LSP plugin with no commands or agents). Each agent is optimized for a specific task and assigned a model based on complexity:
 
 | Model | Use Case | Cost |
 |-------|----------|------|
@@ -33,7 +33,7 @@ AgentSys uses 47 specialized agents across 20 plugins (17 have agents; ship and 
 | haiku | Mechanical execution, no judgment | Low |
 
 **Agent types:**
-- **File-based agents** (37) - Defined in `plugins/*/agents/*.md` with frontmatter <!-- AGENT_COUNT_FILE_BASED: 37 -->
+- **File-based agents** (39) - Defined in `plugins/*/agents/*.md` with frontmatter <!-- AGENT_COUNT_FILE_BASED: 39 -->
 - **Role-based agents** (10) - Defined inline via Task tool with specialized prompts <!-- AGENT_COUNT_ROLE_BASED: 10 -->
 
 ---
