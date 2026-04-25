@@ -1,6 +1,6 @@
 {
   "name": "agentsys",
-  "description": "19 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, unified static analysis, perf investigations, topic research, agent config linting, cross-tool AI consultation, structured AI debate, workflow pattern learning, codebase onboarding, and contributor guidance",
+  "description": "20 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, unified static analysis, perf investigations, topic research, agent config linting, cross-tool AI consultation, structured AI debate, workflow pattern learning, codebase onboarding, contributor guidance, and Zig language support",
   "version": "5.8.6",
   "owner": {
     "name": "Avi Fenesh",
@@ -230,6 +230,17 @@
       "version": "0.1.0",
       "category": "productivity",
       "homepage": "https://github.com/agent-sh/can-i-help"
+    },
+    {
+      "name": "zig-lsp",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/agent-sh/zig-lsp.git"
+      },
+      "description": "Zig language server for Claude Code via ZLS - automatic diagnostics after every edit, jump-to-definition, find-references, and hover. Requires zls in PATH",
+      "version": "0.1.0",
+      "category": "development",
+      "homepage": "https://github.com/agent-sh/zig-lsp"
     }
   ]
 }

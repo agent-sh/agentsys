@@ -17,3 +17,4 @@ ship
 skillers
 sync-docs
 web-ctl
+zig-lsp
