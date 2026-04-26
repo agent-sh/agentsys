@@ -35,4 +35,6 @@ jobs:
         run: node scripts/gen-adapters.js --check
 
   agnix:
-    uses: agent-sh/.github/.github/workflows/ci-agnix.yml@main
+    # SHA pin to agent-sh/.github main. Update by running:
+    #   gh api repos/agent-sh/.github/commits/main --jq .sha
+    uses: agent-sh/.github/.github/workflows/ci-agnix.yml@08a935dedfecab8524861c2db72526007445ba52 # main
