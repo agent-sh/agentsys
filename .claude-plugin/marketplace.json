@@ -26,7 +26,9 @@
       "name": "next-task",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/next-task.git"
+        "url": "https://github.com/agent-sh/next-task.git",
+        "ref": "v1.1.1",
+        "commit": "9aa32b856d81ebeeb6c6ea0ab421c80d6986a7b1"
       },
       "description": "Master workflow orchestrator: autonomous workflow with model optimization (opus/sonnet/haiku), two-file state management, workflow enforcement gates, 8 specialist agents",
       "version": "1.1.1",
@@ -37,7 +39,8 @@
       "name": "prepare-delivery",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/prepare-delivery.git"
+        "url": "https://github.com/agent-sh/prepare-delivery.git",
+        "commit": "2e8f400115d8df68e6e8e02466a97117c7f86fab"
       },
       "description": "Pre-ship quality gates: deslop, simplify, agnix, enhance, review loop, delivery validation, docs sync",
       "version": "0.1.0",
@@ -48,7 +51,8 @@
       "name": "gate-and-ship",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/gate-and-ship.git"
+        "url": "https://github.com/agent-sh/gate-and-ship.git",
+        "commit": "bfff7063fde89a05ce480e37019bb6e00ba55984"
       },
       "description": "Quality gates then ship - chains /prepare-delivery then /ship in one command",
       "version": "0.1.0",
@@ -59,7 +63,8 @@
       "name": "ship",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/ship.git"
+        "url": "https://github.com/agent-sh/ship.git",
+        "commit": "adec0f552eb8bd71c62f3a5feee502d4951c909a"
       },
       "description": "Complete PR workflow: commit to production, skips review when called from next-task, removes task from registry on cleanup, automatic rollback",
       "version": "1.0.0",
@@ -70,7 +75,8 @@
       "name": "deslop",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/deslop.git"
+        "url": "https://github.com/agent-sh/deslop.git",
+        "commit": "35e726b073356bfc44a112aeecc085af4624f318"
       },
       "description": "3-phase AI slop detection: regex patterns (HIGH), multi-pass analyzers (MEDIUM), CLI tools (LOW)",
       "version": "1.0.0",
@@ -81,7 +87,8 @@
       "name": "audit-project",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/audit-project.git"
+        "url": "https://github.com/agent-sh/audit-project.git",
+        "commit": "11a00874f7a10d28fe5c44e69a19d4364d364a78"
       },
       "description": "Multi-agent iterative code review until zero issues remain",
       "version": "1.0.0",
@@ -92,7 +99,8 @@
       "name": "drift-detect",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/drift-detect.git"
+        "url": "https://github.com/agent-sh/drift-detect.git",
+        "commit": "baf9bed640a14516d5dcfd084b5d405f4d2c4d73"
       },
       "description": "Deep repository analysis to realign project plans with code reality - detects drift, gaps, and creates prioritized reconstruction plans",
       "version": "1.0.0",
@@ -103,7 +111,8 @@
       "name": "enhance",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/enhance.git"
+        "url": "https://github.com/agent-sh/enhance.git",
+        "commit": "713da42f940d3a899a4930b873162d1615f817b7"
       },
       "description": "Master enhancement orchestrator: parallel analyzer execution for plugins, agents, docs, CLAUDE.md, and prompts with unified reporting",
       "version": "1.0.0",
@@ -114,7 +123,8 @@
       "name": "sync-docs",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/sync-docs.git"
+        "url": "https://github.com/agent-sh/sync-docs.git",
+        "commit": "6f6cf735824d38a0884cdacceac0f0eb285b7cb1"
       },
       "description": "Standalone documentation sync: find outdated refs, update CHANGELOG, flag stale examples based on code changes",
       "version": "1.0.0",
@@ -125,7 +135,9 @@
       "name": "repo-intel",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/repo-intel.git"
+        "url": "https://github.com/agent-sh/repo-intel.git",
+        "ref": "v0.2.0",
+        "commit": "100dbff1969097af5e6a2ede7a2a79400aa0e60f"
       },
       "description": "Unified static analysis via agent-analyzer - git history, AST symbols, project metadata, and doc-code sync",
       "version": "0.2.0",
@@ -136,7 +148,8 @@
       "name": "perf",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/perf.git"
+        "url": "https://github.com/agent-sh/perf.git",
+        "commit": "5444eb6fe156d78e2efccb2278c5ec4d9dec15f2"
       },
       "description": "Rigorous performance investigation workflow with baselines, profiling, hypotheses, and evidence-backed decisions",
       "version": "1.0.0",
@@ -147,7 +160,8 @@
       "name": "learn",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/learn.git"
+        "url": "https://github.com/agent-sh/learn.git",
+        "commit": "f5c357910f82e148200518fba12108c6a1af01a6"
       },
       "description": "Research topics online and create comprehensive learning guides with RAG-optimized indexes",
       "version": "1.0.0",
@@ -158,7 +172,8 @@
       "name": "agnix",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/agnix.git"
+        "url": "https://github.com/agent-sh/agnix.git",
+        "commit": "5af38eed0263cee3d5d48be8dae87746172b914d"
       },
       "description": "Lint agent configuration files (SKILL.md, CLAUDE.md, hooks, MCP) against 414 rules across 10+ AI tools",
       "version": "1.1.0",
@@ -169,7 +184,8 @@
       "name": "consult",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/consult.git"
+        "url": "https://github.com/agent-sh/consult.git",
+        "commit": "84a1cf541c3feebc4d79010677d6fdb9460c32fb"
       },
       "description": "Cross-tool AI consultation: get second opinions from Gemini CLI, Codex CLI, Claude Code, OpenCode, or Copilot CLI with model and thinking effort control",
       "version": "1.0.0",
@@ -180,7 +196,8 @@
       "name": "debate",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/debate.git"
+        "url": "https://github.com/agent-sh/debate.git",
+        "commit": "96be5d4d2224cc4b90ebec58a210ec6928832917"
       },
       "description": "Structured multi-round debate between AI tools with proposer/challenger roles and verdict",
       "version": "1.0.0",
@@ -191,7 +208,8 @@
       "name": "web-ctl",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/web-ctl.git"
+        "url": "https://github.com/agent-sh/web-ctl.git",
+        "commit": "5e420b81ffb7a16f4336dca865660d62d10aebc1"
       },
       "description": "Browser automation and web testing toolkit for AI agents - headless browser control, persistent sessions, auth handoff, and prompt injection defense",
       "version": "1.0.0",
@@ -202,7 +220,8 @@
       "name": "skillers",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/skillers.git"
+        "url": "https://github.com/agent-sh/skillers.git",
+        "commit": "88efb0346b2582a224f3f85db72450b9f3ba7507"
       },
       "description": "Learn from workflow patterns across sessions and suggest skills, hooks, and agents to automate repetitive work",
       "version": "1.0.0",
@@ -213,7 +232,9 @@
       "name": "onboard",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/onboard.git"
+        "url": "https://github.com/agent-sh/onboard.git",
+        "ref": "v0.1.0",
+        "commit": "7444d6475055897498a348639dd0bcb12ba7906b"
       },
       "description": "Codebase onboarding - automated data collection and interactive project orientation",
       "version": "0.1.0",
@@ -224,7 +245,9 @@
       "name": "can-i-help",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/can-i-help.git"
+        "url": "https://github.com/agent-sh/can-i-help.git",
+        "ref": "v0.1.0",
+        "commit": "5610a54ce9200577879a0ad8a9dc174133f56abf"
       },
       "description": "Find where to contribute to any project - matches developer skills to test gaps, stale docs, bugspots, and open issues",
       "version": "0.1.0",
@@ -235,7 +258,8 @@
       "name": "zig-lsp",
       "source": {
         "source": "url",
-        "url": "https://github.com/agent-sh/zig-lsp.git"
+        "url": "https://github.com/agent-sh/zig-lsp.git",
+        "commit": "ecf32677d7bb3cc8e28112bb3c70dd7809a3aea7"
       },
       "description": "Zig language server for Claude Code via ZLS - automatic diagnostics after every edit, jump-to-definition, find-references, and hover. Requires zls in PATH",
       "version": "0.1.0",
