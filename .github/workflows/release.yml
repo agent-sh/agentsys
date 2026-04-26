@@ -38,14 +38,16 @@ jobs:
 
       - name: Determine version
         id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
           if [ "${{ github.event_name }}" = "push" ]; then
             # Tag push - extract version from tag
             TAG="${GITHUB_REF#refs/tags/}"
             VERSION="${TAG#v}"
-          elif [ -n "${{ inputs.version }}" ]; then
+          elif [ -n "$INPUT_VERSION" ]; then
             # Manual dispatch with version input
-            VERSION="${{ inputs.version }}"
+            VERSION="$INPUT_VERSION"
             TAG="v${VERSION}"
           else
             # Manual dispatch without version - use package.json
@@ -70,8 +72,9 @@ jobs:
           echo "[PKG] npm tag: ${NPM_TAG}"
 
       - name: Validate version format
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          VERSION="${{ steps.version.outputs.version }}"
           if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
             echo "[ERROR] Invalid version format: $VERSION"
             echo "Expected: X.Y.Z or X.Y.Z-prerelease"
@@ -97,9 +100,9 @@ jobs:
           echo "[OK] Release source ref is valid"
 
       - name: Verify version consistency
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          VERSION="${{ steps.version.outputs.version }}"
-
           echo "Checking version consistency across all files..."
 
           # Check package.json
@@ -192,8 +195,9 @@ jobs:
 
       - name: Create tag if needed
         if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          TAG: ${{ needs.validate.outputs.tag }}
         run: |
-          TAG="${{ needs.validate.outputs.tag }}"
           if ! git rev-parse "$TAG" >/dev/null 2>&1; then
             echo "Creating tag: $TAG"
             git tag "$TAG"
@@ -204,9 +208,9 @@ jobs:
 
       - name: Extract changelog for version
         id: changelog
+        env:
+          VERSION: ${{ needs.validate.outputs.version }}
         run: |
-          VERSION="${{ needs.validate.outputs.version }}"
-
           # Extract changelog section for this version
           CHANGELOG=$(awk "/^## \\[${VERSION}\\]/{flag=1; next} /^## \\[/{flag=0} flag" CHANGELOG.md)
 
