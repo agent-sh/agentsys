@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.9.1] - 2026-04-26
+
+### Changed
+- **agnix marketplace entry** - bumped from 1.0.0 to 1.1.0 and updated description from "385 rules" to "414 rules" to reflect agnix v0.22.0 (414 validation rules, additive `schema --fix` and `tools check/detect` subcommands). Updated `site/content.json` version highlight to match.
+
 ## [5.9.0] - 2026-04-25
 
 ### Added
