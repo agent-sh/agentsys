@@ -173,7 +173,7 @@
       "source": {
         "source": "url",
         "url": "https://github.com/agent-sh/agnix.git",
-        "commit": "24efafb6d670cb6b6c0394afe69c1cdce585534a"
+        "commit": "5af38eed0263cee3d5d48be8dae87746172b914d"
       },
       "description": "Lint agent configuration files (SKILL.md, CLAUDE.md, hooks, MCP) against 414 rules across 10+ AI tools",
       "version": "1.1.0",
@@ -209,7 +209,7 @@
       "source": {
         "source": "url",
         "url": "https://github.com/agent-sh/web-ctl.git",
-        "commit": "63b20d864d51a9c3f6afe279fd6598849eaa5d60"
+        "commit": "5e420b81ffb7a16f4336dca865660d62d10aebc1"
       },
       "description": "Browser automation and web testing toolkit for AI agents - headless browser control, persistent sessions, auth handoff, and prompt injection defense",
       "version": "1.0.0",
