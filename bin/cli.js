@@ -342,6 +342,15 @@ function resolvePluginDeps(names, marketplace) {
  * @param {string} version - Expected version string
  * @returns {Promise<string>} Path to extracted plugin directory
  */
+// TODO(agentsys-security): this local dev installer currently honors only
+// `source.url` + `plugin.version` and ignores `source.ref` / `source.commit`
+// from marketplace.json. Claude Code's plugin installer (the primary install
+// path for end users) DOES honor `ref` and `commit` per the marketplace
+// schema, so the pins added by scripts/pin-marketplace.js are authoritative
+// for real users. This dev CLI should be updated to prefer `source.commit`
+// (then `source.ref`, then `plugin.version`) when resolving the fetch ref,
+// so local dev gets the same supply-chain guarantees as production installs.
+// Tracked as a follow-up; not fixed in PR #347 to keep that PR scoped.
 async function fetchPlugin(name, source, version) {
   const cacheDir = getPluginCacheDir();
   const pluginDir = path.join(cacheDir, name);
