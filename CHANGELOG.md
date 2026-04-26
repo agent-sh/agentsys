@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.9.0] - 2026-04-25
+
 ### Added
 - **`zig-lsp` plugin** - Zig language server (ZLS) integration for Claude Code's `LSP` tool. Maps `.zig` and `.zon` to language `zig`; enables `enable_build_on_save` so post-edit diagnostics surface real type errors (not just parser errors); 30 s startup timeout, restart-on-crash with cap. Plugin is config-only - no slash commands, no agents, no skills - the harness's built-in `LSP` tool dispatches automatically once `zls` is on `PATH`. Marketplace entry under category `development`. Source: https://github.com/agent-sh/zig-lsp
 - Marketplace plugin count 19 -> 20 in `.claude-plugin/marketplace.json` description, `scripts/plugins.txt`, and `site/content.json` stats.
