@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.11.0] - 2026-04-26
+
+### Changed
+- **Upgraded marketplace sub-plugin pins from SHA-only to tag+SHA** after each downstream plugin cut security releases. Post-run totals: 12 pinned to tags, 8 fell back to default-branch SHA (up from 7/13 in v5.10.0). New tag pins in this wave: `prepare-delivery` v0.1.1, `audit-project` v1.0.1, `next-task` v1.1.2, `ship` v1.1.2, `skillers` v0.2.1, `onboard` v0.1.1, `can-i-help` v0.1.1, `perf` v1.0.1, `debate` v1.0.1. Consumers now install from verifiable release tags for these plugins.
+
+### Propagated upstream security fixes
+- agent-core v0.4.4 synced into all 13 consumers via `lib/`: fixer.js symlink + TOCTOU guards (#14 agent-core), earlier v0.4.3 code-point-safe truncate + sync-workflow test-file exclusion, v0.4.2 additive sync + upstreamed workflow-state/queries, v0.4.1 binary SHA-256 + zip-slip defenses.
+- prepare-delivery + audit-project: falsePositive review-bypass cap (50% ratio + required reason).
+- next-task: worktree-manager TASK_ID/BASE_BRANCH validation.
+- ship: platform-API health checks instead of log-grep rollback DoS.
+- skillers: transcript redaction pipeline (ported from consult).
+- onboard + can-i-help: explicit argv arrays in collector git invocations.
+- perf: command-parser error message accuracy.
+- debate: SKILL.md routes AI CLI invocations through consult's hardened ACP transport.
+
 ## [5.10.0] - 2026-04-26
 
 ### Security
