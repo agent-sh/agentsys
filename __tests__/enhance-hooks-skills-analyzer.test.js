@@ -50,6 +50,24 @@ describe('enhance hook/skill analyzers', () => {
     expect(result.triggerIssues[0].issue).toMatch(/trigger phrase/i);
   });
 
+  test('analyzeSkill accepts string true for disable-model-invocation', () => {
+    const skillDir = path.join(tempDir, 'skills', 'publisher');
+    fs.mkdirSync(skillDir, { recursive: true });
+    const filePath = path.join(skillDir, 'SKILL.md');
+    fs.writeFileSync(filePath, [
+      '---',
+      'name: publisher',
+      'description: Use when user asks to publish release notes.',
+      'disable-model-invocation: true',
+      '---',
+      '',
+      'Publish the release notes when explicitly invoked.'
+    ].join('\n'));
+
+    const result = analyzeSkill(filePath);
+    expect(result.structureIssues.some(issue => issue.patternId === 'side_effect_without_disable')).toBe(false);
+  });
+
   test('analyzeAllSkills finds nested SKILL.md files', () => {
     const skillA = path.join(tempDir, 'skills', 'alpha');
     const skillB = path.join(tempDir, 'plugins', 'beta', 'skills', 'beta-skill');
