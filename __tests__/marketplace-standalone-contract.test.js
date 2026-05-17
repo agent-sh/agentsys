@@ -11,16 +11,16 @@ const repoRoot = path.join(__dirname, '..');
 
 const expectedStandalonePlugins = {
   'skill-curator': {
-    version: '1.0.0',
-    ref: 'v1.0.0',
-    commit: 'e30ebfe3e7a5307e97fa4e6d59f538b12f8074c5',
+    version: '1.0.1',
+    ref: 'v1.0.1',
+    commit: '4cca0b7c161710e3fb4f2d0aec477fc7b1e7cc88',
     command: '/skill-curator',
     category: 'development',
   },
   'system-prompt-curator': {
-    version: '2.0.0',
-    ref: 'v2.0.0',
-    commit: '277bee4b8b3b796d2a627132c88fb132479cbde0',
+    version: '2.0.1',
+    ref: 'v2.0.1',
+    commit: '1ccf70fef983384a1d025c5882135abe16c32d1f',
     command: '/system-prompt-curator',
     category: 'development',
   },

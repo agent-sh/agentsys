@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.13.3] - 2026-05-17
+
+### Fixed
+- Updated the enhance skill analyzer to accept string-parsed `disable-model-invocation: true` metadata.
+
+### Changed
+- Updated `skill-curator` to `v1.0.1` and `system-prompt-curator` to `v2.0.1` so AgentSys consumes the hardened releases.
+
 ## [5.13.2] - 2026-05-17
 
 ### Changed
