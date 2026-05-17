@@ -23,10 +23,13 @@
 | [sync-docs](https://github.com/agent-sh/sync-docs) | Documentation sync plugin | Active |
 | [repo-intel](https://github.com/agent-sh/repo-intel) | Unified static analysis plugin | Active |
 | [axiom](https://github.com/agent-sh/axiom) | Durable agent-native memory and project context plugin | Active |
+| [banthis](https://github.com/agent-sh/banthis) | Durable negative behavior memory plugin | Active |
 | [learn](https://github.com/agent-sh/learn) | Topic research and learning guides plugin | Active |
 | [consult](https://github.com/agent-sh/consult) | Cross-tool AI consultation plugin | Active |
 | [debate](https://github.com/agent-sh/debate) | Multi-perspective debate analysis plugin | Active |
 | [skillers](https://github.com/agent-sh/skillers) | Workflow pattern learning and automation suggestions | Active |
+| [skill-curator](https://github.com/agent-sh/skill-curator) | Skill authoring and review plugin | Active |
+| [system-prompt-curator](https://github.com/agent-sh/system-prompt-curator) | Autonomous agent system prompt curation plugin | Active |
 | [onboard](https://github.com/agent-sh/onboard) | Codebase onboarding - project orientation for newcomers | Active |
 | [can-i-help](https://github.com/agent-sh/can-i-help) | Contributor guidance - match skills to project needs | Active |
 | [agent-analyzer](https://github.com/agent-sh/agent-analyzer) | Shared Rust binary for static analysis (git history, AI detection) | Active |
@@ -107,6 +110,7 @@
 **Post-extraction additions:**
 - [x] `zig-lsp` registered as 20th plugin (born standalone, not extracted; LSP plugin distributed via Claude Code marketplace mechanism)
 - [x] `axiom` registered as 21st plugin (born standalone; CLI + skill distributed through the marketplace)
+- [x] `banthis`, `skill-curator`, and `system-prompt-curator` registered as 22nd-24th plugins (born standalone; CLI/skill/command plugins distributed through the marketplace)
 - [ ] agent-core sync pipeline extended to `zig-lsp` (config-only plugin; sync surface is smaller — likely just CLAUDE.md/AGENTS.md mirror enforcement)
 
 ---

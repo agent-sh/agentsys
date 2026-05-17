@@ -1,6 +1,7 @@
 agnix
 axiom
 audit-project
+banthis
 can-i-help
 consult
 debate
@@ -15,7 +16,9 @@ perf
 prepare-delivery
 repo-intel
 ship
+skill-curator
 skillers
 sync-docs
+system-prompt-curator
 web-ctl
 zig-lsp

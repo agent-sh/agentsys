@@ -9,8 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.13.0] - 2026-05-17
+
 ### Added
 - Added the `axiom` plugin to the agentsys marketplace and static docs metadata. Axiom provides durable agent-native memory, project context loading, scoped querying, project scaffolding, and human-approved record proposals.
+- Added `banthis` as a published standalone plugin pinned to `v0.3.0`. It provides durable negative behavior memory through a tiny CLI, skill, and slash command.
+- Added `skill-curator` as a published standalone plugin pinned to `v1.0.0` for production-grade `SKILL.md` authoring and review.
+- Added `system-prompt-curator` as a published standalone plugin pinned to `v2.0.0` for autonomous coding-agent system prompt curation.
+
+### Changed
+- Updated marketplace, Codex metadata, docs, and website counts to 24 plugins, 49 agents, and 45 skills.
 
 ## [5.12.0] - 2026-04-26
 

@@ -72,11 +72,14 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 | `/enhance` | Analyze prompts, plugins, agents, docs, hooks, skills |
 | `/sync-docs` | Sync docs with code changes |
 | `/axiom` | Durable agent-native memory |
+| `/banthis` | Durable negative behavior memory |
 | `/learn` | Research topics online, create learning guides |
 | `/consult` | Cross-tool AI consultation |
 | `/debate` | Structured multi-round debate between AI tools |
 | `/web-ctl` | Browser automation and web interaction |
 | `/skillers` | Workflow pattern learning and automation suggestions |
+| `/skill-curator` | Create and improve reliable SKILL.md files |
+| `/system-prompt-curator` | Create and improve autonomous agent system prompts |
 | `/onboard` | Codebase onboarding - project orientation |
 | `/can-i-help` | Contributor guidance - match skills to project needs |
 | `/release` | Versioned release with automatic ecosystem detection |

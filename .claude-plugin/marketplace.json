@@ -1,7 +1,7 @@
 {
   "name": "agentsys",
-  "description": "21 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, unified static analysis, durable memory, perf investigations, topic research, agent config linting, cross-tool AI consultation, structured AI debate, workflow pattern learning, codebase onboarding, contributor guidance, and Zig language support",
-  "version": "5.12.0",
+  "description": "24 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, unified static analysis, durable memory, negative behavior memory, skill and system prompt curation, perf investigations, topic research, agent config linting, cross-tool AI consultation, structured AI debate, workflow pattern learning, codebase onboarding, contributor guidance, and Zig language support",
+  "version": "5.13.0",
   "owner": {
     "name": "Avi Fenesh",
     "url": "https://github.com/avifenesh"
@@ -123,6 +123,32 @@
       "homepage": "https://github.com/agent-sh/enhance"
     },
     {
+      "name": "skill-curator",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/agent-sh/skill-curator.git",
+        "ref": "v1.0.0",
+        "commit": "e30ebfe3e7a5307e97fa4e6d59f538b12f8074c5"
+      },
+      "description": "Canonical guidance for writing, reviewing, and maintaining production-grade SKILL.md files across agent tools",
+      "version": "1.0.0",
+      "category": "development",
+      "homepage": "https://github.com/agent-sh/skill-curator"
+    },
+    {
+      "name": "system-prompt-curator",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/agent-sh/system-prompt-curator.git",
+        "ref": "v2.0.0",
+        "commit": "277bee4b8b3b796d2a627132c88fb132479cbde0"
+      },
+      "description": "Production-grade system prompt curation for autonomous coding agents and multi-agent orchestration",
+      "version": "2.0.0",
+      "category": "development",
+      "homepage": "https://github.com/agent-sh/system-prompt-curator"
+    },
+    {
       "name": "sync-docs",
       "source": {
         "source": "url",
@@ -183,6 +209,19 @@
       "version": "0.6.0",
       "category": "productivity",
       "homepage": "https://github.com/agent-sh/axiom"
+    },
+    {
+      "name": "banthis",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/agent-sh/banthis.git",
+        "ref": "v0.3.0",
+        "commit": "5820a197bba0f01ec4877a63c5d13c108d8c661d"
+      },
+      "description": "Durable negative behavior memory: persist user-defined banned agent behaviors into CLAUDE.md or AGENTS.md",
+      "version": "0.3.0",
+      "category": "productivity",
+      "homepage": "https://github.com/agent-sh/banthis"
     },
     {
       "name": "agnix",

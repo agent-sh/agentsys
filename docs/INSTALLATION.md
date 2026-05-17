@@ -190,11 +190,14 @@ You should see commands:
 - `/perf` - Performance investigation workflow
 - `/sync-docs` - Documentation sync
 - `/axiom` - Durable agent-native memory and project context
+- `/banthis` - Durable negative behavior memory
 - `/learn` - Topic research and learning guides
 - `/consult` - Cross-tool AI consultation
 - `/debate` - Structured AI dialectic with verdict
 - `/web-ctl` - Browser automation and web interaction
 - `/skillers` - Workflow pattern learning and automation suggestions
+- `/skill-curator` - Skill authoring and review
+- `/system-prompt-curator` - System prompt curation
 - `/onboard` - Codebase onboarding
 - `/can-i-help` - Contributor guidance
 - `/release` - Versioned release with ecosystem detection

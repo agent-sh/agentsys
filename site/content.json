@@ -1,11 +1,11 @@
 {
   "meta": {
     "title": "agentsys",
-    "description": "A modular runtime and orchestration system for AI agents. 21 plugins, 49 agents, 42 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.",
+    "description": "A modular runtime and orchestration system for AI agents. 24 plugins, 49 agents, 45 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.",
     "url": "https://agent-sh.github.io/agentsys",
     "repo": "https://github.com/agent-sh/agentsys",
     "npm": "https://www.npmjs.com/package/agentsys",
-    "version": "5.12.0",
+    "version": "5.13.0",
     "author": "Avi Fenesh",
     "author_url": "https://github.com/avifenesh"
   },
@@ -23,7 +23,7 @@
   },
   "stats": [
     {
-      "value": "21",
+      "value": "24",
       "label": "Plugins",
       "suffix": ""
     },
@@ -33,7 +33,7 @@
       "suffix": ""
     },
     {
-      "value": "42",
+      "value": "45",
       "label": "Skills",
       "suffix": ""
     },
@@ -114,6 +114,13 @@
       "tagline": "Durable memory for agents",
       "description": "Load thin context, query project or global knowledge, create missing project scaffolds, and propose human-approved records in a private axiom-based knowledge repo.",
       "example": "/axiom before-any --project flowfabric",
+      "category": "workflow"
+    },
+    {
+      "name": "/banthis",
+      "tagline": "Durable negative memory",
+      "description": "Capture repeated agent mistakes as managed banned-behavior rules in CLAUDE.md or AGENTS.md. Includes a tiny CLI, skill, slash command, and init meta-rule.",
+      "example": "/banthis \"stop ending with vague offers\"",
       "category": "workflow"
     },
     {
@@ -220,6 +227,20 @@
       "description": "Reads Claude Code conversation transcripts, identifies recurring patterns, clusters them into weighted themes, and suggests skills, hooks, or agents to automate them. No per-turn overhead.",
       "example": "/skillers compact",
       "category": "learning"
+    },
+    {
+      "name": "/skill-curator",
+      "tagline": "Design reliable SKILL.md files",
+      "description": "Create and improve cross-tool skills with strong activation triggers, tight scope, router patterns, Skip unless gates, and agnix-ready structure.",
+      "example": "/skill-curator --improve skills/example/SKILL.md",
+      "category": "maintenance"
+    },
+    {
+      "name": "/system-prompt-curator",
+      "tagline": "Design autonomous agent prompts",
+      "description": "Create and improve system prompts with task-matched identity, phased workflows, explicit tools, evidence-based completion criteria, and error recovery examples.",
+      "example": "/system-prompt-curator \"GitHub issue resolver\"",
+      "category": "maintenance"
     },
     {
       "name": "/onboard",

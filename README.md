@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <b>21 plugins · 49 agents · 42 skills (across all repos) · 30k lines of lib code · 3,513 tests · 5 platforms</b><br>
+  <b>24 plugins · 49 agents · 45 skills (across all repos) · 30k lines of lib code · 3,513 tests · 5 platforms</b><br>
   <em>Plugins distributed as standalone repos under <a href="https://github.com/agent-sh">agent-sh</a> org - agentsys is the marketplace &amp; installer</em>
 </p>
 
@@ -45,7 +45,7 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 
 ## What This Is
 
-An agent orchestration system - 21 plugins, 49 agents (39 file-based + 10 role-based specialists in audit-project), and 42 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
+An agent orchestration system - 24 plugins, 49 agents (39 file-based + 10 role-based specialists in audit-project), and 45 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
 
 Each agent has a single responsibility, a specific model assignment, and defined inputs/outputs. Pipelines enforce phase gates so agents can't skip steps. State persists across sessions so work survives interruptions.
 
@@ -119,6 +119,7 @@ The investment shifts from model spend to pipeline design. Better prompts, riche
 | [`/prepare-delivery`](#prepare-delivery) | Pre-ship quality gates: deslop, review, validation, docs sync |
 | [`/gate-and-ship`](#gate-and-ship) | Quality gates then ship (/prepare-delivery + /ship) |
 | [`/axiom`](#axiom) | Durable memory: load, query, list, bootstrap projects, and record approved knowledge |
+| [`/banthis`](#banthis) | Durable negative memory: persist banned agent behaviors |
 | [`/agnix`](#agnix) | Lint agent configurations (399 rules) |
 | [`/ship`](#ship) | PR creation, CI monitoring, merge |
 | [`/deslop`](#deslop) | Clean AI slop patterns |
@@ -134,6 +135,8 @@ The investment shifts from model spend to pipeline design. Better prompts, riche
 | [`/web-ctl`](#web-ctl) | Browser automation for AI agents |
 | [`/release`](#release) | Versioned release with ecosystem detection |
 | [`/skillers`](#skillers) | Workflow pattern learning and automation |
+| [`/skill-curator`](#skill-curator) | Create and improve reliable SKILL.md files |
+| [`/system-prompt-curator`](#system-prompt-curator) | Create and improve autonomous agent system prompts |
 | [`/onboard`](#onboard) | Codebase orientation for newcomers |
 | [`/can-i-help`](#can-i-help) | Match contributor skills to project needs |
 
@@ -143,13 +146,13 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 
 ## Skills
 
-42 skills included across the plugins:
+45 skills included across the plugins:
 
 | Category | Skills |
 |----------|--------|
 | **Workflow** | `discover-tasks`, `prepare-delivery`, `check-test-coverage`, `orchestrate-review`, `validate-delivery` |
 | **Message Queues** | `glide-mq-migrate-bee`, `glide-mq-migrate-bullmq`, `glide-mq` |
-| **Enhancement** | `enhance-agent-prompts`, `enhance-claude-memory`, `enhance-cross-file`, `enhance-docs`, `enhance-hooks`, `enhance-orchestrator`, `enhance-plugins`, `enhance-prompts`, `enhance-skills` |
+| **Enhancement** | `enhance-agent-prompts`, `enhance-claude-memory`, `enhance-cross-file`, `enhance-docs`, `enhance-hooks`, `enhance-orchestrator`, `enhance-plugins`, `enhance-prompts`, `enhance-skills`, `skill-curator`, `system-prompt-curator` |
 | **Performance** | `baseline`, `benchmark`, `code-paths`, `investigation-logger`, `perf-analyzer`, `profile`, `theory-gatherer`, `theory-tester` |
 | **Cleanup** | `deslop`, `sync-docs` |
 | **Code Review** | `audit-project` |
@@ -158,7 +161,7 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 | **Web** | `web-auth`, `web-browse` |
 | **Release** | `release` |
 | **Analysis** | `drift-analysis`, `repo-intel` |
-| **Memory** | `axiom` |
+| **Memory** | `axiom`, `banthis` |
 | **Linting** | `agnix` |
 
 **External skill plugins** (standalone repos, installed separately):
@@ -177,8 +180,8 @@ Skills are the reusable implementation units. Agents invoke skills; commands orc
 |---------|--------------|
 | [The Approach](#the-approach) | Why it's built this way |
 | [Benchmarks](#benchmarks) | Sonnet + agentsys vs raw Opus |
-| [Commands](#commands) | All 21 commands overview |
-| [Skills](#skills) | 42 skills across plugins |
+| [Commands](#commands) | All 24 commands overview |
+| [Skills](#skills) | 45 skills across plugins |
 | [Skill-Only Plugins](#skill-only-plugins) | glide-mq and other non-command plugins |
 | [Command Details](#command-details) | Deep dive into each command |
 | [How Commands Work Together](#how-commands-work-together) | Standalone vs integrated |
@@ -335,6 +338,32 @@ Each piece runs independently - use `/prepare-delivery` alone to review before d
 ```
 
 **External tool:** Requires the [axiom CLI](https://github.com/agent-sh/axiom) from the plugin package.
+
+---
+
+### /banthis
+
+**Purpose:** Durable negative memory for repeated agent mistakes. Turn a user's "stop doing this" correction into a persistent rule in `CLAUDE.md` or `AGENTS.md`.
+
+**[banthis](https://github.com/agent-sh/banthis)** is a tiny standalone CLI plus skill. It maintains a managed banned-behaviors section, supports project or global targets, and includes an `init` meta-rule so agents learn when to invoke it automatically.
+
+**What it does:**
+
+| Command | Use |
+|---------|-----|
+| `banthis add "<title>" "<rule>"` | Add or update a banned behavior |
+| `banthis list` | List current bans |
+| `banthis show` | Print the managed section |
+| `banthis remove "<title>"` | Remove a ban |
+| `banthis init` | Install the meta-rule that teaches agents to call `banthis` |
+
+**Usage:**
+
+```bash
+/banthis "stop ending with vague optional follow-up offers"
+banthis add "No vague endings" "Do not end with vague optional follow-up offers."
+banthis init --file AGENTS.md
+```
 
 ---
 
@@ -981,6 +1010,36 @@ No per-turn overhead - it reads transcripts that Claude Code already saves.
 **Agents:** skillers-compactor (sonnet), skillers-recommender (opus)
 
 **Skills:** skillers-compact, recommend
+
+---
+
+### /skill-curator
+
+> Create and improve reliable `SKILL.md` files
+
+```bash
+/skill-curator "create a skill for reviewing background jobs"
+/skill-curator --improve path/to/SKILL.md --category review
+```
+
+The skill curator focuses on trigger quality, clear scope, router patterns, concrete `Skip unless:` gates, token budgets, and agnix-ready structure across Claude Code, Codex, OpenCode, Cursor, Kiro, and similar tools.
+
+**Skill:** skill-curator
+
+---
+
+### /system-prompt-curator
+
+> Create and improve autonomous coding-agent system prompts
+
+```bash
+/system-prompt-curator "GitHub issue resolver"
+/system-prompt-curator --improve path/to/prompt.md --for-orchestrator
+```
+
+The system prompt curator rewrites prompts around task-matched identity, phased workflow, explicit tools, evidence-based completion criteria, and realistic error recovery examples. It separates prompt guidance from harness-level checks that belong in code.
+
+**Skill:** system-prompt-curator
 
 ---
 
