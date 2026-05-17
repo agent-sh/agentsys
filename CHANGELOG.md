@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.13.1] - 2026-05-17
+
+### Changed
+- Updated the `banthis` marketplace pin to the GitHub-installable `v0.3.0` commit so documented fallback installation works without npm publication.
+
 ## [5.13.0] - 2026-05-17
 
 ### Added
