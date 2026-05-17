@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.13.4] - 2026-05-18
+
+### Changed
+- Updated the `axiom` marketplace pin to `v0.6.1`, including the clean-machine init bootstrap fix and richer generated starter index keywords.
+
+### Tests
+- Added `axiom` to the standalone marketplace contract so its release tag, commit pin, command, docs, and Codex metadata stay covered.
+
 ## [5.13.3] - 2026-05-17
 
 ### Fixed

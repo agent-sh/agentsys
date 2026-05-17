@@ -24,6 +24,13 @@ const expectedStandalonePlugins = {
     command: '/system-prompt-curator',
     category: 'development',
   },
+  axiom: {
+    version: '0.6.1',
+    ref: 'v0.6.1',
+    commit: 'ba77271a4ff7084d2d567cf3173204390be80f3b',
+    command: '/axiom',
+    category: 'productivity',
+  },
   banthis: {
     version: '0.3.1',
     ref: 'v0.3.1',
