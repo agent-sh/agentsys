@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.13.2] - 2026-05-17
+
+### Changed
+- Updated the `banthis` marketplace pin to `v0.3.1`, which hardens CLI writes and fixes the init fallback install path.
+
+### Tests
+- Added marketplace contract coverage for the standalone curator and negative-memory plugins.
+
 ## [5.13.1] - 2026-05-17
 
 ### Changed
