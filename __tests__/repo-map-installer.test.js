@@ -5,6 +5,13 @@
  * It now delegates to the binary module for auto-download.
  */
 
+jest.mock('../lib/binary', () => ({
+  isAvailable: jest.fn(() => true),
+  getVersion: jest.fn(() => '0.3.0'),
+  ensureBinary: jest.fn(async () => {}),
+  ensureBinarySync: jest.fn(() => {})
+}));
+
 const {
   checkInstalled,
   checkInstalledSync,

@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <b>20 plugins · 49 agents · 41 skills (across all repos) · 30k lines of lib code · 3,507 tests · 5 platforms</b><br>
+  <b>21 plugins · 49 agents · 42 skills (across all repos) · 30k lines of lib code · 3,513 tests · 5 platforms</b><br>
   <em>Plugins distributed as standalone repos under <a href="https://github.com/agent-sh">agent-sh</a> org - agentsys is the marketplace &amp; installer</em>
 </p>
 
@@ -45,7 +45,7 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 
 ## What This Is
 
-An agent orchestration system - 20 plugins, 49 agents (39 file-based + 10 role-based specialists in audit-project), and 41 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
+An agent orchestration system - 21 plugins, 49 agents (39 file-based + 10 role-based specialists in audit-project), and 42 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
 
 Each agent has a single responsibility, a specific model assignment, and defined inputs/outputs. Pipelines enforce phase gates so agents can't skip steps. State persists across sessions so work survives interruptions.
 
@@ -118,6 +118,7 @@ The investment shifts from model spend to pipeline design. Better prompts, riche
 | [`/next-task`](#next-task) | Task workflow: discovery, implementation, PR, merge |
 | [`/prepare-delivery`](#prepare-delivery) | Pre-ship quality gates: deslop, review, validation, docs sync |
 | [`/gate-and-ship`](#gate-and-ship) | Quality gates then ship (/prepare-delivery + /ship) |
+| [`/axiom`](#axiom) | Durable memory: load, query, list, bootstrap projects, and record approved knowledge |
 | [`/agnix`](#agnix) | Lint agent configurations (399 rules) |
 | [`/ship`](#ship) | PR creation, CI monitoring, merge |
 | [`/deslop`](#deslop) | Clean AI slop patterns |
@@ -142,7 +143,7 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 
 ## Skills
 
-41 skills included across the plugins:
+42 skills included across the plugins:
 
 | Category | Skills |
 |----------|--------|
@@ -157,6 +158,7 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 | **Web** | `web-auth`, `web-browse` |
 | **Release** | `release` |
 | **Analysis** | `drift-analysis`, `repo-intel` |
+| **Memory** | `axiom` |
 | **Linting** | `agnix` |
 
 **External skill plugins** (standalone repos, installed separately):
@@ -175,8 +177,8 @@ Skills are the reusable implementation units. Agents invoke skills; commands orc
 |---------|--------------|
 | [The Approach](#the-approach) | Why it's built this way |
 | [Benchmarks](#benchmarks) | Sonnet + agentsys vs raw Opus |
-| [Commands](#commands) | All 20 commands overview |
-| [Skills](#skills) | 41 skills across plugins |
+| [Commands](#commands) | All 21 commands overview |
+| [Skills](#skills) | 42 skills across plugins |
 | [Skill-Only Plugins](#skill-only-plugins) | glide-mq and other non-command plugins |
 | [Command Details](#command-details) | Deep dive into each command |
 | [How Commands Work Together](#how-commands-work-together) | Standalone vs integrated |
@@ -304,6 +306,35 @@ Does NOT create PRs or push - use `/ship` or `/gate-and-ship` after.
 ```
 
 Each piece runs independently - use `/prepare-delivery` alone to review before deciding to ship, or `/ship` alone if already validated.
+
+---
+
+### /axiom
+
+**Purpose:** Durable, queryable memory for agents. Load the smallest useful context, query project or global knowledge, and propose new records without bloating `AGENTS.md`.
+
+**[axiom](https://github.com/agent-sh/axiom)** is a standalone plugin and CLI. It creates a private `axiom-based` knowledge repo after explicit approval, keeps only thin context loaded automatically, and stores durable decisions, memories, preferences, and project notes in queryable files.
+
+**What it does:**
+
+| Command | Use |
+|---------|-----|
+| `axiom before-any --quiet` | Load global thin context at the start of meaningful work |
+| `axiom before-any --project <slug>` | Load project context and create missing project scaffolds |
+| `axiom query "<keyword>" --project <slug>` | Retrieve focused, source-backed project knowledge |
+| `axiom list --topics --project <slug>` | Explore what knowledge exists before querying |
+| `axiom record ...` | Propose a durable record through a temp clone, diff, and human approval |
+
+**Usage:**
+
+```bash
+/axiom before-any --quiet
+/axiom before-any --project flowfabric
+/axiom query "lease based" --project flowfabric
+/axiom record --project flowfabric --kind decision "Lease-based claiming v2" "We switched because it gives stronger safety during restarts."
+```
+
+**External tool:** Requires the [axiom CLI](https://github.com/agent-sh/axiom) from the plugin package.
 
 ---
 
@@ -1237,7 +1268,7 @@ The system is built on research, not guesswork.
 - Instruction following reliability
 
 **Testing:**
-- 3,507 tests passing
+- 3,513 tests passing
 - Drift-detect validated on 1,000+ repositories
 - E2E workflow testing across all commands
 - Cross-platform validation (Claude Code, OpenCode, Codex CLI, Cursor, Kiro)

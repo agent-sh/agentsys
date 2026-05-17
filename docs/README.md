@@ -71,6 +71,7 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 | `/perf` | Performance investigation workflow |
 | `/enhance` | Analyze prompts, plugins, agents, docs, hooks, skills |
 | `/sync-docs` | Sync docs with code changes |
+| `/axiom` | Durable agent-native memory |
 | `/learn` | Research topics online, create learning guides |
 | `/consult` | Cross-tool AI consultation |
 | `/debate` | Structured multi-round debate between AI tools |

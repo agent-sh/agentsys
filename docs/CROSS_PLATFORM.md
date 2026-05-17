@@ -187,7 +187,7 @@ agentsys --tool opencode --no-strip
 ```
 
 This installs:
-- Slash commands (`/next-task`, `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/sync-docs`, `/perf`, `/learn`, `/agnix`, `/consult`, `/debate`, `/web-ctl`, `/skillers`, `/onboard`, `/can-i-help`)
+- Slash commands (`/next-task`, `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/sync-docs`, `/perf`, `/axiom`, `/learn`, `/agnix`, `/consult`, `/debate`, `/web-ctl`, `/skillers`, `/onboard`, `/can-i-help`)
 - **Native OpenCode plugin** with advanced features:
 
 ### Native Plugin Features
@@ -268,7 +268,7 @@ agentsys  # Select option 3 for Codex CLI
 agentsys --tool codex
 ```
 
-This installs skills to `~/.codex/skills/` (`$next-task`, `$prepare-delivery`, `$gate-and-ship`, `$ship`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$sync-docs`, `$perf`, `$learn`, `$agnix`, `$consult`, `$debate`, `$web-ctl`, `$skillers`, `$onboard`, `$can-i-help`).
+This installs skills to `~/.codex/skills/` (`$next-task`, `$prepare-delivery`, `$gate-and-ship`, `$ship`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$sync-docs`, `$perf`, `$axiom`, `$learn`, `$agnix`, `$consult`, `$debate`, `$web-ctl`, `$skillers`, `$onboard`, `$can-i-help`).
 
 ### Option 2: Custom Skills
 

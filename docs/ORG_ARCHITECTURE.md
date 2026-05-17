@@ -22,6 +22,7 @@
 | [drift-detect](https://github.com/agent-sh/drift-detect) | Plan drift detection plugin | Active |
 | [sync-docs](https://github.com/agent-sh/sync-docs) | Documentation sync plugin | Active |
 | [repo-intel](https://github.com/agent-sh/repo-intel) | Unified static analysis plugin | Active |
+| [axiom](https://github.com/agent-sh/axiom) | Durable agent-native memory and project context plugin | Active |
 | [learn](https://github.com/agent-sh/learn) | Topic research and learning guides plugin | Active |
 | [consult](https://github.com/agent-sh/consult) | Cross-tool AI consultation plugin | Active |
 | [debate](https://github.com/agent-sh/debate) | Multi-perspective debate analysis plugin | Active |
@@ -105,6 +106,7 @@
 
 **Post-extraction additions:**
 - [x] `zig-lsp` registered as 20th plugin (born standalone, not extracted; LSP plugin distributed via Claude Code marketplace mechanism)
+- [x] `axiom` registered as 21st plugin (born standalone; CLI + skill distributed through the marketplace)
 - [ ] agent-core sync pipeline extended to `zig-lsp` (config-only plugin; sync surface is smaller — likely just CLAUDE.md/AGENTS.md mirror enforcement)
 
 ---

@@ -55,6 +55,7 @@ const CATEGORY_MAP = {
   'sync-docs': 'Cleanup',
   'drift-detect': 'Analysis',
   'repo-intel': 'Analysis',
+  'axiom': 'Memory',
   'learn': 'AI Collaboration',
   'agnix': 'Linting',
   'consult': 'AI Collaboration',
@@ -96,6 +97,7 @@ const STATIC_SKILLS = [
   { plugin: 'sync-docs', name: 'sync-docs' },
   { plugin: 'drift-detect', name: 'drift-analysis' },
   { plugin: 'repo-intel', name: 'repo-intel' },
+  { plugin: 'axiom', name: 'axiom' },
   { plugin: 'consult', name: 'consult' },
   { plugin: 'debate', name: 'debate' },
   { plugin: 'learn', name: 'learn' },
@@ -126,6 +128,7 @@ const PURPOSE_MAP = {
   'drift-detect': 'Plan drift detection',
   'repo-intel': 'Unified static analysis',
   'sync-docs': 'Documentation sync',
+  'axiom': 'Durable agent-native memory',
   'learn': 'Topic research and learning guides',
   'agnix': 'Agent config linting',
   'consult': 'Cross-tool AI consultation',
@@ -181,7 +184,7 @@ function generateCommandsTable(commands) {
   // Curated display order (featured commands first, then alphabetical)
   const COMMAND_ORDER = [
     'next-task', 'prepare-delivery', 'gate-and-ship',
-    'agnix', 'ship', 'deslop', 'perf',
+    'axiom', 'agnix', 'ship', 'deslop', 'perf',
     'drift-detect', 'audit-project', 'enhance',
     'repo-intel', 'sync-docs', 'learn', 'consult',
     'debate', 'web-ctl', 'release', 'skillers',
@@ -193,6 +196,7 @@ function generateCommandsTable(commands) {
     'next-task': 'Task workflow: discovery, implementation, PR, merge',
     'prepare-delivery': 'Pre-ship quality gates: deslop, review, validation, docs sync',
     'gate-and-ship': 'Quality gates then ship (/prepare-delivery + /ship)',
+    'axiom': 'Durable memory: load, query, list, bootstrap projects, and record approved knowledge',
     'agnix': 'Lint agent configurations (399 rules)',
     'ship': 'PR creation, CI monitoring, merge',
     'deslop': 'Clean AI slop patterns',
@@ -267,7 +271,7 @@ function generateSkillsTable(skills) {
   const categoryOrder = [
     'Workflow', 'Message Queues', 'Enhancement', 'Performance', 'Cleanup',
     'Code Review', 'AI Collaboration', 'Onboarding',
-    'Web', 'Release', 'Analysis', 'Linting', 'Other'
+    'Web', 'Release', 'Analysis', 'Memory', 'Linting', 'Other'
   ];
 
   const lines = [
@@ -289,28 +293,36 @@ function generateSkillsTable(skills) {
  * Generate the architecture table for CLAUDE.md / AGENTS.md.
  */
 function generateArchitectureTable(plugins, agents, skills) {
-  const fileBasedAgents = agents.length;
-  const totalAgents = fileBasedAgents + ROLE_BASED_AGENT_COUNT;
-  const totalSkills = skills.length;
+  const effectivePlugins = plugins.length > 0 ? plugins : Object.keys(STATIC_PLUGIN_AGENT_COUNTS);
+  const effectiveSkills = skills.length > 0 ? skills : STATIC_SKILLS;
+  const fileBasedAgents = agents.length > 0 ? agents.length : STATIC_FILE_BASED_AGENT_COUNT;
+  const totalAgents = agents.length > 0
+    ? fileBasedAgents + ROLE_BASED_AGENT_COUNT
+    : STATIC_AGENT_COUNT;
+  const totalSkills = effectiveSkills.length;
 
   // Count agents per plugin (file-based only)
   const agentsByPlugin = {};
-  for (const agent of agents) {
-    agentsByPlugin[agent.plugin] = (agentsByPlugin[agent.plugin] || 0) + 1;
+  if (agents.length > 0) {
+    for (const agent of agents) {
+      agentsByPlugin[agent.plugin] = (agentsByPlugin[agent.plugin] || 0) + 1;
+    }
+  } else {
+    Object.assign(agentsByPlugin, STATIC_PLUGIN_AGENT_COUNTS);
   }
   // audit-project has role-based agents
   agentsByPlugin['audit-project'] = (agentsByPlugin['audit-project'] || 0) + ROLE_BASED_AGENT_COUNT;
 
   // Count skills per plugin
   const skillsByPlugin = {};
-  for (const skill of skills) {
+  for (const skill of effectiveSkills) {
     skillsByPlugin[skill.plugin] = (skillsByPlugin[skill.plugin] || 0) + 1;
   }
 
   const lines = [
     '```',
     'lib/          \u2192 Shared library (vendored to plugins)',
-    `plugins/      \u2192 ${plugins.length} plugins, ${totalAgents} agents (${fileBasedAgents} file-based + ${ROLE_BASED_AGENT_COUNT} role-based), ${totalSkills} skills`,
+    `plugins/      \u2192 ${effectivePlugins.length} plugins, ${totalAgents} agents (${fileBasedAgents} file-based + ${ROLE_BASED_AGENT_COUNT} role-based), ${totalSkills} skills`,
     'adapters/     \u2192 Platform adapters (opencode-plugin/, opencode/, codex/)',
     'checklists/   \u2192 Action checklists (9 files)',
     'bin/cli.js    \u2192 npm CLI installer',
@@ -320,7 +332,7 @@ function generateArchitectureTable(plugins, agents, skills) {
     '|--------|--------|--------|---------|'
   ];
 
-  for (const plugin of plugins) {
+  for (const plugin of effectivePlugins) {
     const agentCount = agentsByPlugin[plugin] || 0;
     const skillCount = skillsByPlugin[plugin] || 0;
     const purpose = PURPOSE_MAP[plugin] || '';
@@ -421,6 +433,7 @@ const STATIC_PLUGIN_AGENT_COUNTS = {
   'enhance': 8,
   'sync-docs': 1,
   'repo-intel': 1,
+  'axiom': 0,
   'perf': 6,
   'learn': 1,
   'agnix': 1,

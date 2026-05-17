@@ -3,7 +3,7 @@
 Complete reference for all agents in AgentSys.
 
 <!-- GEN:START:agents-counts -->
-**TL;DR:** 49 agents across 20 plugins (18 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 49 -->
+**TL;DR:** 49 agents across 21 plugins (18 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 49 -->
 <!-- GEN:END:agents-counts -->
 
 ---
@@ -24,7 +24,7 @@ Complete reference for all agents in AgentSys.
 
 ## Overview
 
-AgentSys uses 49 specialized agents across 20 plugins (18 have agents; gate-and-ship is commands-only; zig-lsp is a config-only LSP plugin with no commands or agents). Each agent is optimized for a specific task and assigned a model based on complexity:
+AgentSys uses 49 specialized agents across 21 plugins (18 have agents; gate-and-ship is commands-only, axiom is skill/command-only, and zig-lsp is a config-only LSP plugin with no commands or agents). Each agent is optimized for a specific task and assigned a model based on complexity:
 
 | Model | Use Case | Cost |
 |-------|----------|------|

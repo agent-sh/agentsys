@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "agentsys",
-    "description": "A modular runtime and orchestration system for AI agents. 20 plugins, 49 agents, 41 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.",
+    "description": "A modular runtime and orchestration system for AI agents. 21 plugins, 49 agents, 42 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.",
     "url": "https://agent-sh.github.io/agentsys",
     "repo": "https://github.com/agent-sh/agentsys",
     "npm": "https://www.npmjs.com/package/agentsys",
@@ -23,7 +23,7 @@
   },
   "stats": [
     {
-      "value": "20",
+      "value": "21",
       "label": "Plugins",
       "suffix": ""
     },
@@ -33,7 +33,7 @@
       "suffix": ""
     },
     {
-      "value": "41",
+      "value": "42",
       "label": "Skills",
       "suffix": ""
     },
@@ -43,7 +43,7 @@
       "suffix": ""
     },
     {
-      "value": "3,507",
+      "value": "3,513",
       "label": "Tests",
       "suffix": ""
     },
@@ -107,6 +107,13 @@
       "tagline": "Quality gates then ship",
       "description": "Quality gates then ship - chains /prepare-delivery then /ship",
       "example": "/gate-and-ship",
+      "category": "workflow"
+    },
+    {
+      "name": "/axiom",
+      "tagline": "Durable memory for agents",
+      "description": "Load thin context, query project or global knowledge, create missing project scaffolds, and propose human-approved records in a private axiom-based knowledge repo.",
+      "example": "/axiom before-any --project flowfabric",
       "category": "workflow"
     },
     {
@@ -531,7 +538,7 @@
   ],
   "research": {
     "knowledge_base": "8,000 lines of curated documentation from Anthropic, OpenAI, Google, and Microsoft",
-    "testing": "3,507 tests passing",
+    "testing": "3,513 tests passing",
     "drift_detect_repos": "1,000+ repositories validated",
     "token_reduction": "77% fewer tokens for drift-detect vs multi-agent approaches"
   },

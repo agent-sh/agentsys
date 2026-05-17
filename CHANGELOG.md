@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added the `axiom` plugin to the agentsys marketplace and static docs metadata. Axiom provides durable agent-native memory, project context loading, scoped querying, project scaffolding, and human-approved record proposals.
+
 ## [5.12.0] - 2026-04-26
 
 ### Propagated upstream releases

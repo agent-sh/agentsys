@@ -118,11 +118,19 @@ describe('generate-docs', () => {
       const agents = discovery.discoverAgents(REPO_ROOT);
       const skills = discovery.discoverSkills(REPO_ROOT);
       const table = genDocs.generateArchitectureTable(plugins, agents, skills);
-      const totalAgents = agents.length + genDocs.ROLE_BASED_AGENT_COUNT;
-      expect(table).toContain(`${plugins.length} plugins`);
-      expect(table).toContain(`${totalAgents} agents`);
-      expect(table).toContain(`${agents.length} file-based`);
-      expect(table).toContain(`${skills.length} skills`);
+      const expectedPlugins = plugins.length > 0 ? plugins.length : genDocs.STATIC_PLUGIN_COUNT;
+      const expectedFileBasedAgents = agents.length > 0
+        ? agents.length
+        : genDocs.STATIC_FILE_BASED_AGENT_COUNT;
+      const expectedTotalAgents = agents.length > 0
+        ? agents.length + genDocs.ROLE_BASED_AGENT_COUNT
+        : genDocs.STATIC_AGENT_COUNT;
+      const expectedSkills = skills.length > 0 ? skills.length : STATIC_SKILLS.length;
+
+      expect(table).toContain(`${expectedPlugins} plugins`);
+      expect(table).toContain(`${expectedTotalAgents} agents`);
+      expect(table).toContain(`${expectedFileBasedAgents} file-based`);
+      expect(table).toContain(`${expectedSkills} skills`);
     });
 
     test('lists all plugins', () => {

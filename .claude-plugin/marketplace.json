@@ -1,6 +1,6 @@
 {
   "name": "agentsys",
-  "description": "20 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, unified static analysis, perf investigations, topic research, agent config linting, cross-tool AI consultation, structured AI debate, workflow pattern learning, codebase onboarding, contributor guidance, and Zig language support",
+  "description": "21 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, unified static analysis, durable memory, perf investigations, topic research, agent config linting, cross-tool AI consultation, structured AI debate, workflow pattern learning, codebase onboarding, contributor guidance, and Zig language support",
   "version": "5.12.0",
   "owner": {
     "name": "Avi Fenesh",
@@ -171,6 +171,18 @@
       "version": "1.0.0",
       "category": "productivity",
       "homepage": "https://github.com/agent-sh/learn"
+    },
+    {
+      "name": "axiom",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/agent-sh/axiom.git",
+        "commit": "a1bf0fc9ab61178774b3391a337db3e1af20413a"
+      },
+      "description": "Personal agent-native knowledge base: load thin context, query durable memories, create project scaffolds, and propose approved records",
+      "version": "0.6.0",
+      "category": "productivity",
+      "homepage": "https://github.com/agent-sh/axiom"
     },
     {
       "name": "agnix",
