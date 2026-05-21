@@ -70,7 +70,8 @@ const CATEGORY_MAP = {
   'can-i-help': 'Onboarding',
   'audit-project': 'Code Review',
   'glidemq': 'Message Queues',
-  'mojo': 'Languages'
+  'mojo': 'Languages',
+  'ada-spark': 'Languages'
 };
 
 // Static skill definitions for cross-repo plugins (not discoverable locally)
@@ -117,6 +118,7 @@ const STATIC_SKILLS = [
   { plugin: 'can-i-help', name: 'can-i-help' },
   { plugin: 'audit-project', name: 'audit-project' },
   { plugin: 'mojo', name: 'mojo' },
+  { plugin: 'ada-spark', name: 'ada-spark' },
   { plugin: 'glidemq', name: 'glide-mq' },
   { plugin: 'glidemq', name: 'glide-mq-migrate-bullmq' },
   { plugin: 'glidemq', name: 'glide-mq-migrate-bee' },
@@ -462,7 +464,8 @@ const STATIC_PLUGIN_AGENT_COUNTS = {
   'onboard': 1,
   'can-i-help': 1,
   'zig-lsp': 0,
-  'mojo': 0
+  'mojo': 0,
+  'ada-spark': 0
 };
 const STATIC_PLUGIN_COUNT = Object.keys(STATIC_PLUGIN_AGENT_COUNTS).length;
 const STATIC_FILE_BASED_AGENT_COUNT = Object.values(STATIC_PLUGIN_AGENT_COUNTS).reduce((sum, count) => sum + count, 0);

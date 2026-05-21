@@ -73,7 +73,7 @@ agentsys/
     ├── KNOWLEDGE-LIBRARY.md      # Index
     └── *-REFERENCE.md            # Research documents
 
-NOTE: plugins/ has been removed. All 25 plugins are now standalone repos
+NOTE: plugins/ has been removed. All 26 plugins are now standalone repos
 under the agent-sh org. The installer fetches them from GitHub at install time.
 Plugin repos: agent-sh/{next-task,prepare-delivery,gate-and-ship,ship,deslop,
               audit-project,enhance,perf,drift-detect,sync-docs,repo-intel,
