@@ -118,7 +118,15 @@ describe('searchPlugins', () => {
     searchPlugins('perf');
     const output = logOutput.join('\n');
     expect(output).toContain('perf');
-    expect(output).toContain('1 plugin(s) found');
+    // Count derived from marketplace.json using the same name-or-description
+    // match the production code uses, so this stays stable as the marketplace
+    // grows or descriptions evolve (e.g. "performance" also contains "perf").
+    const lower = 'perf';
+    const expectedCount = loadMarketplace().plugins.filter(p =>
+      p.name.toLowerCase().includes(lower) ||
+      (p.description && p.description.toLowerCase().includes(lower))
+    ).length;
+    expect(output).toContain(`${expectedCount} plugin(s) found`);
   });
 
   test('filters by description', () => {
