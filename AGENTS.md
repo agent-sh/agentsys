@@ -76,7 +76,7 @@
 <!-- GEN:START:claude-architecture -->
 ```
 lib/          → Shared library (vendored to plugins)
-plugins/      → 24 plugins, 50 agents (40 file-based + 10 role-based), 45 skills
+plugins/      → 25 plugins, 50 agents (40 file-based + 10 role-based), 45 skills
 adapters/     → Platform adapters (opencode-plugin/, opencode/, codex/)
 checklists/   → Action checklists (9 files)
 bin/cli.js    → npm CLI installer
@@ -108,6 +108,7 @@ bin/cli.js    → npm CLI installer
 | onboard | 1 | 1 | Codebase onboarding |
 | can-i-help | 1 | 1 | Contributor guidance |
 | zig-lsp | 0 | 0 |  |
+| mojo | 0 | 0 |  |
 <!-- GEN:END:claude-architecture -->
 
 **Pattern**: `Command → Agent → Skill` (orchestration → invocation → implementation)
@@ -176,7 +177,7 @@ agentsys                # Run installer
 <agents>
 ## Agents
 
-50 agents across 24 plugins (18 have agents; gate-and-ship is commands-only; axiom, banthis, skill-curator, and system-prompt-curator are skill/command-only; zig-lsp is config-only with no commands or agents). Key agents by model:
+50 agents across 25 plugins (18 have agents; gate-and-ship is commands-only; axiom, banthis, skill-curator, and system-prompt-curator are skill/command-only; zig-lsp is config-only with no commands or agents; mojo is skill-only). Key agents by model:
 
 | Model | Agents | Use Case |
 |-------|--------|----------|

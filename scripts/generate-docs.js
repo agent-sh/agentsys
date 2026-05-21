@@ -459,7 +459,8 @@ const STATIC_PLUGIN_AGENT_COUNTS = {
   'skillers': 2,
   'onboard': 1,
   'can-i-help': 1,
-  'zig-lsp': 0
+  'zig-lsp': 0,
+  'mojo': 0
 };
 const STATIC_PLUGIN_COUNT = Object.keys(STATIC_PLUGIN_AGENT_COUNTS).length;
 const STATIC_FILE_BASED_AGENT_COUNT = Object.values(STATIC_PLUGIN_AGENT_COUNTS).reduce((sum, count) => sum + count, 0);
