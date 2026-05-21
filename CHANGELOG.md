@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.14.0] - 2026-05-21
+
+### Added
+- Registered the `ada-spark` skill plugin (`agent-sh/ada-spark` v0.1.0, pinned `v0.1.0` / `d84e4ef`) in the marketplace. Teaches agents to write idiomatic, correct, current Ada and SPARK (Ada 2022) - contracts (aspects, `Pre'Class`), the Alire ecosystem, SPARK proof (AoRTE, assurance levels, ownership/borrow), embedded (Ravenscar/Jorvik), and GNAT/GNAT SAS tooling; blocks stale pre-2022 advice (GNAT Community, pragma contracts, CodePeer). Mapped to the `Languages` skill category.
+- Registered the `mojo` skill plugin (`agent-sh/mojo` v0.2.0, pinned `v0.2.0` / `4d6f5fe`) in the marketplace. Teaches agents to write idiomatic, current Mojo (v1.0.0b1) - syntax, ownership and CPU/memory optimization, GPU kernels, and Mojo/Python interop; prevents stale pre-2025 syntax. Mapped to the `Languages` skill category.
+
+### Changed
+- Synced plugin/skill count surfaces across `README.md`, `AGENTS.md`, `docs/reference/AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/CROSS_PLATFORM.md`, `site/content.json`, `site/index.html`, and `site/ux-spec.md` for the two new language plugins: plugins `24 -> 26`, skills `45 -> 47` (agents unchanged at 50). Added `ada-spark` and `mojo` to `STATIC_PLUGIN_AGENT_COUNTS`, `CATEGORY_MAP`, and `STATIC_SKILLS` in `scripts/generate-docs.js`, and to `scripts/plugins.txt`.
+
 ## [5.13.5] - 2026-05-18
 
 ### Changed
