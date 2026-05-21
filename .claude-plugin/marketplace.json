@@ -331,11 +331,11 @@
       "source": {
         "source": "url",
         "url": "https://github.com/agent-sh/mojo.git",
-        "ref": "v0.1.1",
-        "commit": "95143ab532bd9b8ede8aaf465bf87948835dc78a"
+        "ref": "v0.2.0",
+        "commit": "4d6f5fe71e03380f8532a0a8419903f4f548a587"
       },
       "description": "Teach agents to write idiomatic, correct, performant, current Mojo (v1.0.0b1) - fundamentals, performance (SIMD/vectorize/parallelize), and GPU kernels; prevents stale pre-2025 syntax",
-      "version": "0.1.1",
+      "version": "0.2.0",
       "category": "development",
       "homepage": "https://github.com/agent-sh/mojo"
     }
