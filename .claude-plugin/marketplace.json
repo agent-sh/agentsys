@@ -334,7 +334,7 @@
         "ref": "v0.2.0",
         "commit": "4d6f5fe71e03380f8532a0a8419903f4f548a587"
       },
-      "description": "Teach agents to write idiomatic, correct, performant, current Mojo (v1.0.0b1) - fundamentals, performance (SIMD/vectorize/parallelize), and GPU kernels; prevents stale pre-2025 syntax",
+      "description": "Teach agents to write idiomatic, correct, performant, current Mojo (v1.0.0b1) - syntax, ownership and CPU/memory optimization (copies, SIMD, vectorize/parallelize), GPU kernels (DeviceContext/LayoutTensor), and Mojo/Python interop; prevents stale pre-2025 syntax",
       "version": "0.2.0",
       "category": "development",
       "homepage": "https://github.com/agent-sh/mojo"

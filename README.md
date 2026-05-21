@@ -169,6 +169,7 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 | Category | Skills | Plugin |
 |----------|--------|--------|
 | **Message Queues** | `glide-mq`, `glide-mq-migrate-bullmq`, `glide-mq-migrate-bee` | [agent-sh/glidemq](https://github.com/agent-sh/glidemq) |
+| **Languages** | `mojo` | [agent-sh/mojo](https://github.com/agent-sh/mojo) |
 
 Skills are the reusable implementation units. Agents invoke skills; commands orchestrate agents. When you install a plugin, its skills become available to all agents in that session.
 
