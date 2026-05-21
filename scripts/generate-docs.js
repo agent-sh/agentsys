@@ -69,7 +69,8 @@ const CATEGORY_MAP = {
   'onboard': 'Onboarding',
   'can-i-help': 'Onboarding',
   'audit-project': 'Code Review',
-  'glidemq': 'Message Queues'
+  'glidemq': 'Message Queues',
+  'mojo': 'Languages'
 };
 
 // Static skill definitions for cross-repo plugins (not discoverable locally)
@@ -115,6 +116,7 @@ const STATIC_SKILLS = [
   { plugin: 'onboard', name: 'onboard' },
   { plugin: 'can-i-help', name: 'can-i-help' },
   { plugin: 'audit-project', name: 'audit-project' },
+  { plugin: 'mojo', name: 'mojo' },
   { plugin: 'glidemq', name: 'glide-mq' },
   { plugin: 'glidemq', name: 'glide-mq-migrate-bullmq' },
   { plugin: 'glidemq', name: 'glide-mq-migrate-bee' },
@@ -284,7 +286,7 @@ function generateSkillsTable(skills) {
   const categoryOrder = [
     'Workflow', 'Message Queues', 'Enhancement', 'Performance', 'Cleanup',
     'Code Review', 'AI Collaboration', 'Onboarding',
-    'Web', 'Release', 'Analysis', 'Memory', 'Linting', 'Other'
+    'Web', 'Release', 'Analysis', 'Memory', 'Linting', 'Languages', 'Other'
   ];
 
   const lines = [

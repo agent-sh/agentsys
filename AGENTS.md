@@ -76,7 +76,7 @@
 <!-- GEN:START:claude-architecture -->
 ```
 lib/          → Shared library (vendored to plugins)
-plugins/      → 25 plugins, 50 agents (40 file-based + 10 role-based), 45 skills
+plugins/      → 25 plugins, 50 agents (40 file-based + 10 role-based), 46 skills
 adapters/     → Platform adapters (opencode-plugin/, opencode/, codex/)
 checklists/   → Action checklists (9 files)
 bin/cli.js    → npm CLI installer
@@ -108,7 +108,7 @@ bin/cli.js    → npm CLI installer
 | onboard | 1 | 1 | Codebase onboarding |
 | can-i-help | 1 | 1 | Contributor guidance |
 | zig-lsp | 0 | 0 |  |
-| mojo | 0 | 0 |  |
+| mojo | 0 | 1 |  |
 <!-- GEN:END:claude-architecture -->
 
 **Pattern**: `Command → Agent → Skill` (orchestration → invocation → implementation)
