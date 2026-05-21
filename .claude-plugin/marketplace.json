@@ -325,6 +325,19 @@
       "version": "0.1.0",
       "category": "development",
       "homepage": "https://github.com/agent-sh/zig-lsp"
+    },
+    {
+      "name": "mojo",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/agent-sh/mojo.git",
+        "ref": "v0.1.1",
+        "commit": "95143ab532bd9b8ede8aaf465bf87948835dc78a"
+      },
+      "description": "Teach agents to write idiomatic, correct, performant, current Mojo (v1.0.0b1) - fundamentals, performance (SIMD/vectorize/parallelize), and GPU kernels; prevents stale pre-2025 syntax",
+      "version": "0.1.1",
+      "category": "development",
+      "homepage": "https://github.com/agent-sh/mojo"
     }
   ]
 }
