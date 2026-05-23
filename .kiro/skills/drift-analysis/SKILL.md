@@ -1,5 +1,4 @@
-<!-- modelbound:file_id=c133a916-c270-4676-b3d2-e0f63fdd9bde -->
-
+- ---
 name: drift-analysis
 description: Use for plan drift, reality check, docs-to-code comparison, project state analysis, roadmap alignment, implementation gaps, or identifying discrepancies between documented plans and actual implementation.
 version: 5.1.0
