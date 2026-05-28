@@ -43,6 +43,8 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 ---
 > Building custom skills, agents, hooks, or MCP tools? [agnix](https://github.com/agent-sh/agnix) is the CLI + LSP linter that catches config errors before they fail silently - real-time IDE validation, auto suggestions, auto-fix, and 423 rules for Claude Code, Codex, OpenCode, Cursor, Kiro, Copilot, Gemini CLI, Cline, Windsurf, Roo Code, Amp, and more.
 
+> Exposing app actions to agents? [Ageniti](https://github.com/Ageniti/ageniti) is the action primitive layer - define an action once (input contract, output, side effects, permissions) and any caller (CLI, HTTP, MCP, OpenAI tools, React UI) invokes it through the same runtime.
+
 ## What This Is
 
 An agent orchestration system - 26 plugins, 50 agents (40 file-based + 10 role-based specialists in audit-project), and 47 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
