@@ -176,7 +176,7 @@ agentsys                # Run installer
 <agents>
 ## Agents
 
-49 agents across 24 plugins (17 have agents; gate-and-ship is commands-only; banthis, skill-curator, system-prompt-curator, and agnix are skill/command-only; zig-lsp is config-only with no commands or agents; mojo and ada-spark are skill-only). Key agents by model:
+49 agents across 24 plugins (16 have agents; gate-and-ship is commands-only; banthis, skill-curator, system-prompt-curator, and agnix are skill/command-only; zig-lsp is config-only with no commands or agents; mojo and ada-spark are skill-only). Key agents by model:
 
 | Model | Agents | Use Case |
 |-------|--------|----------|
