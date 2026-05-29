@@ -199,19 +199,6 @@
       "homepage": "https://github.com/agent-sh/learn"
     },
     {
-      "name": "axiom",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/agent-sh/axiom.git",
-        "ref": "v0.6.2",
-        "commit": "e3f3fabfcb19c140a38cbd5c5129ac69ca50b359"
-      },
-      "description": "Personal agent-native knowledge base: load thin context, query durable memories, create project scaffolds, and propose approved records",
-      "version": "0.6.2",
-      "category": "productivity",
-      "homepage": "https://github.com/agent-sh/axiom"
-    },
-    {
       "name": "banthis",
       "source": {
         "source": "url",
@@ -261,19 +248,6 @@
       "version": "1.0.1",
       "category": "productivity",
       "homepage": "https://github.com/agent-sh/debate"
-    },
-    {
-      "name": "web-ctl",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/agent-sh/web-ctl.git",
-        "commit": "345e44bc8a7b373728afce6c0d94ef067b5abc82",
-        "ref": "v1.1.0"
-      },
-      "description": "Browser automation and web testing toolkit for AI agents - headless browser control, persistent sessions, auth handoff, and prompt injection defense",
-      "version": "1.1.0",
-      "category": "automation",
-      "homepage": "https://github.com/agent-sh/web-ctl"
     },
     {
       "name": "skillers",

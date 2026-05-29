@@ -32,7 +32,6 @@ Add the marketplace and install plugins directly in Claude Code:
 /plugin install enhance@agentsys
 /plugin install perf@agentsys
 /plugin install sync-docs@agentsys
-/plugin install axiom@agentsys
 /plugin install learn@agentsys
 /plugin install consult@agentsys
 /plugin install debate@agentsys
@@ -189,12 +188,10 @@ You should see commands:
 - `/enhance` - Enhancement analyzer suite
 - `/perf` - Performance investigation workflow
 - `/sync-docs` - Documentation sync
-- `/axiom` - Durable agent-native memory and project context
 - `/banthis` - Durable negative behavior memory
 - `/learn` - Topic research and learning guides
 - `/consult` - Cross-tool AI consultation
 - `/debate` - Structured AI dialectic with verdict
-- `/web-ctl` - Browser automation and web interaction
 - `/skillers` - Workflow pattern learning and automation suggestions
 - `/skill-curator` - Skill authoring and review
 - `/system-prompt-curator` - System prompt curation

@@ -76,7 +76,7 @@
 <!-- GEN:START:claude-architecture -->
 ```
 lib/          → Shared library (vendored to plugins)
-plugins/      → 26 plugins, 50 agents (40 file-based + 10 role-based), 47 skills
+plugins/      → 24 plugins, 49 agents (39 file-based + 10 role-based), 44 skills
 adapters/     → Platform adapters (opencode-plugin/, opencode/, codex/)
 checklists/   → Action checklists (9 files)
 bin/cli.js    → npm CLI installer
@@ -94,14 +94,12 @@ bin/cli.js    → npm CLI installer
 | enhance | 8 | 9 | Code quality analyzers |
 | sync-docs | 1 | 1 | Documentation sync |
 | repo-intel | 3 | 1 | Unified static analysis |
-| axiom | 0 | 1 | Durable agent-native memory |
 | banthis | 0 | 1 | Durable negative behavior memory |
 | perf | 6 | 8 | Performance investigation |
 | learn | 1 | 1 | Topic research and learning guides |
 | agnix | 0 | 1 | Agent config linting |
 | consult | 1 | 1 | Cross-tool AI consultation |
 | debate | 1 | 1 | Multi-perspective debate analysis |
-| web-ctl | 1 | 2 | Browser automation for AI agents |
 | skill-curator | 0 | 1 | Skill authoring and review |
 | system-prompt-curator | 0 | 1 | System prompt curation |
 | skillers | 2 | 2 | Workflow pattern learning |
@@ -178,7 +176,7 @@ agentsys                # Run installer
 <agents>
 ## Agents
 
-50 agents across 26 plugins (17 have agents; gate-and-ship is commands-only; axiom, banthis, skill-curator, system-prompt-curator, and agnix are skill/command-only; zig-lsp is config-only with no commands or agents; mojo and ada-spark are skill-only). Key agents by model:
+49 agents across 24 plugins (16 have agents; gate-and-ship is commands-only; banthis, skill-curator, system-prompt-curator, and agnix are skill/command-only; zig-lsp is config-only with no commands or agents; mojo and ada-spark are skill-only). Key agents by model:
 
 | Model | Agents | Use Case |
 |-------|--------|----------|
@@ -192,7 +190,7 @@ See [README.md](./README.md#command-details) and [docs/reference/AGENTS.md](./do
 <skills>
 ## Skills
 
-45 skills across plugins. Agents invoke skills for reusable implementation.
+44 skills across plugins. Agents invoke skills for reusable implementation.
 
 | Category | Key Skills |
 |----------|------------|
@@ -200,7 +198,7 @@ See [README.md](./README.md#command-details) and [docs/reference/AGENTS.md](./do
 | Enhancement | `enhance-*` (9 skills for plugins, agents, docs, prompts, hooks), `skill-curator`, `system-prompt-curator` |
 | Performance | `baseline`, `benchmark`, `profile`, `theory-tester` |
 | Cleanup | `deslop`, `sync-docs`, `drift-analysis`, `repo-intel` |
-| Memory | `axiom`, `banthis` |
+| Memory | `banthis` |
 
 See [README.md](./README.md#skills) for full skill list.
 </skills>

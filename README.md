@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <b>26 plugins · 50 agents · 47 skills (across all repos) · 30k lines of lib code · 3,518 tests · 5 platforms</b><br>
+  <b>24 plugins · 49 agents · 44 skills (across all repos) · 30k lines of lib code · 3,518 tests · 5 platforms</b><br>
   <em>Plugins distributed as standalone repos under <a href="https://github.com/agent-sh">agent-sh</a> org - agentsys is the marketplace &amp; installer</em>
 </p>
 
@@ -45,7 +45,7 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 
 ## What This Is
 
-An agent orchestration system - 26 plugins, 50 agents (40 file-based + 10 role-based specialists in audit-project), and 47 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
+An agent orchestration system - 24 plugins, 49 agents (39 file-based + 10 role-based specialists in audit-project), and 44 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
 
 Each agent has a single responsibility, a specific model assignment, and defined inputs/outputs. Pipelines enforce phase gates so agents can't skip steps. State persists across sessions so work survives interruptions.
 
@@ -118,7 +118,6 @@ The investment shifts from model spend to pipeline design. Better prompts, riche
 | [`/next-task`](#next-task) | Task workflow: discovery, implementation, PR, merge |
 | [`/prepare-delivery`](#prepare-delivery) | Pre-ship quality gates: deslop, review, validation, docs sync |
 | [`/gate-and-ship`](#gate-and-ship) | Quality gates then ship (/prepare-delivery + /ship) |
-| [`/axiom`](#axiom) | Durable memory: load, query, list, bootstrap projects, and record approved knowledge |
 | [`/banthis`](#banthis) | Durable negative memory: persist banned agent behaviors |
 | [`/agnix`](#agnix) | Lint agent configurations (423 rules) |
 | [`/ship`](#ship) | PR creation, CI monitoring, merge |
@@ -132,7 +131,6 @@ The investment shifts from model spend to pipeline design. Better prompts, riche
 | [`/learn`](#learn) | Research topics, create learning guides |
 | [`/consult`](#consult) | Cross-tool AI consultation |
 | [`/debate`](#debate) | Structured debate between AI tools |
-| [`/web-ctl`](#web-ctl) | Browser automation for AI agents |
 | [`/release`](#release) | Versioned release with ecosystem detection |
 | [`/skillers`](#skillers) | Workflow pattern learning and automation |
 | [`/skill-curator`](#skill-curator) | Create and improve reliable SKILL.md files |
@@ -146,7 +144,7 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 
 ## Skills
 
-47 skills included across the plugins:
+44 skills included across the plugins:
 
 | Category | Skills |
 |----------|--------|
@@ -158,10 +156,9 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 | **Code Review** | `audit-project` |
 | **AI Collaboration** | `consult`, `debate`, `learn`, `recommend`, `skillers-compact` |
 | **Onboarding** | `can-i-help`, `onboard` |
-| **Web** | `web-auth`, `web-browse` |
 | **Release** | `release` |
 | **Analysis** | `drift-analysis`, `repo-intel` |
-| **Memory** | `axiom`, `banthis` |
+| **Memory** | `banthis` |
 | **Linting** | `agnix` |
 
 **External skill plugins** (standalone repos, installed separately):
@@ -183,7 +180,7 @@ Skills are the reusable implementation units. Agents invoke skills; commands orc
 | [The Approach](#the-approach) | Why it's built this way |
 | [Benchmarks](#benchmarks) | Sonnet + agentsys vs raw Opus |
 | [Commands](#commands) | All 24 commands overview |
-| [Skills](#skills) | 47 skills across plugins |
+| [Skills](#skills) | 44 skills across plugins |
 | [Skill-Only Plugins](#skill-only-plugins) | glide-mq and other non-command plugins |
 | [Command Details](#command-details) | Deep dive into each command |
 | [How Commands Work Together](#how-commands-work-together) | Standalone vs integrated |
@@ -311,38 +308,6 @@ Does NOT create PRs or push - use `/ship` or `/gate-and-ship` after.
 ```
 
 Each piece runs independently - use `/prepare-delivery` alone to review before deciding to ship, or `/ship` alone if already validated.
-
----
-
-### /axiom
-
-**Purpose:** Durable, queryable memory for agents. Load the smallest useful context, query project or global knowledge, and propose new records without bloating `AGENTS.md`.
-
-**[axiom](https://github.com/agent-sh/axiom)** is a standalone plugin and CLI. It creates a private `axiom-based` knowledge repo after explicit approval, keeps only thin context loaded automatically, and stores durable decisions, memories, preferences, and project notes in queryable files.
-
-**Auto-loading at session start (v0.6.2+):** The plugin ships a `SessionStart` hook that runs `axiom before-any --auto-project --detect-only --quiet` automatically in Claude Code and Codex (Codex requires `[features].plugin_hooks = true` in `~/.codex/config.toml`). The hook never mutates state - it emits `## Axiom Setup` when `~/.axiom` is missing or `## Project Detection` when the current git project has no scaffold, then the agent asks the user before running `axiom init` or `axiom project <slug>`. An OpenCode plugin scaffold (`opencode-plugin/axiom.mjs`) hooks `session.created` and pre-warms `~/.axiom/.session-context.md`; full session-start context injection waits on [sst/opencode#5409](https://github.com/sst/opencode/issues/5409). On Cursor / Cline / Aider / Gemini CLI the agent invokes `before-any` via the skill instead.
-
-**What it does:**
-
-| Command | Use |
-|---------|-----|
-| `axiom before-any --quiet` | Load global thin context at the start of meaningful work |
-| `axiom before-any --auto-project --detect-only --quiet` | Read-only auto-load used by the SessionStart hook |
-| `axiom before-any --project <slug>` | Load project context and create missing project scaffolds |
-| `axiom query "<keyword>" --project <slug>` | Retrieve focused, source-backed project knowledge |
-| `axiom list --topics --project <slug>` | Explore what knowledge exists before querying |
-| `axiom record ...` | Propose a durable record through a temp clone, diff, and human approval |
-
-**Usage:**
-
-```bash
-/axiom before-any --quiet
-/axiom before-any --project flowfabric
-/axiom query "lease based" --project flowfabric
-/axiom record --project flowfabric --kind decision "Lease-based claiming v2" "We switched because it gives stronger safety during restarts."
-```
-
-**External tool:** Requires the [axiom CLI](https://github.com/agent-sh/axiom) from the plugin package.
 
 ---
 
@@ -899,81 +864,6 @@ agent-knowledge/
 | `--context=diff\|file=PATH\|none` | Codebase context passed to both tools |
 
 **Agent:** debate-orchestrator (opus model for orchestration)
-
-### /web-ctl
-
-**Purpose:** Browser automation for AI agents - navigate, authenticate, and interact with web pages.
-
-**How it works:**
-
-Each invocation is a single Node.js process using Playwright. No daemon, no MCP server. Session state persists via Chrome's userDataDir with AES-256-GCM encrypted storage.
-
-```
-Agent calls skill -> node scripts/web-ctl.js <args> -> Playwright API -> JSON result
-```
-
-**Session lifecycle:**
-
-1. `session start <name>` - Create session (encrypted profile directory)
-2. `session auth <name> --url <login-url>` - Opens headed Chrome for human login (2FA, CAPTCHAs). Polls for success URL/selector, encrypts cookies on completion
-3. `run <name> <action>` - Headless actions using persisted cookies
-4. `session end <name>` - Cleanup
-
-**Actions:**
-
-| Action | Description | Key flag |
-|--------|-------------|----------|
-| `goto <url>` | Navigate to URL | |
-| `snapshot` | Get accessibility tree (primary page inspection) | |
-| `click <sel>` | Click element | `--wait-stable` |
-| `click-wait <sel>` | Click and wait for DOM + network stability | `--timeout <ms>` |
-| `type <sel> <text>` | Type with human-like delays | |
-| `read <sel>` | Read element text content | |
-| `fill <sel> <value>` | Clear field and set value | |
-| `wait <sel>` | Wait for element to appear | `--timeout <ms>` |
-| `evaluate <js>` | Execute JS in page context | `--allow-evaluate` |
-| `screenshot` | Full-page screenshot | `--path <file>` |
-| `network` | Capture network requests | `--filter <pattern>` |
-| `checkpoint` | Open headed browser for user (CAPTCHAs) | `--timeout <sec>` |
-
-`click-wait` waits for network idle + no DOM mutations for 500ms before returning. Cuts SPA interactions from multiple agent turns to one.
-
-**Error handling:**
-
-All errors return classified codes with actionable recovery suggestions:
-
-| Code | Recovery suggestion |
-|------|-------------------|
-| `element_not_found` | Snapshot included in response for selector discovery |
-| `timeout` | Increase `--timeout` |
-| `browser_closed` | `session start <name>` |
-| `network_error` | Check URL; verify cookies with `session status` |
-| `no_display` | Use `--vnc` flag |
-| `session_expired` | Re-authenticate |
-
-**Security:** Output sanitization (cookies/tokens redacted), prompt injection defense (`[PAGE_CONTENT: ...]` delimiters), AES-256-GCM encryption at rest, anti-bot measures (`webdriver=false`, random delays), read-only agent (no Write/Edit tools).
-
-**Selector syntax:** `role=button[name='Submit']`, `css=div.class`, `text=Click here`, `#id`
-
-**Usage:**
-
-```bash
-/web-ctl goto https://example.com
-/web-ctl auth twitter --url https://x.com/i/flow/login
-/web-ctl   # describe what you want to do, agent orchestrates it
-```
-
-**Install:**
-
-```bash
-agentsys install web-ctl
-npm install playwright
-npx playwright install chromium
-```
-
-**Agent:** web-session (sonnet model)
-
-**Skills:** web-auth (human-in-the-loop auth), web-browse (headless actions)
 
 ### /release
 

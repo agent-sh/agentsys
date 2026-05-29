@@ -3,7 +3,7 @@
 Complete reference for all agents in AgentSys.
 
 <!-- GEN:START:agents-counts -->
-**TL;DR:** 50 agents across 26 plugins (17 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 50 -->
+**TL;DR:** 49 agents across 24 plugins (16 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 49 -->
 <!-- GEN:END:agents-counts -->
 
 ---
@@ -24,7 +24,7 @@ Complete reference for all agents in AgentSys.
 
 ## Overview
 
-AgentSys uses 50 specialized agents across 26 plugins (17 have agents; gate-and-ship is commands-only, axiom, banthis, skill-curator, system-prompt-curator, and agnix are skill/command-only, zig-lsp is a config-only LSP plugin with no commands or agents, and mojo and ada-spark are skill-only plugins). Each agent is optimized for a specific task and assigned a model based on complexity:
+AgentSys uses 49 specialized agents across 24 plugins (16 have agents; gate-and-ship is commands-only, banthis, skill-curator, system-prompt-curator, and agnix are skill/command-only, zig-lsp is a config-only LSP plugin with no commands or agents, and mojo and ada-spark are skill-only plugins). Each agent is optimized for a specific task and assigned a model based on complexity:
 
 | Model | Use Case | Cost |
 |-------|----------|------|
@@ -801,23 +801,6 @@ No agents - command-only orchestrator that delegates to prepare-delivery and shi
 
 **Tools available:**
 - Bash, Read, Glob, Grep, Skill
-
----
-
-## web-ctl Plugin Agent
-
-### web-session
-
-**Model:** sonnet
-**Purpose:** Browser automation with persistent state.
-
-**What it does:**
-1. Manages headless browser sessions with auth handoff
-2. Navigates pages, extracts content, fills forms
-3. Maintains session state across multiple interactions
-
-**Tools available:**
-- Bash, Read, Write, Skill
 
 ---
 

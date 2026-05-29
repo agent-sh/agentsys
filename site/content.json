@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "agentsys",
-    "description": "A modular runtime and orchestration system for AI agents. 26 plugins, 50 agents, 47 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.",
+    "description": "A modular runtime and orchestration system for AI agents. 24 plugins, 49 agents, 44 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.",
     "url": "https://agent-sh.github.io/agentsys",
     "repo": "https://github.com/agent-sh/agentsys",
     "npm": "https://www.npmjs.com/package/agentsys",
@@ -23,17 +23,17 @@
   },
   "stats": [
     {
-      "value": "26",
+      "value": "24",
       "label": "Plugins",
       "suffix": ""
     },
     {
-      "value": "50",
+      "value": "49",
       "label": "Agents",
       "suffix": ""
     },
     {
-      "value": "47",
+      "value": "44",
       "label": "Skills",
       "suffix": ""
     },
@@ -107,13 +107,6 @@
       "tagline": "Quality gates then ship",
       "description": "Quality gates then ship - chains /prepare-delivery then /ship",
       "example": "/gate-and-ship",
-      "category": "workflow"
-    },
-    {
-      "name": "/axiom",
-      "tagline": "Durable memory for agents",
-      "description": "Load thin context, query project or global knowledge, create missing project scaffolds, and propose human-approved records in a private axiom-based knowledge repo.",
-      "example": "/axiom before-any --project flowfabric",
       "category": "workflow"
     },
     {
@@ -206,13 +199,6 @@
       "description": "Multi-round structured debates between any two AI tools as proposer and challenger. Evidence-backed arguments, mandatory counterpoints, and a verdict from the orchestrator. Supports ACP transport for Kiro participation.",
       "example": "/debate claude vs kiro about microservices vs monolith",
       "category": "analysis"
-    },
-    {
-      "name": "/web-ctl",
-      "tagline": "Browser automation for AI agents",
-      "description": "Navigate, authenticate, and interact with web pages via headless Playwright. Persistent encrypted sessions, human-in-the-loop auth handoff with CAPTCHA detection, and anti-bot measures.",
-      "example": "/web-ctl browse https://example.com",
-      "category": "maintenance"
     },
     {
       "name": "/release",
@@ -401,8 +387,8 @@
     }
   ],
   "agents": {
-    "total": 50,
-    "file_based": 40,
+    "total": 49,
+    "file_based": 39,
     "role_based": 10,
     "by_model": [
       {
@@ -445,7 +431,6 @@
           "sync-docs-agent",
           "agnix-agent",
           "consult-agent",
-          "web-session",
           "skillers-compactor",
           "release-agent",
           "onboard-agent",
@@ -497,8 +482,6 @@
       "version": "5.0.0",
       "date": "2026-02-20",
       "highlights": [
-        "New /web-ctl plugin - browser automation with encrypted session persistence",
-        "Human-in-the-loop auth handoff with CAPTCHA detection",
         "Multi-platform support: Claude Code, OpenCode, Codex CLI"
       ]
     }

@@ -73,11 +73,11 @@ agentsys/
     ├── KNOWLEDGE-LIBRARY.md      # Index
     └── *-REFERENCE.md            # Research documents
 
-NOTE: plugins/ has been removed. All 26 plugins are now standalone repos
+NOTE: plugins/ has been removed. All 24 plugins are now standalone repos
 under the agent-sh org. The installer fetches them from GitHub at install time.
 Plugin repos: agent-sh/{next-task,prepare-delivery,gate-and-ship,ship,deslop,
               audit-project,enhance,perf,drift-detect,sync-docs,repo-intel,
-              axiom,banthis,learn,consult,debate,agnix,web-ctl,skillers,
+              banthis,learn,consult,debate,agnix,skillers,
               skill-curator,system-prompt-curator,onboard,can-i-help,zig-lsp}
 ```
 
@@ -136,13 +136,11 @@ The package provides these capabilities through commands, agents, and skills:
 | Documentation | `/sync-docs` | Sync docs with code changes |
 | Drift detection | `/drift-detect` | Plan vs implementation analysis |
 | Code review | `/audit-project` | Multi-agent code review |
-| Durable memory | `/axiom` | Load, query, and record agent-native context |
 | Negative memory | `/banthis` | Persist banned agent behaviors |
 | Config linting | `/agnix` | Lint agent configurations (385 rules) |
 | Research | `/learn` | Research topics, create learning guides |
 | AI consultation | `/consult` | Cross-tool AI consultation |
 | AI debate | `/debate` | Structured debate between AI tools |
-| Browser automation | `/web-ctl` | Browser automation for AI agents |
 | Workflow learning | `/skillers` | Workflow pattern learning and automation |
 | Skill curation | `/skill-curator` | Create and improve SKILL.md files |
 | Prompt curation | `/system-prompt-curator` | Create and improve autonomous agent prompts |
@@ -169,7 +167,7 @@ agentsys  # Select option 1
 
 **Location:** `~/.claude/plugins/agentsys/`
 
-**Commands:** `/next-task`, `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/perf`, `/sync-docs`, `/axiom`, `/banthis`, `/agnix`, `/learn`, `/consult`, `/debate`, `/web-ctl`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`
+**Commands:** `/next-task`, `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/perf`, `/sync-docs`, `/banthis`, `/agnix`, `/learn`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`
 
 ### OpenCode
 
@@ -183,7 +181,7 @@ agentsys  # Select option 2
 - Skills: `~/.config/opencode/skills/`
 - Native plugin: `~/.config/opencode/plugins/agentsys.ts`
 
-**Commands:** `/next-task`, `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/perf`, `/sync-docs`, `/axiom`, `/banthis`, `/agnix`, `/learn`, `/consult`, `/debate`, `/web-ctl`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`
+**Commands:** `/next-task`, `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/perf`, `/sync-docs`, `/banthis`, `/agnix`, `/learn`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`
 
 **Native Plugin Features:**
 - Auto-thinking selection per agent
@@ -200,7 +198,7 @@ agentsys  # Select option 3
 - Config: `~/.codex/config.toml`
 - Skills: `~/.codex/skills/`
 
-**Skills:** `$next-task`, `$prepare-delivery`, `$gate-and-ship`, `$ship`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$perf`, `$sync-docs`, `$axiom`, `$banthis`, `$agnix`, `$learn`, `$consult`, `$debate`, `$web-ctl`, `$skillers`, `$skill-curator`, `$system-prompt-curator`, `$onboard`, `$can-i-help`
+**Skills:** `$next-task`, `$prepare-delivery`, `$gate-and-ship`, `$ship`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$perf`, `$sync-docs`, `$banthis`, `$agnix`, `$learn`, `$consult`, `$debate`, `$skillers`, `$skill-curator`, `$system-prompt-curator`, `$onboard`, `$can-i-help`
 
 **Internal skill:** `orchestrate-review` (Phase 9 review pass definitions used by /next-task and /audit-project)
 
@@ -231,13 +229,11 @@ description: Master workflow orchestrator for task-to-production automation
 | `/enhance` | [OK] Full | [OK] Full | [OK] Full | Orchestrates all enhancers |
 | `/perf` | [OK] Full | [OK] Full | [OK] Full | Performance investigations |
 | `/sync-docs` | [OK] Full | [OK] Full | [OK] Full | Documentation sync |
-| `/axiom` | [OK] Full | [OK] Full | [OK] Full | Durable memory; requires `axiom` CLI |
 | `/banthis` | [OK] Full | [OK] Full | [OK] Full | Negative behavior memory; includes CLI |
 | `/agnix` | [OK] Full | [OK] Full | [OK] Full | Requires `agnix` CLI |
 | `/learn` | [OK] Full | [OK] Full | [OK] Full | Research and learning |
 | `/consult` | [OK] Full | [OK] Full | [OK] Full | Cross-tool consultation |
 | `/debate` | [OK] Full | [OK] Full | [OK] Full | Multi-round AI debate |
-| `/web-ctl` | [OK] Full | [OK] Full | [OK] Full | Browser automation |
 | `/skillers` | [OK] Full | [OK] Full | [OK] Full | Workflow pattern learning |
 | `/skill-curator` | [OK] Full | [OK] Full | [OK] Full | Skill authoring and review |
 | `/system-prompt-curator` | [OK] Full | [OK] Full | [OK] Full | Agent prompt curation |

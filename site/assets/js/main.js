@@ -676,14 +676,6 @@
         ]
       },
       13: {
-        subtitle: 'Browser automation. Encrypted sessions.',
-        steps: [
-          { title: 'Start session', desc: 'Creates an encrypted browser profile using AES-256-GCM. No daemon - each action is a single Playwright process.' },
-          { title: 'Authenticate', desc: 'Opens headed Chrome for human login (2FA, CAPTCHAs). Polls for success, then encrypts cookies for reuse.' },
-          { title: 'Run headless', desc: 'Subsequent actions run headless using saved cookies. Snapshot-based element discovery with classified error codes.' }
-        ]
-      },
-      14: {
         subtitle: 'Five quality gates. Zero shortcuts.',
         steps: [
           { title: 'Clean and lint', desc: 'Deslop + simplify + test-coverage run in parallel. Then agnix and /enhance lint any changed agent configs.' },
@@ -691,7 +683,7 @@
           { title: 'Sync docs and ship', desc: 'Documentation synced with code changes. Ready for /ship or /gate-and-ship to create the PR.' }
         ]
       },
-      15: {
+      14: {
         subtitle: 'Quality gates then ship. One command.',
         steps: [
           { title: 'Run /prepare-delivery', desc: 'All five quality gates: deslop, config lint, review loop, delivery validation, and docs sync.' },
@@ -699,7 +691,7 @@
           { title: 'Done', desc: 'From code-complete to merged PR. If gates fail, ship does not run. Each piece also runs independently.' }
         ]
       },
-      16: {
+      15: {
         subtitle: 'Detect ecosystem. Tag. Publish.',
         steps: [
           { title: 'Discover release method', desc: 'Finds your release tool: semantic-release, release-it, goreleaser, cargo-release, or manual npm/cargo/go publish.' },
@@ -707,7 +699,7 @@
           { title: 'Tag and publish', desc: 'Creates git tag, publishes to registry (npm, crates.io, PyPI, etc.), creates GitHub release with notes.' }
         ]
       },
-      17: {
+      16: {
         subtitle: 'Transcripts in. Automation suggestions out.',
         steps: [
           { title: 'Read transcripts', desc: 'Reads saved sessions from Claude Code, Codex, and OpenCode. No hooks, no per-turn overhead.' },
@@ -715,7 +707,7 @@
           { title: 'Suggest automation', desc: 'Recommends skills, hooks, and agents that would automate the patterns found. Checks existing ecosystem first.' }
         ]
       },
-      18: {
+      17: {
         subtitle: 'Automated data collection. Interactive tour.',
         steps: [
           { title: 'Collect project data', desc: 'Scans package.json, git history, directory structure, key files, and conventions automatically.' },
@@ -723,7 +715,7 @@
           { title: 'Interactive Q&A', desc: 'Answers questions about the codebase interactively. Identifies key files, conventions, and gotchas.' }
         ]
       },
-      19: {
+      18: {
         subtitle: 'Match skills to project needs.',
         steps: [
           { title: 'Analyze project', desc: 'Uses repo-intel to find test gaps, stale docs, open issues, bugspots, and areas with low bus factor.' },

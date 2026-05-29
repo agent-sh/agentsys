@@ -94,13 +94,11 @@ claude --plugin-dir /path/to/agentsys/plugins/next-task
 - `/enhance` - Enhancement analyzer suite
 - `/sync-docs` - Documentation sync
 - `/perf` - Performance investigation
-- `/axiom` - Durable agent-native memory
 - `/banthis` - Durable negative behavior memory
 - `/learn` - Research topics and create learning guides
 - `/agnix` - Lint agent configuration files
 - `/consult` - Cross-tool AI consultation
 - `/debate` - Structured AI debate
-- `/web-ctl` - Browser automation
 - `/skillers` - Workflow pattern learning
 - `/skill-curator` - Skill authoring and review
 - `/system-prompt-curator` - System prompt curation
@@ -191,7 +189,7 @@ agentsys --tool opencode --no-strip
 ```
 
 This installs:
-- Slash commands (`/next-task`, `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/sync-docs`, `/perf`, `/axiom`, `/banthis`, `/learn`, `/agnix`, `/consult`, `/debate`, `/web-ctl`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`)
+- Slash commands (`/next-task`, `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/sync-docs`, `/perf`, `/banthis`, `/learn`, `/agnix`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`)
 - **Native OpenCode plugin** with advanced features:
 
 ### Native Plugin Features
@@ -272,7 +270,7 @@ agentsys  # Select option 3 for Codex CLI
 agentsys --tool codex
 ```
 
-This installs skills to `~/.codex/skills/` (`$next-task`, `$prepare-delivery`, `$gate-and-ship`, `$ship`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$sync-docs`, `$perf`, `$axiom`, `$banthis`, `$learn`, `$agnix`, `$consult`, `$debate`, `$web-ctl`, `$skillers`, `$skill-curator`, `$system-prompt-curator`, `$onboard`, `$can-i-help`).
+This installs skills to `~/.codex/skills/` (`$next-task`, `$prepare-delivery`, `$gate-and-ship`, `$ship`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$sync-docs`, `$perf`, `$banthis`, `$learn`, `$agnix`, `$consult`, `$debate`, `$skillers`, `$skill-curator`, `$system-prompt-curator`, `$onboard`, `$can-i-help`).
 
 ### Option 2: Custom Skills
 
@@ -342,8 +340,8 @@ The plugin auto-detects the platform and uses the appropriate directory. Overrid
 - Works with any model provider (Claude, OpenAI, Google, local)
 - State directory: `.opencode/`
 - Slash commands in `~/.config/opencode/commands/`
-- Agents in `~/.config/opencode/agents/` (47 agents)
-- Skills in `~/.config/opencode/skills/` (47 skills)
+- Agents in `~/.config/opencode/agents/` (39 agents)
+- Skills in `~/.config/opencode/skills/` (44 skills)
 - Native plugin in `~/.config/opencode/plugins/agentsys.ts`
 - **Native plugin features:**
   - Auto-thinking selection (adjusts budget per agent)

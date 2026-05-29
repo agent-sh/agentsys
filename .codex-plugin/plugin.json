@@ -4,8 +4,8 @@
   "skills": "./adapters/codex/skills",
   "interface": {
     "displayName": "agentsys",
-    "shortDescription": "AI agent orchestration with 45 skills and 50 agents",
-    "longDescription": "Professional-grade slash commands for AI-powered development workflows. Includes /next-task (task discovery to production), /axiom (durable agent memory), /banthis (negative behavior memory), /skill-curator and /system-prompt-curator (agent configuration curation), /ship (commit to deploy), /audit-project (multi-agent code review), /deslop (AI slop cleanup), /perf (performance investigation), /enhance (config analysis), /consult (cross-tool AI consultation), and more.",
+    "shortDescription": "AI agent orchestration with 44 skills and 49 agents",
+    "longDescription": "Professional-grade slash commands for AI-powered development workflows. Includes /next-task (task discovery to production), /banthis (negative behavior memory), /skill-curator and /system-prompt-curator (agent configuration curation), /ship (commit to deploy), /audit-project (multi-agent code review), /deslop (AI slop cleanup), /perf (performance investigation), /enhance (config analysis), /consult (cross-tool AI consultation), and more.",
     "developerName": "Avi Fenesh",
     "category": "developer-tools",
     "capabilities": [
@@ -20,7 +20,6 @@
     "websiteUrl": "https://agent-sh.github.io/agent-sh.dev/",
     "defaultPrompt": [
       "What should I work on next?",
-      "Load my durable Axiom context",
       "Review this codebase"
     ]
   }

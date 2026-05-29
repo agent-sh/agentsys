@@ -9,7 +9,6 @@
 |------|---------|--------|
 | [agentsys](https://github.com/agent-sh/agentsys) | Marketplace + installer (plugins now in standalone repos) | Active |
 | [agnix](https://github.com/agent-sh/agnix) | Agent config linter (CLI + LSP + IDE extensions) | Active |
-| [web-ctl](https://github.com/agent-sh/web-ctl) | Browser automation plugin (Playwright-based, persistent sessions, auth handoff) | Active |
 | [agent-core](https://github.com/agent-sh/agent-core) | Shared libs — synced to all repos on merge | Created |
 | [agent-knowledge](https://github.com/agent-sh/agent-knowledge) | Research guides and RAG indexes | Active (10 guides) |
 | [.github](https://github.com/agent-sh/.github) | Org profile, shared templates, reusable workflows | Active |
@@ -22,7 +21,6 @@
 | [drift-detect](https://github.com/agent-sh/drift-detect) | Plan drift detection plugin | Active |
 | [sync-docs](https://github.com/agent-sh/sync-docs) | Documentation sync plugin | Active |
 | [repo-intel](https://github.com/agent-sh/repo-intel) | Unified static analysis plugin | Active |
-| [axiom](https://github.com/agent-sh/axiom) | Durable agent-native memory and project context plugin | Active |
 | [banthis](https://github.com/agent-sh/banthis) | Durable negative behavior memory plugin | Active |
 | [learn](https://github.com/agent-sh/learn) | Topic research and learning guides plugin | Active |
 | [consult](https://github.com/agent-sh/consult) | Cross-tool AI consultation plugin | Active |
@@ -51,7 +49,6 @@
 - [x] Created `agent-sh` GitHub org (naming: signals shell/terminal tooling, like oven-sh)
 - [x] Transferred `agentsys` repo from `avifenesh/agentsys` → `agent-sh/agentsys`
 - [x] Transferred `agnix` repo from `avifenesh/agnix` → `agent-sh/agnix`
-- [x] Transferred `web-ctl` repo from `avifenesh/web-ctl` → `agent-sh/web-ctl`
 - [x] Claimed `@agentsys` npm scope on npmjs.com
 - [x] Updated git remote: `origin → https://github.com/agent-sh/agentsys.git`
 
@@ -77,15 +74,7 @@
 - [x] `github-org-structure-patterns.md` — 18 sources: 7 real orgs analyzed, .github repo, CODEOWNERS, reusable workflows
 - [x] `oss-org-naming-patterns.md` — 24 sources: naming conventions for OSS orgs
 
-### web-ctl Architecture Design (#241)
-- [x] Researched: terminal browsers, Playwright CLI, session persistence
-- [x] Architecture: Skill → `scripts/web-ctl.js` → Playwright `launchPersistentContext`
-- [x] Security model: AES-256-GCM, OS keyring, HKDF per-session DEK
-- [x] Constraint: no MCP server, skill-based (low context cost)
-- [x] Updated issue #241 with full architecture spec
-
 ### Issues Created
-- [x] #241 — web-ctl plugin (architecture updated)
 - [x] #245 — Org/marketplace strategy (updated with agent-sh decision)
 - [x] #246 — GitHub Releases + plugins.json distribution
 - [x] #247 — GitHub Projects as task source (merged/closed)
@@ -109,8 +98,7 @@
 
 **Post-extraction additions:**
 - [x] `zig-lsp` registered as 20th plugin (born standalone, not extracted; LSP plugin distributed via Claude Code marketplace mechanism)
-- [x] `axiom` registered as 21st plugin (born standalone; CLI + skill distributed through the marketplace)
-- [x] `banthis`, `skill-curator`, and `system-prompt-curator` registered as 22nd-24th plugins (born standalone; CLI/skill/command plugins distributed through the marketplace)
+- [x] `banthis`, `skill-curator`, and `system-prompt-curator` registered as standalone plugins (born standalone; CLI/skill/command plugins distributed through the marketplace)
 - [ ] agent-core sync pipeline extended to `zig-lsp` (config-only plugin; sync surface is smaller — likely just CLAUDE.md/AGENTS.md mirror enforcement)
 
 ---
@@ -142,7 +130,7 @@ Org-level project board spanning all repos. Custom fields, views, automations.
 - [x] Board: https://github.com/orgs/agent-sh/projects/1
 - [x] Custom fields: Priority (P0-P3), Effort (S/M/L/XL), Component, Target
 - [x] Org issue types: task, bug, feature, RFC
-- [x] Auto-add workflow in agentsys, agnix, web-ctl (PR #257, agnix #546)
+- [x] Auto-add workflow in agentsys, agnix (PR #257, agnix #546)
 - [ ] Auto-archive (configure via board UI: Settings → Workflows)
 - [ ] Additional views (roadmap, per-repo filtered)
 
@@ -213,7 +201,6 @@ CI-driven vendor sync from agent-core → all consumer repos.
 
 ## Pending Work
 
-- [ ] Build web-ctl plugin (#241 — architecture done, implementation pending)
 - [ ] #255 — Documentation & Website (org landing page, plugin catalog)
 - [ ] Pin repos on org profile (GitHub UI only)
 - [ ] Auto-archive on project board (board UI)
@@ -244,7 +231,6 @@ Phase 3 (After Phase 2):
   #255  Documentation & Website
 
 Parallel (independent):
-  #241  web-ctl Plugin Implementation
   #246  Plugin Distribution (Option C — GitHub Releases)
 ```
 

@@ -32,12 +32,10 @@ You shouldn't have to repeat the same requests every session. These commands han
 | `/enhance` | Analyze prompts, plugins, agents, docs, hooks, skills | Quality improvement |
 | `/sync-docs` | Sync docs with code changes | Documentation sync |
 | `/perf` | Performance investigation workflow | Baselines, profiling, evidence |
-| `/axiom` | Durable agent-native memory | Load, query, and record project context |
 | `/banthis` | Durable negative behavior memory | Persist banned agent behaviors |
 | `/learn` | Research topics online, create learning guides | Topic research with RAG |
 | `/consult` | Cross-tool AI consultation | Second opinion from other AI tools |
 | `/debate` | Structured multi-round debate between AI tools | AI dialectic with verdict |
-| `/web-ctl` | Browser automation and web interaction | Headless control, auth handoff |
 | `/skillers` | Workflow pattern learning and automation suggestions | Pattern extraction |
 | `/skill-curator` | Create and improve reliable SKILL.md files | Skill authoring and review |
 | `/system-prompt-curator` | Create and improve autonomous agent system prompts | Agent prompt curation |

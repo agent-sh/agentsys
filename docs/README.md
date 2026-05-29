@@ -44,7 +44,7 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 
 | Document | Description |
 |----------|-------------|
-| [reference/AGENTS.md](./reference/AGENTS.md) | All 47 agents: purpose, model, tools, restrictions. <!-- AGENT_COUNT_TOTAL: 47 --> |
+| [reference/AGENTS.md](./reference/AGENTS.md) | All 49 agents: purpose, model, tools, restrictions. <!-- AGENT_COUNT_TOTAL: 49 --> |
 | [reference/SLOP-PATTERNS.md](./reference/SLOP-PATTERNS.md) | All detection patterns by language, severity, auto-fix. |
 
 ### Platform & Architecture
@@ -71,12 +71,10 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 | `/perf` | Performance investigation workflow |
 | `/enhance` | Analyze prompts, plugins, agents, docs, hooks, skills |
 | `/sync-docs` | Sync docs with code changes |
-| `/axiom` | Durable agent-native memory |
 | `/banthis` | Durable negative behavior memory |
 | `/learn` | Research topics online, create learning guides |
 | `/consult` | Cross-tool AI consultation |
 | `/debate` | Structured multi-round debate between AI tools |
-| `/web-ctl` | Browser automation and web interaction |
 | `/skillers` | Workflow pattern learning and automation suggestions |
 | `/skill-curator` | Create and improve reliable SKILL.md files |
 | `/system-prompt-curator` | Create and improve autonomous agent system prompts |
