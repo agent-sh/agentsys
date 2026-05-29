@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.0] - 2026-05-29
+
+### Removed
+- **BREAKING: Dropped the `axiom` and `web-ctl` plugins from the marketplace** (#365). Both repositories were retired; their marketplace entries, `plugins.txt` rows, `.kiro` mirrors (`web-auth`, `web-browse`, `web-session`), and all site/docs references were scrubbed. Installable plugin count is now 24 (was 26). Users who previously installed `axiom` or `web-ctl` from the marketplace must remove them; they will no longer resolve.
+
+### Added
+- **Unified `repo-intel` core library** synced from agent-core (#373). The vendored `lib/repo-intel/` now exposes a single surface that folds the former `repo-map` lifecycle and the embedder into one module: `init`/`update`/`status`/`load`/`loadRaw`/`exists`, typed `queries.*`, LLM-augmentation write-path (`applyDescriptors`/`applySummary`), and an opt-in `embed` submodule (orchestrator, preference, binary resolver) for semantic search and duplicate detection. `lib/repo-map` remains as a deprecated compatibility shim. `lib/index.js` now exports `repoIntel` alongside `repoMap`.
+
+### Fixed
+- `skill-patterns` `side_effect_without_disable` now accepts both the YAML boolean `true` and the quoted string `"true"` for `disable-model-invocation`, so a frontmatter value of `"true"` is no longer wrongly re-flagged.
+- Bounded 19 polynomial-ReDoS regexes and closed 2 prototype-pollution sinks across the synced `collectors`/`enhance` lib (match semantics preserved; verified by equivalence testing).
+- Removed the stale `aiRatio` query test - the analyzer dropped AI-authorship attribution and the query no longer exists (#372).
+
 ## [5.14.0] - 2026-05-21
 
 ### Added
