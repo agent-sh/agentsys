@@ -482,7 +482,6 @@
       "version": "5.0.0",
       "date": "2026-02-20",
       "highlights": [
-        "Human-in-the-loop auth handoff with CAPTCHA detection",
         "Multi-platform support: Claude Code, OpenCode, Codex CLI"
       ]
     }
