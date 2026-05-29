@@ -1,6 +1,5 @@
 ada-spark
 agnix
-axiom
 audit-project
 banthis
 can-i-help
@@ -22,5 +21,4 @@ skill-curator
 skillers
 sync-docs
 system-prompt-curator
-web-ctl
 zig-lsp

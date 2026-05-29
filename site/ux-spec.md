@@ -94,7 +94,7 @@ Scroll order with rationale for each section. All sections are full-width, alter
 - **Single column on mobile:** Text above, terminal below. Stack with 48px gap.
 
 ### Left Column Content
-1. **Badge** (top, above title): Small pill showing version or "26 plugins . 50 agents . 47 skills"
+1. **Badge** (top, above title): Small pill showing version or "24 plugins . 49 agents . 44 skills"
    - Background: `rgba(99, 102, 241, 0.12)`, border: `1px solid rgba(99, 102, 241, 0.25)`, border-radius: 9999px
    - Font: 13px, font-weight 500, primary accent color
    - Padding: 4px 14px
@@ -104,7 +104,7 @@ Scroll order with rationale for each section. All sections are full-width, alter
    - Color: white
    - "entire dev workflow" portion highlighted with a subtle gradient text (primary-to-secondary accent via `background-clip: text`)
 
-3. **Subtitle:** "26 plugins, 50 agents, 47 skills. From task selection to merged PR. Works with Claude Code, OpenCode, Codex CLI, Cursor, and Kiro."
+3. **Subtitle:** "24 plugins, 49 agents, 44 skills. From task selection to merged PR. Works with Claude Code, OpenCode, Codex CLI, Cursor, and Kiro."
    - Font: 18px on desktop, 16px on mobile, font-weight 400, line-height 1.6
    - Color: `rgba(255, 255, 255, 0.6)`
    - Max-width: 520px
@@ -265,7 +265,7 @@ Done. Task to merged PR in 12 minutes.
   - On mobile: naturally scrollable, slight gradient fade on right edge to indicate scrollability (20px gradient from transparent to section background)
 
 ### Tab Order
-`/next-task`, `/ship`, `/deslop`, `/perf`, `/drift-detect`, `/audit-project`, `/enhance`, `/repo-intel`, `/sync-docs`, `/axiom`, `/learn`, `/agnix`
+`/next-task`, `/ship`, `/deslop`, `/perf`, `/drift-detect`, `/audit-project`, `/enhance`, `/repo-intel`, `/sync-docs`, `/learn`, `/agnix`
 
 (Most impactful first: the full workflow command, then the shipper, then individual tools)
 
@@ -650,13 +650,13 @@ This disables:
 ### Head Content
 ```html
 <title>AgentSys - Agent Runtime &amp; Orchestration System</title>
-<meta name="description" content="A modular runtime and orchestration system for AI agents. 26 plugins, 50 agents, 47 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.">
+<meta name="description" content="A modular runtime and orchestration system for AI agents. 24 plugins, 49 agents, 44 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0a0a0f">
 
 <!-- Open Graph -->
 <meta property="og:title" content="AgentSys">
-<meta property="og:description" content="AI workflow automation. 26 plugins, 50 agents, 47 skills. Task to merged PR.">
+<meta property="og:description" content="AI workflow automation. 24 plugins, 49 agents, 44 skills. Task to merged PR.">
 <meta property="og:image" content="https://agent-sh.github.io/agentsys/assets/og-image.png">
 <meta property="og:url" content="https://agent-sh.github.io/agentsys/">
 <meta property="og:type" content="website">
@@ -664,7 +664,7 @@ This disables:
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="AgentSys">
-<meta name="twitter:description" content="AI workflow automation. 26 plugins, 50 agents, 47 skills.">
+<meta name="twitter:description" content="AI workflow automation. 24 plugins, 49 agents, 44 skills.">
 <meta name="twitter:image" content="https://agent-sh.github.io/agentsys/assets/og-image.png">
 ```
 
