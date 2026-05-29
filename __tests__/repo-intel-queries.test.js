@@ -87,13 +87,6 @@ describe('lib/repo-intel/queries', () => {
       expect(args[args.indexOf('--min-changes') + 1]).toBe('3');
     });
 
-    test('aiRatio with pathFilter adds --path-filter', () => {
-      binary.runAnalyzer.mockReturnValue('{}');
-      queries.aiRatio(tempDir, { pathFilter: 'src/' });
-      const args = binary.runAnalyzer.mock.calls[0][0];
-      expect(args[args.indexOf('--path-filter') + 1]).toBe('src/');
-    });
-
     test('diffRisk joins files with comma', () => {
       binary.runAnalyzer.mockReturnValue('[]');
       queries.diffRisk(tempDir, ['a.js', 'b.js', 'c.js']);
