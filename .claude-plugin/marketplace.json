@@ -325,6 +325,19 @@
       "version": "0.1.0",
       "category": "development",
       "homepage": "https://github.com/agent-sh/ada-spark"
+    },
+    {
+      "name": "orientation",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/agent-sh/orientation.git",
+        "ref": "v0.2.0",
+        "commit": "417d496320b8330013efc0c7fcb51792453376a6"
+      },
+      "description": "Reconstruct the real history of code (goal, shipped vs in-flight, coupled files) from Codex, Claude Code, and Eigen transcripts, surfaced via the get-oriented skill - so agents stop guessing the story of code they didn't write this session",
+      "version": "0.2.0",
+      "category": "productivity",
+      "homepage": "https://github.com/agent-sh/orientation"
     }
   ]
 }
