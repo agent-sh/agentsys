@@ -409,6 +409,18 @@ function installCodex() {
       });
 
       fs.writeFileSync(destPath, content);
+
+      // Ship plugin-level references/ and scripts/ with the plugin's primary
+      // skill (skillName === plugin) so skill-relative resource pointers in
+      // the SKILL.md resolve from the installed skill directory.
+      if (skillName === plugin) {
+        for (const resDir of ['references', 'scripts']) {
+          const srcResDir = path.join(SOURCE_DIR, 'plugins', plugin, resDir);
+          if (fs.existsSync(srcResDir)) {
+            fs.cpSync(srcResDir, path.join(skillDir, resDir), { recursive: true });
+          }
+        }
+      }
       log(`  [OK] ${skillName}`);
     }
   }

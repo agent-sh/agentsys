@@ -38,6 +38,17 @@ function normalizePath(p) {
   return p.replace(/\\/g, '/');
 }
 
+// Recursively list files under a directory
+function walkFiles(dir) {
+  const out = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const abs = path.join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...walkFiles(abs));
+    else if (entry.isFile()) out.push(abs);
+  }
+  return out;
+}
+
 function computeAdapters() {
   discovery.invalidateCache();
 
@@ -112,6 +123,22 @@ function computeAdapters() {
 
     const relPath = normalizePath(path.join('adapters', 'codex', 'skills', skillName, 'SKILL.md'));
     files.set(relPath, content);
+
+    // Ship plugin-level references/ and scripts/ with the plugin's primary
+    // codex skill (skillName === plugin) so skill-relative resource pointers
+    // in the SKILL.md resolve after install (install.sh copies these
+    // subdirectories into the target skill directory).
+    if (skillName === plugin) {
+      for (const resDir of ['references', 'scripts']) {
+        const srcResDir = path.join(ROOT_DIR, 'plugins', plugin, resDir);
+        if (!fs.existsSync(srcResDir)) continue;
+        for (const resFile of walkFiles(srcResDir)) {
+          const resRel = path.relative(srcResDir, resFile);
+          const resPath = normalizePath(path.join('adapters', 'codex', 'skills', skillName, resDir, resRel));
+          files.set(resPath, fs.readFileSync(resFile, 'utf8'));
+        }
+      }
+    }
   }
 
   if (emptyDescSkills.length > 0) {

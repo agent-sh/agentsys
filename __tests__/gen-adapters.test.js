@@ -340,6 +340,9 @@ describe('gen-adapters', () => {
     test('generated files start with frontmatter (no header before ---)', () => {
       const { files } = genAdapters.computeAdapters();
       for (const [filePath, content] of files) {
+        // Bundled skill resources (references/, scripts/) are copied verbatim
+        // and are not subject to the frontmatter rule
+        if (/\/(references|scripts)\//.test(filePath)) continue;
         if (content.includes('---\n')) {
           // Files with frontmatter must start with --- on line 1
           // (no auto-generated header before frontmatter)
@@ -382,7 +385,7 @@ describe('gen-adapters', () => {
 
     test('Codex skill files use placeholder path', () => {
       const { files } = genAdapters.computeAdapters();
-      const codexPaths = [...files.keys()].filter(p => p.startsWith('adapters/codex/skills/'));
+      const codexPaths = [...files.keys()].filter(p => p.startsWith('adapters/codex/skills/') && p.endsWith('SKILL.md'));
       for (const codexPath of codexPaths) {
         const content = files.get(codexPath);
         // Should NOT contain literal CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT variables
@@ -393,7 +396,7 @@ describe('gen-adapters', () => {
 
     test('Codex skill files do not contain raw AskUserQuestion', () => {
       const { files } = genAdapters.computeAdapters();
-      const codexPaths = [...files.keys()].filter(p => p.startsWith('adapters/codex/skills/'));
+      const codexPaths = [...files.keys()].filter(p => p.startsWith('adapters/codex/skills/') && p.endsWith('SKILL.md'));
       for (const codexPath of codexPaths) {
         const content = files.get(codexPath);
         expect(content).not.toContain('AskUserQuestion');
