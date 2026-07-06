@@ -1,6 +1,6 @@
 ---
 name: sync-docs
-description: "Use when user asks to \"update docs\", \"sync documentation\", \"fix outdated docs\", \"refresh README\". Compares documentation to actual code and fixes discrepancies."
+description: "Use when user asks to \"update docs\", \"sync documentation\", \"fix outdated docs\", \"refresh README\". Compares documentation to actual code and edits the docs to fix discrepancies. Not for read-only detection of plan-vs-reality gaps — use drift-detect for that."
 ---
 
 # /sync-docs - Documentation Sync

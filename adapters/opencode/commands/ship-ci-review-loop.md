@@ -14,7 +14,7 @@ agent: general
 
 This file contains detailed implementation for the CI & Review Monitor Loop phase of `/ship`.
 
-**Parent document**: `ship.md`
+**Parent**: `ship`
 
 ---
 
@@ -83,7 +83,12 @@ Do not ignore comments. Do not leave comments unresolved. A clean PR has zero un
 wait_for_ci() {
   echo "Waiting for CI checks..."
 
+  CI_ELAPSED=0
   while true; do
+    if [ "$CI_ELAPSED" -ge 1800 ]; then
+      echo "[ERROR] CI still pending after 1800s - stop and report; manual intervention required"
+      return 1
+    fi
     CHECKS=$(gh pr checks $PR_NUMBER --json name,state 2>/dev/null || echo "[]")
 
     PENDING=$(echo "$CHECKS" | jq '[.[] | select(.state | IN("PENDING", "QUEUED", "IN_PROGRESS"))] | length')
@@ -104,6 +109,7 @@ wait_for_ci() {
 
     echo "  Waiting... ($PENDING pending, $PASSED passed)"
     sleep 15
+    CI_ELAPSED=$((CI_ELAPSED + 15))
   done
 }
 ```

@@ -3,15 +3,19 @@ description: Structured performance investigation with baselines, profiling, and
 agent: general
 ---
 
+> **OpenCode Note**: Invoke agents using `@agent-name` syntax.
+> Available agents: task-discoverer, exploration-agent, planning-agent,
+> implementation-agent, deslop-agent, delivery-validator, sync-docs-agent, consult-agent
+> Example: `@exploration-agent analyze the codebase`
+
+
 # /perf - Performance Investigation Workflow
 
 Run a rigorous, evidence-driven performance investigation with strict rules, baselines, and reproducible benchmarks.
 
 ## Canonical Requirements
 
-All behavior must follow:
-- `docs/perf-requirements.md` (source of truth)
-- `docs/perf-research-methodology.md`
+Check whether `docs/perf-requirements.md` and `docs/perf-research-methodology.md` exist in the current repo (they exist in the agentsys repo). If present, read them and follow them as the source of truth. If absent, proceed with the phase workflow below as written.
 
 ## Arguments
 

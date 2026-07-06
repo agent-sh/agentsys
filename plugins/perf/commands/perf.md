@@ -11,9 +11,7 @@ Run a rigorous, evidence-driven performance investigation with strict rules, bas
 
 ## Canonical Requirements
 
-All behavior must follow:
-- `docs/perf-requirements.md` (source of truth)
-- `docs/perf-research-methodology.md`
+Check whether `docs/perf-requirements.md` and `docs/perf-research-methodology.md` exist in the current repo (they exist in the agentsys repo). If present, read them and follow them as the source of truth. If absent, proceed with the phase workflow below as written.
 
 ## Arguments
 

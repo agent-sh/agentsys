@@ -1,6 +1,6 @@
 ---
 description: Deep repository analysis to realign project plans with actual code reality
-codex-description: 'Use when user asks to "check plan drift", "compare docs to code", "verify roadmap", "scan for reality gaps". Analyzes documentation vs actual code to detect drift and outdated plans.'
+codex-description: 'Use when user asks to "check plan drift", "compare docs to code", "verify roadmap", "scan for reality gaps". Read-only analysis of documentation vs actual code to detect drift and outdated plans. Not for editing docs to match code — use sync-docs for that.'
 argument-hint: "[--sources github,docs,code] [--depth quick|thorough] [--output file|display|both] [--file PATH]"
 allowed-tools: Bash(git:*), Bash(gh:*), Read, Glob, Grep, Task, Write
 ---

@@ -7,7 +7,7 @@ agent: general
 
 This file contains platform-specific deployment and validation for `/ship`.
 
-**Parent document**: `ship.md`
+**Parent**: `ship`
 
 **Note**: Skip all phases if `WORKFLOW="single-branch"`.
 
@@ -22,7 +22,12 @@ if [ "$DEPLOYMENT" = "railway" ]; then
   SERVICE_NAME=$(railway service list --json | jq -r '.[0].name')
   DEPLOY_ID=$(railway deployment list --service $SERVICE_NAME --json | jq -r '.[0].id')
 
+  ELAPSED=0
   while true; do
+    if [ "$ELAPSED" -ge 600 ]; then
+      echo "[ERROR] Deployment not in a terminal state after 600s - manual investigation required"
+      exit 1
+    fi
     STATUS=$(railway deployment get $DEPLOY_ID --json | jq -r '.status')
 
     if [ "$STATUS" = "SUCCESS" ]; then
@@ -36,6 +41,7 @@ if [ "$DEPLOYMENT" = "railway" ]; then
     fi
 
     sleep 10
+    ELAPSED=$((ELAPSED + 10))
   done
 fi
 ```
@@ -48,7 +54,12 @@ if [ "$DEPLOYMENT" = "vercel" ]; then
 
   DEPLOY_URL=$(vercel ls --json | jq -r '.[0].url')
 
+  ELAPSED=0
   while true; do
+    if [ "$ELAPSED" -ge 600 ]; then
+      echo "[ERROR] Deployment not in a terminal state after 600s - manual investigation required"
+      exit 1
+    fi
     STATUS=$(vercel inspect $DEPLOY_URL --json | jq -r '.readyState')
 
     if [ "$STATUS" = "READY" ]; then
@@ -62,6 +73,7 @@ if [ "$DEPLOYMENT" = "vercel" ]; then
     fi
 
     sleep 10
+    ELAPSED=$((ELAPSED + 10))
   done
 fi
 ```
@@ -75,7 +87,12 @@ if [ "$DEPLOYMENT" = "netlify" ]; then
   SITE_ID=$(netlify status --json | jq -r '.site_id')
   DEPLOY_ID=$(netlify api listSiteDeploys --data "{ \"site_id\": \"$SITE_ID\" }" | jq -r '.[0].id')
 
+  ELAPSED=0
   while true; do
+    if [ "$ELAPSED" -ge 600 ]; then
+      echo "[ERROR] Deployment not in a terminal state after 600s - manual investigation required"
+      exit 1
+    fi
     STATUS=$(netlify api getDeploy --data "{ \"deploy_id\": \"$DEPLOY_ID\" }" | jq -r '.state')
 
     if [ "$STATUS" = "ready" ]; then
@@ -88,6 +105,7 @@ if [ "$DEPLOYMENT" = "netlify" ]; then
     fi
 
     sleep 10
+    ELAPSED=$((ELAPSED + 10))
   done
 fi
 ```

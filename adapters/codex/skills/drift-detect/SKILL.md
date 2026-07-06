@@ -1,6 +1,6 @@
 ---
 name: drift-detect
-description: "Use when user asks to \"check plan drift\", \"compare docs to code\", \"verify roadmap\", \"scan for reality gaps\". Analyzes documentation vs actual code to detect drift and outdated plans."
+description: "Use when user asks to \"check plan drift\", \"compare docs to code\", \"verify roadmap\", \"scan for reality gaps\". Read-only analysis of documentation vs actual code to detect drift and outdated plans. Not for editing docs to match code — use sync-docs for that."
 ---
 
 # /drift-detect - Reality Check Scanner

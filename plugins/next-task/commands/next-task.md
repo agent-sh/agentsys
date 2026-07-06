@@ -1,6 +1,6 @@
 ---
 description: Master workflow orchestrator with autonomous task-to-production automation
-codex-description: 'Use when user asks to "find next task", "what should I work on", "automate workflow", "implement and ship", "run next-task". Orchestrates complete task-to-production workflow: discovery, implementation, review, and delivery.'
+codex-description: 'Use when user asks to "find next task", "what should I work on", "automate workflow", "implement and ship", "run next-task". Orchestrates the full task-to-production workflow: discovery, implementation, review, delivery. Invokes ship and audit-style review as steps — for PR/merge/deploy alone use ship.'
 argument-hint: "[filter] [--status] [--resume] [--abort] [--implement]"
 allowed-tools: Bash(git:*), Bash(gh:*), Bash(npm:*), Bash(node:*), Read, Write, Edit, Glob, Grep, Task, AskUserQuestion
 ---
@@ -402,7 +402,10 @@ Focus: Missing tests, Edge case coverage, Test quality, Integration needs, Mock 
 Return findings as JSON array with: file, line, severity (critical/high/medium/low), description, suggestion` })
 ]);
 
-// Add conditional specialists based on signals (spawn in parallel with appropriate prompts)
+// Spawn each conditional specialist detected in Step 2 in the same Promise.all.
+// Each specialist prompt uses the identical structure as the core reviewers above:
+// "You are a <specialist>. Review these files: <files>. Focus: <signal-specific areas>.
+//  Return findings as JSON array with: file, line, severity (critical/high/medium/low), description, suggestion"
 ```
 
 ### Step 4: Aggregate Findings
@@ -544,4 +547,4 @@ try {
 - Fully autonomous after plan approval
 - Explicit ship:ship handoff for PR workflow
 
-Begin workflow now.
+Begin workflow now. Continue until the Phase 12 ship:ship handoff completes, a blocking gate fails, or the user's selected Stop Point is reached; do not stop early.

@@ -389,4 +389,4 @@ try {
 - Fully autonomous after plan approval
 - Explicit ship handoff for PR workflow
 
-Begin workflow now.
+Begin workflow now. Continue until the Phase 12 ship handoff completes, a blocking gate fails, or the user's selected Stop Point is reached; do not stop early.

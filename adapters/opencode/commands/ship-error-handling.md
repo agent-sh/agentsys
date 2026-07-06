@@ -12,7 +12,7 @@ agent: general
 
 This file contains error handling procedures for `/ship`.
 
-**Parent document**: `ship.md`
+**Parent**: `ship`
 
 ## GitHub CLI Not Available
 
@@ -234,14 +234,3 @@ git branch -D $CURRENT_BRANCH
 | 3 | Review timeout (manual intervention) |
 | 4 | Deployment failure |
 | 5 | Rollback triggered |
-
-## Logging for Debugging
-
-Enable verbose logging:
-
-```bash
-export SHIP_DEBUG=1
-/ship
-```
-
-This will output detailed information about each phase for troubleshooting.

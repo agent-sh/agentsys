@@ -46,12 +46,12 @@ Before proceeding to merge, output:
 | Phase | Description | Details |
 |-------|-------------|---------|
 | 1-3 | Pre-flight, Commit, Create PR | This file |
-| 4 | CI & Review Monitor Loop | See `ship-ci-review-loop.md` |
+| 4 | CI & Review Monitor Loop | See `ship-ci-review-loop` |
 | 5 | Subagent Review (standalone) | This file |
 | 6 | Merge PR | This file |
-| 7-10 | Deploy & Validate | See `ship-deployment.md` |
+| 7-10 | Deploy & Validate | See `ship-deployment` |
 | 11-12 | Cleanup & Report | This file |
-| Errors | Error handling & rollback | See `ship-error-handling.md` |
+| Errors | Error handling & rollback | See `ship-error-handling` |
 
 ## Integration with /next-task
 
@@ -193,7 +193,7 @@ Closes #X
 EOF
 )")
 
-PR_NUMBER=$(echo $PR_URL | grep -oP '/pull/\K\d+')
+PR_NUMBER=$(echo $PR_URL | sed -E 's|.*/pull/([0-9]+).*|\1|')  # portable; macOS /usr/bin/grep has no -P
 echo "[OK] Created PR #$PR_NUMBER: $PR_URL"
 ```
 
@@ -202,7 +202,7 @@ echo "[OK] Created PR #$PR_NUMBER: $PR_URL"
 
 **Blocking gate** - This phase is mandatory. Cannot proceed to merge without completing.
 
-See `ship-ci-review-loop.md` for full implementation details.
+See `ship-ci-review-loop` for full implementation details.
 
 ### Summary
 
@@ -254,7 +254,7 @@ while [ $iteration -lt $MAX_ITERATIONS ]; do
     break
   fi
 
-  # 5. Address all feedback (see ship-ci-review-loop.md)
+  # 5. Address all feedback (see ship-ci-review-loop)
   address_all_feedback $PR_NUMBER
 
   # 6. Commit and push fixes
@@ -367,7 +367,7 @@ echo "[OK] Merged PR #$PR_NUMBER at $MERGE_SHA"
 
 **Skip if `WORKFLOW="single-branch"`**
 
-See `ship-deployment.md` for platform-specific details:
+See `ship-deployment` for platform-specific details:
 - Phase 7: Deploy to Development (Railway, Vercel, Netlify)
 - Phase 8: Validate Development (health checks, smoke tests)
 - Phase 9: Deploy to Production (merge to prod branch)
@@ -474,7 +474,7 @@ This allows the `/next-task` workflow to detect that `/ship` completed successfu
 
 ## Error Handling
 
-See `ship-error-handling.md` for detailed error handling:
+See `ship-error-handling` for detailed error handling:
 - GitHub CLI not available
 - CI failures
 - Merge conflicts

@@ -1,6 +1,6 @@
 ---
 description: Use when user asks to "update docs", "sync documentation", "fix outdated docs", "update changelog", "docs are stale", or after completing code changes that might affect documentation.
-codex-description: 'Use when user asks to "update docs", "sync documentation", "fix outdated docs", "refresh README". Compares documentation to actual code and fixes discrepancies.'
+codex-description: 'Use when user asks to "update docs", "sync documentation", "fix outdated docs", "refresh README". Compares documentation to actual code and edits the docs to fix discrepancies. Not for read-only detection of plan-vs-reality gaps — use drift-detect for that.'
 argument-hint: "[report|apply] [--scope=recent|all|before-pr] [path]"
 ---
 
