@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- Removed the unused production `js-yaml` dependency, eliminating exposure to GHSA-52cp-r559-cp3m (quadratic CPU consumption through YAML merge-key chains).
+
+### Fixed
+
+- Restored Cursor and Kiro installation after a core sync removed adapter discovery and transformation functions still called by `agentsys --tool cursor` and `agentsys --tool kiro` (#380).
+- Scoped Jest worktree ignore patterns to the repository root so tests run when AgentSys itself is checked out under a `worktrees` directory.
+
+### Tests
+
+- Added isolated-home installer regression coverage for Cursor commands/skills and Kiro prompts/skills/agents.
+
 ## [6.0.0] - 2026-05-29
 
 ### Removed
