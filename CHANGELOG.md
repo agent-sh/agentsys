@@ -7,20 +7,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [6.0.1] - 2026-07-22
 
 ### Security
 
-- Removed the unused production `js-yaml` dependency, eliminating exposure to GHSA-52cp-r559-cp3m (quadratic CPU consumption through YAML merge-key chains).
+- Removed the unused production `js-yaml` dependency, eliminating exposure to GHSA-52cp-r559-cp3m (quadratic CPU consumption through YAML merge-key chains) (#381).
 
 ### Fixed
 
-- Restored Cursor and Kiro installation after a core sync removed adapter discovery and transformation functions still called by `agentsys --tool cursor` and `agentsys --tool kiro` (#380).
-- Scoped Jest worktree ignore patterns to the repository root so tests run when AgentSys itself is checked out under a `worktrees` directory.
+- Restored Cursor and Kiro installation after a core sync removed adapter discovery and transformation functions still called by `agentsys --tool cursor` and `agentsys --tool kiro` (#380, #381).
+- Scoped Jest worktree ignore patterns to the repository root so tests run when AgentSys itself is checked out under a `worktrees` directory (#381).
 
 ### Tests
 
-- Added isolated-home installer regression coverage for Cursor commands/skills and Kiro prompts/skills/agents.
+- Added isolated-home installer regression coverage for Cursor commands/skills and Kiro prompts/skills/agents (#381).
 
 ## [6.0.0] - 2026-05-29
 

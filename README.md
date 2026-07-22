@@ -43,6 +43,11 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 ---
 > Building custom skills, agents, hooks, or MCP tools? [agnix](https://github.com/agent-sh/agnix) is the CLI + LSP linter that catches config errors before they fail silently - real-time IDE validation, auto suggestions, auto-fix, and 423 rules for Claude Code, Codex, OpenCode, Cursor, Kiro, Copilot, Gemini CLI, Cline, Windsurf, Roo Code, Amp, and more.
 
+## What's New in 6.0.1
+
+- Restores Cursor and Kiro installation after a shared-core regression.
+- Removes the unused vulnerable `js-yaml` production dependency.
+
 ## What This Is
 
 An agent orchestration system - 24 plugins, 49 agents (39 file-based + 10 role-based specialists in audit-project), and 44 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
