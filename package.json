@@ -80,9 +80,6 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "dependencies": {
-    "js-yaml": "~4.2.0"
-  },
   "devDependencies": {
     "jest": "^29.7.0"
   },

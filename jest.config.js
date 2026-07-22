@@ -8,8 +8,8 @@ module.exports = {
   testPathIgnorePatterns: [
     '/node_modules/',
     '/plugins/.*/lib/',
-    '/.claude/worktrees/',
-    '/worktrees/',
+    '<rootDir>/.claude/worktrees/',
+    '<rootDir>/worktrees/',
     // lib/binary/index.test.js is a node:test suite (co-located with the
     // module in agent-core convention). Jest's discovery picks it up and
     // fails with "must contain at least one test" because it has no
@@ -17,8 +17,8 @@ module.exports = {
     '/lib/binary/.*\\.test\\.js$'
   ],
   modulePathIgnorePatterns: [
-    '/.claude/worktrees/',
-    '/worktrees/'
+    '<rootDir>/.claude/worktrees/',
+    '<rootDir>/worktrees/'
   ],
   collectCoverageFrom: [
     'bin/**/*.js',

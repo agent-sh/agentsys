@@ -10,6 +10,13 @@ const fs = require('fs');
 
 const ROOT_DIR = path.resolve(__dirname, '..');
 
+describe('agentsys package security', () => {
+  it('does not ship the unused js-yaml parser', () => {
+    const rootPkg = require(path.join(ROOT_DIR, 'package.json'));
+    expect(rootPkg.dependencies?.['js-yaml']).toBeUndefined();
+  });
+});
+
 describe('@agentsys/lib workspace', () => {
   let libPkg;
 
