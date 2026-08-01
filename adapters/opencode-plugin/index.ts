@@ -49,6 +49,26 @@ const AGENT_THINKING_CONFIG: Record<string, { budget: number; description: strin
   "skills-enhancer": { budget: 16000, description: "Skill prompt review" },
 }
 
+// MiniMax model capabilities do not use fixed thinking token budgets.
+function applyMiniMaxThinking(
+  modelID: string,
+  budget: number,
+  output: { options?: Record<string, unknown> }
+): void {
+  const normalizedModelID = (modelID || "").toLowerCase()
+
+  if (normalizedModelID === "minimax-m3") {
+    output.options = output.options || {}
+    output.options.thinking = {
+      type: budget > 0 ? "adaptive" : "disabled"
+    }
+    return
+  }
+
+  // MiniMax-M2.7 keeps its default always-on thinking behavior.
+  if (normalizedModelID === "minimax-m2.7") return
+}
+
 // Project script patterns for failure detection
 const PROJECT_SCRIPT_PATTERNS: RegExp[] = [
   /\bnpm\s+test\b/,
@@ -143,25 +163,28 @@ export const AgentSysPlugin: Plugin = async (ctx) => {
       // Check if this is one of our agents
       const config = AGENT_THINKING_CONFIG[agentName]
 
-      if (config && config.budget > 0) {
+      if (config) {
         // Detect provider and apply appropriate thinking config
         const providerID = input.model?.providerID || ""
+        const modelID = input.model?.id || ""
 
-        if (providerID.includes("anthropic") || providerID.includes("bedrock")) {
+        if (providerID.toLowerCase().includes("minimax")) {
+          applyMiniMaxThinking(modelID, config.budget, output)
+        } else if (config.budget > 0 && (providerID.includes("anthropic") || providerID.includes("bedrock"))) {
           // Anthropic-style thinking
           output.options = output.options || {}
           output.options.thinking = {
             type: "enabled",
             budgetTokens: config.budget
           }
-        } else if (providerID.includes("openai") || providerID.includes("azure")) {
+        } else if (config.budget > 0 && (providerID.includes("openai") || providerID.includes("azure"))) {
           // OpenAI-style reasoning
           output.options = output.options || {}
           const effort = config.budget >= 16000 ? "high" :
                         config.budget >= 12000 ? "medium" : "low"
           output.options.reasoningEffort = effort
           output.options.reasoningSummary = "auto"
-        } else if (providerID.includes("google")) {
+        } else if (config.budget > 0 && providerID.includes("google")) {
           // Google Gemini thinking
           output.options = output.options || {}
           output.options.thinkingConfig = {

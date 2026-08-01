@@ -513,6 +513,9 @@ OpenCode supports thinking/reasoning across **multiple providers** with differen
 | **Google Gemini** | `low`, `high`, `max` | `thinkingConfig: { includeThoughts: true, thinkingBudget: 16000 }` |
 | **Amazon Bedrock** | `high`, `max` | `reasoningConfig: { type: "enabled", budgetTokens: 16000 }` |
 | **Groq** | `none`, `low`, `medium`, `high` | `includeThoughts: true, thinkingLevel: "high"` |
+| **MiniMax** | `adaptive`, `disabled` (MiniMax-M3); always on (MiniMax-M2.7) | `thinking: { type: "adaptive" }` or `thinking: { type: "disabled" }`; no fixed token budget |
+
+The AgentSys hook selects `adaptive` for MiniMax-M3 agents with a positive thinking tier and `disabled` for zero-budget agents. It leaves MiniMax-M2.7 options unchanged because that model's thinking mode is always on.
 
 ### Configuring Extended Thinking
 
