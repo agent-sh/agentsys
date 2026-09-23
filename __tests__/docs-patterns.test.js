@@ -1096,4 +1096,33 @@ describe('docs-patterns', () => {
       });
     });
   });
+  describe('getExportsFromGit on a committed file', () => {
+    const { execFileSync } = require('child_process');
+    let repo;
+
+    beforeAll(() => {
+      repo = fs.mkdtempSync(path.join(os.tmpdir(), 'docs-patterns-git-'));
+      const git = (...args) => execFileSync('git', args, { cwd: repo, stdio: 'pipe' });
+      git('init', '-q');
+      fs.writeFileSync(path.join(repo, 'cjs.js'),
+        'function a() {}\nfunction b() {}\nmodule.exports = { a, b };\nmodule.exports = { c };\n');
+      fs.writeFileSync(path.join(repo, 'mixed.js'),
+        'export function d() {}\nexport { e, f as g };\nmodule.exports = { h };\n');
+      git('add', '.');
+      git('-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'fixture');
+    });
+
+    afterAll(() => {
+      fs.rmSync(repo, { recursive: true, force: true });
+    });
+
+    it('returns every module.exports block and terminates', () => {
+      // Before the g flag, exec() on this pattern returned the same match forever.
+      expect(getExportsFromGit('cjs.js', 'HEAD', { cwd: repo }).sort()).toEqual(['a', 'b', 'c']);
+    });
+
+    it('combines export declarations, export lists and module.exports', () => {
+      expect(getExportsFromGit('mixed.js', 'HEAD', { cwd: repo }).sort()).toEqual(['d', 'e', 'f', 'h']);
+    });
+  });
 });
