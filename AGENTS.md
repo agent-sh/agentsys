@@ -181,9 +181,8 @@ agentsys                # Run installer
 | Model | Resolves to | Agents | Use Case |
 |-------|-------------|--------|----------|
 | **opus** | Claude Opus 5.5 | exploration, planning, implementation, perf-orchestrator, debate-orchestrator, skillers-recommender | Complex reasoning, analysis |
-| **sonnet** | Claude Sonnet 5 | task-discoverer, delivery-validator (prepare-delivery), ci-fixer, deslop-agent, reporters, release-agent, skillers-compactor | Validation, structured checks |
+| **sonnet** | Claude Sonnet 5 | task-discoverer, delivery-validator (prepare-delivery), ci-fixer, deslop-agent, reporters, learn, release-agent, skillers-compactor | Validation, structured checks |
 | **haiku** | Claude Haiku 4.5 | worktree-manager, ci-monitor, simple-fixer | Mechanical execution |
-| **inherit** | Caller's model | learn-agent | Research synthesis that tracks the session model |
 
 See [README.md](./README.md#command-details) and [docs/reference/AGENTS.md](./docs/reference/AGENTS.md) for full agent list.
 </agents>

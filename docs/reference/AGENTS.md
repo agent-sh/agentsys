@@ -3,7 +3,7 @@
 Complete reference for all agents in AgentSys.
 
 <!-- GEN:START:agents-counts -->
-**TL;DR:** 49 agents across 24 plugins (16 have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5, Haiku 4.5) or inherits the caller's model. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 49 -->
+**TL;DR:** 49 agents across 24 plugins (16 have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5, Haiku 4.5). Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 49 -->
 <!-- GEN:END:agents-counts -->
 
 ---
@@ -31,7 +31,6 @@ AgentSys uses 49 specialized agents across 24 plugins (16 have agents; gate-and-
 | opus | Claude Opus 5.5 | Complex reasoning, quality-critical work | High |
 | sonnet | Claude Sonnet 5 | Validation, structured checks | Medium |
 | haiku | Claude Haiku 4.5 | Mechanical execution, no judgment | Low |
-| inherit | The caller's model | Agents whose quality should track the session model | Caller's |
 
 Family aliases resolve to the current model in that family, so agent files do not pin versions.
 
@@ -661,7 +660,7 @@ These are role-based agents invoked via Task tool with specialized prompts. They
 
 ### learn-agent
 
-**Model:** inherit
+**Model:** opus
 **Purpose:** Research any topic online and create comprehensive learning guides with RAG-optimized indexes.
 
 **What it does:**
