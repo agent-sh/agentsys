@@ -78,10 +78,10 @@
       "source": {
         "source": "url",
         "url": "https://github.com/agent-sh/deslop.git",
-        "commit": "00301b9ce81d12caa38063e4a65b535ba5b011b2"
+        "commit": "b0a2ab506e8ac31958527543e21b6c7ad3e3ecda"
       },
       "description": "3-phase AI slop detection: regex patterns (HIGH), multi-pass analyzers (MEDIUM), CLI tools (LOW)",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "category": "development",
       "homepage": "https://github.com/agent-sh/deslop"
     },
@@ -90,11 +90,11 @@
       "source": {
         "source": "url",
         "url": "https://github.com/agent-sh/audit-project.git",
-        "commit": "f703facec38765b6fd8cb5a2076c98bf14e5998e",
-        "ref": "v1.0.2"
+        "commit": "48721e2cff8e54627a75e995949000b44e909015",
+        "ref": "v1.1.0"
       },
       "description": "Multi-agent iterative code review until zero issues remain",
-      "version": "1.0.2",
+      "version": "1.1.0",
       "category": "development",
       "homepage": "https://github.com/agent-sh/audit-project"
     },
@@ -103,10 +103,10 @@
       "source": {
         "source": "url",
         "url": "https://github.com/agent-sh/drift-detect.git",
-        "commit": "576aca37402068aef175c8a6002584e19cb6ea74"
+        "commit": "55ee9b7af1cf75ab8af2aea952c7b39cab9e7d03"
       },
       "description": "Deep repository analysis to realign project plans with code reality - detects drift, gaps, and creates prioritized reconstruction plans",
-      "version": "1.0.0",
+      "version": "5.2.0",
       "category": "productivity",
       "homepage": "https://github.com/agent-sh/drift-detect"
     },
@@ -191,10 +191,10 @@
       "source": {
         "source": "url",
         "url": "https://github.com/agent-sh/learn.git",
-        "commit": "b3025d376a83841078f3ab5cf53b62c6960e46c3"
+        "commit": "27c53f83f0b8b0e0d0e0b1026157cbcad2c9257a"
       },
       "description": "Research topics online and create comprehensive learning guides with RAG-optimized indexes",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "category": "productivity",
       "homepage": "https://github.com/agent-sh/learn"
     },
