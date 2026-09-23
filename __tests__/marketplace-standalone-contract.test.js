@@ -25,9 +25,9 @@ const expectedStandalonePlugins = {
     category: 'development',
   },
   banthis: {
-    version: '0.3.1',
-    ref: 'v0.3.1',
-    commit: '197c8f8b2a074ba22791ee04407f60344f5eee7c',
+    version: '0.4.0',
+    ref: 'v0.4.0',
+    commit: 'c7a0cbd7c5eacb5ddb2312283f78e8aab7c2f23e',
     command: '/banthis',
     category: 'productivity',
   },

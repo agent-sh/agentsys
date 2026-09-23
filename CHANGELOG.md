@@ -7,6 +7,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- The `claude.yml` and `claude-code-review.yml` workflows run `claude-code-action` v1.0.232 with `claude_args: --model claude-opus-5-5`. The old `model:` input is not an input of the action at v1.0.70 or later, so the `claude-opus-4-5-20251101` pin never took effect.
+- Kiro consult and debate model tables name the current families: Claude `claude-haiku-4-5` / `claude-sonnet-5` / `claude-opus-5-5` (plus `claude-fable-5-1` for explicit `--model`), Codex `gpt-6-sol` for low and medium effort and `gpt-6-astra` for high and max. The README consult table matches.
+- Agent model tables in `AGENTS.md` and `docs/reference/AGENTS.md` show what each family alias resolves to.
+- `banthis` marketplace pin moves to `v0.4.0`: missing end-marker repair, no em dash in the written preamble, and explicit-only ban triggers.
+
 ## [6.0.2] - 2026-08-17
 
 ### Added
