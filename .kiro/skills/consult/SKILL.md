@@ -40,14 +40,14 @@ Command: env -u CLAUDECODE claude -p "QUESTION" --output-format json --model "MO
 Session resume: --resume "SESSION_ID"
 ```
 
-Models: claude-haiku-4-5, claude-sonnet-4-6, claude-opus-4-6
+Models: claude-haiku-4-5, claude-sonnet-5, claude-opus-5-5, claude-fable-5-1
 
 | Effort | Model | Max Turns |
 |--------|-------|-----------|
 | low | claude-haiku-4-5 | 1 |
-| medium | claude-sonnet-4-6 | 3 |
-| high | claude-opus-4-6 | 5 |
-| max | claude-opus-4-6 | 10 |
+| medium | claude-sonnet-5 | 3 |
+| high | claude-opus-5-5 | 5 |
+| max | claude-opus-5-5 | 10 |
 
 **Parse output**: `JSON.parse(stdout).result`
 **Session ID**: `JSON.parse(stdout).session_id`
@@ -88,14 +88,14 @@ Note: `codex exec` is the non-interactive/headless mode. There is no `-q` flag. 
 - inside trusted git repo: empty string
 - trusted non-repo execution: `--skip-git-repo-check`
 
-Models: gpt-5.3-codex
+Models: gpt-6-sol, gpt-6-astra
 
 | Effort | Model | Reasoning |
 |--------|-------|-----------|
-| low | gpt-5.3-codex | low |
-| medium | gpt-5.3-codex | medium |
-| high | gpt-5.3-codex | high |
-| max | gpt-5.3-codex | high |
+| low | gpt-6-sol | low |
+| medium | gpt-6-sol | medium |
+| high | gpt-6-astra | high |
+| max | gpt-6-astra | max |
 
 **Parse output**: `JSON.parse(stdout).message` or raw text
 **Session ID**: Codex prints a resume hint at session end (e.g., `codex resume SESSION_ID`). Extract the session ID from stdout or from `JSON.parse(stdout).session_id` if available.

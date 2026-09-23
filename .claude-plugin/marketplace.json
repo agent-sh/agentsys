@@ -203,11 +203,11 @@
       "source": {
         "source": "url",
         "url": "https://github.com/agent-sh/banthis.git",
-        "ref": "v0.3.1",
-        "commit": "197c8f8b2a074ba22791ee04407f60344f5eee7c"
+        "ref": "v0.4.0",
+        "commit": "c7a0cbd7c5eacb5ddb2312283f78e8aab7c2f23e"
       },
       "description": "Durable negative behavior memory: persist user-defined banned agent behaviors into CLAUDE.md or AGENTS.md",
-      "version": "0.3.1",
+      "version": "0.4.0",
       "category": "productivity",
       "homepage": "https://github.com/agent-sh/banthis"
     },

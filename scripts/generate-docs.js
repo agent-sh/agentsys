@@ -417,7 +417,7 @@ function generateAgentCounts(agents, plugins) {
     pluginsWithAgentsCount = fileBasedPluginsWithAgents + 1;
   }
 
-  return `**TL;DR:** ${totalAgents} agents across ${totalPlugins} plugins (${pluginsWithAgentsCount} have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: ${totalAgents} -->`;
+  return `**TL;DR:** ${totalAgents} agents across ${totalPlugins} plugins (${pluginsWithAgentsCount} have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5, Haiku 4.5) or inherits the caller's model. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: ${totalAgents} -->`;
 }
 
 // ---------------------------------------------------------------------------

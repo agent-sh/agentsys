@@ -3,7 +3,7 @@
 Complete reference for all agents in AgentSys.
 
 <!-- GEN:START:agents-counts -->
-**TL;DR:** 49 agents across 24 plugins (16 have agents). opus for reasoning, sonnet for patterns, haiku for execution. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 49 -->
+**TL;DR:** 49 agents across 24 plugins (16 have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5, Haiku 4.5) or inherits the caller's model. Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 49 -->
 <!-- GEN:END:agents-counts -->
 
 ---
@@ -26,11 +26,14 @@ Complete reference for all agents in AgentSys.
 
 AgentSys uses 49 specialized agents across 24 plugins (16 have agents; gate-and-ship is commands-only, banthis, skill-curator, system-prompt-curator, and agnix are skill/command-only, zig-lsp is a config-only LSP plugin with no commands or agents, and mojo and ada-spark are skill-only plugins). Each agent is optimized for a specific task and assigned a model based on complexity:
 
-| Model | Use Case | Cost |
-|-------|----------|------|
-| opus | Complex reasoning, quality-critical work | High |
-| sonnet | Moderate reasoning, pattern matching | Medium |
-| haiku | Mechanical execution, no judgment | Low |
+| Model | Resolves to | Use Case | Cost |
+|-------|-------------|----------|------|
+| opus | Claude Opus 5.5 | Complex reasoning, quality-critical work | High |
+| sonnet | Claude Sonnet 5 | Validation, structured checks | Medium |
+| haiku | Claude Haiku 4.5 | Mechanical execution, no judgment | Low |
+| inherit | The caller's model | Agents whose quality should track the session model | Caller's |
+
+Family aliases resolve to the current model in that family, so agent files do not pin versions.
 
 **Agent types:**
 - **File-based agents** (40) - Defined in `plugins/*/agents/*.md` with frontmatter <!-- AGENT_COUNT_FILE_BASED: 40 -->
@@ -658,7 +661,7 @@ These are role-based agents invoked via Task tool with specialized prompts. They
 
 ### learn-agent
 
-**Model:** opus
+**Model:** inherit
 **Purpose:** Research any topic online and create comprehensive learning guides with RAG-optimized indexes.
 
 **What it does:**

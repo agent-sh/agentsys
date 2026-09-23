@@ -814,9 +814,9 @@ agent-knowledge/
 
 | Tool | Default Model (high) | Reasoning Control |
 |------|---------------------|-------------------|
-| Claude | claude-opus-4-6 | max-turns |
+| Claude | claude-opus-5-5 | max-turns |
 | Gemini | gemini-3.1-pro-preview | built-in |
-| Codex | gpt-5.3-codex | model_reasoning_effort |
+| Codex | gpt-6-astra | model_reasoning_effort |
 | OpenCode | (user-selected or default) | --variant |
 | Copilot | (default) | none |
 

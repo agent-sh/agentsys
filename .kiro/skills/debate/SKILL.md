@@ -274,10 +274,10 @@ Platform state directory:
 
 | Effort | Claude | Gemini | Codex | OpenCode | Copilot |
 |--------|--------|--------|-------|----------|---------|
-| low | claude-haiku-4-5 (1 turn) | gemini-3-flash-preview | gpt-5.3-codex (low) | default (low) | no control |
-| medium | claude-sonnet-4-6 (3 turns) | gemini-3-flash-preview | gpt-5.3-codex (medium) | default (medium) | no control |
-| high | claude-opus-4-6 (5 turns) | gemini-3.1-pro-preview | gpt-5.3-codex (high) | default (high) | no control |
-| max | claude-opus-4-6 (10 turns) | gemini-3.1-pro-preview | gpt-5.3-codex (high) | default + --thinking | no control |
+| low | claude-haiku-4-5 (1 turn) | gemini-3-flash-preview | gpt-6-sol (low) | default (low) | no control |
+| medium | claude-sonnet-5 (3 turns) | gemini-3-flash-preview | gpt-6-sol (medium) | default (medium) | no control |
+| high | claude-opus-5-5 (5 turns) | gemini-3.1-pro-preview | gpt-6-astra (high) | default (high) | no control |
+| max | claude-opus-5-5 (10 turns) | gemini-3.1-pro-preview | gpt-6-astra (max) | default + --thinking | no control |
 
 ### Output Parsing
 
