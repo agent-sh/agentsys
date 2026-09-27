@@ -30,22 +30,20 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 // Platform-specific documentation files
 const PLATFORM_DOCS = {
   general: [
+    'AGENTS.md',
     'README.md',
     'docs/INSTALLATION.md',
     'docs/CROSS_PLATFORM.md',
     'docs/ARCHITECTURE.md'
   ],
   claudeCode: [
-    'AGENTS.md',
     '.claude/settings.json'
   ],
   openCode: [
-    'AGENTS.md',
     'adapters/opencode-plugin/README.md',
     'adapters/opencode/README.md'
   ],
   codex: [
-    'AGENTS.md',
     'adapters/codex/README.md'
   ]
 };

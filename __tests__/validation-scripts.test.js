@@ -224,6 +224,19 @@ describe('validate-cross-platform-docs', () => {
   });
 
   describe('validateStateDirReferences', () => {
+    test('canonical instructions are shared rather than platform-specific', () => {
+      const reader = jest.spyOn(fs, 'readFileSync').mockImplementation(file =>
+        path.basename(file) === 'AGENTS.md'
+          ? 'Use x.claude/state, x.opencode/state and x.codex/state. Run /next-task.'
+          : '');
+      try {
+        expect(validateStateDirReferences()).toEqual([]);
+        expect(validateFeatureParity().featuresByPlatform.general.has('/next-task')).toBe(true);
+      } finally {
+        reader.mockRestore();
+      }
+    });
+
     test('returns array', () => {
       const issues = validateStateDirReferences();
       expect(Array.isArray(issues)).toBe(true);
