@@ -1276,3 +1276,12 @@ The system is built on research, not guesswork.
 ---
 
 MIT License | Made by [Avi Fenesh](https://github.com/avifenesh)
+
+## Contributor instructions
+
+Repository instructions live in AGENTS.md. Claude Code v2.1.281 or later supports
+native loading across supported providers. If an ancestor instruction file masks
+AGENTS.md, select `claude-md-and-agents-md` in user-level Project instructions.
+The platform helpers retain support for analyzing older instruction layouts;
+they do not control the native CLI loader.
+See [Claude Code instruction loading](https://code.claude.com/docs/en/memory#agents-md).

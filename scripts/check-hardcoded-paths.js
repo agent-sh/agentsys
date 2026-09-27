@@ -3,7 +3,7 @@
  * Check for Hardcoded Platform Paths
  * Scans plugins for hardcoded .claude/, .opencode/, .codex/ paths
  *
- * CRITICAL: Per CLAUDE.md cross-platform requirement - all 3 platforms must work
+ * CRITICAL: Per AGENTS.md cross-platform requirement - all 3 platforms must work
  *
  * Usage: node scripts/check-hardcoded-paths.js
  * Exit code: 0 if clean, 1 if issues found
@@ -175,7 +175,7 @@ if (require.main === module) {
   });
 
   console.error(`
-CLAUDE.md Critical Rule:
+AGENTS.md Critical Rule:
 > 3 platforms: Claude Code + OpenCode + Codex - ALL must work
 
 Fix guide:

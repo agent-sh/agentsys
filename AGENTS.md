@@ -275,3 +275,29 @@ Cannot skip in /next-task:
 </end-reminder>
 
 </project-memory>
+
+## Worktree and tmp hygiene (owner, 2026-08-17)
+
+- When work in a git worktree is finished - merged, banked, or abandoned - clean it up
+  as part of finishing: `git worktree remove <path>` AND delete its branch
+  (`git branch -d`; `-D` only once the owner's merge/abandon decision is recorded).
+  A closed lane leaves no `wt-*` directory and no stale branch behind.
+- Every use of /tmp (or any scratch space) is cleaned by the task that created it:
+  delete scratch files and dirs when the task closes, not when disk pressure finds
+  them. Motivating incident 2026-08-17: 7 GB of dead lane dirs in /tmp plus an
+  unthrottled upload storm flooded 25 GB of swap and stalled the rig.
+
+## Maintainer conventions
+
+- Every feature or fix needs quality tests that cover the changed behavior.
+- In prose, use a single dash with spaces, not an em dash or a doubled dash.
+- Report script failures before manual fallback. Never silently bypass broken tooling.
+
+## Validation scope
+
+Choose checks that cover the changed behavior. For CPU-only tooling, documentation
+and configuration changes, run the relevant CPU tests, static checks and configuration
+validation. Do not require a blanket GPU gate for those changes. Require GPU
+qualification when GPU, runtime or model behavior, or related claims, change.
+Preserve applicable native, model and hardware qualification gates. CPU checks do
+not qualify GPU behavior.

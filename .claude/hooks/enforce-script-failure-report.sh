@@ -46,7 +46,7 @@ case "$COMMAND" in
 esac
 
 if [ "$IS_PROJECT_SCRIPT" = true ]; then
-  echo "[HOOK] Project script detected. If this command failed, you MUST report the failure with exact error output before attempting any manual workaround. Do NOT silently fall back to doing the work by hand. Fix the script, not the symptom. (CLAUDE.md Rule #13)"
+  echo "[HOOK] Project script detected. If this command failed, you MUST report the failure with exact error output before attempting any manual workaround. Do NOT silently fall back to doing the work by hand. Fix the script, not the symptom. (AGENTS.md: script failure reporting)"
 fi
 
 exit 0

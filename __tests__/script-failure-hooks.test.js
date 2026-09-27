@@ -5,7 +5,6 @@ const { execFileSync } = require('child_process');
 const ROOT = path.join(__dirname, '..');
 const HOOK_SCRIPT = path.join(ROOT, '.claude', 'hooks', 'enforce-script-failure-report.sh');
 const SETTINGS_PATH = path.join(ROOT, '.claude', 'settings.json');
-const CLAUDE_MD = path.join(ROOT, 'CLAUDE.md');
 const AGENTS_MD = path.join(ROOT, 'AGENTS.md');
 
 /**
@@ -119,7 +118,7 @@ describe('script failure enforcement hooks', () => {
       const input = JSON.stringify({ tool_input: { command: cmd } });
       const output = runHook(input);
       expect(output).toContain('[HOOK]');
-      expect(output).toContain('Rule #13');
+      expect(output).toContain('AGENTS.md: script failure reporting');
     });
   });
 
@@ -193,23 +192,7 @@ describe('script failure enforcement hooks', () => {
     });
   });
 
-  describe('CLAUDE.md rule #7', () => {
-    let claudeContent;
-
-    beforeAll(() => {
-      claudeContent = fs.readFileSync(CLAUDE_MD, 'utf8');
-    });
-
-    test('contains rule about script failure reporting', () => {
-      expect(claudeContent).toContain('Report script failures before manual fallback');
-    });
-
-    test('rule prohibits silent bypass of broken tooling', () => {
-      expect(claudeContent).toContain('Never silently bypass broken tooling');
-    });
-  });
-
-  describe('AGENTS.md matching rule', () => {
+  describe('AGENTS.md script failure rule', () => {
     let agentsContent;
 
     beforeAll(() => {

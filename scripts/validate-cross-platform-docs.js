@@ -10,7 +10,7 @@
  * 4. Feature parity across platforms
  * 5. No conflicting information between platform docs
  *
- * CRITICAL: Per CLAUDE.md rule - 3 platforms must work (Claude Code, OpenCode, Codex)
+ * CRITICAL: Per AGENTS.md rule - 3 platforms must work (Claude Code, OpenCode, Codex)
  *
  * Usage: node scripts/validate-cross-platform-docs.js [--json]
  * Exit code: 0 if valid, 1 if conflicts found
@@ -30,22 +30,20 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 // Platform-specific documentation files
 const PLATFORM_DOCS = {
   general: [
+    'AGENTS.md',
     'README.md',
     'docs/INSTALLATION.md',
     'docs/CROSS_PLATFORM.md',
     'docs/ARCHITECTURE.md'
   ],
   claudeCode: [
-    'CLAUDE.md',
     '.claude/settings.json'
   ],
   openCode: [
-    'AGENTS.md',
     'adapters/opencode-plugin/README.md',
     'adapters/opencode/README.md'
   ],
   codex: [
-    'AGENTS.md',
     'adapters/codex/README.md'
   ]
 };
@@ -536,7 +534,7 @@ if (require.main === module) {
 
   if (hasErrors) {
     console.error('[ERROR] Cross-platform validation failed\n');
-    console.error('CLAUDE.md Critical Rule: 3 platforms must work\n');
+    console.error('AGENTS.md Critical Rule: 3 platforms must work\n');
     process.exit(1);
   }
 

@@ -15,7 +15,7 @@ const prePushHook = `#!/bin/sh
 # 1. Run preflight checks (validators + gap checks)
 # 2. Warn if agents/skills/hooks/prompts modified (run /enhance)
 # 3. Block version tag pushes until release preflight passes
-# See: CLAUDE.md Critical Rule #7, checklists/release.md
+# See: AGENTS.md Critical Rule #7, checklists/release.md
 
 REPO_ROOT=\$(git rev-parse --show-toplevel)
 
@@ -47,7 +47,7 @@ prompts_modified=\$(echo "\$modified_files" | grep -E "prompts/.*\\.md\$" || tru
 
 if [ -n "\$agents_modified" ] || [ -n "\$skills_modified" ] || [ -n "\$hooks_modified" ] || [ -n "\$prompts_modified" ]; then
   echo ""
-  echo "CLAUDE.md Critical Rule #7 requires running /enhance"
+  echo "AGENTS.md Critical Rule #7 requires running /enhance"
   echo "on modified agents, skills, hooks, or prompts."
   echo ""
   echo "Modified files:"

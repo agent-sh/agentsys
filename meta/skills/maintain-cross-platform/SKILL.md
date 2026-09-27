@@ -463,7 +463,7 @@ Detects modified:
 - `prompts/*.md`
 
 Prompts: "Have you run /enhance on these files? (y/N)"
-Blocks if "N" (per CLAUDE.md Critical Rule #7).
+Blocks if "N" (per AGENTS.md Critical Rule #7).
 
 **Phase 3: Release Tag Validation**
 If pushing version tag (v*):
