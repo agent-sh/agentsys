@@ -41,7 +41,7 @@ disabled_rules = [
     "CC-HK-008",   # Hook script path resolution differs on Windows (forward slash prefix)
     "CC-MEM-005",  # "Be concise" is ecosystem-wide boilerplate
     "CC-MEM-006",  # Negative instructions (NEVER/Do not) are ecosystem standard critical rules
-    "CC-MEM-009",  # Intentional - CLAUDE.md uses structured sections, size is necessary
+    "CC-MEM-009",  # Intentional - AGENTS.md uses structured sections, size is necessary
     "CC-SK-009",   # enhance-skills contains example injections for teaching purposes
     "CC-SK-012",   # Intentional - argument-hint present for UI display
     "CC-SK-017",   # Intentional - version is a client-specific frontmatter field

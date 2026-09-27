@@ -8,9 +8,9 @@
  * 2. Agent count matches across all docs
  * 3. Skill count matches across all docs
  * 4. Version alignment (package.json, plugin.json files)
- * 5. CLAUDE.md and AGENTS.md alignment
+ * 5. Canonical AGENTS.md instructions
  *
- * CRITICAL: Per CLAUDE.md rule - accurate documentation is mandatory
+ * CRITICAL: Per AGENTS.md rule - accurate documentation is mandatory
  *
  * Usage: node scripts/validate-counts.js [--json]
  * Exit code: 0 if all aligned, 1 if mismatches found
@@ -31,7 +31,7 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 // Files to check for counts
 const DOC_FILES = [
   'README.md',
-  'CLAUDE.md',
+  'AGENTS.md',
   'docs/CROSS_PLATFORM.md',
   'docs/ARCHITECTURE.md',
   'docs/reference/AGENTS.md',
@@ -150,81 +150,23 @@ function checkVersionAlignment() {
   return { mainVersion, issues };
 }
 
-// Check CLAUDE.md and AGENTS.md alignment
-function checkProjectMemoryAlignment() {
-  const claudePath = path.join(REPO_ROOT, 'CLAUDE.md');
-  const agentsPath = path.join(REPO_ROOT, 'AGENTS.md');
-
-  if (!fs.existsSync(claudePath)) {
-    return { error: 'CLAUDE.md not found' };
-  }
-
-  if (!fs.existsSync(agentsPath)) {
-    return { warning: 'AGENTS.md not found (optional)' };
-  }
-
-  const claudeContent = fs.readFileSync(claudePath, 'utf8');
-  const agentsContent = fs.readFileSync(agentsPath, 'utf8');
-
-  // Extract critical rules section
-  const claudeRulesMatch = claudeContent.match(/<critical-rules>([\s\S]*?)<\/critical-rules>/);
-  const agentsRulesMatch = agentsContent.match(/<critical-rules>([\s\S]*?)<\/critical-rules>/);
-
-  if (!claudeRulesMatch || !agentsRulesMatch) {
-    return { warning: 'Could not find <critical-rules> tags in both files' };
-  }
-
-  const claudeRules = claudeRulesMatch[1].trim();
-  const agentsRules = agentsRulesMatch[1].trim();
-
-  // Check if critical rules are similar (allowing for minor formatting differences)
-  const similarity = calculateSimilarity(claudeRules, agentsRules);
-
-  return {
-    aligned: similarity > 0.90,
-    similarity: (similarity * 100).toFixed(1) + '%',
-    claudeLength: claudeRules.length,
-    agentsLength: agentsRules.length
-  };
-}
-
-// Simple similarity calculation (Levenshtein-based)
-function calculateSimilarity(str1, str2) {
-  const longer = str1.length > str2.length ? str1 : str2;
-  const shorter = str1.length > str2.length ? str2 : str1;
-
-  if (longer.length === 0) return 1.0;
-
-  const editDistance = levenshteinDistance(longer, shorter);
-  return (longer.length - editDistance) / longer.length;
-}
-
-function levenshteinDistance(str1, str2) {
-  const matrix = [];
-
-  for (let i = 0; i <= str2.length; i++) {
-    matrix[i] = [i];
-  }
-
-  for (let j = 0; j <= str1.length; j++) {
-    matrix[0][j] = j;
-  }
-
-  for (let i = 1; i <= str2.length; i++) {
-    for (let j = 1; j <= str1.length; j++) {
-      if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
-        matrix[i][j] = matrix[i - 1][j - 1];
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1,
-          matrix[i][j - 1] + 1,
-          matrix[i - 1][j] + 1
-        );
-      }
+// Validate the repository instruction source, including extracted repositories.
+function checkProjectInstructions(root = REPO_ROOT) {
+  const agentsPath = path.join(root, 'AGENTS.md');
+  try {
+    if (!fs.lstatSync(agentsPath).isFile() || !fs.readFileSync(agentsPath, 'utf8').trim()) {
+      return { valid: false, error: 'AGENTS.md must be a nonempty regular file' };
     }
+    try {
+      fs.lstatSync(path.join(root, 'CLAUDE.md'));
+      return { valid: false, error: 'Remove the root CLAUDE.md instruction mirror' };
+    } catch (err) {
+      if (err.code !== 'ENOENT') throw err;
+    }
+    return { valid: true, file: 'AGENTS.md' };
+  } catch (err) {
+    return { valid: false, error: `Cannot read AGENTS.md: ${err.message}` };
   }
-
-  return matrix[str2.length][str1.length];
 }
 
 // Format count mismatch for display
@@ -240,26 +182,30 @@ function formatCountMismatch(file, metric, expected, actual) {
  * @returns {Object} Validation result with status, issues, fixes
  */
 function runValidation() {
-  // When plugins/ doesn't exist, counts are not meaningful — return ok
+  const instructionPolicy = checkProjectInstructions();
+  const instructionIssues = instructionPolicy.valid ? [] : [{
+    type: 'instruction-policy', severity: 'high', file: 'AGENTS.md',
+    error: instructionPolicy.error, autoFix: false
+  }];
+  // Extracted repositories still validate instructions without plugin counts.
   if (!fs.existsSync(path.join(REPO_ROOT, 'plugins')) || fs.readdirSync(path.join(REPO_ROOT, 'plugins')).filter(f => fs.statSync(path.join(REPO_ROOT, 'plugins', f)).isDirectory()).length === 0) {
     return {
-      status: 'ok',
+      status: instructionPolicy.valid ? 'ok' : 'issues-found',
       message: 'plugins/ not present (extracted to standalone repos)',
       actualCounts: { plugins: 0, fileBasedAgents: 0, roleBasedAgents: 0, totalAgents: 0, skills: 0 },
       docCounts: {},
       versionCheck: { mainVersion: null, aligned: true },
-      memoryAlignment: { aligned: true, similarity: '100.0%' },
-      issues: [],
+      instructionPolicy,
+      issues: instructionIssues,
       fixes: [],
-      summary: { issueCount: 0, fixableCount: 0, bySeverity: { high: 0, medium: 0, low: 0 } }
+      summary: { issueCount: instructionIssues.length, fixableCount: 0, bySeverity: { high: instructionIssues.length, medium: 0, low: 0 } }
     };
   }
   const actualCounts = getActualCounts();
   const docCounts = extractCountsFromDocs();
   const versionCheck = checkVersionAlignment();
-  const memoryAlignment = checkProjectMemoryAlignment();
 
-  const issues = [];
+  const issues = [...instructionIssues];
   const fixes = [];
 
   // Check count alignment
@@ -340,17 +286,6 @@ function runValidation() {
     });
   });
 
-  // Check project memory alignment
-  if (memoryAlignment.aligned === false) {
-    issues.push({
-      type: 'memory-divergence',
-      severity: 'medium',
-      file: 'CLAUDE.md / AGENTS.md',
-      similarity: memoryAlignment.similarity,
-      autoFix: false
-    });
-  }
-
   return {
     status: issues.length === 0 ? 'ok' : 'issues-found',
     actualCounts,
@@ -359,10 +294,7 @@ function runValidation() {
       mainVersion: versionCheck.mainVersion,
       aligned: versionCheck.issues.length === 0
     },
-    memoryAlignment: {
-      aligned: memoryAlignment.aligned,
-      similarity: memoryAlignment.similarity
-    },
+    instructionPolicy,
     issues,
     fixes,
     summary: {
@@ -381,16 +313,6 @@ function runValidation() {
 if (require.main === module) {
   const args = process.argv.slice(2);
   const jsonMode = args.includes('--json');
-
-  // When plugins/ doesn't exist, counts are not meaningful — skip validation
-  if (!require('fs').existsSync(require('path').join(REPO_ROOT, 'plugins'))) {
-    if (jsonMode) {
-      console.log(JSON.stringify({ status: 'ok', message: 'plugins/ not present (extracted to standalone repos)', issues: [] }, null, 2));
-    } else {
-      console.log('[OK] plugins/ not present (extracted to standalone repos) — skipping count validation');
-    }
-    process.exit(0);
-  }
 
   const result = runValidation();
 
@@ -453,21 +375,16 @@ if (require.main === module) {
     console.log('[OK] All plugin versions aligned with main version\n');
   }
 
-  console.log('## Project Memory Alignment (CLAUDE.md vs AGENTS.md)\n');
-  if (result.memoryAlignment.aligned === undefined) {
-    console.log('  [SKIP] Could not check alignment');
-  } else if (result.memoryAlignment.aligned) {
-    console.log(`  Similarity: ${result.memoryAlignment.similarity}`);
-    console.log('\n[OK] CLAUDE.md and AGENTS.md are aligned\n');
+  console.log('## Project Instructions\n');
+  if (result.instructionPolicy.valid) {
+    console.log('[OK] AGENTS.md is the sole repository instruction source\n');
   } else {
-    console.log(`  Similarity: ${result.memoryAlignment.similarity}`);
-    console.warn('\n[WARN] CLAUDE.md and AGENTS.md divergence detected (similarity < 90%)\n');
-    console.warn('This may be intentional (platform-specific differences) or may need sync.\n');
+    console.error(`[ERROR] ${result.instructionPolicy.error}\n`);
   }
 
   if (result.status !== 'ok') {
     console.error('[ERROR] Validation failed - fix mismatches and run again\n');
-    console.error('CLAUDE.md Critical Rule #1: Production project - accurate docs required\n');
+    console.error('AGENTS.md Critical Rule #1: Production project - accurate docs required\n');
     process.exit(1);
   }
 
@@ -479,6 +396,6 @@ module.exports = {
   getActualCounts,
   extractCountsFromDocs,
   checkVersionAlignment,
-  checkProjectMemoryAlignment,
+  checkProjectInstructions,
   runValidation
 };

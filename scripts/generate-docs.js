@@ -298,7 +298,7 @@ function generateSkillsTable(skills) {
 }
 
 /**
- * Generate the architecture table for CLAUDE.md / AGENTS.md.
+ * Generate the architecture table for AGENTS.md.
  */
 function generateArchitectureTable(plugins, agents, skills) {
   const effectivePlugins = plugins.length > 0 ? plugins : Object.keys(STATIC_PLUGIN_AGENT_COUNTS);
@@ -507,7 +507,6 @@ function updateSiteContent(plugins, agents, skills) {
 // Section names mapped to the files they appear in
 const FILE_MAP = {
   'README.md': ['readme-commands', 'readme-skills'],
-  'CLAUDE.md': ['claude-architecture'],
   'AGENTS.md': ['claude-architecture'],
   'docs/reference/AGENTS.md': ['agents-nav', 'agents-counts']
 };

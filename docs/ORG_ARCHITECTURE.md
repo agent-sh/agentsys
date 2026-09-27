@@ -99,7 +99,7 @@
 **Post-extraction additions:**
 - [x] `zig-lsp` registered as 20th plugin (born standalone, not extracted; LSP plugin distributed via Claude Code marketplace mechanism)
 - [x] `banthis`, `skill-curator`, and `system-prompt-curator` registered as standalone plugins (born standalone; CLI/skill/command plugins distributed through the marketplace)
-- [ ] agent-core sync pipeline extended to `zig-lsp` (config-only plugin; sync surface is smaller — likely just CLAUDE.md/AGENTS.md mirror enforcement)
+- [ ] agent-core sync pipeline extended to `zig-lsp` (config-only plugin; sync surface is smaller — likely just AGENTS.md instruction maintenance)
 
 ---
 

@@ -8,7 +8,7 @@ const hasPlugins = fs.existsSync(pluginsDir);
 // validate-counts reads plugins/ dir directly. When plugins are extracted
 // to standalone repos, these functions throw ENOENT. Conditionally test.
 const countsModule = require('../scripts/validate-counts');
-const { runValidation: runCountsValidation, getActualCounts, extractCountsFromDocs, checkVersionAlignment, checkProjectMemoryAlignment } = countsModule;
+const { runValidation: runCountsValidation, getActualCounts, extractCountsFromDocs, checkVersionAlignment, checkProjectInstructions } = countsModule;
 
 describe('validate-counts', () => {
   describe('getActualCounts', () => {
@@ -83,7 +83,7 @@ describe('validate-counts', () => {
     test('returns object with all doc files', () => {
       const counts = extractCountsFromDocs();
       expect(counts['README.md']).toBeDefined();
-      expect(counts['CLAUDE.md']).toBeDefined();
+      expect(counts['AGENTS.md']).toBeDefined();
       expect(counts['package.json']).toBeDefined();
     });
 
@@ -125,16 +125,24 @@ describe('validate-counts', () => {
     });
   });
 
-  describe('checkProjectMemoryAlignment', () => {
-    test('returns alignment info', () => {
-      const result = checkProjectMemoryAlignment();
+  describe('checkProjectInstructions', () => {
+    test('returns instruction policy status', () => {
+      const result = checkProjectInstructions();
       expect(result).toBeDefined();
     });
 
-    test('similarity is percentage string when aligned defined', () => {
-      const result = checkProjectMemoryAlignment();
-      if (result.similarity !== undefined) {
-        expect(result.similarity).toMatch(/%$/);
+    test('requires one nonempty instruction file and rejects a mirror', () => {
+      const root = fs.mkdtempSync(path.join(require('os').tmpdir(), 'agents-policy-'));
+      try {
+        expect(checkProjectInstructions(root).valid).toBe(false);
+        fs.writeFileSync(path.join(root, 'AGENTS.md'), '');
+        expect(checkProjectInstructions(root).valid).toBe(false);
+        fs.writeFileSync(path.join(root, 'AGENTS.md'), '# Instructions');
+        expect(checkProjectInstructions(root).valid).toBe(true);
+        fs.writeFileSync(path.join(root, 'CLAUDE.md'), '# Mirror');
+        expect(checkProjectInstructions(root).valid).toBe(false);
+      } finally {
+        fs.rmSync(root, { recursive: true, force: true });
       }
     });
   });
