@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- Removed the orientation marketplace entry and install manifest item. Its lookups returned missing, stale, or ambiguous history in real repositories.
+
 ### Changed
 
 - The `claude.yml` and `claude-code-review.yml` workflows run `claude-code-action` v1.0.232 with `claude_args: --model claude-opus-5-5`. The old `model:` input is not an input of the action at v1.0.70 or later, so the `claude-opus-4-5-20251101` pin never took effect.

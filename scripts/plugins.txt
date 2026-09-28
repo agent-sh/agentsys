@@ -13,7 +13,6 @@ learn
 mojo
 next-task
 onboard
-orientation
 perf
 prepare-delivery
 repo-intel
