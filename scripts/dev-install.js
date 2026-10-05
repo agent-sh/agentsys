@@ -554,9 +554,10 @@ function installKiro() {
       const srcSkillDir = path.join(srcSkillsDir, entry.name);
       if (!fs.existsSync(path.join(srcSkillDir, 'SKILL.md'))) continue;
       const pluginInstallPath = path.join(AGENTSYS_DIR, 'plugins', plugin);
-      installSkillDir(srcSkillDir, path.join(skillsDir, entry.name), pluginInstallPath,
-        (content) => transforms.transformSkillForKiro(content, { pluginInstallPath }));
-      skillCount++;
+      if (installSkillDir(srcSkillDir, path.join(skillsDir, entry.name), pluginInstallPath,
+        (content) => transforms.transformSkillForKiro(content, { pluginInstallPath }))) {
+        skillCount++;
+      }
     }
   }
   log(`  [OK] ${skillCount} skills`);

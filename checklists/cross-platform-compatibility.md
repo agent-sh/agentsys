@@ -306,7 +306,7 @@ Plugin loaded via marketplace
 ~/.cursor/commands/                # Commands (light transform, no frontmatter)
 ```
 
-Every non-Claude platform loads a skill from its own skills directory, away from its plugin. The installers copy the whole skill directory, run each markdown file through the platform's skill transform, and point plugin-root wording ("two directories up from this skill") and links that leave the skill directory at `~/.agentsys/plugins/<plugin>/`. Codex, Cursor and Kiro also inline `${CLAUDE_PLUGIN_ROOT}` as that path; OpenCode keeps its `${PLUGIN_ROOT}` placeholder.
+Every non-Claude platform loads a skill from its own skills directory, away from its plugin. The installers copy the whole skill directory, run each markdown file through the platform's skill transform, and point plugin-root wording ("two directories up from this skill") and links that leave the skill directory at `~/.agentsys/plugins/<plugin>/`. Codex, Cursor and Kiro also inline `${CLAUDE_PLUGIN_ROOT}` as that path; OpenCode keeps its `${PLUGIN_ROOT}` placeholder. Each installed skill directory gets a `.agentsys-skill` marker, and installers replace or remove only marked directories, so a user's skill with the same name is skipped with a warning.
 
 ---
 

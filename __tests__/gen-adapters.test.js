@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const discovery = require('../lib/discovery');
 const transforms = require('../lib/adapter-transforms');
 const genAdapters = require('../scripts/gen-adapters');
@@ -204,6 +205,47 @@ describe('adapter-transforms', () => {
       const result = transforms.transformSkillBodyForOpenCode(input, REPO_ROOT);
       expect(result).toContain('${PLUGIN_ROOT}/skills');
       expect(result).toContain('.opencode/');
+    });
+
+    test('does not count the agentsys install path as an agent reference', () => {
+      const options = { pluginInstallPath: '/home/u/.agentsys/plugins/deslop' };
+      const skill = '---\nname: deslop\n---\nRun `scripts/detect.js` from the plugin root, two directories up from this skill.\n';
+      const plain = transforms.transformSkillBodyForOpenCode(skill, REPO_ROOT, options);
+      const withAgent = transforms.transformSkillBodyForOpenCode(`${skill}Then spawn the deslop agent.\n`, REPO_ROOT, options);
+
+      expect(plain).toContain('`/home/u/.agentsys/plugins/deslop`');
+      expect(plain).not.toContain('OpenCode Note');
+      expect(withAgent).toContain('OpenCode Note');
+    });
+  });
+
+  describe('versioned-cache globs', () => {
+    let root;
+
+    beforeEach(() => {
+      root = fs.mkdtempSync(path.join(os.tmpdir(), 'agentsys-globs-'));
+      for (const name of ['consult', 'deslop']) {
+        fs.mkdirSync(path.join(root, 'plugins', name, '.claude-plugin'), { recursive: true });
+        fs.writeFileSync(path.join(root, 'plugins', name, '.claude-plugin', 'plugin.json'), '{}');
+      }
+    });
+
+    afterEach(() => {
+      fs.rmSync(root, { recursive: true, force: true });
+    });
+
+    test('get any depth only for plugin names', () => {
+      const content = 'Glob `**/consult/*/acp/run.js`, `**/deslop/*/scripts/detect.js`, `**/src/*/index.ts` and `**/notaplugin/*/x.md`.';
+      const pluginInstallPath = path.join(root, 'plugins', 'deslop');
+      const kiro = transforms.transformSkillForKiro(content, { pluginInstallPath });
+      const opencode = transforms.transformBodyForOpenCode(content, root);
+
+      for (const result of [kiro, opencode]) {
+        expect(result).toContain('`**/consult/**/acp/run.js`');
+        expect(result).toContain('`**/deslop/**/scripts/detect.js`');
+        expect(result).toContain('`**/src/*/index.ts`');
+        expect(result).toContain('`**/notaplugin/*/x.md`');
+      }
     });
   });
 

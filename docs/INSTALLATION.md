@@ -365,6 +365,11 @@ gh auth login
 - Reads AGENTS.md and `.kiro/steering/*.md` for instructions
 - **Note**: Kiro's subagent spawning is experimental (max 4). Workflows with parallel Task() calls (e.g., next-task Phase 9 with 4-10 reviewers) automatically fall back to 2 sequential combined reviewers (`reviewer-quality-security`, `reviewer-perf-test`)
 
+### Skill directories on OpenCode, Codex, Cursor and Kiro
+- Each skill directory agentsys installs has a `.agentsys-skill` marker file. A reinstall replaces only marked directories, so a file you add inside one is removed.
+- A directory without the marker is never deleted or written to. If one has the name of a skill agentsys installs, the install skips that skill and prints a warning with the path.
+- Skill directories from agentsys versions before the marker have none, so the first install after upgrading skips them. Remove them and install again.
+
 ---
 
 ## Getting Help

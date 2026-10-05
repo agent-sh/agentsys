@@ -1597,9 +1597,10 @@ function installForOpenCode(installDir, options = {}) {
         const srcSkillDir = path.join(srcSkillsDir, skillName);
         if (fs.existsSync(path.join(srcSkillDir, 'SKILL.md'))) {
           const pluginInstallPath = path.join(installDir, 'plugins', pluginName);
-          installSkillDir(srcSkillDir, path.join(skillsDestDir, skillName), pluginInstallPath,
-            (content) => transforms.transformSkillBodyForOpenCode(content, installDir, { pluginInstallPath }));
-          skillCount++;
+          if (installSkillDir(srcSkillDir, path.join(skillsDestDir, skillName), pluginInstallPath,
+            (content) => transforms.transformSkillBodyForOpenCode(content, installDir, { pluginInstallPath }))) {
+            skillCount++;
+          }
         }
       }
     }
@@ -1641,11 +1642,11 @@ function installForCodex(installDir, options = {}) {
     }
   }
 
-  // Remove old/deprecated skills
+  // Remove old/deprecated skills (only agentsys copies, see claimSkillDir)
   const oldSkillDirs = ['deslop', 'review', 'drift-detect-set', 'pr-merge'];
   for (const dir of oldSkillDirs) {
     const oldPath = path.join(skillsDir, dir);
-    if (fs.existsSync(oldPath)) {
+    if (isAgentsysSkillDir(oldPath)) {
       fs.rmSync(oldPath, { recursive: true, force: true });
       console.log(`  Removed deprecated skill: ${dir}`);
     }
@@ -1668,15 +1669,11 @@ function installForCodex(installDir, options = {}) {
     const destPath = path.join(skillDir, 'SKILL.md');
 
     if (fs.existsSync(srcPath)) {
-      if (fs.existsSync(skillDir)) {
-        fs.rmSync(skillDir, { recursive: true, force: true });
-      }
-      // Create skill directory
-      fs.mkdirSync(skillDir, { recursive: true });
+      const pluginInstallPath = path.join(installDir, 'plugins', plugin);
+      if (!claimSkillDir(skillDir, pluginInstallPath)) continue;
 
       // Read source file and transform using shared transforms
       let content = fs.readFileSync(srcPath, 'utf8');
-      const pluginInstallPath = path.join(installDir, 'plugins', plugin);
       content = transforms.transformForCodex(content, {
         skillName,
         description,
@@ -1700,13 +1697,14 @@ function installForCodex(installDir, options = {}) {
       continue;
     }
     const pluginInstallPath = path.join(installDir, 'plugins', skill.plugin);
-    installSkillDir(
+    if (installSkillDir(
       path.join(installDir, 'plugins', skill.plugin, 'skills', skill.dir),
       path.join(skillsDir, skill.name),
       pluginInstallPath,
       (content) => transforms.transformSkillForCodex(content, { pluginInstallPath })
-    );
-    console.log(`  [OK] Installed skill: ${skill.name}`);
+    )) {
+      console.log(`  [OK] Installed skill: ${skill.name}`);
+    }
   }
 
   console.log('\n[OK] Codex CLI installation complete!');
@@ -1755,9 +1753,10 @@ function installForCursor(installDir, options = {}) {
     }
   }
 
-  // Cleanup old agentsys skill dirs (only known names, preserve user-created skills)
+  // Cleanup old agentsys skill dirs (only known names with the agentsys marker,
+  // preserve user-created skills)
   for (const entry of fs.readdirSync(skillsDir, { withFileTypes: true })) {
-    if (entry.isDirectory() && knownSkillNames.has(entry.name)) {
+    if (knownSkillNames.has(entry.name) && isAgentsysSkillDir(path.join(skillsDir, entry.name))) {
       fs.rmSync(path.join(skillsDir, entry.name), { recursive: true, force: true });
     }
   }
@@ -1774,9 +1773,10 @@ function installForCursor(installDir, options = {}) {
       const srcSkillDir = path.join(srcSkillsDir, entry.name);
       if (!fs.existsSync(path.join(srcSkillDir, 'SKILL.md'))) continue;
       const pluginInstallPath = path.join(installDir, 'plugins', pluginName);
-      installSkillDir(srcSkillDir, path.join(skillsDir, entry.name), pluginInstallPath,
-        (content) => transforms.transformSkillForCursor(content, { pluginInstallPath }));
-      skillCount++;
+      if (installSkillDir(srcSkillDir, path.join(skillsDir, entry.name), pluginInstallPath,
+        (content) => transforms.transformSkillForCursor(content, { pluginInstallPath }))) {
+        skillCount++;
+      }
     }
   }
 
@@ -1837,6 +1837,68 @@ function pointEscapingLinksAtPlugin(content, fileDir, skillDir, pluginInstallPat
   });
 }
 
+// Written into every skill directory agentsys installs. A reinstall replaces
+// only directories that carry it, so a user's own skill with the same name
+// is never deleted or merged into.
+const SKILL_MARKER = '.agentsys-skill';
+
+/**
+ * Whether `dir` is a skill directory agentsys installed: a real directory (not
+ * a symlink) with the marker file in it.
+ *
+ * @param {string} dir
+ * @returns {boolean}
+ */
+function isAgentsysSkillDir(dir) {
+  try {
+    return fs.lstatSync(dir).isDirectory() && fs.lstatSync(path.join(dir, SKILL_MARKER)).isFile();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Make `destSkillDir` an empty, marked directory for agentsys to fill.
+ *
+ * A directory from an earlier agentsys install (it has the marker) is removed
+ * first, so files the plugin dropped do not linger. Anything else at that path
+ * is left alone with a warning, and false is returned.
+ *
+ * @param {string} destSkillDir - <platform skills dir>/<name>
+ * @param {string} pluginInstallPath - Where the plugin is installed
+ * @returns {boolean} Whether the directory is ready to fill
+ */
+function claimSkillDir(destSkillDir, pluginInstallPath) {
+  let exists = true;
+  try {
+    fs.lstatSync(destSkillDir);
+  } catch {
+    exists = false;
+  }
+  if (exists) {
+    if (!isAgentsysSkillDir(destSkillDir)) {
+      console.log(`  [WARN] Skipped skill ${path.basename(destSkillDir)}: ${destSkillDir} exists without a ${SKILL_MARKER} marker, so agentsys leaves it alone. If an earlier agentsys version installed it, remove the directory and install again.`);
+      return false;
+    }
+    fs.rmSync(destSkillDir, { recursive: true, force: true });
+  }
+  fs.mkdirSync(destSkillDir, { recursive: true });
+  let plugin = { name: path.basename(pluginInstallPath), version: 'unknown' };
+  try {
+    const manifest = JSON.parse(fs.readFileSync(path.join(pluginInstallPath, '.claude-plugin', 'plugin.json'), 'utf8'));
+    plugin = { name: manifest.name || plugin.name, version: manifest.version || plugin.version };
+  } catch {
+    // No readable plugin.json: keep the directory name and 'unknown'.
+  }
+  fs.writeFileSync(path.join(destSkillDir, SKILL_MARKER), JSON.stringify({
+    installedBy: 'agentsys',
+    plugin: plugin.name,
+    version: plugin.version,
+    note: 'agentsys replaces this directory on reinstall. Delete this file to keep the directory as your own.'
+  }, null, 2) + '\n');
+  return true;
+}
+
 /**
  * Copy one plugin skill directory into a platform's skills directory.
  *
@@ -1844,16 +1906,18 @@ function pointEscapingLinksAtPlugin(content, fileDir, skillDir, pluginInstallPat
  * directory, away from its plugin, so the whole directory goes (references,
  * scripts, assets), every markdown file goes through the platform's skill
  * transform, and links that leave the skill directory are pointed at the
- * plugin's install path. The previous copy is removed first, so a file the
- * plugin dropped does not linger. Symlinks are skipped.
+ * plugin's install path. A previous agentsys copy is replaced, so a file the
+ * plugin dropped does not linger; any other directory with the skill's name
+ * is left alone (claimSkillDir). Symlinks are skipped.
  *
  * @param {string} srcSkillDir - <plugin>/skills/<name>
  * @param {string} destSkillDir - <platform skills dir>/<name>
  * @param {string} pluginInstallPath - Where the plugin is installed
  * @param {(content: string) => string} transformMarkdown - The platform's skill transform
+ * @returns {boolean} Whether the skill was installed
  */
 function installSkillDir(srcSkillDir, destSkillDir, pluginInstallPath, transformMarkdown) {
-  fs.rmSync(destSkillDir, { recursive: true, force: true });
+  if (!claimSkillDir(destSkillDir, pluginInstallPath)) return false;
   const copy = (srcDir, destDir) => {
     fs.mkdirSync(destDir, { recursive: true });
     for (const entry of fs.readdirSync(srcDir, { withFileTypes: true })) {
@@ -1871,6 +1935,7 @@ function installSkillDir(srcSkillDir, destSkillDir, pluginInstallPath, transform
     }
   };
   copy(srcSkillDir, destSkillDir);
+  return true;
 }
 
 function installForKiro(installDir, options = {}) {
@@ -1919,9 +1984,10 @@ function installForKiro(installDir, options = {}) {
     }
   }
 
-  // Cleanup old agentsys skill dirs (only known names, preserve user-created skills)
+  // Cleanup old agentsys skill dirs (only known names with the agentsys marker,
+  // preserve user-created skills)
   for (const entry of fs.readdirSync(skillsDir, { withFileTypes: true })) {
-    if (entry.isDirectory() && knownSkillNames.has(entry.name)) {
+    if (knownSkillNames.has(entry.name) && isAgentsysSkillDir(path.join(skillsDir, entry.name))) {
       fs.rmSync(path.join(skillsDir, entry.name), { recursive: true, force: true });
     }
   }
@@ -1953,9 +2019,10 @@ function installForKiro(installDir, options = {}) {
       const srcSkillDir = path.join(srcSkillsDir, entry.name);
       if (!fs.existsSync(path.join(srcSkillDir, 'SKILL.md'))) continue;
       const pluginInstallPath = path.join(installDir, 'plugins', pluginName);
-      installSkillDir(srcSkillDir, path.join(skillsDir, entry.name), pluginInstallPath,
-        (content) => transforms.transformSkillForKiro(content, { pluginInstallPath }));
-      skillCount++;
+      if (installSkillDir(srcSkillDir, path.join(skillsDir, entry.name), pluginInstallPath,
+        (content) => transforms.transformSkillForKiro(content, { pluginInstallPath }))) {
+        skillCount++;
+      }
     }
   }
 

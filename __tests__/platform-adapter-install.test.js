@@ -44,6 +44,12 @@ describe('platform adapter installers', () => {
       path.join(pluginDir, 'agents', 'test-agent.md'),
       '---\nname: test-agent\ndescription: Test agent\ntools: Read, Write\n---\nReview the repository.\n'
     );
+    // A sibling plugin: versioned-cache globs are rewritten only for plugin names.
+    fs.mkdirSync(path.join(installDir, 'plugins', 'consult', '.claude-plugin'), { recursive: true });
+    fs.writeFileSync(
+      path.join(installDir, 'plugins', 'consult', '.claude-plugin', 'plugin.json'),
+      JSON.stringify({ name: 'consult', version: '2.0.0' })
+    );
 
     discovery.invalidateCache();
   });
@@ -156,15 +162,16 @@ describe('platform adapter installers', () => {
         path.join(skillDir, 'references', 'guide.md'),
         '`<plugin>` is the plugin root, two directories up from the skill. Run ${CLAUDE_PLUGIN_ROOT}/scripts/run.js.\n' +
         'Back: [skill](../SKILL.md), [shared](../../../references/shared.md).\n' +
-        'Runner: Glob `**/consult/*/acp/run.js`.\n'
+        'Runner: Glob `**/consult/*/acp/run.js`. Sources: Glob `**/src/*/index.ts`.\n'
       );
       const binary = Buffer.from([0x23, 0x21, 0x00, 0xff]);
       fs.writeFileSync(path.join(skillDir, 'scripts', 'helper.bin'), binary);
       fs.writeFileSync(path.join(pluginDir, 'references', 'shared.md'), '# Shared\n');
 
-      // A file from an earlier install must not survive a reinstall.
+      // A file from an earlier agentsys install must not survive a reinstall.
       const destSkill = path.join(tempDir, ...skillsDir, 'test-skill');
       fs.mkdirSync(destSkill, { recursive: true });
+      fs.writeFileSync(path.join(destSkill, '.agentsys-skill'), '{}\n');
       fs.writeFileSync(path.join(destSkill, 'stale.md'), 'old');
 
       install(installDir);
@@ -185,10 +192,83 @@ describe('platform adapter installers', () => {
       expect(guide).toContain('[skill](../SKILL.md)');
       expect(guide).toContain(`[shared](${installPath}/references/shared.md)`);
       expect(guide).toContain('`**/consult/**/acp/run.js`');
+      // Only plugin names get the any-depth glob.
+      expect(guide).toContain('`**/src/*/index.ts`');
+      // The install path (it contains "agentsys") is not an agent reference,
+      // so OpenCode adds no agent note to a skill that mentions no agent.
+      expect(skill).not.toContain('OpenCode Note');
       expect(fs.readFileSync(path.join(destSkill, 'scripts', 'helper.bin'))).toEqual(binary);
       expect(fs.existsSync(path.join(destSkill, 'stale.md'))).toBe(false);
     }
   );
+
+  test.each(skillPlatforms)(
+    'leaves an unmarked %s skill directory untouched',
+    (_platform, install, skillsDir) => {
+      const destSkill = path.join(tempDir, ...skillsDir, 'test-skill');
+      fs.mkdirSync(destSkill, { recursive: true });
+      fs.writeFileSync(path.join(destSkill, 'SKILL.md'), 'My own skill.\n');
+      fs.writeFileSync(path.join(destSkill, 'my-notes.md'), 'Notes.\n');
+
+      install(installDir);
+      install(installDir);
+
+      expect(fs.readdirSync(destSkill).sort()).toEqual(['SKILL.md', 'my-notes.md']);
+      expect(fs.readFileSync(path.join(destSkill, 'SKILL.md'), 'utf8')).toBe('My own skill.\n');
+      expect(fs.readFileSync(path.join(destSkill, 'my-notes.md'), 'utf8')).toBe('Notes.\n');
+      const output = logSpy.mock.calls.map((args) => args.join(' ')).join('\n');
+      expect(output).toContain(`[WARN] Skipped skill test-skill: ${destSkill} exists without a .agentsys-skill marker`);
+    }
+  );
+
+  test.each(skillPlatforms)(
+    'replaces the %s skill directory from an earlier agentsys install',
+    (_platform, install, skillsDir) => {
+      const srcSkill = path.join(installDir, 'plugins', 'test-plugin', 'skills', 'test-skill');
+      fs.mkdirSync(path.join(srcSkill, 'references'), { recursive: true });
+      fs.writeFileSync(path.join(srcSkill, 'references', 'old.md'), 'Dropped in the next version.\n');
+
+      install(installDir);
+
+      const destSkill = path.join(tempDir, ...skillsDir, 'test-skill');
+      const marker = JSON.parse(fs.readFileSync(path.join(destSkill, '.agentsys-skill'), 'utf8'));
+      expect(marker).toMatchObject({ installedBy: 'agentsys', plugin: 'test-plugin', version: '1.0.0' });
+      expect(fs.existsSync(path.join(destSkill, 'references', 'old.md'))).toBe(true);
+
+      fs.rmSync(path.join(srcSkill, 'references'), { recursive: true });
+      fs.writeFileSync(
+        path.join(srcSkill, 'SKILL.md'),
+        '---\nname: test-skill\ndescription: Test skill\n---\nSecond version.\n'
+      );
+      fs.writeFileSync(path.join(destSkill, 'my-notes.md'), 'Added inside an agentsys skill.\n');
+
+      install(installDir);
+
+      expect(fs.readdirSync(destSkill).sort()).toEqual(['.agentsys-skill', 'SKILL.md']);
+      expect(fs.readFileSync(path.join(destSkill, 'SKILL.md'), 'utf8')).toContain('Second version.');
+    }
+  );
+
+  test('leaves Codex command and deprecated skill directories that agentsys did not install untouched', () => {
+    const skillsDir = path.join(tempDir, '.codex', 'skills');
+    for (const name of ['test-command', 'review']) {
+      fs.mkdirSync(path.join(skillsDir, name), { recursive: true });
+      fs.writeFileSync(path.join(skillsDir, name, 'SKILL.md'), `My own ${name}.\n`);
+    }
+
+    installForCodex(installDir);
+
+    for (const name of ['test-command', 'review']) {
+      expect(fs.readdirSync(path.join(skillsDir, name))).toEqual(['SKILL.md']);
+      expect(fs.readFileSync(path.join(skillsDir, name, 'SKILL.md'), 'utf8')).toBe(`My own ${name}.\n`);
+    }
+    // A marked command skill is replaced.
+    fs.rmSync(path.join(skillsDir, 'test-command'), { recursive: true });
+    installForCodex(installDir);
+    fs.writeFileSync(path.join(skillsDir, 'test-command', 'stale.md'), 'old');
+    installForCodex(installDir);
+    expect(fs.readdirSync(path.join(skillsDir, 'test-command')).sort()).toEqual(['.agentsys-skill', 'SKILL.md']);
+  });
 
   test('keeps Codex command skills over plugin skills of the same name', () => {
     const pluginDir = path.join(installDir, 'plugins', 'test-plugin');
@@ -265,7 +345,8 @@ describe('platform adapter installers', () => {
     fs.writeFileSync(
       path.join(pluginDir, 'commands', 'test-command.md'),
       '---\ndescription: Test command\n---\n' +
-      'Find the runner with `ls ${CLAUDE_PLUGIN_ROOT}/../../consult/*/acp/run.js` (or Glob `**/consult/*/acp/run.js`).\n'
+      'Find the runner with `ls ${CLAUDE_PLUGIN_ROOT}/../../consult/*/acp/run.js` (or Glob `**/consult/*/acp/run.js`).\n' +
+      'Entry points: Glob `**/src/*/index.ts`.\n'
     );
     fs.writeFileSync(path.join(pluginDir, 'agents', 'test-agent.md'), [
       '---',
@@ -287,7 +368,7 @@ describe('platform adapter installers', () => {
     for (const command of [codex, cursor]) {
       expect(command).toContain(`\`ls ${pluginsDir}/consult/acp/run.js\``);
       expect(command).toContain('`**/consult/**/acp/run.js`');
-      expect(command).not.toContain('/*/');
+      expect(command).toContain('`**/src/*/index.ts`');
     }
 
     // OpenCode keeps a ${PLUGIN_ROOT} placeholder, so only the globs change.
@@ -295,6 +376,7 @@ describe('platform adapter installers', () => {
     const command = fs.readFileSync(path.join(opencodeDir, 'commands', 'test-command.md'), 'utf8');
     const agent = fs.readFileSync(path.join(opencodeDir, 'agents', 'test-agent.md'), 'utf8');
     expect(command).toContain('`**/consult/**/acp/run.js`');
+    expect(command).toContain('`**/src/*/index.ts`');
     expect(agent).toContain('`**/test-plugin/**/skills/test-skill/SKILL.md`');
   });
 });
