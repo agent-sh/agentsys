@@ -15,7 +15,8 @@ describe('platform adapter installers', () => {
 
   beforeEach(() => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agentsys-platform-install-'));
-    installDir = path.join(tempDir, 'install');
+    // Where agentsys installs: `<home>/.agentsys`.
+    installDir = path.join(tempDir, '.agentsys');
     originalHome = process.env.HOME;
     originalXdgConfigHome = process.env.XDG_CONFIG_HOME;
     process.env.HOME = tempDir;
@@ -203,6 +204,24 @@ describe('platform adapter installers', () => {
   );
 
   const logOutput = () => logSpy.mock.calls.map((args) => args.join(' ')).join('\n');
+
+  test('adds no OpenCode agent note for an install under a home with "agent" in it', () => {
+    const home = path.join(tempDir, 'agent');
+    const agentInstallDir = path.join(home, '.agentsys');
+    fs.cpSync(installDir, agentInstallDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(agentInstallDir, 'plugins', 'test-plugin', 'skills', 'test-skill', 'SKILL.md'),
+      '---\nname: test-skill\ndescription: Test skill\n---\n`scripts/run.js` is at the plugin root, two directories up from this skill.\n'
+    );
+    process.env.HOME = home;
+    discovery.invalidateCache();
+
+    installForOpenCode(agentInstallDir);
+
+    const skill = fs.readFileSync(path.join(home, '.config', 'opencode', 'skills', 'test-skill', 'SKILL.md'), 'utf8');
+    expect(skill).toContain(`\`${path.join(agentInstallDir, 'plugins', 'test-plugin')}\``);
+    expect(skill).not.toContain('OpenCode Note');
+  });
 
   test.each(skillPlatforms)(
     'leaves an unmarked %s skill directory with a file the skill does not ship untouched',

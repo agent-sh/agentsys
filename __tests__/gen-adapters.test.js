@@ -217,6 +217,21 @@ describe('adapter-transforms', () => {
       expect(plain).not.toContain('OpenCode Note');
       expect(withAgent).toContain('OpenCode Note');
     });
+
+    test.each([
+      ['/home/agent/.agentsys/plugins/deslop'],
+      ['/tmp/tmp-agent/x/.agentsys/plugins/deslop'],
+      ['C:\\Users\\agent\\.agentsys\\plugins\\deslop']
+    ])('does not count an install path under a home with "agent" in it (%s)', (pluginInstallPath) => {
+      const skill = '---\nname: deslop\n---\nRun `scripts/detect.js` from the plugin root, two directories up from this skill.\n';
+      const options = { pluginInstallPath };
+      const plain = transforms.transformSkillBodyForOpenCode(skill, REPO_ROOT, options);
+      const withAgent = transforms.transformSkillBodyForOpenCode(`${skill}Then spawn the deslop agent.\n`, REPO_ROOT, options);
+
+      expect(plain).toContain(`\`${pluginInstallPath}\``);
+      expect(plain).not.toContain('OpenCode Note');
+      expect(withAgent).toContain('OpenCode Note');
+    });
   });
 
   describe('versioned-cache globs', () => {
