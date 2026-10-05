@@ -56,10 +56,12 @@ When user runs `agentsys` and selects OpenCode:
 ├── prepare-delivery:delivery-validator.md
 └── ...
 
-~/.config/opencode/skills/           # 24 skills (global)
-├── task-discovery/SKILL.md
+~/.config/opencode/skills/           # plugin skills (global), whole directories
+├── discover-tasks/SKILL.md
 ├── orchestrate-review/SKILL.md
-├── deslop/SKILL.md
+├── deslop/
+│   ├── SKILL.md
+│   └── references/
 └── ...
 
 ~/.config/opencode/plugins/          # Native plugin (global)

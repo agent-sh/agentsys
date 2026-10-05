@@ -272,6 +272,8 @@ agentsys --tool codex
 
 This installs skills to `~/.codex/skills/` (`$next-task`, `$prepare-delivery`, `$gate-and-ship`, `$ship`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$sync-docs`, `$perf`, `$banthis`, `$learn`, `$agnix`, `$consult`, `$debate`, `$skillers`, `$skill-curator`, `$system-prompt-curator`, `$onboard`, `$can-i-help`).
 
+Plugin skills are installed next to them, each skill directory copied whole (`references/`, `scripts/`), with paths that pointed at the plugin root pointing at `~/.agentsys/plugins/<plugin>/`. A plugin skill named like a command (`deslop`, `consult`, ...) is not installed there: `$<name>` stays the command.
+
 ### Option 2: Custom Skills
 
 Create Codex skills in `~/.codex/skills/<name>/SKILL.md`:
@@ -340,8 +342,8 @@ The plugin auto-detects the platform and uses the appropriate directory. Overrid
 - Works with any model provider (Claude, OpenAI, Google, local)
 - State directory: `.opencode/`
 - Slash commands in `~/.config/opencode/commands/`
-- Agents in `~/.config/opencode/agents/` (39 agents)
-- Skills in `~/.config/opencode/skills/` (44 skills)
+- Agents in `~/.config/opencode/agents/` (37 agents at the pinned plugin commits)
+- Skills in `~/.config/opencode/skills/<name>/` (38 skills at the pinned plugin commits, each skill directory copied whole)
 - Native plugin in `~/.config/opencode/plugins/agentsys.ts`
 - **Native plugin features:**
   - Auto-thinking selection (adjusts budget per agent)
@@ -352,20 +354,20 @@ The plugin auto-detects the platform and uses the appropriate directory. Overrid
 ### Codex CLI
 - OpenAI-native with GPT-5-Codex
 - State directory: `.codex/`
-- Skills in `~/.codex/skills/` (invoked with `$` prefix, e.g., `$next-task`)
+- Skills in `~/.codex/skills/` (invoked with `$` prefix, e.g., `$next-task`): one per command, plus each plugin skill directory copied whole unless a command has its name
 
 ### Cursor
-- Project-scoped installation
+- Global installation in `~/.cursor/`
 - State directory: `.cursor/`
-- Skills in `.cursor/skills/`, commands in `.cursor/commands/`
+- Skills in `~/.cursor/skills/<name>/` (the whole skill directory), commands in `~/.cursor/commands/`
 
 ### Kiro
-- Project-scoped installation
+- Global installation in `~/.kiro/`
 - State directory: `.kiro/`
-- Steering files in `.kiro/steering/` (commands with `inclusion: manual`)
-- Skills in `.kiro/skills/`, agents converted to JSON in `.kiro/agents/`
+- Prompts in `~/.kiro/prompts/` (commands with `inclusion: manual`, invoked with `@name`)
+- Skills in `~/.kiro/skills/<name>/` (the whole skill directory), agents converted to JSON in `~/.kiro/agents/`
 - Reads AGENTS.md and `.kiro/steering/*.md` for instructions
-- **Subagent spawning**: Experimental (max 4 agents). Primary agent invokes subagents by name from `.kiro/agents/*.json`. Sequential only - no parallel spawning publicly available yet.
+- **Subagent spawning**: Experimental (max 4 agents). Primary agent invokes subagents by name from `~/.kiro/agents/*.json`. Sequential only - no parallel spawning publicly available yet.
 - **Parallel Task() adaptation**: Workflows that spawn 4+ parallel reviewers (next-task Phase 9, audit-project Phase 2) are adapted with a try-4-then-fallback-to-2 pattern. Two combined reviewer agents (`reviewer-quality-security`, `reviewer-perf-test`) merge review passes for the sequential fallback.
 - **No team/swarm pattern**: TeamCreate, SendMessage not supported. All orchestration is single-primary with sequential subagent delegation.
 
@@ -373,7 +375,7 @@ The plugin auto-detects the platform and uses the appropriate directory. Overrid
 
 | Feature | Claude Code | Kiro | OpenCode | Codex | Cursor |
 |---------|-------------|------|----------|-------|--------|
-| Sub-agent spawning | Task() tool | By name from .kiro/agents/*.json | @agent syntax | N/A | N/A |
+| Sub-agent spawning | Task() tool | By name from ~/.kiro/agents/*.json | @agent syntax | N/A | N/A |
 | Parallel agents | Yes (multiple Task) | Experimental (max 4) | No | N/A | N/A |
 | Agent teams | TeamCreate + SendMessage | Not supported | Not supported | N/A | N/A |
 | Combined reviewers | Not needed (parallel) | reviewer-quality-security, reviewer-perf-test | Not needed (sequential) | N/A | N/A |

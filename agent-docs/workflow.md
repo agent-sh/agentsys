@@ -12,7 +12,7 @@ Detailed agent responsibilities and tool requirements for /next-task and /ship w
 
 ## /next-task - Master Workflow Orchestrator
 
-The main orchestrator **MUST spawn these agents in order**:
+/next-task runs these phases in order. A phase whose plugin is not installed runs the inline fallback in next-task's `commands/next-task.md`, and `--implement` skips Phases 4 and 5.
 
 | Phase | Agent | Model | Required Tools | Purpose |
 |-------|-------|-------|----------------|---------|
@@ -26,18 +26,17 @@ The main orchestrator **MUST spawn these agents in order**:
 | 8 | `deslop:deslop-agent` | sonnet | Bash(git:*), Bash(node:*), Skill, Read, Glob, Grep | Find AI slop in the diff (uses deslop skill) |
 | 8 | `prepare-delivery:test-coverage-checker` | sonnet | Bash(git:*), Bash(node:*), Skill, Read, Grep, Glob | Validate test coverage |
 | 9 | Phase 9 review loop | sonnet reviewers | Task(general-purpose) | One reviewer, or up to 4 in parallel for large or risky diffs |
-| 10 | `prepare-delivery:delivery-validator` | sonnet | Skill, Bash(git:*), Bash(npm:*), Bash(node:*), Read, Grep, Glob | Validate completion |
+| 10 | `prepare-delivery:delivery-validator` | sonnet | Skill, Bash(git:*), Bash(npm:*), Bash(node:*), Bash(cargo:*), Bash(go:*), Bash(pytest:*), Bash(make:*), Read, Grep, Glob | Validate completion |
 | 11 | `sync-docs:sync-docs-agent` | sonnet | Bash(git:*), Bash(node:*), Read, Glob, Grep | Find doc drift; `simple-fixer` applies the fixes |
-| 12 | `/ship` command | - | - | PR creation and merge |
+| 12 | *(orchestrator)* or `/ship` | - | Bash(git:*), Bash(gh:*) | Stopping point: stop, open the PR, or run `/ship` to merge and deploy |
 
 `inherit` means the agent has no `model` key and runs on the caller's model. [docs/reference/AGENTS.md](../docs/reference/AGENTS.md) is the source for each agent's model and tools.
 
-### MUST-CALL Agents (Cannot Skip)
+### Gates
 
-- **`exploration-agent`** - Required for understanding codebase before planning
-- **`planning-agent`** - Required for creating implementation plan
-- **Phase 9 review loop** - Required for code review before shipping
-- **`prepare-delivery:delivery-validator`** - Required before calling /ship
+- The pre-review gates, the Phase 9 review loop, delivery validation and docs sync run before anything is pushed. A SubagentStop hook reminds the orchestrator of this order while a flow is in progress.
+- A gate whose plugin is not installed runs its inline fallback and is named in the final report instead of being skipped silently.
+- `exploration-agent` and `planning-agent` are skipped only with `--implement`, which still needs the user's plan approval.
 
 ### Review Decision Gate
 
@@ -47,48 +46,45 @@ The review loop stops when no critical or high findings remain, when the same fi
 
 ## /ship - PR Workflow
 
-| Phase | Responsibility | Required Tools |
-|-------|----------------|----------------|
-| 1-3 | Pre-flight, commit, create PR | Bash(git:*), Bash(gh:*) |
-| 4 | **CI & Review Monitor Loop** | Bash(gh:*), Task(ci-fixer) |
-| 5 | Internal review (standalone only) | Task(review) |
-| 6 | Merge PR | Bash(gh:*) |
-| 7-10 | Deploy & validate | Bash(deployment:*) |
+| Phase | Responsibility | Tools |
+|-------|----------------|-------|
+| 1-3 | Pre-flight, commit, push and open the PR | Bash(git:*), Bash(gh:*), Bash(node:*) |
+| 4 | CI and review loop (`ship-ci-review-loop.md`) | Bash(gh:*), optional Task(next-task:ci-fixer) |
+| 5 | Standalone review, skipped when the /next-task review loop approved | Task(general-purpose), up to 3 for large diffs |
+| 6 | Merge, with write access only | Bash(gh:*) |
+| 7-10 | Deploy and validate, multi-branch repos only (`ship-deployment.md`) | Platform CLIs (Railway, Vercel, Netlify) |
+| 11-12 | Cleanup after the merge, report | Bash(git:*), Bash(gh:*) |
 
-> **Phase 4 is MANDATORY** - even when called from /next-task.
-> External auto-reviewers (Copilot, Claude, Gemini, Codex) comment AFTER PR creation.
-
----
-
-## ci-monitor Agent
-
-**Responsibility:** Monitor CI and PR comments, delegate fixes.
-
-**Required Tools:**
-- `Bash(gh:*)` - Check CI status and PR comments
-- `Task(ci-fixer)` - Delegate fixes to ci-fixer agent
-
-**Must Follow:**
-1. Wait 3 minutes for auto-reviews on first iteration
-2. Check ALL 4 reviewers (Copilot, Claude, Gemini, Codex)
-3. Iterate until zero unresolved threads
+Phase 4 runs on every run, including runs from /next-task: CI and external auto-reviewers only see the code once the PR exists. It stops after 5 rounds without converging.
 
 ---
 
-## ci-fixer Agent
+## ci-monitor Agent (next-task, haiku)
 
-**Responsibility:** Fix CI failures and address PR comments.
+**Responsibility:** Wait for a PR's checks to finish and report their state plus the review feedback that needs action. A standalone delegate: `/next-task` and `/ship` do not spawn it.
 
-**Required Tools:**
-- `Read` - Read failing files
-- `Edit` - Apply fixes
-- `Bash(npm:*)` - Run tests
-- `Bash(git:*)` - Commit and push fixes
+**Tools:** `Bash(gh:*)`, `Bash(git:*)`, `Read`, `Task`
 
-**Must Follow:**
-1. Address EVERY comment, including minor/nit suggestions
-2. Reply to each comment explaining the fix
-3. Resolve thread only after addressing
+**Behavior:**
+1. Blocks on `gh pr checks "$PR" --watch --interval 30`, bounded to 30 minutes; a timeout is reported, not retried
+2. Lists unresolved review threads and review comments, bots included
+3. Hands each failing check and change request to `next-task:ci-fixer` when it is installed and `Task` is available, at most 5 fix rounds; otherwise reports them
+4. Does not reply to or resolve threads and does not merge: the caller decides
+
+---
+
+## ci-fixer Agent (next-task, sonnet)
+
+**Responsibility:** Fix one CI failure or one review comment that needs a code change, commit it, and push the PR branch. Used by `/ship` Phase 4 and by ci-monitor.
+
+**Tools:** `Bash(git:*)`, `Bash(npm:*)`, `Read`, `Edit`, `Grep`, `Glob`
+
+**Behavior:**
+1. Makes the smallest change that fixes the cause in the log or the comment
+2. Never changes a test's assertions, disables a lint rule, or skips a check to get green
+3. If the cause is unclear or the comment looks wrong, changes nothing and says why
+4. Pushes to the PR branch only, never with `--force`
+5. Returns JSON (`fixed`, `changes`, `committed`, `commitMessage`, `reason`); replying to and resolving threads stays with the caller
 
 ---
 
@@ -98,6 +94,7 @@ The review loop stops when no critical or high findings remain, when the same fi
 |-------|---------------|------------|
 | worktree-manager | Bash(git:*), Read | Write, Edit |
 | ci-monitor | Bash(gh:*), Bash(git:*), Read, Task | Write, Edit |
+| ci-fixer | Bash(git:*), Bash(npm:*), Read, Edit, Grep, Glob | Bash(gh:*), Task |
 | simple-fixer | Read, Edit, Bash(git:*) | Task |
 | deslop:deslop-agent | Bash(git:*), Bash(node:*), Skill, Read, Glob, Grep | Write, Edit, Task |
 
@@ -109,13 +106,15 @@ Agents that run in parallel after implementation, before review:
 
 | Agent | Purpose | Key Files |
 |-------|---------|-----------|
-| `deslop:deslop-agent` | Clean AI slop from committed work | `deslop skill + lib/patterns/` |
-| `prepare-delivery:test-coverage-checker` | Validate new code has tests | Advisory only |
+| `deslop:deslop-agent` | Find AI slop in the branch diff; read-only, `simple-fixer` applies its fixes | deslop `skills/deslop/SKILL.md`, `scripts/detect.js`, `lib/patterns/` |
+| `prepare-delivery:test-coverage-checker` | Check that changed code has tests that exercise it | Advisory only |
 
-**deslop:deslop-agent** uses the 3-phase pipeline:
-- Phase 1: Regex patterns (HIGH certainty, auto-fix)
-- Phase 2: Multi-pass analyzers (MEDIUM certainty, verify)
-- Phase 3: CLI tools (LOW certainty, advisory)
+**deslop:deslop-agent** thoroughness levels:
+- `quick`: regex patterns
+- `normal` (the /next-task default): adds the multi-pass analyzers
+- `deep`: adds CLI tools such as jscpd and madge when installed
+
+Only HIGH certainty findings with a fix strategy become fixes. MEDIUM and LOW findings stay in the report for a human.
 
 ---
 

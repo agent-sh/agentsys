@@ -295,17 +295,18 @@ Plugin loaded via marketplace
 ### Codex CLI
 ```
 ~/.agentsys/           # Package copy
-~/.codex/skills/            # Transformed skills (9 directories)
+~/.codex/skills/            # Commands as skills, plus plugin skill directories (copied whole)
 ~/.codex/config.toml        # MCP config added
 ```
 
 ### Cursor
 ```
 ~/.agentsys/                       # Package copy
-<project>/.cursor/skills/          # Skills (SKILL.md, minimal transform)
-<project>/.cursor/commands/        # Commands (light transform, no frontmatter)
-<project>/.cursor/rules/           # Rules (.mdc, coding standards)
+~/.cursor/skills/<name>/           # Skill directories (copied whole, minimal transform)
+~/.cursor/commands/                # Commands (light transform, no frontmatter)
 ```
+
+Every non-Claude platform loads a skill from its own skills directory, away from its plugin. The installers copy the whole skill directory, run each markdown file through the platform's skill transform, and point plugin-root wording ("two directories up from this skill") and links that leave the skill directory at `~/.agentsys/plugins/<plugin>/`. Codex, Cursor and Kiro also inline `${CLAUDE_PLUGIN_ROOT}` as that path; OpenCode keeps its `${PLUGIN_ROOT}` placeholder. Each installed skill directory gets a `.agentsys-skill` marker. Installers replace or remove a marked directory, or an unmarked one in which every file is one the skill ships (an install from before the marker); any other directory with a skill's name may be the user's, so it is skipped with a warning. No version before the marker installed Codex plugin skills, so their `installSkillDir` call passes an empty legacy list and only a marked or empty directory is replaced there.
 
 ---
 

@@ -1577,7 +1577,7 @@ function installForOpenCode(installDir, options = {}) {
     console.log(`  [OK] Installed lib to ${libDestDir}`);
   }
 
-  // Install skills to the OpenCode global skills directory (~/.config/opencode/skills/<skill-name>/SKILL.md)
+  // Install skills to the OpenCode global skills directory (~/.config/opencode/skills/<skill-name>/)
   const skillsDestDir = path.join(opencodeConfigDir, 'skills');
   fs.mkdirSync(skillsDestDir, { recursive: true });
   console.log('  Installing skills...');
@@ -1594,14 +1594,13 @@ function installForOpenCode(installDir, options = {}) {
         if (filter && filter.skills.length > 0) {
           if (!filter.skills.includes(skillName)) continue;
         }
-        const srcSkillPath = path.join(srcSkillsDir, skillName, 'SKILL.md');
-        if (fs.existsSync(srcSkillPath)) {
-          const destSkillDir = path.join(skillsDestDir, skillName);
-          fs.mkdirSync(destSkillDir, { recursive: true });
-          let content = fs.readFileSync(srcSkillPath, 'utf8');
-          content = transforms.transformSkillBodyForOpenCode(content, installDir);
-          fs.writeFileSync(path.join(destSkillDir, 'SKILL.md'), content);
-          skillCount++;
+        const srcSkillDir = path.join(srcSkillsDir, skillName);
+        if (fs.existsSync(path.join(srcSkillDir, 'SKILL.md'))) {
+          const pluginInstallPath = path.join(installDir, 'plugins', pluginName);
+          if (installSkillDir(srcSkillDir, path.join(skillsDestDir, skillName), pluginInstallPath,
+            (content) => transforms.transformSkillBodyForOpenCode(content, installDir, { pluginInstallPath }))) {
+            skillCount++;
+          }
         }
       }
     }
@@ -1643,11 +1642,13 @@ function installForCodex(installDir, options = {}) {
     }
   }
 
-  // Remove old/deprecated skills
+  // Remove old/deprecated skills. agentsys wrote each as one SKILL.md, so only
+  // a marked directory or one holding nothing but SKILL.md goes; anything else
+  // may be the user's.
   const oldSkillDirs = ['deslop', 'review', 'drift-detect-set', 'pr-merge'];
   for (const dir of oldSkillDirs) {
     const oldPath = path.join(skillsDir, dir);
-    if (fs.existsSync(oldPath)) {
+    if (isReplaceableSkillDir(oldPath, COMMAND_SKILL_FILES)) {
       fs.rmSync(oldPath, { recursive: true, force: true });
       console.log(`  Removed deprecated skill: ${dir}`);
     }
@@ -1661,6 +1662,12 @@ function installForCodex(installDir, options = {}) {
     if (filter && filter.commands.length > 0) {
       if (!filter.commands.includes(skillName)) continue;
     }
+    // The name becomes a directory under skillsDir; `.` or `..` would be
+    // skillsDir itself or its parent.
+    if (!/^[a-zA-Z0-9_-]+$/.test(skillName)) {
+      console.log(`  [WARN] Skipping skill ${skillName}: a skill name may hold only letters, digits, - and _`);
+      continue;
+    }
     if (!description) {
       console.log(`  [WARN] Skipping skill ${skillName}: missing description`);
       continue;
@@ -1670,15 +1677,11 @@ function installForCodex(installDir, options = {}) {
     const destPath = path.join(skillDir, 'SKILL.md');
 
     if (fs.existsSync(srcPath)) {
-      if (fs.existsSync(skillDir)) {
-        fs.rmSync(skillDir, { recursive: true, force: true });
-      }
-      // Create skill directory
-      fs.mkdirSync(skillDir, { recursive: true });
+      const pluginInstallPath = path.join(installDir, 'plugins', plugin);
+      if (!claimSkillDir(skillDir, pluginInstallPath, COMMAND_SKILL_FILES)) continue;
 
       // Read source file and transform using shared transforms
       let content = fs.readFileSync(srcPath, 'utf8');
-      const pluginInstallPath = path.join(installDir, 'plugins', plugin);
       content = transforms.transformForCodex(content, {
         skillName,
         description,
@@ -1687,6 +1690,32 @@ function installForCodex(installDir, options = {}) {
 
       fs.writeFileSync(destPath, content);
       console.log(`  [OK] Installed skill: ${skillName}`);
+    }
+  }
+
+  // Install plugin skills as whole directories. A command keeps its skill
+  // name, so `$deslop` stays the deslop command; the deslop plugin skill stays
+  // in the plugin's install directory.
+  const commandSkillNames = new Set(skillMappings.map(([skillName]) => skillName));
+  for (const skill of discovery.discoverSkills(installDir)) {
+    if (!/^[a-zA-Z0-9_-]+$/.test(skill.name) || commandSkillNames.has(skill.name)) continue;
+    if (filter && !(filter.skills || []).includes(skill.name)) continue;
+    if (!skill.frontmatter.description) {
+      console.log(`  [WARN] Skipping skill ${skill.name}: missing description`);
+      continue;
+    }
+    const pluginInstallPath = path.join(installDir, 'plugins', skill.plugin);
+    // No agentsys release before the marker installed Codex plugin skills, so
+    // an unmarked directory at a plugin skill's name is the user's, whatever
+    // it holds. Only a marked or empty directory is replaced.
+    if (installSkillDir(
+      path.join(installDir, 'plugins', skill.plugin, 'skills', skill.dir),
+      path.join(skillsDir, skill.name),
+      pluginInstallPath,
+      (content) => transforms.transformSkillForCodex(content, { pluginInstallPath }),
+      new Map()
+    )) {
+      console.log(`  [OK] Installed skill: ${skill.name}`);
     }
   }
 
@@ -1725,20 +1754,15 @@ function installForCursor(installDir, options = {}) {
     }
   }
 
-  // Collect known skill names from discovery before cleanup
+  // Collect the known skills from discovery before cleanup
   const pluginDirs = discovery.discoverPlugins(installDir);
-  const knownSkillNames = new Set();
-  for (const pluginName of pluginDirs) {
-    const srcSkillsDir = path.join(installDir, 'plugins', pluginName, 'skills');
-    if (!fs.existsSync(srcSkillsDir)) continue;
-    for (const d of fs.readdirSync(srcSkillsDir, { withFileTypes: true })) {
-      if (d.isDirectory() && /^[a-zA-Z0-9_-]+$/.test(d.name)) knownSkillNames.add(d.name);
-    }
-  }
+  const knownSkills = listKnownSkills(installDir, pluginDirs);
 
-  // Cleanup old agentsys skill dirs (only known names, preserve user-created skills)
+  // Cleanup old agentsys skill dirs: known names that carry the agentsys
+  // marker or hold only files the skill ships. A user's skill is kept.
   for (const entry of fs.readdirSync(skillsDir, { withFileTypes: true })) {
-    if (entry.isDirectory() && knownSkillNames.has(entry.name)) {
+    const shipped = knownSkills.get(entry.name);
+    if (shipped && isReplaceableSkillDir(path.join(skillsDir, entry.name), shipped)) {
       fs.rmSync(path.join(skillsDir, entry.name), { recursive: true, force: true });
     }
   }
@@ -1752,16 +1776,13 @@ function installForCursor(installDir, options = {}) {
     for (const entry of entries) {
       if (!/^[a-zA-Z0-9_-]+$/.test(entry.name)) continue;
       if (filter && filter.skills && filter.skills.length > 0 && !filter.skills.includes(entry.name)) continue;
-      const srcPath = path.join(srcSkillsDir, entry.name, 'SKILL.md');
-      if (!fs.existsSync(srcPath)) continue;
-      const destDir = path.join(skillsDir, entry.name);
-      fs.mkdirSync(destDir, { recursive: true });
-      let content = fs.readFileSync(srcPath, 'utf8');
-      content = transforms.transformSkillForCursor(content, {
-        pluginInstallPath: path.join(installDir, 'plugins', pluginName)
-      });
-      fs.writeFileSync(path.join(destDir, 'SKILL.md'), content);
-      skillCount++;
+      const srcSkillDir = path.join(srcSkillsDir, entry.name);
+      if (!fs.existsSync(path.join(srcSkillDir, 'SKILL.md'))) continue;
+      const pluginInstallPath = path.join(installDir, 'plugins', pluginName);
+      if (installSkillDir(srcSkillDir, path.join(skillsDir, entry.name), pluginInstallPath,
+        (content) => transforms.transformSkillForCursor(content, { pluginInstallPath }))) {
+        skillCount++;
+      }
     }
   }
 
@@ -1790,6 +1811,244 @@ function installForCursor(installDir, options = {}) {
   console.log(`   Skills: ${skillCount} installed to ${skillsDir}`);
   console.log(`   Commands: ${cmdCount} installed to ${commandsDir}`);
   console.log(`   Global install: ${cursorHome}\n`);
+  return true;
+}
+
+/**
+ * Point relative markdown links that leave a skill directory at the plugin's
+ * install path, and the link text too when it repeats the target. Links inside
+ * the skill directory, URLs, anchors and absolute paths are left alone, and so
+ * is a link that leaves the plugin too.
+ *
+ * @param {string} content - Markdown content of one file in the skill
+ * @param {string} fileDir - Source directory of that file
+ * @param {string} skillDir - Source skill directory (<plugin>/skills/<name>)
+ * @param {string} pluginInstallPath - Where the plugin is installed
+ * @returns {string}
+ */
+function pointEscapingLinksAtPlugin(content, fileDir, skillDir, pluginInstallPath) {
+  const pluginRoot = path.dirname(path.dirname(skillDir));
+  const isOutside = (rel) => rel === '..' || rel.startsWith(`..${path.sep}`) || path.isAbsolute(rel);
+  return content.replace(/\[([^\]\n]*)\]\(([^)\s]+)\)/g, (match, text, target) => {
+    if (/^(?:[a-z][a-z0-9+.-]*:|[/\\#$~])/i.test(target)) return match;
+    const hashAt = target.indexOf('#');
+    const file = hashAt === -1 ? target : target.slice(0, hashAt);
+    const anchor = hashAt === -1 ? '' : target.slice(hashAt);
+    const resolved = path.resolve(fileDir, file);
+    if (!isOutside(path.relative(skillDir, resolved))) return match;
+    const fromPlugin = path.relative(pluginRoot, resolved);
+    if (isOutside(fromPlugin)) return match;
+    const installed = `${pluginInstallPath}/${fromPlugin.split(path.sep).join('/')}${anchor}`;
+    return `[${text === target ? installed : text}](${installed})`;
+  });
+}
+
+// Written into every skill directory agentsys installs. A reinstall replaces
+// directories that carry it, and unmarked ones that hold nothing but files an
+// earlier agentsys version wrote there (isLegacyAgentsysSkillDir). Any other
+// directory with the skill's name is left alone. A user's own skill that holds
+// only those files (`SKILL.md` alone, say) cannot be told apart from an
+// earlier install, so it is replaced, except where no earlier version wrote
+// that skill (Codex plugin skills).
+const SKILL_MARKER = '.agentsys-skill';
+
+// A Codex command skill is one generated SKILL.md, and so were the Codex
+// skills agentsys has since renamed or dropped.
+const COMMAND_SKILL_FILES = new Map([['SKILL.md', 'file']]);
+
+/**
+ * Whether `dir` is a skill directory agentsys installed: a real directory (not
+ * a symlink) with the marker file in it.
+ *
+ * @param {string} dir
+ * @returns {boolean}
+ */
+function isAgentsysSkillDir(dir) {
+  try {
+    return fs.lstatSync(dir).isDirectory() && fs.lstatSync(path.join(dir, SKILL_MARKER)).isFile();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The files and directories installSkillDir copies from a plugin skill
+ * directory, by path relative to it ('/' separated). Symlinks are left out,
+ * as the copy skips them.
+ *
+ * @param {string} srcSkillDir - <plugin>/skills/<name>
+ * @returns {Map<string, 'file'|'dir'>}
+ */
+function listSkillFiles(srcSkillDir) {
+  const shipped = new Map();
+  const walk = (dir, rel) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const entryRel = rel ? `${rel}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) {
+        shipped.set(entryRel, 'dir');
+        walk(path.join(dir, entry.name), entryRel);
+      } else if (entry.isFile()) {
+        shipped.set(entryRel, 'file');
+      }
+    }
+  };
+  walk(srcSkillDir, '');
+  return shipped;
+}
+
+/**
+ * Whether `dir` is an unmarked skill directory from an agentsys version that
+ * wrote no marker: a real directory in which every file and directory, at any
+ * depth, has a path in `legacyFiles`, what those versions wrote there (the
+ * files the skill ships, from listSkillFiles, or SKILL.md alone). Anything
+ * else (another file, a symlink) means the directory may be the user's. An
+ * empty `legacyFiles` matches only an empty directory.
+ *
+ * @param {string} dir
+ * @param {Map<string, 'file'|'dir'>} legacyFiles
+ * @returns {boolean}
+ */
+function isLegacyAgentsysSkillDir(dir, legacyFiles) {
+  const onlyLegacy = (absDir, rel) => fs.readdirSync(absDir, { withFileTypes: true }).every((entry) => {
+    const entryRel = rel ? `${rel}/${entry.name}` : entry.name;
+    const kind = entry.isDirectory() ? 'dir' : entry.isFile() ? 'file' : null;
+    if (!kind || legacyFiles.get(entryRel) !== kind) return false;
+    return kind === 'file' || onlyLegacy(path.join(absDir, entry.name), entryRel);
+  });
+  try {
+    return fs.lstatSync(dir).isDirectory() && onlyLegacy(dir, '');
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Whether agentsys may delete or replace `dir`: it carries the marker, or it
+ * is a legacy agentsys copy of the skill (isLegacyAgentsysSkillDir).
+ *
+ * @param {string} dir
+ * @param {Map<string, 'file'|'dir'>} legacyFiles - What an earlier agentsys
+ *   version without the marker wrote there
+ * @returns {boolean}
+ */
+function isReplaceableSkillDir(dir, legacyFiles) {
+  return isAgentsysSkillDir(dir) || isLegacyAgentsysSkillDir(dir, legacyFiles);
+}
+
+/**
+ * The skills the plugins ship, by directory name, with the files each ships
+ * (listSkillFiles). A name two plugins share holds the files of both.
+ *
+ * @param {string} installDir
+ * @param {string[]} pluginDirs
+ * @returns {Map<string, Map<string, 'file'|'dir'>>}
+ */
+function listKnownSkills(installDir, pluginDirs) {
+  const known = new Map();
+  for (const pluginName of pluginDirs) {
+    const srcSkillsDir = path.join(installDir, 'plugins', pluginName, 'skills');
+    if (!fs.existsSync(srcSkillsDir)) continue;
+    for (const d of fs.readdirSync(srcSkillsDir, { withFileTypes: true })) {
+      if (!d.isDirectory() || !/^[a-zA-Z0-9_-]+$/.test(d.name)) continue;
+      const files = known.get(d.name) || new Map();
+      for (const [rel, kind] of listSkillFiles(path.join(srcSkillsDir, d.name))) files.set(rel, kind);
+      known.set(d.name, files);
+    }
+  }
+  return known;
+}
+
+/**
+ * Make `destSkillDir` an empty, marked directory for agentsys to fill.
+ *
+ * A directory from an earlier agentsys install (it has the marker, or holds
+ * only files from `legacyFiles`) is removed first, so files the plugin dropped
+ * do not linger. Anything else at that path is left alone with a warning, and
+ * false is returned.
+ *
+ * @param {string} destSkillDir - <platform skills dir>/<name>
+ * @param {string} pluginInstallPath - Where the plugin is installed
+ * @param {Map<string, 'file'|'dir'>} legacyFiles - What an earlier agentsys
+ *   version without the marker wrote there (isLegacyAgentsysSkillDir)
+ * @returns {boolean} Whether the directory is ready to fill
+ */
+function claimSkillDir(destSkillDir, pluginInstallPath, legacyFiles) {
+  let stat = null;
+  try {
+    stat = fs.lstatSync(destSkillDir);
+  } catch {
+    // Nothing there yet.
+  }
+  if (stat) {
+    if (!isReplaceableSkillDir(destSkillDir, legacyFiles)) {
+      const why = stat.isSymbolicLink() ? 'is a symlink'
+        : !stat.isDirectory() ? 'is not a directory'
+          : 'may be yours';
+      console.log(`  [WARN] Skipped skill ${path.basename(destSkillDir)}: ${destSkillDir} has no ${SKILL_MARKER} marker and ${why}, so agentsys leaves it alone. To install the skill, move your files out and remove it.`);
+      return false;
+    }
+    fs.rmSync(destSkillDir, { recursive: true, force: true });
+  }
+  fs.mkdirSync(destSkillDir, { recursive: true });
+  let plugin = { name: path.basename(pluginInstallPath), version: 'unknown' };
+  try {
+    const manifest = JSON.parse(fs.readFileSync(path.join(pluginInstallPath, '.claude-plugin', 'plugin.json'), 'utf8'));
+    plugin = { name: manifest.name || plugin.name, version: manifest.version || plugin.version };
+  } catch {
+    // No readable plugin.json: keep the directory name and 'unknown'.
+  }
+  fs.writeFileSync(path.join(destSkillDir, SKILL_MARKER), JSON.stringify({
+    installedBy: 'agentsys',
+    plugin: plugin.name,
+    version: plugin.version,
+    note: 'agentsys replaces this directory on reinstall. To keep it as your own, delete this file and add a file of your own to the directory.'
+  }, null, 2) + '\n');
+  return true;
+}
+
+/**
+ * Copy one plugin skill directory into a platform's skills directory.
+ *
+ * OpenCode, Codex, Cursor and Kiro load a skill from their own skills
+ * directory, away from its plugin, so the whole directory goes (references,
+ * scripts, assets), every markdown file goes through the platform's skill
+ * transform, and links that leave the skill directory are pointed at the
+ * plugin's install path. A previous agentsys copy (marked, or holding only
+ * files from `legacyFiles`) is replaced, so a file the plugin dropped does not
+ * linger; any other directory with the skill's name is left alone
+ * (claimSkillDir). Symlinks are skipped.
+ *
+ * @param {string} srcSkillDir - <plugin>/skills/<name>
+ * @param {string} destSkillDir - <platform skills dir>/<name>
+ * @param {string} pluginInstallPath - Where the plugin is installed
+ * @param {(content: string) => string} transformMarkdown - The platform's skill transform
+ * @param {Map<string, 'file'|'dir'>} [legacyFiles] - What an earlier agentsys
+ *   version without the marker wrote there, so an unmarked directory holding
+ *   only these is replaced. Defaults to what the skill ships; an empty Map
+ *   means no earlier version wrote the skill, so only a marked or empty
+ *   directory is replaced.
+ * @returns {boolean} Whether the skill was installed
+ */
+function installSkillDir(srcSkillDir, destSkillDir, pluginInstallPath, transformMarkdown,
+  legacyFiles = listSkillFiles(srcSkillDir)) {
+  if (!claimSkillDir(destSkillDir, pluginInstallPath, legacyFiles)) return false;
+  const copy = (srcDir, destDir) => {
+    fs.mkdirSync(destDir, { recursive: true });
+    for (const entry of fs.readdirSync(srcDir, { withFileTypes: true })) {
+      const srcPath = path.join(srcDir, entry.name);
+      const destPath = path.join(destDir, entry.name);
+      if (entry.isDirectory()) {
+        copy(srcPath, destPath);
+      } else if (entry.isFile() && entry.name.endsWith('.md')) {
+        let content = transformMarkdown(fs.readFileSync(srcPath, 'utf8'));
+        content = pointEscapingLinksAtPlugin(content, srcDir, srcSkillDir, pluginInstallPath);
+        fs.writeFileSync(destPath, content);
+      } else if (entry.isFile()) {
+        fs.copyFileSync(srcPath, destPath);
+      }
+    }
+  };
+  copy(srcSkillDir, destSkillDir);
   return true;
 }
 
@@ -1828,20 +2087,15 @@ function installForKiro(installDir, options = {}) {
     }
   }
 
-  // Collect known skill names from discovery before cleanup
+  // Collect the known skills from discovery before cleanup
   const pluginDirs = discovery.discoverPlugins(installDir);
-  const knownSkillNames = new Set();
-  for (const pluginName of pluginDirs) {
-    const srcSkillsDir = path.join(installDir, 'plugins', pluginName, 'skills');
-    if (!fs.existsSync(srcSkillsDir)) continue;
-    for (const d of fs.readdirSync(srcSkillsDir, { withFileTypes: true })) {
-      if (d.isDirectory() && /^[a-zA-Z0-9_-]+$/.test(d.name)) knownSkillNames.add(d.name);
-    }
-  }
+  const knownSkills = listKnownSkills(installDir, pluginDirs);
 
-  // Cleanup old agentsys skill dirs (only known names, preserve user-created skills)
+  // Cleanup old agentsys skill dirs: known names that carry the agentsys
+  // marker or hold only files the skill ships. A user's skill is kept.
   for (const entry of fs.readdirSync(skillsDir, { withFileTypes: true })) {
-    if (entry.isDirectory() && knownSkillNames.has(entry.name)) {
+    const shipped = knownSkills.get(entry.name);
+    if (shipped && isReplaceableSkillDir(path.join(skillsDir, entry.name), shipped)) {
       fs.rmSync(path.join(skillsDir, entry.name), { recursive: true, force: true });
     }
   }
@@ -1870,16 +2124,13 @@ function installForKiro(installDir, options = {}) {
     for (const entry of entries) {
       if (!/^[a-zA-Z0-9_-]+$/.test(entry.name)) continue;
       if (filter && filter.skills && filter.skills.length > 0 && !filter.skills.includes(entry.name)) continue;
-      const srcPath = path.join(srcSkillsDir, entry.name, 'SKILL.md');
-      if (!fs.existsSync(srcPath)) continue;
-      const destDir = path.join(skillsDir, entry.name);
-      fs.mkdirSync(destDir, { recursive: true });
-      let content = fs.readFileSync(srcPath, 'utf8');
-      content = transforms.transformSkillForKiro(content, {
-        pluginInstallPath: path.join(installDir, 'plugins', pluginName)
-      });
-      fs.writeFileSync(path.join(destDir, 'SKILL.md'), content);
-      skillCount++;
+      const srcSkillDir = path.join(srcSkillsDir, entry.name);
+      if (!fs.existsSync(path.join(srcSkillDir, 'SKILL.md'))) continue;
+      const pluginInstallPath = path.join(installDir, 'plugins', pluginName);
+      if (installSkillDir(srcSkillDir, path.join(skillsDir, entry.name), pluginInstallPath,
+        (content) => transforms.transformSkillForKiro(content, { pluginInstallPath }))) {
+        skillCount++;
+      }
     }
   }
 
@@ -1972,10 +2223,11 @@ function removeInstallation() {
   console.log('\n[OK] Removed ~/.agentsys');
   console.log('\nTo fully uninstall, also remove:');
   console.log('  - Claude: /plugin marketplace remove agentsys');
-  console.log('  - OpenCode: Remove files under ~/.config/opencode/ (commands/*.md, agents/*.md, skills/*/SKILL.md) and ~/.config/opencode/plugins/agentsys.ts');
-  console.log('  - Codex: Remove ~/.codex/skills/*/');
-  console.log('  - Cursor: Remove ~/.cursor/skills/, ~/.cursor/commands/, and ~/.cursor/rules/agentsys-*.mdc');
-  console.log('  - Kiro: Remove ~/.kiro/skills/, ~/.kiro/prompts/, and ~/.kiro/agents/');
+  console.log('  - Skills on every platform: remove only the skill directories that contain a .agentsys-skill file; your own skills have none.');
+  console.log('  - OpenCode: agentsys commands/*.md and agents/*.md under ~/.config/opencode/, and ~/.config/opencode/plugins/agentsys.ts');
+  console.log('  - Codex: the marked directories under ~/.codex/skills/');
+  console.log('  - Cursor: the marked directories under ~/.cursor/skills/, agentsys commands in ~/.cursor/commands/, and ~/.cursor/rules/agentsys-*.mdc');
+  console.log('  - Kiro: the marked directories under ~/.kiro/skills/, and agentsys files in ~/.kiro/prompts/ and ~/.kiro/agents/');
 }
 
 function printSubcommandHelp(subcommand) {
@@ -2374,7 +2626,14 @@ module.exports = {
   buildFilterFromComponent,
   resolvePluginSource,
   parseGitHubSource,
+  installForOpenCode,
+  installForCodex,
   installForCursor,
   installForKiro,
+  installSkillDir,
+  claimSkillDir,
+  isReplaceableSkillDir,
+  listKnownSkills,
+  COMMAND_SKILL_FILES,
   claudeSpawnPlan
 };

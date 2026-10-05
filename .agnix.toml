@@ -25,7 +25,7 @@ mcp = true
 imports = true
 cross_platform = false # Intentional - we document all 3 platform paths
 agents_md = true
-kiro_agents = false # Kiro agent copies reference agentsys subagents not resolvable from .kiro/
+kiro_agents = true
 prompt_engineering = true
 generic_instructions = true
 frontmatter_validation = true
@@ -47,7 +47,6 @@ disabled_rules = [
     "CC-SK-017",   # Intentional - version is a client-specific frontmatter field
     "CDX-AG-002",  # False positive - "tokens" in ecosystem boilerplate is not a secret
     "CDX-AG-005",  # Codex agent instruction format - AGENTS.md uses agentsys conventions
-    "KR-SK-001",   # Kiro skill copies use Claude Code frontmatter fields (version, argument-hint)
     "PE-001",      # Reference docs have structured layout; middle placement is intentional
     "PE-005",      # Same as CC-MEM-005 for prompt engineering rules
     "XML-001",     # False positive - <login-url> is a placeholder in examples

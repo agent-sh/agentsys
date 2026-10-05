@@ -170,6 +170,42 @@ describe('dev-install script', () => {
     test('copies to ~/.agentsys for OpenCode/Codex', () => {
       expect(devInstallSource.includes('copyToAgentSys')).toBe(true);
     });
+
+    test('installs whole Kiro skill directories through the CLI installer', () => {
+      // The behavior is covered in platform-adapter-install.test.js; this
+      // pins dev-install to the same code instead of a SKILL.md-only copy.
+      const installKiro = devInstallSource.slice(
+        devInstallSource.indexOf('function installKiro()'),
+        devInstallSource.indexOf('function copyToAgentSys()')
+      );
+      expect(devInstallSource).toMatch(/const \{[^}]*\binstallSkillDir\b[^}]*\} = require\(path\.join\(SOURCE_DIR, 'bin', 'cli\.js'\)\);/);
+      expect(installKiro).toContain('installSkillDir(srcSkillDir,');
+      expect(installKiro).toContain('transforms.transformSkillForKiro(content, { pluginInstallPath })');
+      expect(installKiro).not.toContain("'SKILL.md'), content");
+    });
+
+    test('deletes Codex and Kiro skill directories only through the marker rules', () => {
+      // claimSkillDir and isReplaceableSkillDir are covered in
+      // platform-adapter-install.test.js; this pins dev-install to them so a
+      // user's skill with an agentsys name is not deleted by name alone.
+      const section = (start, end) => devInstallSource.slice(
+        devInstallSource.indexOf(start),
+        devInstallSource.indexOf(end)
+      );
+      const cleanCodex = section('// Clean Codex', '// Clean Kiro');
+      const cleanKiroSkills = section("const kiroSkillsDir = path.join(kiroDir, 'skills');", '// Clean ~/.agentsys');
+      const installCodex = section('function installCodex()', 'function installKiro()');
+
+      expect(cleanCodex).toContain('isReplaceableSkillDir(skillPath, COMMAND_SKILL_FILES)');
+      expect(cleanKiroSkills).toContain('listKnownSkills(SOURCE_DIR, PLUGINS)');
+      expect(cleanKiroSkills).toContain('isReplaceableSkillDir(skillPath, shipped)');
+      expect(installCodex).toContain('claimSkillDir(skillDir, pluginInstallPath, COMMAND_SKILL_FILES)');
+      expect(installCodex).toContain('/^[a-zA-Z0-9_-]+$/.test(skillName)');
+      // Every rmSync of a skill directory sits behind one of those checks.
+      for (const block of [cleanCodex, cleanKiroSkills, installCodex]) {
+        expect(block.match(/fs\.rmSync\(/g) || []).toHaveLength(block === installCodex ? 0 : 1);
+      }
+    });
   });
 
   describe('external commands', () => {
