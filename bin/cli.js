@@ -2223,10 +2223,11 @@ function removeInstallation() {
   console.log('\n[OK] Removed ~/.agentsys');
   console.log('\nTo fully uninstall, also remove:');
   console.log('  - Claude: /plugin marketplace remove agentsys');
-  console.log('  - OpenCode: Remove files under ~/.config/opencode/ (commands/*.md, agents/*.md, skills/*/) and ~/.config/opencode/plugins/agentsys.ts');
-  console.log('  - Codex: Remove ~/.codex/skills/*/');
-  console.log('  - Cursor: Remove ~/.cursor/skills/, ~/.cursor/commands/, and ~/.cursor/rules/agentsys-*.mdc');
-  console.log('  - Kiro: Remove ~/.kiro/skills/, ~/.kiro/prompts/, and ~/.kiro/agents/');
+  console.log('  - Skills on every platform: remove only the skill directories that contain a .agentsys-skill file; your own skills have none.');
+  console.log('  - OpenCode: agentsys commands/*.md and agents/*.md under ~/.config/opencode/, and ~/.config/opencode/plugins/agentsys.ts');
+  console.log('  - Codex: the marked directories under ~/.codex/skills/');
+  console.log('  - Cursor: the marked directories under ~/.cursor/skills/, agentsys commands in ~/.cursor/commands/, and ~/.cursor/rules/agentsys-*.mdc');
+  console.log('  - Kiro: the marked directories under ~/.kiro/skills/, and agentsys files in ~/.kiro/prompts/ and ~/.kiro/agents/');
 }
 
 function printSubcommandHelp(subcommand) {
