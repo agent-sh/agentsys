@@ -35,7 +35,13 @@ const {
   WINDOWS_BATCH_SHIM
 } = require(path.join(SOURCE_DIR, 'lib', 'utils', 'command-parser'));
 const { claudeExecutable } = require(path.join(SOURCE_DIR, 'lib', 'utils', 'claude-executable'));
-const { installSkillDir } = require(path.join(SOURCE_DIR, 'bin', 'cli.js'));
+const {
+  installSkillDir,
+  claimSkillDir,
+  isReplaceableSkillDir,
+  listKnownSkills,
+  COMMAND_SKILL_FILES
+} = require(path.join(SOURCE_DIR, 'bin', 'cli.js'));
 
 // Target directories
 const HOME = process.env.HOME || process.env.USERPROFILE;
@@ -214,10 +220,14 @@ function cleanAll() {
     const ourSkills = discovery.getCodexSkillMappings(SOURCE_DIR).map(([name]) => name);
     for (const skill of fs.readdirSync(codexSkillsDir)) {
       const skillPath = path.join(codexSkillsDir, skill);
-      // Only remove skills we know are ours (discovered from filesystem)
-      if (ourSkills.includes(skill)) {
+      // Only remove command skills agentsys installed: marked, or the one
+      // SKILL.md earlier versions wrote. A same-named skill of the user's stays.
+      if (!ourSkills.includes(skill)) continue;
+      if (isReplaceableSkillDir(skillPath, COMMAND_SKILL_FILES)) {
         fs.rmSync(skillPath, { recursive: true, force: true });
         log(`  Removed Codex skill: ${skill}`);
+      } else {
+        log(`  [WARN] Kept Codex skill ${skill}: ${skillPath} has no .agentsys-skill marker and may be yours`);
       }
     }
   }
@@ -259,19 +269,19 @@ function cleanAll() {
     }
     const kiroSkillsDir = path.join(kiroDir, 'skills');
     if (fs.existsSync(kiroSkillsDir)) {
-      const knownSkillNames = new Set();
-      for (const plugin of PLUGINS) {
-        const srcSkillsDir = path.join(SOURCE_DIR, 'plugins', plugin, 'skills');
-        if (!fs.existsSync(srcSkillsDir)) continue;
-        for (const d of fs.readdirSync(srcSkillsDir, { withFileTypes: true })) {
-          if (d.isDirectory()) knownSkillNames.add(d.name);
-        }
-      }
+      // Only remove skill directories agentsys installed: marked, or holding
+      // only files the skill ships. A same-named skill of the user's stays.
+      const knownSkills = listKnownSkills(SOURCE_DIR, PLUGINS);
       let removedCount = 0;
-      for (const entry of fs.readdirSync(kiroSkillsDir, { withFileTypes: true })) {
-        if (entry.isDirectory() && knownSkillNames.has(entry.name)) {
-          fs.rmSync(path.join(kiroSkillsDir, entry.name), { recursive: true, force: true });
+      for (const entry of fs.readdirSync(kiroSkillsDir)) {
+        const shipped = knownSkills.get(entry);
+        if (!shipped) continue;
+        const skillPath = path.join(kiroSkillsDir, entry);
+        if (isReplaceableSkillDir(skillPath, shipped)) {
+          fs.rmSync(skillPath, { recursive: true, force: true });
           removedCount++;
+        } else {
+          log(`  [WARN] Kept Kiro skill ${entry}: ${skillPath} has no .agentsys-skill marker and may be yours`);
         }
       }
       if (removedCount > 0) log(`  Removed ${removedCount} Kiro skill dirs`);
@@ -501,18 +511,22 @@ function installCodex() {
   const skillMappings = discovery.getCodexSkillMappings(SOURCE_DIR);
 
   for (const [skillName, plugin, sourceFile, description] of skillMappings) {
+    // The name becomes a directory under skillsDir, as in `agentsys --tool codex`.
+    if (!/^[a-zA-Z0-9_-]+$/.test(skillName)) {
+      log(`  [WARN] Skipping skill ${skillName}: a skill name may hold only letters, digits, - and _`);
+      continue;
+    }
     const srcPath = path.join(SOURCE_DIR, 'plugins', plugin, 'commands', sourceFile);
     const skillDir = path.join(skillsDir, skillName);
     const destPath = path.join(skillDir, 'SKILL.md');
 
     if (fs.existsSync(srcPath)) {
-      if (fs.existsSync(skillDir)) {
-        fs.rmSync(skillDir, { recursive: true, force: true });
-      }
-      fs.mkdirSync(skillDir, { recursive: true });
+      const pluginInstallPath = path.join(AGENTSYS_DIR, 'plugins', plugin);
+      // Replaces only a marked directory or the one SKILL.md earlier versions
+      // wrote; any other directory with the name is left alone with a warning.
+      if (!claimSkillDir(skillDir, pluginInstallPath, COMMAND_SKILL_FILES)) continue;
 
       let content = fs.readFileSync(srcPath, 'utf8');
-      const pluginInstallPath = path.join(AGENTSYS_DIR, 'plugins', plugin);
       content = transforms.transformForCodex(content, {
         skillName,
         description,

@@ -256,14 +256,18 @@ describe('platform adapter installers', () => {
       expect(fs.readdirSync(path.join(destNested, 'references'))).toEqual(['mine.md']);
       expect(fs.readFileSync(path.join(destNested, 'SKILL.md'), 'utf8')).toBe('Old nested skill.\n');
       const output = logOutput();
-      expect(output).toContain(`[WARN] Skipped skill test-skill: ${destSkill} has no .agentsys-skill marker and holds files this skill does not ship`);
-      expect(output).toContain(`[WARN] Skipped skill nested-skill: ${destNested} has no .agentsys-skill marker and holds files this skill does not ship`);
+      expect(output).toContain(`[WARN] Skipped skill test-skill: ${destSkill} has no .agentsys-skill marker and may be yours`);
+      expect(output).toContain(`[WARN] Skipped skill nested-skill: ${destNested} has no .agentsys-skill marker and may be yours`);
     }
   );
 
-  test.each(skillPlatforms)(
-    'upgrades an unmarked %s skill directory from an agentsys version without markers',
-    (_platform, install, skillsDir) => {
+  // Earlier agentsys versions wrote no marker, and an unmarked directory that
+  // holds only files the skill ships is taken for one of their installs. No
+  // such version installed Codex plugin skills (only Codex command skills), so
+  // there the same directory is the user's: skipped with a warning.
+  test.each(skillPlatforms.map(([platform, install, skillsDir]) => [platform, install, skillsDir, platform !== 'Codex']))(
+    'upgrades an unmarked %s skill directory only where an agentsys version without markers installed it',
+    (_platform, install, skillsDir, upgrades) => {
       const srcSkills = path.join(installDir, 'plugins', 'test-plugin', 'skills');
       fs.mkdirSync(path.join(srcSkills, 'test-skill', 'references'), { recursive: true });
       fs.writeFileSync(path.join(srcSkills, 'test-skill', 'references', 'guide.md'), '# Guide\n');
@@ -287,6 +291,17 @@ describe('platform adapter installers', () => {
 
       install(installDir);
 
+      if (!upgrades) {
+        expect(fs.readdirSync(destSkill)).toEqual(['SKILL.md']);
+        expect(fs.readFileSync(path.join(destSkill, 'SKILL.md'), 'utf8')).toBe('Old body.\n');
+        expect(fs.readdirSync(destRef).sort()).toEqual(['SKILL.md', 'references']);
+        expect(fs.readdirSync(path.join(destRef, 'references'))).toEqual(['a.md']);
+        expect(fs.readFileSync(path.join(destRef, 'references', 'a.md'), 'utf8')).toBe('Old a.\n');
+        const output = logOutput();
+        expect(output).toContain(`[WARN] Skipped skill test-skill: ${destSkill} has no .agentsys-skill marker and may be yours`);
+        expect(output).toContain(`[WARN] Skipped skill ref-skill: ${destRef} has no .agentsys-skill marker and may be yours`);
+        return;
+      }
       for (const [dest, name] of [[destSkill, 'test-skill'], [destRef, 'ref-skill']]) {
         const marker = JSON.parse(fs.readFileSync(path.join(dest, '.agentsys-skill'), 'utf8'));
         expect(marker).toMatchObject({ installedBy: 'agentsys', plugin: 'test-plugin', version: '1.0.0' });
@@ -299,6 +314,77 @@ describe('platform adapter installers', () => {
       expect(logOutput()).not.toContain('[WARN]');
     }
   );
+
+  test('keeps a user\'s Codex skill that holds only SKILL.md at a plugin skill name', () => {
+    // The mojo plugin ships the skills mojo and recommend. No agentsys release
+    // before the marker installed Codex plugin skills, so a SKILL.md-only
+    // directory at either name is the user's own skill.
+    const mojoPlugin = path.join(installDir, 'plugins', 'mojo');
+    fs.mkdirSync(path.join(mojoPlugin, '.claude-plugin'), { recursive: true });
+    fs.writeFileSync(
+      path.join(mojoPlugin, '.claude-plugin', 'plugin.json'),
+      JSON.stringify({ name: 'mojo', version: '0.2.0' })
+    );
+    for (const name of ['mojo', 'recommend']) {
+      fs.mkdirSync(path.join(mojoPlugin, 'skills', name), { recursive: true });
+      fs.writeFileSync(
+        path.join(mojoPlugin, 'skills', name, 'SKILL.md'),
+        `---\nname: ${name}\ndescription: Plugin ${name}\n---\nPlugin body.\n`
+      );
+    }
+    discovery.invalidateCache();
+
+    const skillsDir = path.join(tempDir, '.codex', 'skills');
+    const userSkill = (name) => `---\nname: ${name}\ndescription: MY OWN\n---\nMy body.\n`;
+    for (const name of ['mojo', 'recommend']) {
+      fs.mkdirSync(path.join(skillsDir, name), { recursive: true });
+      fs.writeFileSync(path.join(skillsDir, name, 'SKILL.md'), userSkill(name));
+    }
+    // An empty directory holds nothing of the user's, so it is filled.
+    fs.mkdirSync(path.join(skillsDir, 'test-skill'), { recursive: true });
+
+    installForCodex(installDir);
+    installForCodex(installDir);
+
+    for (const name of ['mojo', 'recommend']) {
+      const dir = path.join(skillsDir, name);
+      expect(fs.readdirSync(dir)).toEqual(['SKILL.md']);
+      expect(fs.readFileSync(path.join(dir, 'SKILL.md'), 'utf8')).toBe(userSkill(name));
+      expect(logOutput()).toContain(`[WARN] Skipped skill ${name}: ${dir} has no .agentsys-skill marker and may be yours`);
+    }
+    expect(fs.readdirSync(path.join(skillsDir, 'test-skill')).sort()).toEqual(['.agentsys-skill', 'SKILL.md']);
+
+    // Once the user moves theirs out, the plugin skill installs.
+    fs.rmSync(path.join(skillsDir, 'recommend'), { recursive: true });
+    installForCodex(installDir);
+    expect(fs.readFileSync(path.join(skillsDir, 'recommend', 'SKILL.md'), 'utf8')).toContain('description: Plugin recommend');
+    expect(fs.readFileSync(path.join(skillsDir, 'mojo', 'SKILL.md'), 'utf8')).toBe(userSkill('mojo'));
+  });
+
+  test('skips a Codex command whose name would leave its own skill directory', () => {
+    // A command file `..md` gives the name `.`, whose skill directory would be
+    // the skills directory itself; a later install would then delete it with
+    // every skill in it.
+    const commandsDir = path.join(installDir, 'plugins', 'test-plugin', 'commands');
+    fs.writeFileSync(path.join(commandsDir, '..md'), '---\ndescription: Dot command\n---\nBody.\n');
+    fs.writeFileSync(path.join(commandsDir, 'a.b.md'), '---\ndescription: Dotted command\n---\nBody.\n');
+    discovery.invalidateCache();
+    const skillsDir = path.join(tempDir, '.codex', 'skills');
+    fs.mkdirSync(path.join(skillsDir, 'my-skill'), { recursive: true });
+    fs.writeFileSync(path.join(skillsDir, 'my-skill', 'SKILL.md'), 'Mine.\n');
+
+    installForCodex(installDir);
+    installForCodex(installDir);
+
+    expect(fs.existsSync(path.join(skillsDir, 'SKILL.md'))).toBe(false);
+    expect(fs.existsSync(path.join(skillsDir, '.agentsys-skill'))).toBe(false);
+    expect(fs.existsSync(path.join(skillsDir, 'a.b'))).toBe(false);
+    expect(fs.readFileSync(path.join(skillsDir, 'my-skill', 'SKILL.md'), 'utf8')).toBe('Mine.\n');
+    expect(fs.existsSync(path.join(skillsDir, 'test-command', 'SKILL.md'))).toBe(true);
+    const output = logOutput();
+    expect(output).toContain('[WARN] Skipping skill .: a skill name may hold only letters, digits, - and _');
+    expect(output).toContain('[WARN] Skipping skill a.b: a skill name may hold only letters, digits, - and _');
+  });
 
   test.each(skillPlatforms)(
     'leaves a symlink at a %s skill path alone',
@@ -362,7 +448,7 @@ describe('platform adapter installers', () => {
       expect(fs.readFileSync(path.join(skillsDir, name, 'SKILL.md'), 'utf8')).toBe(`My own ${name}.\n`);
     }
     const commandDir = path.join(skillsDir, 'test-command');
-    expect(logOutput()).toContain(`[WARN] Skipped skill test-command: ${commandDir} has no .agentsys-skill marker and holds files this skill does not ship`);
+    expect(logOutput()).toContain(`[WARN] Skipped skill test-command: ${commandDir} has no .agentsys-skill marker and may be yours`);
     // A marked command skill is replaced.
     fs.rmSync(commandDir, { recursive: true });
     installForCodex(installDir);

@@ -367,8 +367,9 @@ gh auth login
 
 ### Skill directories on OpenCode, Codex, Cursor and Kiro
 - Each skill directory agentsys installs has a `.agentsys-skill` marker file. A reinstall replaces a marked directory, so a file you add inside one is removed.
-- Skill directories from agentsys versions before the marker have none. A reinstall replaces and marks such a directory when every file in it is one the skill ships, which is what those versions wrote (`SKILL.md` alone), so upgrading needs no manual step.
-- Any other directory with the name of a skill agentsys installs (one that holds a file the skill does not ship, or a symlink) is never deleted or written to: the install skips that skill and prints a warning with the path. To install the skill, move your files out and remove the directory.
+- Skill directories from agentsys versions before the marker have none. A reinstall replaces and marks such a directory when every file in it is one the skill ships, which is what those versions wrote (`SKILL.md` alone), so upgrading needs no manual step. Your own skill at a plugin skill's name that is only a `SKILL.md` looks the same, so on OpenCode, Cursor and Kiro, and for Codex command skills, it is replaced too. Add any other file to it to keep it.
+- Codex plugin skills are the exception: no version before the marker installed them, so an unmarked directory at a Codex plugin skill's name is never replaced, whatever it holds, unless it is empty.
+- Any other directory with the name of a skill agentsys installs (one that holds a file the skill does not ship, an unmarked Codex plugin skill directory, or a symlink) is never deleted or written to: the install skips that skill and prints a warning with the path. To install the skill, move your files out and remove the directory.
 - To keep a directory agentsys installed as your own, delete its marker and add a file of your own to it.
 
 ---
