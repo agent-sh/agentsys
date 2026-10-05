@@ -271,10 +271,26 @@ function loadMarketplace() {
  * - object: { source: "url", url: "..." } (current)
  * - object: { source: "path", path: "..." } (local/bundled)
  *
+ * A remote object source keeps its `commit` and `ref` pins, so the fetch
+ * downloads exactly what the marketplace pins.
+ *
  * @param {string|Object} source
- * @returns {{type: 'remote'|'local', value: string}|null}
+ * @returns {{type: 'remote'|'local', value: string, commit?: string, ref?: string}|null}
  */
 function resolvePluginSource(source) {
+  const normalized = normalizePluginSource(source);
+  if (!normalized || normalized.type !== 'remote' || !source || typeof source !== 'object') {
+    return normalized;
+  }
+  for (const key of ['commit', 'ref']) {
+    if (typeof source[key] === 'string' && source[key].trim()) {
+      normalized[key] = source[key].trim();
+    }
+  }
+  return normalized;
+}
+
+function normalizePluginSource(source) {
   if (typeof source === 'string') {
     const value = source.trim();
     if (!value) return null;
@@ -368,45 +384,100 @@ function resolvePluginDeps(names, marketplace) {
 }
 
 /**
+ * Read a marker file (`.version`, `.ref`, `.commit`) from a cached plugin.
+ *
+ * @param {string} pluginDir
+ * @param {string} marker
+ * @returns {string|null}
+ */
+function readPluginMarker(pluginDir, marker) {
+  try {
+    return fs.readFileSync(path.join(pluginDir, marker), 'utf8').trim() || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Commit the cached copy of a plugin was fetched at.
+ *
+ * @param {string} name - Plugin name
+ * @returns {string|null}
+ */
+function readCachedCommit(name) {
+  return readPluginMarker(path.join(getPluginCacheDir(), name), '.commit');
+}
+
+// A pin may be abbreviated; the archive always reports the full commit.
+function sameCommit(resolved, pinned) {
+  return Boolean(resolved && pinned) && resolved.toLowerCase().startsWith(pinned.toLowerCase());
+}
+
+const COMMIT_PIN = /^[0-9a-f]{7,40}$/i;
+
+/**
+ * Refs to request, in order, for one plugin fetch.
+ *
+ * A marketplace `commit` pin is fetched exactly, then a `ref` pin, then a
+ * `#ref` in the source URL. Only an entry with none of them tries
+ * `v<version>`, `<version>`, `main` and `master`.
+ *
+ * @param {{ref: string, explicitRef: boolean}} parsedSource - From parseGitHubSource
+ * @param {string} version
+ * @param {{commit?: string, ref?: string}} [pin]
+ * @returns {{refs: string[], exact: boolean}} exact: a 404 is final, no fallback
+ */
+function pluginFetchRefs(parsedSource, version, pin = {}) {
+  if (pin.commit) return { refs: [pin.commit], exact: true };
+  if (pin.ref) return { refs: [pin.ref], exact: true };
+  if (parsedSource.explicitRef) return { refs: [parsedSource.ref], exact: true };
+  return { refs: [...new Set([parsedSource.ref, version, 'main', 'master'].filter(Boolean))], exact: false };
+}
+
+/**
+ * Whether the cached copy of a plugin is what this fetch would download.
+ * A commit pin needs a matching `.commit` and a ref pin a matching `.ref`, so
+ * a cache written before pins were honored is fetched again.
+ */
+function isPluginCacheCurrent(pluginDir, version, pin = {}) {
+  if (readPluginMarker(pluginDir, '.version') !== version) return false;
+  if (pin.commit) return sameCommit(readPluginMarker(pluginDir, '.commit'), pin.commit);
+  if (pin.ref) return readPluginMarker(pluginDir, '.ref') === pin.ref;
+  return true;
+}
+
+/**
  * Download a GitHub repo tarball and extract to cache directory.
+ *
+ * Next to the plugin files it writes `.ref` (the ref requested), `.commit`
+ * (the commit the archive was built from) and `.version`, so a reinstall at
+ * the same pin reuses the cache.
  *
  * @param {string} name - Plugin name
  * @param {string} source - GitHub source URL (e.g. "github:agent-sh/agentsys-plugin-next-task")
  * @param {string} version - Expected version string
+ * @param {{commit?: string, ref?: string}} [pin] - Marketplace pins from resolvePluginSource
  * @returns {Promise<string>} Path to extracted plugin directory
  */
-// TODO(agentsys-security): this local dev installer currently honors only
-// `source.url` + `plugin.version` and ignores `source.ref` / `source.commit`
-// from marketplace.json. Claude Code's plugin installer (the primary install
-// path for end users) DOES honor `ref` and `commit` per the marketplace
-// schema, so the pins added by scripts/pin-marketplace.js are authoritative
-// for real users. This dev CLI should be updated to prefer `source.commit`
-// (then `source.ref`, then `plugin.version`) when resolving the fetch ref,
-// so local dev gets the same supply-chain guarantees as production installs.
-// Tracked as a follow-up; not fixed in PR #347 to keep that PR scoped.
-async function fetchPlugin(name, source, version) {
+async function fetchPlugin(name, source, version, pin = {}) {
   const cacheDir = getPluginCacheDir();
   const pluginDir = path.join(cacheDir, name);
-  const versionFile = path.join(pluginDir, '.version');
 
-  // Check cache
-  if (fs.existsSync(versionFile)) {
-    const cached = fs.readFileSync(versionFile, 'utf8').trim();
-    if (cached === version) {
-      return pluginDir;
-    }
+  if (pin.commit && !COMMIT_PIN.test(pin.commit)) {
+    throw new Error(`Invalid commit pin for ${name}: ${pin.commit}`);
+  }
+
+  if (isPluginCacheCurrent(pluginDir, version, pin)) {
+    return pluginDir;
   }
 
   const parsedSource = parseGitHubSource(source, version, name);
   const owner = parsedSource.owner;
   const repo = parsedSource.repo;
-
-  const refCandidates = parsedSource.explicitRef
-    ? [parsedSource.ref]
-    : [parsedSource.ref, version, 'main', 'master'];
+  const { refs, exact } = pluginFetchRefs(parsedSource, version, pin);
 
   let lastError = null;
-  for (const ref of [...new Set(refCandidates.filter(Boolean))]) {
+  for (const ref of refs) {
     const tarballUrl = `https://api.github.com/repos/${owner}/${repo}/tarball/${ref}`;
 
     try {
@@ -419,15 +490,24 @@ async function fetchPlugin(name, source, version) {
       fs.mkdirSync(pluginDir, { recursive: true });
 
       // Download and extract tarball
-      await downloadAndExtractTarball(tarballUrl, pluginDir);
+      const archiveCommit = await downloadAndExtractTarball(tarballUrl, pluginDir);
+      if (pin.commit && archiveCommit && !sameCommit(archiveCommit, pin.commit)) {
+        fs.rmSync(pluginDir, { recursive: true, force: true });
+        throw new Error(`${owner}/${repo} returned commit ${archiveCommit} for pinned commit ${pin.commit}`);
+      }
+      const commit = archiveCommit || pin.commit;
 
-      // Write version marker
-      fs.writeFileSync(versionFile, version);
+      fs.writeFileSync(path.join(pluginDir, '.ref'), ref);
+      if (commit) {
+        fs.writeFileSync(path.join(pluginDir, '.commit'), commit.toLowerCase());
+      }
+      // Written last: the cache check reads `.version` first
+      fs.writeFileSync(path.join(pluginDir, '.version'), version);
       return pluginDir;
     } catch (err) {
       lastError = err;
       const isNotFound = /HTTP 404/.test(err.message);
-      if (isNotFound && !parsedSource.explicitRef) {
+      if (isNotFound && !exact) {
         continue;
       }
       throw err;
@@ -435,7 +515,7 @@ async function fetchPlugin(name, source, version) {
   }
 
   throw new Error(
-    `Unable to fetch ${name} from ${owner}/${repo}. Tried refs: ${[...new Set(refCandidates.filter(Boolean))].join(', ')}. Last error: ${lastError ? lastError.message : 'unknown error'}`
+    `Unable to fetch ${name} from ${owner}/${repo}. Tried refs: ${refs.join(', ')}. Last error: ${lastError ? lastError.message : 'unknown error'}`
   );
 }
 
@@ -465,9 +545,31 @@ function parseGitHubSource(source, version, name = 'plugin') {
   return { owner, repo, ref, explicitRef };
 }
 
+// Uncompressed bytes kept from the start of a tarball to find its commit.
+const TAR_HEAD_BYTES = 4096;
+
+/**
+ * Commit id from the pax global header that `git archive`, and so GitHub's
+ * tarball endpoint, writes as the first entry of an archive.
+ *
+ * @param {Buffer} head - Start of the uncompressed tar stream
+ * @returns {string|null} Full commit SHA, or null when there is no such header
+ */
+function archiveCommitFromTarHead(head) {
+  // typeflag 'g' at offset 156 marks a pax global header
+  if (!head || head.length < 512 || head[156] !== 0x67) return null;
+  const size = parseInt(head.toString('latin1', 124, 136), 8);
+  if (!Number.isFinite(size) || size <= 0) return null;
+  const records = head.toString('latin1', 512, Math.min(head.length, 512 + size));
+  const match = records.match(/(?:^|\n)\d+ comment=([0-9a-f]{40})\n/);
+  return match ? match[1] : null;
+}
+
 /**
  * Download a tarball from URL and extract to dest directory.
  * Strips the top-level directory from the tarball (GitHub tarballs have owner-repo-sha/).
+ *
+ * @returns {Promise<string|null>} Commit the archive was built from, when it says
  */
 function downloadAndExtractTarball(url, dest) {
   return new Promise((resolve, reject) => {
@@ -507,13 +609,40 @@ function downloadAndExtractTarball(url, dest) {
         let stderr = '';
         tar.stderr.on('data', (d) => { stderr += d; });
 
+        // Decompress only the start of the stream, beside tar, to read the
+        // commit from the archive's pax header.
+        const gunzip = createGunzip();
+        let head = Buffer.alloc(0);
+        let headDone = false;
+        let tarDone = false;
+        const settle = () => {
+          if (headDone && tarDone) resolve(archiveCommitFromTarHead(head));
+        };
+        const finishHead = () => {
+          if (headDone) return;
+          headDone = true;
+          res.unpipe(gunzip);
+          gunzip.destroy();
+          settle();
+        };
+        gunzip.on('data', (chunk) => {
+          if (headDone) return;
+          head = Buffer.concat([head, chunk]);
+          if (head.length >= TAR_HEAD_BYTES) finishHead();
+        });
+        gunzip.on('end', finishHead);
+        gunzip.on('error', finishHead);
+
         res.pipe(tar.stdin);
+        res.pipe(gunzip);
 
         tar.on('close', (code) => {
           if (code !== 0) {
+            finishHead();
             reject(new Error(`tar extraction failed (code ${code}): ${stderr}`));
           } else {
-            resolve();
+            tarDone = true;
+            settle();
           }
         });
 
@@ -591,7 +720,7 @@ async function fetchExternalPlugins(pluginNames, marketplace) {
     }
 
     try {
-      await fetchPlugin(name, source.value, plugin.version);
+      await fetchPlugin(name, source.value, plugin.version, { commit: source.commit, ref: source.ref });
       fetched.push(name);
     } catch (err) {
       failed.push(name);
@@ -825,7 +954,7 @@ function recordedPlatforms(platforms, claudeFailures, depName, recordedBefore) {
   return platforms.filter(platform => platform !== 'claude');
 }
 
-function recordInstall(name, version, platforms, granular) {
+function recordInstall(name, version, platforms, granular, commit) {
   const data = loadInstalledJson();
   const entry = {
     version,
@@ -833,6 +962,7 @@ function recordInstall(name, version, platforms, granular) {
     platforms,
     scope: 'full'
   };
+  if (commit) entry.commit = commit;
   if (granular && granular.scope === 'partial') {
     entry.scope = 'partial';
     entry.agents = granular.agents || [];
@@ -1052,23 +1182,6 @@ async function installPlugin(nameWithVersion, args) {
   const toFetch = resolvePluginDeps([name], marketplace);
   console.log(`\nInstalling ${name} (+ deps: ${toFetch.filter(n => n !== name).join(', ') || 'none'})\n`);
 
-  // Fetch all
-  for (const depName of toFetch) {
-    const dep = pluginMap[depName];
-    if (!dep) continue;
-
-    const source = resolvePluginSource(dep.source);
-    if (!source || source.type === 'local') continue;
-
-    checkCoreCompat(dep);
-    const ver = depName === name && requestedVersion ? requestedVersion : dep.version;
-    try {
-      await fetchPlugin(depName, source.value, ver);
-    } catch (err) {
-      console.error(`  [ERROR] Failed to fetch ${depName}: ${err.message}`);
-    }
-  }
-
   // Determine platforms
   let platforms;
   if (args.tool) {
@@ -1081,6 +1194,42 @@ async function installPlugin(nameWithVersion, args) {
   }
 
   console.log(`Installing for platforms: ${platforms.join(', ')}`);
+
+  // Set up ~/.agentsys before fetching: a first local install replaces the
+  // whole directory, plugin cache included.
+  const installDir = getInstallDir();
+  const needsLocal = platforms.includes('opencode') || platforms.includes('codex') || platforms.includes('cursor') || platforms.includes('kiro');
+  if (needsLocal && !fs.existsSync(path.join(installDir, 'lib'))) {
+    // Need local install for transforms
+    cleanOldInstallation(installDir);
+    copyFromPackage(installDir);
+  }
+
+  // Fetch all
+  for (const depName of toFetch) {
+    const dep = pluginMap[depName];
+    if (!dep) continue;
+
+    const source = resolvePluginSource(dep.source);
+    if (!source || source.type === 'local') continue;
+
+    checkCoreCompat(dep);
+    const ver = depName === name && requestedVersion ? requestedVersion : dep.version;
+    // The marketplace pins belong to the marketplace version; another
+    // requested version is fetched without them.
+    let pin = { commit: source.commit, ref: source.ref };
+    if (ver !== dep.version) {
+      if (pin.commit || pin.ref) {
+        console.log(`  [WARN] ${depName}@${ver} is not the marketplace version (${dep.version}), so its pin does not apply`);
+      }
+      pin = {};
+    }
+    try {
+      await fetchPlugin(depName, source.value, ver, pin);
+    } catch (err) {
+      console.error(`  [ERROR] Failed to fetch ${depName}: ${err.message}`);
+    }
+  }
 
   // Resolve component filter if a specific component was requested
   let filter = null;
@@ -1107,15 +1256,6 @@ async function installPlugin(nameWithVersion, args) {
     }
     filter = buildFilterFromComponent(resolved);
     console.log(`  Installing ${resolved.type}: ${resolved.name}`);
-  }
-
-  // Use cache as install source
-  const installDir = getInstallDir();
-  const needsLocal = platforms.includes('opencode') || platforms.includes('codex') || platforms.includes('cursor') || platforms.includes('kiro');
-  if (needsLocal && !fs.existsSync(path.join(installDir, 'lib'))) {
-    // Need local install for transforms
-    cleanOldInstallation(installDir);
-    copyFromPackage(installDir);
   }
 
   // depName -> errno, or null when Claude Code itself rejected the plugin
@@ -1178,15 +1318,16 @@ async function installPlugin(nameWithVersion, args) {
     const ver = depName === name && requestedVersion ? requestedVersion : (dep ? dep.version : 'unknown');
     const previous = recordedBefore[depName] && recordedBefore[depName].platforms;
     const recorded = recordedPlatforms(platforms, claudeFailures, depName, previous);
+    const commit = readCachedCommit(depName);
     if (depName === name && filter) {
       recordInstall(depName, ver, recorded, {
         scope: 'partial',
         agents: filter.agents,
         skills: filter.skills,
         commands: filter.commands
-      });
+      }, commit);
     } else {
-      recordInstall(depName, ver, recorded);
+      recordInstall(depName, ver, recorded, null, commit);
     }
   }
 
@@ -2626,6 +2767,9 @@ module.exports = {
   buildFilterFromComponent,
   resolvePluginSource,
   parseGitHubSource,
+  pluginFetchRefs,
+  archiveCommitFromTarHead,
+  readCachedCommit,
   installForOpenCode,
   installForCodex,
   installForCursor,
