@@ -1,12 +1,10 @@
 # Agent Reference
 
-Complete reference for all agents in AgentSys.
+Every agent in the AgentSys plugins at the commits pinned in `.claude-plugin/marketplace.json`. Each plugin repo's `agents/*.md` is the source of truth; this page summarizes it.
 
 <!-- GEN:START:agents-counts -->
-**TL;DR:** 49 agents across 24 plugins (16 have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5, Haiku 4.5). Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: 49 -->
+**TL;DR:** 49 agents across 24 plugins (16 have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5.5, Haiku 4.5) or inherits the caller's model, and does one thing. <!-- AGENT_COUNT_TOTAL: 49 -->
 <!-- GEN:END:agents-counts -->
-
----
 
 ## Quick Navigation
 
@@ -15,913 +13,131 @@ Complete reference for all agents in AgentSys.
 |--------|--------|---------|
 <!-- GEN:END:agents-nav -->
 
-**Design principle:** Each agent has a single responsibility. Complex work is decomposed into specialized agents that do one thing extremely well, then orchestrated together.
-
-**Related docs:**
-- [/next-task Workflow](../workflows/NEXT-TASK.md) - How agents work together
-
----
+Related: [/next-task Workflow](../workflows/NEXT-TASK.md) shows how the agents work together; [/ship Workflow](../workflows/SHIP.md) covers CI and merge.
 
 ## Overview
 
-AgentSys uses 49 specialized agents across 24 plugins (16 have agents; gate-and-ship is commands-only, banthis, skill-curator, system-prompt-curator, and agnix are skill/command-only, zig-lsp is a config-only LSP plugin with no commands or agents, and mojo and ada-spark are skill-only plugins). Each agent is optimized for a specific task and assigned a model based on complexity:
-
-| Model | Resolves to | Use Case | Cost |
-|-------|-------------|----------|------|
-| opus | Claude Opus 5.5 | Complex reasoning, quality-critical work | High |
-| sonnet | Claude Sonnet 5 | Validation, structured checks | Medium |
-| haiku | Claude Haiku 4.5 | Mechanical execution, no judgment | Low |
+| Model | Resolves to | Used for |
+|-------|-------------|----------|
+| opus | Claude Opus 5.5 | Judgment where errors compound into later phases |
+| sonnet | Claude Sonnet 5.5 | Structured analysis and validation, most agents |
+| haiku | Claude Haiku 4.5 | Mechanical work with no judgment |
+| inherit | the caller's model | Agents with no `model` key |
 
 Family aliases resolve to the current model in that family, so agent files do not pin versions.
 
-**Agent types:**
-- **File-based agents** (40) - Defined in `plugins/*/agents/*.md` with frontmatter <!-- AGENT_COUNT_FILE_BASED: 40 -->
-- **Role-based agents** (10) - Defined inline via Task tool with specialized prompts <!-- AGENT_COUNT_ROLE_BASED: 10 -->
+- **File-based agents** (39): `agents/*.md` with frontmatter in each plugin repo. <!-- AGENT_COUNT_FILE_BASED: 39 -->
+- **Role-based agents** (10): audit-project review passes, spawned through Task with a pass-specific prompt. <!-- AGENT_COUNT_ROLE_BASED: 10 -->
 
----
+Plugins with no agents: gate-and-ship (commands only); banthis, skill-curator, system-prompt-curator and agnix (skill and command only); mojo and ada-spark (skills only); zig-lsp (LSP config only).
+
+Tool lists are abbreviated: `Bash(git, gh)` means `Bash(git:*), Bash(gh:*)`.
 
 ## next-task Plugin Agents
 
-### task-discoverer
-
-**Model:** sonnet
-**Purpose:** Find and prioritize tasks from configured sources.
-
-**What it does:**
-1. Loads claimed tasks from `tasks.json` (excludes them)
-2. Fetches from GitHub Issues, GitHub Projects (v2 boards), GitLab, local files, or custom CLI
-3. Excludes issues that already have an open PR (GitHub source only)
-4. Applies priority scoring (labels, blockers, age, reactions)
-5. Presents top 5 via AskUserQuestion checkboxes
-6. Posts "Workflow Started" comment to GitHub issue
-
-**Tools available:**
-- Bash (gh, glab, git)
-- Grep, Read
-- AskUserQuestion
-
----
-
-### worktree-manager
-
-**Model:** haiku
-**Purpose:** Create git worktrees for isolated development.
-
-**What it does:**
-1. Creates `../worktrees/{task-slug}/` directory
-2. Creates `feature/{task-slug}` branch
-3. Claims task in `tasks.json`
-4. Creates `flow.json` in worktree
-
-**Tools available:**
-- Bash (git only)
-- Read, Write
-
----
-
-### exploration-agent
-
-**Model:** opus
-**Purpose:** Deep codebase analysis before planning.
-
-**What it does:**
-1. Extracts keywords from task description
-2. Searches for related files
-3. Traces dependency graphs
-4. Analyzes existing patterns
-5. Outputs exploration report
-
-**Tools available:**
-- Read, Glob, Grep
-- Bash (git only)
-- LSP
-- Task (for sub-exploration)
-
-**Why opus:** Exploration quality directly impacts planning quality. Poor exploration = poor plan = poor implementation. The compound effect justifies the cost.
-
----
-
-### planning-agent
-
-**Model:** opus
-**Purpose:** Design step-by-step implementation plans.
-
-**What it does:**
-1. Synthesizes exploration findings
-2. Creates implementation steps
-3. Identifies risks and critical paths
-4. Outputs structured JSON
-5. Posts summary to GitHub issue
-
-**Tools available:**
-- Read, Glob, Grep
-- Bash (git only)
-- Task (for research)
-
-**Output format:**
-
-```json
-{
-  "steps": [
-    { "action": "modify", "file": "src/auth.ts", "description": "..." }
-  ],
-  "risks": ["..."],
-  "complexity": "medium"
-}
-```
-
-**Why opus:** Planning is the leverage point. A good plan makes implementation straightforward. A bad plan causes rework cycles.
-
----
-
-### implementation-agent
-
-**Model:** opus
-**Purpose:** Execute approved plans with production-quality code.
-
-**What it does:**
-1. Executes plan step-by-step
-2. Creates atomic commits per step
-3. Runs type checks, linting, tests after each step
-4. Updates `flow.json` for resume capability
-
-**Tools available:**
-- Read, Write, Edit
-- Glob, Grep
-- Bash (git, npm, node)
-- Task (for sub-tasks)
-- LSP
-
-**Restrictions:**
-- MUST NOT create PR
-- MUST NOT push to remote
-- MUST NOT invoke review agents
-
-**Why opus:** Implementation quality matters. Bad code gets caught in review but wastes cycles. Good code flows through.
-
----
-
-> **Note:** delivery-validator and test-coverage-checker moved to prepare-delivery plugin.
-
-### sync-docs-agent
-
-**Model:** sonnet
-**Purpose:** Update documentation for recent changes.
-
-**What it does:**
-1. Finds docs referencing changed files
-2. Updates CHANGELOG entry
-3. Fixes outdated imports/versions
-4. Delegates simple edits to simple-fixer
-5. Invokes `/ship` when complete
-
-**Tools available:**
-- Bash (git)
-- Read, Grep, Glob
-- Task (for simple-fixer)
-
----
-
-### simple-fixer
-
-**Model:** haiku
-**Purpose:** Execute mechanical edits without judgment.
-
-**What it does:**
-- Receives structured fix list from parent
-- Executes each fix: remove-line, replace, insert
-- No decision-making, just execution
-
-**Tools available:**
-- Read, Edit
-- Bash (git)
-
-**Why haiku:** Pure execution. No reasoning needed. Haiku is fast and cheap.
-
----
-
-### ci-monitor
-
-**Model:** haiku
-**Purpose:** Poll CI status with sleep/check loops.
-
-**What it does:**
-1. Polls `gh pr checks` every 15 seconds
-2. Reports status changes
-3. On failure: delegates to ci-fixer
-4. On success: continues workflow
-
-**Tools available:**
-- Bash (gh, git)
-- Read
-- Task (for ci-fixer)
-
-**Why haiku:** Polling is mechanical. No judgment needed.
-
----
-
-### ci-fixer
-
-**Model:** sonnet
-**Purpose:** Fix CI failures and review comments.
-
-**What it does:**
-1. Analyzes CI logs to diagnose failure
-2. Applies fixes:
-   - Lint auto-fix
-   - Type error resolution
-   - Test failure fixes
-3. Addresses PR review comments
-4. Commits and pushes fixes
-
-**Tools available:**
-- Bash (git, npm)
-- Read, Edit
-- Grep, Glob
-
----
-
-## deslop Plugin Agents
-
-### deslop-agent
-
-**Model:** sonnet
-**Purpose:** Clean AI slop from code with certainty-based findings.
-
-**What it does:**
-1. Parses arguments (mode, scope, thoroughness)
-2. Invokes deslop skill to run detection
-3. Returns structured findings with certainty levels
-4. HIGH certainty items marked for auto-fix by orchestrator
-
-**Tools available:**
-- Bash (git, node)
-- Skill (for deslop)
-- Read, Glob, Grep
-
-**Why sonnet:** Slop detection is pattern-based. Sonnet handles patterns well and is faster/cheaper than opus.
-
-**Cross-plugin usage:** Also used by next-task Phase 8 with `scope=diff` to clean new code before review.
-
----
-
-## enhance Plugin Agents
-
-### plugin-enhancer
-
-**Model:** sonnet
-**Purpose:** Analyze plugin structures.
-
-**Checks:**
-- plugin.json manifest validity
-- MCP tool definitions (additionalProperties, required array)
-- Security patterns (unrestricted Bash, command injection)
-- Component organization
-
-**Tools available:**
-- Read, Glob, Grep
-- Bash (git)
-
----
-
-### agent-enhancer
-
-**Model:** opus
-**Purpose:** Analyze agent prompts.
-
-**Checks (14 patterns):**
-- Frontmatter validity
-- Tool restrictions
-- XML structure
-- Chain-of-thought appropriateness
-- Example quality
-- Anti-patterns (vague language, prompt bloat)
-
-**Tools available:**
-- Read, Glob, Grep
-- Bash (git)
-
-**Why opus:** Agent quality compounds. Bad agent prompts = bad agent outputs across all uses.
-
----
-
-### claudemd-enhancer
-
-**Model:** opus
-**Purpose:** Analyze CLAUDE.md/AGENTS.md files.
-
-**Checks:**
-- Structure (critical rules, architecture, commands)
-- References to actual files
-- Token efficiency
-- README duplication
-- Cross-platform compatibility
-
-**Tools available:**
-- Read, Glob, Grep
-- Bash (git)
-
----
-
-### docs-enhancer
-
-**Model:** opus
-**Purpose:** Analyze documentation quality.
-
-**Modes:**
-- AI-only: Aggressive token reduction
-- Both: Balance readability with AI-friendliness
-
-**Checks:**
-- Link validity
-- Structure and chunking
-- Semantic boundaries
-- Heading hierarchy
-
-**Tools available:**
-- Read, Glob, Grep
-- Bash (git)
-
----
-
-### prompt-enhancer
-
-**Model:** opus
-**Purpose:** Analyze prompt engineering patterns.
-
-**Checks (16 patterns):**
-- Clarity (vague instructions)
-- Structure (XML, headings)
-- Examples (few-shot patterns)
-- Context/WHY presence
-- Output format specification
-- Anti-patterns (redundant CoT)
-
-**Tools available:**
-- Read, Glob, Grep
-- Bash (git)
-
----
-
-### hooks-enhancer
-
-**Model:** opus
-**Purpose:** Analyze hook definitions.
-
-**Checks:**
-- Frontmatter presence and structure
-- Required name/description fields
-- Basic formatting expectations
-
-**Tools available:**
-- Read, Glob, Grep
-
----
-
-### skills-enhancer
-
-**Model:** opus
-**Purpose:** Analyze SKILL.md quality.
-
-**Checks:**
-- Frontmatter presence and structure
-- Required name/description fields
-- Trigger phrase clarity ("Use when user asks")
-
-**Tools available:**
-- Read, Glob, Grep
-
----
-
-### cross-file-enhancer
-
-**Model:** sonnet
-**Purpose:** Analyze cross-file semantic consistency.
-
-**Checks:**
-- Tools used vs declared in frontmatter
-- Agent references exist
-- Duplicate instructions across files
-- Contradictory rules (ALWAYS vs NEVER)
-- Orphaned agents
-- Skill tool mismatches
-
-**Tools available:**
-- Read, Glob, Grep, Bash(git:*)
-
----
-
-## drift-detect Plugin Agent
-
-### plan-synthesizer
-
-**Model:** opus
-**Purpose:** Deep semantic analysis for drift detection.
-
-**What it does:**
-1. Receives data from JavaScript collectors
-2. Performs semantic matching (not string matching)
-3. Identifies:
-   - Issues that should be closed (already done)
-   - "Done" phases that aren't done
-   - Release blockers
-4. Outputs prioritized reconstruction plan
-
-**Tools available:**
-- Read, Write
-
-**Why opus:** Semantic matching requires deep understanding. "user authentication" must match `auth/`, `login.js`, `session.ts`. Opus handles this.
-
----
-
-## repo-intel Plugin Agent
-
-### map-validator
-
-**Model:** haiku
-**Purpose:** Validate repo-intel output for obvious errors.
-
-**What it does:**
-1. Verifies map isn't empty
-2. Flags suspiciously small symbol counts
-3. Checks for missing language detection
-4. Returns single-line status
-
-**Tools available:**
-- Read
-
-**Why haiku:** Validation is deterministic and lightweight.
-
----
-
-## perf Plugin Agents
-
-### perf-orchestrator
-
-**Model:** opus
-**Purpose:** Coordinate /perf investigations across all phases.
-
-**What it does:**
-1. Enforces perf rules and phase order
-2. Spawns theory, profiling, and logging helpers
-3. Ensures checkpoints + evidence after each phase
-
-**Tools available:**
-- Read, Write, Edit, Task, Bash(git:*), Bash(npm:*), Bash(cargo:*), Bash(go:*), Bash(pytest:*), Bash(mvn:*), Bash(gradle:*)
-
----
-
-### perf-theory-gatherer
-
-**Model:** opus
-**Purpose:** Generate hypotheses based on git history and evidence.
-
-**Tools available:**
-- Read, Bash(git:*), Bash(npm:*), Bash(pnpm:*), Bash(yarn:*), Bash(cargo:*), Bash(go:*), Bash(pytest:*), Bash(python:*), Bash(mvn:*), Bash(gradle:*)
-
----
-
-### perf-theory-tester
-
-**Model:** opus
-**Purpose:** Validate hypotheses with controlled experiments.
-
-**Tools available:**
-- Read, Write, Edit, Bash(git:*), Bash(npm:*), Bash(pnpm:*), Bash(yarn:*), Bash(cargo:*), Bash(go:*), Bash(pytest:*), Bash(python:*), Bash(mvn:*), Bash(gradle:*)
-
----
-
-### perf-code-paths
-
-**Model:** sonnet
-**Purpose:** Map entrypoints and likely hot files before profiling.
-
-**Tools available:**
-- Read, Grep, Glob
-
----
-
-### perf-investigation-logger
-
-**Model:** sonnet
-**Purpose:** Append structured investigation logs with evidence.
-
-**Tools available:**
-- Read, Write
-
----
-
-### perf-analyzer
-
-**Model:** opus
-**Purpose:** Synthesize findings into evidence-backed recommendations.
-
-**Tools available:**
-- Read, Write
-
----
-
-## audit-project Plugin Agents
-
-These are role-based agents invoked via Task tool with specialized prompts. They use the built-in review subagent type with domain-specific instructions.
-
-### code-quality-reviewer
-
-**Activation:** Always active
-**Purpose:** Review code quality and error handling.
-
-**Focuses on:**
-- Code style and consistency
-- Best practices violations
-- Error handling and failure paths
-- Maintainability issues
-- Code duplication
-
----
-
-### security-expert
-
-**Activation:** Always active
-**Purpose:** Find security vulnerabilities.
-
-**Focuses on:**
-- SQL injection, XSS, CSRF vulnerabilities
-- Authentication and authorization flaws
-- Secrets exposure, insecure configurations
-- Input validation, output encoding
-
----
-
-### performance-engineer
-
-**Activation:** Always active
-**Purpose:** Find performance bottlenecks.
-
-**Focuses on:**
-- N+1 queries, inefficient algorithms
-- Memory leaks, unnecessary allocations
-- Blocking operations, missing async
-- Bundle size, lazy loading
-
----
-
-### test-quality-guardian
-
-**Activation:** Always active (reports missing tests)
-**Purpose:** Validate test coverage and quality.
-
-**Focuses on:**
-- Test coverage for new code
-- Edge case coverage
-- Test design and maintainability
-- Mocking appropriateness
-
----
-
-### architecture-reviewer
-
-**Activation:** Conditional (if FILE_COUNT > 50)
-**Purpose:** Review code organization.
-
-**Focuses on:**
-- Code organization and modularity
-- Design pattern violations
-- Dependency management
-- SOLID principles
-
----
-
-### database-specialist
-
-**Activation:** Conditional (if database detected)
-**Purpose:** Review database operations.
-
-**Focuses on:**
-- Query optimization, N+1 queries
-- Missing indexes
-- Transaction handling
-- Connection pooling
-
----
-
-### api-designer
-
-**Activation:** Conditional (if API detected)
-**Purpose:** Review API design.
-
-**Focuses on:**
-- REST best practices
-- Error handling and status codes
-- Rate limiting, pagination
-- API versioning
-
----
-
-### frontend-specialist
-
-**Activation:** Conditional (if frontend detected)
-**Purpose:** Review frontend code.
-
-**Focuses on:**
-- Component design and composition
-- State management patterns
-- Performance (memoization, virtualization)
-- Accessibility
-
----
-
-### backend-specialist
-
-**Activation:** Conditional (if backend detected)
-**Purpose:** Review backend service and domain logic.
-
-**Focuses on:**
-- Service boundaries and layering
-- Domain logic correctness
-- Concurrency and idempotency
-- Background job safety
-
----
-
-### devops-reviewer
-
-**Activation:** Conditional (if CI/CD detected)
-**Purpose:** Review infrastructure and CI/CD.
-
-**Focuses on:**
-- Pipeline configuration
-- Secret management
-- Docker best practices
-- Deployment strategies
-
----
-
-## learn Plugin Agent
-
-### learn-agent
-
-**Model:** opus
-**Purpose:** Research any topic online and create comprehensive learning guides with RAG-optimized indexes.
-
-**What it does:**
-1. Uses progressive query architecture (funnel approach: broad → specific → deep)
-2. Gathers 10-40 online sources based on depth level
-3. Scores sources by authority, recency, depth, examples, uniqueness
-4. Uses just-in-time retrieval to save tokens (only fetches high-scoring sources)
-5. Creates structured learning guides with examples and best practices
-6. Updates CLAUDE.md/AGENTS.md master indexes for future RAG lookups
-7. Runs enhance:enhance-docs and enhance:enhance-prompts for quality
-
-**Tools available:**
-- WebSearch, WebFetch, Read, Write, Glob, Grep, Skill
-
-**Output:**
-- Topic-specific guide in `agent-knowledge/`
-- Updated master index in `agent-knowledge/CLAUDE.md`
-- Source metadata with quality scores in `agent-knowledge/resources/`
-
----
-
-## agnix Plugin Agent
-
-### agnix-agent
-
-**Model:** sonnet
-**Purpose:** Lint agent configuration files using agnix CLI.
-
-**What it does:**
-1. Parses arguments (path, --fix, --strict, --target)
-2. Invokes the agnix skill with the appropriate flags
-3. Returns structured validation results
-
-**Tools available:**
-- Bash(agnix:*), Bash(cargo:*), Skill, Read, Glob, Grep
-
-**Output:**
-- Structured JSON with error/warning counts
-- List of diagnostics with file, line, rule, message
-- Fix status if --fix was used
-
----
+| Agent | Model | Tools | What it does |
+|-------|-------|-------|--------------|
+| task-discoverer | sonnet | Skill, Read, Grep, Bash(gh, glab, git) | Fetches, filters and scores tasks from the configured source and returns the top 5. |
+| worktree-manager | haiku | Bash(git), Read | Creates an isolated worktree and feature branch for the selected task. Does not claim the task (the orchestrator does) or remove worktrees. |
+| exploration-agent | sonnet | Read, Glob, Grep, Bash(git) | Finds the files to change, patterns to follow, dependencies and risks, and returns a report the planner uses without re-exploring. |
+| planning-agent | inherit | Read, Glob, Grep, Bash(git) | Turns the exploration report into a JSON implementation plan for the user to approve. |
+| implementation-agent | inherit | Read, Write, Edit, Glob, Grep, Bash(git, npm, node), LSP | Implements the approved plan with tests as local commits. Does not push, open a PR or run review agents: `/ship` owns the push. |
+| simple-fixer | haiku | Read, Edit, Bash(git) | Applies a precomputed list of mechanical edits (remove line, replace text, insert line) from deslop or sync-docs and commits them. |
+| ci-monitor | haiku | Bash(gh, git), Read, Task | Blocks on `gh pr checks --watch` with the whole wait bounded to 30 minutes, reports failing checks and review feedback, and hands fixes to ci-fixer for at most 5 rounds. Reports `passed`, `failed`, `timeout` or `no-checks`; does not reply to reviewers or merge. |
+| ci-fixer | sonnet | Bash(git, npm), Read, Edit, Grep, Glob | Fixes one CI failure or one review comment that needs a code change, commits it and pushes the PR branch. |
 
 ## prepare-delivery Plugin Agents
 
-### prepare-delivery-agent
-
-**Model:** sonnet
-**Purpose:** Orchestrate pre-ship quality gate pipeline via skill.
-
-**What it does:**
-1. Runs prepare-delivery:test-coverage-checker and prepare-delivery:delivery-validator in sequence
-2. Aggregates pass/fail results into a single quality gate verdict
-3. Blocks shipping if any mandatory check fails
-
-**Tools available:**
-- Bash (git, npm)
-- Skill, Task, Read, Grep, Glob
-
----
-
-### test-coverage-checker
-
-**Model:** sonnet
-**Purpose:** Validate test quality for new code.
-
-**What it does:**
-1. Identifies new/modified functions
-2. Checks if tests exist
-3. Checks if tests are meaningful (not just path matching)
-4. Reports coverage status
-
-**Tools available:**
-- Bash (git, npm)
-- Read, Grep, Glob
-
-**Advisory only:** Does not block workflow. Reports findings but continues.
-
----
-
-### delivery-validator
-
-**Model:** sonnet
-**Purpose:** Final validation before shipping.
-
-**Checks:**
-1. Review status - no open issues (or explicit override)
-2. Tests pass
-3. Build passes
-4. Task requirements met (extracts from task, maps to changes)
-5. No regressions
-
-**Tools available:**
-- Bash (git, npm)
-- Read, Grep, Glob
-
-**On failure:** Returns to implementation with fix instructions.
-
-**Restrictions:**
-- MUST NOT create PR
-- MUST NOT push
-- MUST NOT skip sync-docs:sync-docs-agent
-
----
-
-## gate-and-ship Plugin
-
-No agents - command-only orchestrator that delegates to prepare-delivery and ship plugins.
-
----
-
-## consult Plugin Agent
-
-### consult-agent
-
-**Model:** sonnet
-**Purpose:** Cross-tool AI consultation - get a second opinion from another AI tool.
-
-**What it does:**
-1. Formats context and question for the target tool (Gemini, Codex, Claude, OpenCode, Copilot)
-2. Invokes the target tool non-interactively
-3. Returns the structured response for comparison
-
-**Tools available:**
-- Bash, Read, Glob, Grep, Skill
-
----
-
-## debate Plugin Agent
-
-### debate-orchestrator
-
-**Model:** sonnet
-**Purpose:** Structured multi-round debate between AI tools.
-
-**What it does:**
-1. Frames the debate topic and assigns positions to AI tools
-2. Manages rounds - each tool argues, then rebuts
-3. Synthesizes final summary with key agreements and disagreements
-
-**Tools available:**
-- Bash, Read, Glob, Grep, Skill
-
----
-
-## ship Plugin Agent
-
-### release-agent
-
-**Model:** sonnet
-**Purpose:** Versioned release with automatic ecosystem detection.
-
-**What it does:**
-1. Detects ecosystem (npm, cargo, go, etc.) and version strategy
-2. Bumps version, creates changelog entry, tags release
-3. Delegates publish to CI via tag push or `gh release create`
-
-**Tools available:**
-- Bash (git, gh, npm, cargo)
-- Read, Write, Glob, Grep
-
----
-
-## skillers Plugin Agents
-
-### skillers-recommender
-
-**Model:** opus
-**Purpose:** Suggest skills, hooks, and agents from observed workflow patterns.
-
-**What it does:**
-1. Reads compacted knowledge themes from transcript analysis
-2. Identifies repetitive manual patterns that could be automated
-3. Recommends new skills, hooks, or agents with draft implementations
-
-**Tools available:**
-- Read, Glob, Grep, Write
-
-**Why opus:** Pattern synthesis across diverse workflows requires deep reasoning to distinguish signal from noise.
-
----
-
-### skillers-compactor
-
-**Model:** sonnet
-**Purpose:** Compact transcripts into knowledge files.
-
-**What it does:**
-1. Reads raw transcripts from Claude Code, Codex, or OpenCode
-2. Extracts observations and clusters them into knowledge themes
-3. Writes compacted knowledge files for skillers-recommender
-
-**Tools available:**
-- Read, Write, Glob, Grep, Bash
-
----
-
-## onboard Plugin Agent
-
-### onboard-agent
-
-**Model:** sonnet
-**Purpose:** Codebase onboarding - project orientation for newcomers.
-
-**What it does:**
-1. Scans project structure, README, and config files
-2. Identifies architecture patterns, key entry points, and conventions
-3. Generates a concise orientation guide tailored to the contributor's role
-
-**Tools available:**
-- Read, Glob, Grep, Bash (git)
-
----
-
-## can-i-help Plugin Agent
-
-### can-i-help-agent
-
-**Model:** sonnet
-**Purpose:** Match contributor skills to project needs.
-
-**What it does:**
-1. Scans open issues, good-first-issue labels, and help-wanted tags
-2. Profiles contributor strengths from their history or stated skills
-3. Returns ranked list of issues the contributor is best suited to tackle
-
-**Tools available:**
-- Bash (gh, git)
-- Read, Glob, Grep
-
----
-
-## Model Selection Rationale
-
-| Agent Type | Model | Reasoning |
-|------------|-------|-----------|
-| Analysis/reasoning | opus | Quality compounds - errors propagate |
-| Pattern matching | sonnet | Good at structured tasks, fast |
-| Mechanical execution | haiku | No judgment needed, cheapest |
-
-**Key insight:** For enhancers and analyzers, quality loss is exponential. Each imperfection in analysis creates downstream problems.
-
----
-
-## Tool Restrictions
-
-Agents have restricted tool access for safety:
-
-| Agent | Restricted From | Why |
-|-------|-----------------|-----|
-| implementation-agent | PR creation, git push | Workflow enforces order |
-| prepare-delivery:delivery-validator | PR creation, git push | Must pass validation first |
-| worktree-manager | Most tools | Only needs git |
-| simple-fixer | Most tools | Only needs edit |
-
----
+| Agent | Model | Tools | What it does |
+|-------|-------|-------|--------------|
+| prepare-delivery-agent | inherit | Bash(git, npm, node, agnix), Skill, Task, Read, Edit, Write, Glob, Grep, AskUserQuestion | Runs the pre-ship gates (deslop, config lint, review loop, delivery validation, docs sync) and returns a `PREPARE_DELIVERY_RESULT` block. Local only; never pushes. |
+| test-coverage-checker | sonnet | Bash(git, node), Skill, Read, Grep, Glob | Checks that changed code has tests that exercise it, not just a test file with a matching name. Advisory and read-only. |
+| delivery-validator | sonnet | Skill, Bash(git, npm, node, cargo, go, pytest, make), Read, Grep, Glob | Decides whether a reviewed branch is ready to ship: tests, build, requirements and review status. Returns approval or fix instructions. |
+
+## ship Plugin Agents
+
+| Agent | Model | Tools | What it does |
+|-------|-------|-------|--------------|
+| release-agent | sonnet | Read, Glob, Grep, Edit, Write, Bash(git, gh, npm, npx, node, cargo, go, python, pip, twine, mvn, gradle, make, sed, just, goreleaser) | Discovers how the repository releases, then plans or performs the release. |
+
+## deslop Plugin Agents
+
+| Agent | Model | Tools | What it does |
+|-------|-------|-------|--------------|
+| deslop-agent | sonnet | Bash(git, node), Skill, Read, Glob, Grep | Scans for AI slop with the deslop skill and returns certainty-ranked findings plus safe fixes as a `DESLOP_RESULT` block. Read-only; the caller applies fixes. |
+
+## enhance Plugin Agents
+
+All eight load their matching `enhance-*` skill, which holds the analyzer command and the checks. Tools: Skill, Read, Glob, Grep, Bash(node), plus Edit and Bash(git) where noted.
+
+| Agent | Model | Extra tools | What it analyzes |
+|-------|-------|-------------|------------------|
+| plugin-enhancer | sonnet | Edit, Bash(git) | Plugin manifests, MCP tool schemas, plugin security patterns |
+| agent-enhancer | inherit | Edit, Bash(git) | Agent definitions: frontmatter, tools, model choice, prompt quality |
+| claudemd-enhancer | inherit | Edit, Bash(git) | CLAUDE.md and AGENTS.md: broken references, bloat, instructions that no longer help |
+| docs-enhancer | sonnet | Edit, Bash(git) | Documentation: broken links, structure, retrieval readiness |
+| prompt-enhancer | inherit | Edit, Bash(git) | Prompt files: clarity, dated patterns, output contracts |
+| hooks-enhancer | sonnet | Edit | Hook configs and scripts: safety, exit codes, timeouts |
+| skills-enhancer | inherit | Edit | SKILL.md files: trigger quality, invocation control, tool scope, size |
+| cross-file-enhancer | sonnet | Bash(git) | Consistency across agents, skills and commands: undeclared tools, missing agent references, duplicated or contradictory rules |
+
+## drift-detect Plugin Agents
+
+| Agent | Model | Tools | What it does |
+|-------|-------|-------|--------------|
+| plan-synthesizer | sonnet | Read, Write, Glob, Grep | Compares the data from `scripts/collect.js` (issues, docs, code, analyzer facts) with the code and writes a Reality Check Report of drift, gaps and a prioritized plan. |
+
+## repo-intel Plugin Agents
+
+| Agent | Model | Tools | What it does |
+|-------|-------|-------|--------------|
+| map-validator | haiku | Read | Sanity-checks a repo-intel init or status summary and returns valid, warning or invalid in one line. |
+| repo-intel-summarizer | haiku | Read, Glob, Grep | Writes the three-depth repository summary (sentence, paragraph, page) for `/repo-intel enrich`. |
+| repo-intel-weighter | haiku | Read, Glob, Grep | Writes a one-sentence descriptor per source file so `repo-intel find` can match concept queries, one batch per call. |
+
+## perf Plugin Agents
+
+| Agent | Model | Tools | What it does |
+|-------|-------|-------|--------------|
+| perf-orchestrator | inherit | Read, Write, Edit, Skill, Bash(git, node and the build and test runners) | Runs a whole `/perf` investigation as a subagent: phases, measurements, delegation to the perf skills, the investigation log. |
+| perf-theory-gatherer | inherit | Skill, Read, Grep, Glob, Bash(git, node and the build and test runners) | Proposes up to 5 evidence-backed hypotheses from git history and the measurements so far. |
+| perf-theory-tester | inherit | Skill, Read, Write, Edit, Bash(git, node and the build and test runners) | Tests one hypothesis: one change, repeated sequential benchmark runs, then revert to the clean baseline. |
+| perf-code-paths | sonnet | Skill, Read, Grep, Glob | Maps the code paths, entry points and likely hot files for a scenario before profiling. |
+| perf-investigation-logger | haiku | Skill, Read, Edit | Appends a structured log entry with exact user quotes, evidence pointers and decisions. |
+| perf-analyzer | inherit | Skill, Read | Turns the investigation into evidence-backed recommendations and a continue-or-stop call. |
+
+The build and test runners are npm, pnpm, yarn, cargo, go, pytest, python, mvn and gradle.
+
+## audit-project Plugin Agents
+
+Role-based: `/audit-project` spawns one subagent per pass with the pass's prompt from `commands/audit-project-agents.md` (a `general-purpose` agent in Claude Code), or runs the passes in sequence without Task. `--domain <name>` runs one pass.
+
+| Pass | Reviewer | Runs when | Focus |
+|------|----------|-----------|-------|
+| code-quality | code-quality-reviewer | always | Bugs and logic errors, error handling, maintainability, duplication, conventions |
+| security | security-expert | always | Authn and authz, input validation and output encoding, injection, secrets and unsafe config |
+| performance | performance-engineer | always | N+1 queries, blocking calls in async paths, hot-path waste, leaks |
+| test-coverage | test-quality-guardian | always (skipped with no test runner) | Untested code, missing edge cases, weak assertions, mock fit |
+| architecture | architecture-reviewer | more than 50 files, or 3+ repo-intel slop targets | Ownership, dependency direction, cross-layer coupling |
+| database | database-specialist | database detected | Query cost, missing indexes, transactions, migration safety |
+| api | api-designer | API detected | Contracts, status codes and errors, rate limits, pagination, versioning |
+| frontend | frontend-specialist | frontend detected | Component boundaries, state management, accessibility, render cost |
+| backend | backend-specialist | backend detected | Service boundaries, domain correctness, concurrency and idempotency, background jobs |
+| devops | devops-reviewer | CI/CD detected | Pipeline safety, secrets handling, build and test steps, deploy config |
+
+## Other Plugin Agents
+
+| Plugin | Agent | Model | Tools | What it does |
+|--------|-------|-------|-------|--------------|
+| sync-docs | sync-docs-agent | sonnet | Bash(git, node), Read, Glob, Grep | Compares docs with the code and returns confirmed doc issues plus exact fixes as a `SYNC_DOCS_RESULT` block. Read-only. |
+| learn | learn-agent | sonnet | WebSearch, WebFetch, Skill, Read, Write, Glob, Grep | Researches a topic and writes a cited learning guide with a RAG index under `agent-knowledge/`. |
+| consult | consult-agent | sonnet | Bash(the AI CLIs, node, npx, git, timeout), Read, Write | Runs a pre-resolved consultation with another AI CLI (Gemini, Codex, Claude, OpenCode, Copilot, Kiro), including parallel instances with a synthesis. |
+| debate | debate-orchestrator | inherit | Bash(the AI CLIs, node, npx, git, timeout), Read, Write, Glob | Runs and judges a structured debate between two AI CLIs: proposer and challenger rounds and a verdict that picks a side. |
+| skillers | skillers-compactor | sonnet | Read, Write, Glob, Bash(node), Skill | Turns a redacted digest of recent sessions into themed observations and merges them into weighted knowledge files. |
+| skillers | skillers-recommender | opus | Read, Glob, Grep, Bash(node), Skill | Ranks at most five hooks, skills and agents worth creating from the knowledge, checked against what is installed. |
+| onboard | onboard-agent | sonnet | Read, Glob, Grep, Bash(git), AskUserQuestion | Gives a short, code-grounded tour of an unfamiliar codebase from collected data, then answers follow-up questions. |
+| can-i-help | can-i-help-agent | sonnet | Read, Glob, Grep, Bash(git, gh), AskUserQuestion | Matches a developer's interests to contribution targets: test gaps, stale docs, bugspots, cleanup candidates, open issues. |
 
 ## Navigation
 
-[← Back to Documentation Index](../README.md) | [Main README](../../README.md)
-
-**Related:**
-- [/next-task Workflow](../workflows/NEXT-TASK.md) - How agents orchestrate together
-- [/ship Workflow](../workflows/SHIP.md) - Shipping agents in action
+[Back to Documentation Index](../README.md) | [Main README](../../README.md)

@@ -13,7 +13,7 @@ Complete technical reference for the `/next-task` workflow.
 | [Workflow Phases](#workflow-phases) | All 12 phases explained |
 | [State Management](#state-management) | tasks.json, flow.json, resume |
 | [Workflow Enforcement](#workflow-enforcement) | How gates are enforced |
-| [Agent Model Allocation](#agent-model-allocation) | Why opus/sonnet/haiku |
+| [Agent Model Allocation](#agent-model-allocation) | Why inherit/sonnet/haiku |
 | [Cleanup](#cleanup) | Success and abort handling |
 | [Example Flow](#example-flow) | Full walkthrough |
 
@@ -28,7 +28,7 @@ Complete technical reference for the `/next-task` workflow.
 
 `/next-task` is a master orchestrator that takes a task from discovery to merged PR. It coordinates 13 specialized agents across 12 phases with 3 human interaction points.
 
-**Why this design:** You shouldn't have to ask for the same workflow every session. The orchestrator handles the coordination—launching agents, tracking state, enforcing gates—so you can approve a plan and walk away. Human judgment is only required at meaningful decision points: what to work on, whether the plan is correct, and reviewing the final output. Everything between is automated.
+**Why this design:** You shouldn't have to ask for the same workflow every session. The orchestrator handles the coordination (launching agents, tracking state, enforcing gates), so you can approve a plan and walk away. Human judgment is only required at meaningful decision points: what to work on, whether the plan is correct, and reviewing the final output. Everything between is automated.
 
 ---
 
@@ -85,7 +85,7 @@ The agent:
 
 ### Phase 4: Exploration
 
-**Agent:** exploration-agent (opus)
+**Agent:** exploration-agent (sonnet)
 **Human interaction: No**
 
 The agent:
@@ -103,7 +103,7 @@ The agent:
 
 ### Phase 5: Planning
 
-**Agent:** planning-agent (opus)
+**Agent:** planning-agent (inherits the session model)
 **Human interaction: No**
 
 The agent:
@@ -143,7 +143,7 @@ The workflow:
 
 ### Phase 7: Implementation
 
-**Agent:** implementation-agent (opus)
+**Agent:** implementation-agent (inherits the session model)
 **Human interaction: No**
 
 The agent:
@@ -182,35 +182,17 @@ Both agents run in parallel:
 
 ### Phase 9: Review Loop
 
-**Execution:** Inline in main orchestrator (uses orchestrate-review skill)
+**Execution:** Inline in main orchestrator, with `general-purpose` reviewer subagents on sonnet when `Task` is available
 **Human interaction: No**
 
-**CRITICAL**: The orchestrator MUST spawn multiple parallel reviewer agents. A single generic reviewer is NOT acceptable.
+The orchestrator sizes the review to the change:
 
-The orchestrator:
-1. Gets changed files via `git diff --name-only main...HEAD`
-2. Detects signals for conditional specialists:
-   - Database files → database specialist
-   - API/routes/handlers → api designer
-   - .tsx/.jsx/.vue/.svelte → frontend specialist
-   - server/backend/services → backend specialist
-   - workflows/Dockerfile/k8s → devops reviewer
-   - 20+ files → architecture reviewer
-3. **MUST spawn 4 core reviewers in parallel** (always):
-   - code quality reviewer
-   - security reviewer
-   - performance reviewer
-   - test coverage reviewer
-4. Adds conditional specialists based on detected signals
-5. Each reviewer returns JSON findings: `{file, line, severity, description, suggestion}`
-6. Aggregates findings by severity (critical/high/medium/low)
-7. Fixes all non-false-positive issues
-8. Commits fixes
-9. Runs deslop:deslop-agent after each iteration
-10. Re-reviews changed files with ALL reviewers again
-11. Repeats until no open issues remain (max 5 iterations)
+- Default: one reviewer covering correctness, security, performance and tests.
+- Large or risky diffs (roughly 500+ changed lines, 15+ files, or high diff-risk or security-sensitive paths): up to 4 parallel reviewers, one per concern, optionally swapping one for a specialist the diff calls for (database, API, frontend, infra). Never more than 4 at once.
 
-The loop continues until clean, but stops early if iteration limits or stall detection trigger.
+Each reviewer returns a JSON array of `{file, line, severity, description, suggestion}`. The orchestrator merges duplicates, fixes critical and high findings (and medium ones when the fix is small and clearly right), commits, and re-reviews only what changed.
+
+The loop stops when no critical or high findings remain (approved), when the same findings come back twice (stalled), or after 3 rounds. A stalled or capped loop with open critical findings is blocked: the orchestrator reports them and asks whether to continue, fix manually, or stop.
 
 **Restrictions enforced:**
 - MUST NOT create PR
@@ -341,8 +323,8 @@ A SubagentStop hook enforces the workflow sequence. When any agent completes, th
 
 | Model | Agents | Why |
 |-------|--------|-----|
-| **opus** | exploration-agent, planning-agent, implementation-agent | Complex reasoning, quality-critical phases |
-| **sonnet** | task-discoverer, deslop:deslop-agent, prepare-delivery:test-coverage-checker, prepare-delivery:delivery-validator, sync-docs:sync-docs-agent, ci-fixer | Moderate reasoning, structured tasks |
+| **inherit** | planning-agent, implementation-agent | No `model` key, so they run on the model the session uses |
+| **sonnet** | task-discoverer, exploration-agent, deslop:deslop-agent, prepare-delivery:test-coverage-checker, prepare-delivery:delivery-validator, sync-docs:sync-docs-agent, ci-fixer, Phase 9 reviewers | Structured analysis and validation |
 | **haiku** | worktree-manager, simple-fixer, ci-monitor | Mechanical execution, no judgment needed |
 
 ---

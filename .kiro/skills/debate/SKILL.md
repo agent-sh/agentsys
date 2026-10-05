@@ -1,49 +1,63 @@
 ---
 name: debate
-description: "Structured AI debate templates and synthesis. Use when orchestrating multi-round debates between AI tools, 'debate topic', 'argue about', 'stress test idea', 'devil advocate'."
-version: 5.1.0
+description: "Use when the user wants two AI tools to argue a question: 'debate', 'argue about', 'stress test idea', 'devil advocate', 'codex vs gemini'. Runs proposer and challenger rounds between two CLIs and delivers a verdict."
+version: 5.2.0
 argument-hint: "[topic] [--proposer=tool] [--challenger=tool] [--rounds=N] [--effort=level]"
 ---
 
 # debate
 
-Prompt templates, context assembly rules, and synthesis format for structured multi-round debates between AI tools.
+Run a structured debate between two AI CLIs on one topic: a proposer takes a position, a challenger attacks it, they alternate for N rounds, and you judge. The value is in genuine disagreement backed by evidence, so the prompts below push each side to cite specifics and push the challenger not to fold.
 
-## Arguments
+Arguments: `$ARGUMENTS`
 
-Parse from `$ARGUMENTS`:
-- **topic**: The debate question/topic (required)
-- **--proposer**: Tool for the proposer role (claude, gemini, codex, opencode, copilot)
-- **--challenger**: Tool for the challenger role (must differ from proposer)
-- **--rounds**: Number of back-and-forth rounds (1-5, default: 2)
-- **--effort**: Thinking effort applied to all tool invocations (low, medium, high, max)
-- **--model-proposer**: Specific model for proposer (optional)
-- **--model-challenger**: Specific model for challenger (optional)
+- **topic** (required).
+- **--proposer**, **--challenger**: claude, gemini, codex, opencode, copilot, kiro. They must differ.
+- **--rounds**: 1 to 5, default 2.
+- **--effort**: low, medium, high, max; applies to both tools.
+- **--model-proposer**, **--model-challenger**: optional model ids.
+- **--context**: diff, file=PATH, or none; the same context goes to both tools.
 
-## Universal Rules
+How to invoke a tool for one turn (transport, templates, models, parsing, redaction) is in [references/tools.md](references/tools.md).
 
-ALL participants (proposer AND challenger) MUST support claims with specific evidence (file path, code pattern, benchmark, or documented behavior). Unsupported claims from either side will be flagged by the other participant and noted in the verdict. This applies to every round.
+## Running the debate
 
-## Prompt Templates
+For each round, build the proposer prompt, run it, show the response, then do the same for the challenger. Before each call print `[INFO] Running round {round} proposer ({proposer}) - timeout 240s` (or `challenger ({challenger})`), because a round can take minutes and the user needs to see it moving. Show each response as soon as it has succeeded:
+
+```
+--- Round {round}: {tool} (Proposer|Challenger) ---
+
+{response}
+```
+
+Each call has a hard 240-second timeout, enforced by something that can cancel/kill the underlying command: external tools can hang forever. Treat a timeout, non-zero exit, error envelope, empty output or unparseable output as a failure of that role in that round. Check the result envelope before parsing, and when parsing fails report only `PARSE_ERROR:<type>:<code>` (redact secrets, strip control characters, max 200 chars - never raw stdout/stderr snippets), since raw output can carry secrets.
+
+| Failure | Then |
+|---|---|
+| Proposer, round 1 | Abort: `[ERROR] Debate aborted: proposer ({tool}) failed on opening round. {error}` |
+| Challenger, round 1 | `[WARN] Challenger ({tool}) failed on round 1. Proceeding with uncontested proposer position.` and go to the verdict |
+| Either, round 2+ | Stop the rounds, judge what completed, and note the early stop |
+| Every call timed out | `[ERROR] Debate failed: all tool invocations timed out.` |
+| No successful exchange (other causes) | `[ERROR] Debate failed: no successful exchanges were recorded.` |
+
+## Prompt templates
+
+Both sides support claims with specific evidence (a file path, a code pattern, a benchmark, documented behavior). Unsupported claims get called out by the other side and noted in the verdict.
 
 ### Round 1: Proposer Opening
 
 ```
-You are participating in a structured debate as the PROPOSER.
+You are the PROPOSER in a structured debate.
 
 Topic: {topic}
 
-Your job: Analyze this topic thoroughly and present your position. Take a clear stance. Do not hedge excessively.
-
-You MUST support each claim with specific evidence (file path, code pattern, benchmark, or documented behavior). Unsupported claims will be challenged. "I think" or "generally speaking" without evidence is not acceptable.
-
-Provide your analysis:
+Take a clear position and argue it. Support each claim with specific evidence: a file path, a code pattern, a benchmark, or documented behavior. The challenger will attack claims that rest on "generally" or "I think", so give them something concrete to test.
 ```
 
 ### Round 1: Challenger Response
 
 ```
-You are participating in a structured debate as the CHALLENGER.
+You are the CHALLENGER in a structured debate.
 
 Topic: {topic}
 
@@ -53,18 +67,7 @@ The PROPOSER ({proposer_tool}) argued:
 {proposer_round1_response}
 ---
 
-Your job: Find weaknesses, blind spots, and flaws in the proposer's argument. You MUST identify at least one genuine flaw or overlooked consideration before agreeing on anything. Propose concrete alternatives where you disagree.
-
-Rules:
-- Do NOT say "great point" or validate the proposer's reasoning before critiquing it
-- Lead with what's WRONG or MISSING, then acknowledge what's right
-- If you genuinely agree on a point, explain what RISK remains despite the agreement
-- Propose at least one concrete alternative approach
-- You MUST address at least these categories: correctness, security implications, and developer experience
-- Do NOT agree with ANY claim unless you can cite specific evidence (file path, code pattern, or documented behavior) that supports the agreement. Unsupported agreement is not allowed.
-- If the proposer makes a claim without evidence, call it out: "This claim is unsupported."
-
-Provide your challenge:
+Find what is wrong or missing in this argument before acknowledging what is right. Cover correctness, security implications, and developer experience. Where you disagree, propose a concrete alternative. Where you agree, say what risk remains, and agree only with claims you can back with evidence of your own. If a claim has no evidence, say "This claim is unsupported." Skip compliments; they weaken the challenge.
 ```
 
 ### Round 2+: Proposer Defense
@@ -82,16 +85,7 @@ The CHALLENGER ({challenger_tool}) raised these points in round {previous_round}
 {challenger_previous_response}
 ---
 
-Your job: Address each challenge directly. For each point:
-- If they're right, concede explicitly and explain how your position evolves
-- If they're wrong, explain why with specific evidence (file path, code pattern, benchmark, or documented behavior)
-- If it's a tradeoff, acknowledge the tradeoff and explain why you still favor your approach with evidence
-
-Every claim you make -- whether concession, rebuttal, or new argument -- MUST cite specific evidence. The challenger will reject unsupported claims.
-
-Do NOT simply restate your original position. Your response must show you engaged with the specific challenges raised.
-
-Provide your defense:
+Answer each point directly. If the challenger is right, concede and say how your position changes. If they are wrong, show why with evidence. If it is a tradeoff, name it and explain why you still favor your approach. Every concession, rebuttal and new argument cites evidence. Restating your opening is not a defense.
 ```
 
 ### Round 2+: Challenger Follow-up
@@ -109,27 +103,15 @@ The PROPOSER ({proposer_tool}) responded to your challenges:
 {proposer_previous_response}
 ---
 
-IMPORTANT: Do NOT let the proposer reframe your challenges as agreements. If they say "we actually agree" but haven't addressed the substance, reject it. Default to suspicion, not acceptance.
+Judge the defense point by point. Call out dodges and evidence-free answers ("This defense is unsupported", "This dodges the original concern"). Hold the proposer to any concession. Look for new weaknesses in the revised position. Do not accept a reframing of your challenge as agreement unless the substance was answered.
 
-Your job: Evaluate the proposer's defense. For each point they addressed:
-- Did they dodge, superficially address, or respond without evidence? Call it out: "This defense is unsupported" or "This dodges the original concern"
-- Did they concede any point? Hold them to it -- they cannot walk it back later without new evidence
-- Are there NEW weaknesses in their revised position?
-- Did they adequately address your concern with specific evidence? Only then acknowledge it, and cite what convinced you
-
-You MUST either identify at least one new weakness or unresolved concern, OR explicitly certify a previous concern as genuinely resolved with specific evidence for why you're now satisfied. "I'm convinced because [evidence]" is acceptable. "I agree now" without evidence is not.
-If you see new problems, raise them.
-
-Provide your follow-up:
+End with at least one new or still-open concern, or certify a concern as resolved and name the evidence that convinced you. "I agree now" without evidence does not resolve anything.
 ```
 
-## Context Assembly
+## Context between rounds
 
-### Rounds 1-2: Full context
+Rounds 1 and 2 carry the full text of earlier exchanges:
 
-Include the full text of all prior exchanges in the prompt. Context is small enough (typically under 5000 tokens total).
-
-Format for context block:
 ```
 Previous exchanges:
 
@@ -140,32 +122,11 @@ Round 1 - Challenger ({challenger_tool}):
 {full response}
 ```
 
-### Round 3+: Summarized context
+From round 3, replace rounds 1 through N-2 with your own summary (500 to 800 tokens) and keep only the latest round in full. The summary keeps each side's core position, every concession as a verbatim quote, the evidence behind any agreement, the open disagreements, and any contradiction between rounds (a concession later walked back: note both). A paraphrased concession lets a side quietly retract it.
 
-For rounds 3 and beyond, replace full exchange text from rounds 1 through N-2 with a summary. Only include the most recent round's responses in full.
+## Verdict
 
-Format:
-```
-Summary of rounds 1-{N-2}:
-{summary of key positions, agreements, and open disagreements}
-
-Round {N-1} - Proposer ({proposer_tool}):
-{full response}
-
-Round {N-1} - Challenger ({challenger_tool}):
-{full response}
-```
-
-The orchestrator agent (opus) generates the summary. Target: 500-800 tokens. MUST preserve:
-- Each side's core position
-- All concessions (verbatim quotes, not paraphrased)
-- All evidence citations that support agreements
-- Points of disagreement (unresolved)
-- Any contradictions between rounds (e.g., proposer concedes in round 1 but walks it back in round 2 -- note both explicitly)
-
-## Synthesis Format
-
-After all rounds complete, the orchestrator produces this structured output:
+You are the judge. The user wants a decision, so the verdict picks a side: "both approaches have merit" is not a verdict. Cite the two or three arguments that decided it. The recommendation says what the user should do next. Unresolved questions are where the debate fell short, not a way to split the difference.
 
 ```
 ## Debate Summary
@@ -182,135 +143,39 @@ After all rounds complete, the orchestrator produces this structured output:
 
 ### Debate Quality
 
-Rate the debate on these dimensions:
-- **Genuine disagreement**: Did the challenger maintain independent positions, or converge toward the proposer? (high/medium/low)
-- **Evidence quality**: Did both sides cite specific examples, or argue from generalities? (high/medium/low)
-- **Challenge depth**: Were the challenges substantive, or surface-level? (high/medium/low)
+- **Genuine disagreement**: high|medium|low (did the challenger hold independent positions or converge?)
+- **Evidence quality**: high|medium|low
+- **Challenge depth**: high|medium|low
 
 ### Key Agreements
-- {agreed point 1} (evidence: {what supports this agreement})
-- {agreed point 2} (evidence: {what supports this agreement})
+- {point} (evidence: {what supports it})
 
 ### Key Disagreements
 - {point}: {proposer_tool} argues {X}, {challenger_tool} argues {Y}
 
 ### Unresolved Questions
-- {question that neither side adequately addressed}
+- {question neither side answered}
 
 ### Recommendation
-{Orchestrator's recommendation - must pick a direction, not "both have merit"}
+{a direction and the next action}
 ```
 
-**Synthesis rules:**
-- The verdict MUST pick a side. "Both approaches have merit" is NOT acceptable.
-- Cite specific arguments from the debate as evidence for the verdict.
-- The recommendation must be actionable - what should the user DO based on this debate.
-- Unresolved questions highlight where the debate fell short, not where both sides are "equally valid."
+## State
 
-## State File Schema
-
-Save to `{AI_STATE_DIR}/debate/last-debate.json`:
+Save `{AI_STATE_DIR}/debate/last-debate.json` (`{AI_STATE_DIR}` is `$AI_STATE_DIR` if set, else `.claude/`, `.opencode/` or `.codex/`):
 
 ```json
 {
-  "id": "debate-{ISO timestamp}-{4 char random hex}",
-  "topic": "original topic text",
-  "proposer": {"tool": "claude", "model": "opus"},
+  "id": "debate-{ISO timestamp}-{4 hex}",
+  "topic": "...",
+  "proposer": {"tool": "claude", "model": "claude-opus-5-5"},
   "challenger": {"tool": "gemini", "model": "gemini-3.1-pro-preview"},
   "effort": "high",
   "rounds_completed": 2,
   "max_rounds": 2,
-  "status": "completed",
-  "exchanges": [
-    {"round": 1, "role": "proposer", "tool": "claude", "response": "...", "duration_ms": 8500},
-    {"round": 1, "role": "challenger", "tool": "gemini", "response": "...", "duration_ms": 12000},
-    {"round": 2, "role": "proposer", "tool": "claude", "response": "...", "duration_ms": 9200},
-    {"round": 2, "role": "challenger", "tool": "gemini", "response": "...", "duration_ms": 11000}
-  ],
-  "verdict": {
-    "winner": "claude",
-    "reasoning": "...",
-    "agreements": ["..."],
-    "disagreements": ["..."],
-    "recommendation": "..."
-  },
-  "timestamp": "{ISO 8601 timestamp}"
+  "status": "completed|partial|failed",
+  "exchanges": [{"round": 1, "role": "proposer", "tool": "claude", "response": "...", "duration_ms": 8500}],
+  "verdict": {"winner": "claude", "reasoning": "...", "agreements": [], "disagreements": [], "recommendation": "..."},
+  "timestamp": "{ISO 8601}"
 }
 ```
-
-Platform state directory:
-- Claude Code: `.claude/`
-- OpenCode: `.opencode/`
-- Codex CLI: `.codex/`
-
-## Error Handling
-
-| Error | Action |
-|-------|--------|
-| Proposer fails round 1 | Abort debate. Cannot proceed without opening position. |
-| Challenger fails round 1 | Show proposer's position with note: "[WARN] Challenger failed. Showing proposer's uncontested position." |
-| Any tool fails mid-debate | Synthesize from completed rounds. Note incomplete round in output. |
-| Tool invocation timeout (>240s) | Round 1 proposer: abort. Round 1 challenger: proceed with uncontested. Round 2+: synthesize from completed rounds with timeout note. |
-| Consult result envelope indicates failure (status/exit/error/empty output) | Treat as tool failure for that role/round and apply the same role+round policy above. |
-| Structured parse fails after successful envelope | Treat as tool failure for that role/round, include only sanitized parse metadata (`PARSE_ERROR:<type>:<code>`, redact secrets, strip control chars, max 200 chars), then apply the same role+round policy above. |
-| All rounds timeout | "[ERROR] Debate failed: all tool invocations timed out." |
-| No successful exchanges recorded (non-timeout) | "[ERROR] Debate failed: no successful exchanges were recorded." |
-
-## External Tool Quick Reference
-
-> Canonical source: `plugins/consult/skills/consult/SKILL.md`. Build and execute CLI commands directly using these templates. Do NOT invoke via `Skill: consult` - in Claude Code that loads the interactive command wrapper and causes a recursive loop. Write the question to `{AI_STATE_DIR}/consult/question.tmp` first, then execute the command via Bash.
-
-### Safe Command Patterns
-
-| Provider | Safe Command Pattern |
-|----------|---------------------|
-| Claude | `claude -p - --output-format json --model "MODEL" --max-turns TURNS --allowedTools "Read,Glob,Grep" < "{AI_STATE_DIR}/consult/question.tmp"` |
-| Gemini | `gemini -p - --output-format json -m "MODEL" < "{AI_STATE_DIR}/consult/question.tmp"` |
-| Codex | `codex exec "$(cat "{AI_STATE_DIR}/consult/question.tmp")" --json -m "MODEL" -c model_reasoning_effort="LEVEL"` |
-| OpenCode | `opencode run - --format json --model "MODEL" --variant "VARIANT" < "{AI_STATE_DIR}/consult/question.tmp"` |
-| Copilot | `copilot -p - < "{AI_STATE_DIR}/consult/question.tmp"` |
-
-### Effort-to-Model Mapping
-
-| Effort | Claude | Gemini | Codex | OpenCode | Copilot |
-|--------|--------|--------|-------|----------|---------|
-| low | claude-haiku-4-5 (1 turn) | gemini-3-flash-preview | gpt-6-sol (low) | default (low) | no control |
-| medium | claude-sonnet-5 (3 turns) | gemini-3-flash-preview | gpt-6-sol (medium) | default (medium) | no control |
-| high | claude-opus-5-5 (5 turns) | gemini-3.1-pro-preview | gpt-6-astra (high) | default (high) | no control |
-| max | claude-opus-5-5 (10 turns) | gemini-3.1-pro-preview | gpt-6-astra (max) | default + --thinking | no control |
-
-### Output Parsing
-
-| Provider | Parse Expression |
-|----------|-----------------|
-| Claude | `JSON.parse(stdout).result` |
-| Gemini | `JSON.parse(stdout).response` |
-| Codex | `JSON.parse(stdout).message` or raw text |
-| OpenCode | Newline-delimited JSON. Concatenate `part.text` from events where `type === "text"`. Session ID from `event.sessionID`. |
-| Copilot | Raw stdout text |
-
-Parse discipline:
-1. Evaluate execution status first (timeout/non-zero/error/empty output) before any parsing.
-2. Parse only when execution status is successful.
-3. If parse fails, surface only sanitized parse metadata (never raw stdout/stderr snippets) and apply role/round failure policy instead of hanging or continuing silently.
-
-### ACP Transport Commands
-
-> ACP is an alternative transport available when providers support it. Build and execute CLI commands directly - do NOT use `Skill: consult` (recursive loop in Claude Code).
-
-| Provider | ACP Command Pattern |
-|----------|-------------------|
-| Claude | `node acp/run.js --provider="claude" --question-file="{AI_STATE_DIR}/consult/question.tmp" --timeout=240000 --model="MODEL"` |
-| Gemini | `node acp/run.js --provider="gemini" --question-file="{AI_STATE_DIR}/consult/question.tmp" --timeout=240000 --model="MODEL"` |
-| Codex | `node acp/run.js --provider="codex" --question-file="{AI_STATE_DIR}/consult/question.tmp" --timeout=240000 --model="MODEL"` |
-| OpenCode | `node acp/run.js --provider="opencode" --question-file="{AI_STATE_DIR}/consult/question.tmp" --timeout=240000 --model="MODEL"` |
-| Copilot | `node acp/run.js --provider="copilot" --question-file="{AI_STATE_DIR}/consult/question.tmp" --timeout=240000` |
-| Kiro | `node acp/run.js --provider="kiro" --question-file="{AI_STATE_DIR}/consult/question.tmp" --timeout=240000` |
-
-Note the 240000ms timeout (240s) for debate rounds vs 120000ms (120s) for consult.
-
-**Kiro**: ACP-only provider. No CLI mode. Available when `kiro-cli` is on PATH.
-
-### ACP Output Parsing
-
-ACP transport output is parsed identically to CLI transport - the ACP runner (`acp/run.js`) normalizes responses into the same JSON envelope format. The `transport` field in the envelope indicates `"acp"` or `"cli"`.

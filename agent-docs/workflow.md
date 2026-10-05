@@ -17,31 +17,31 @@ The main orchestrator **MUST spawn these agents in order**:
 | Phase | Agent | Model | Required Tools | Purpose |
 |-------|-------|-------|----------------|---------|
 | 1 | *(orchestrator)* | - | AskUserQuestion | Configure workflow policy |
-| 2 | `task-discoverer` | sonnet | Bash(gh:*), Bash(glab:*), Read | Find and prioritize tasks |
-| 3 | `worktree-manager` | haiku | Bash(git:*) | Create isolated worktree |
-| 4 | `exploration-agent` | opus | Read, Grep, Glob, LSP, Task | Deep codebase analysis |
-| 5 | `planning-agent` | opus | Read, Grep, Glob, Bash(git:*), Task | Design implementation plan |
+| 2 | `task-discoverer` | sonnet | Skill, Read, Grep, Bash(gh:*), Bash(glab:*), Bash(git:*) | Find and prioritize tasks |
+| 3 | `worktree-manager` | haiku | Bash(git:*), Read | Create isolated worktree |
+| 4 | `exploration-agent` | sonnet | Read, Glob, Grep, Bash(git:*) | Map the code the task touches |
+| 5 | `planning-agent` | inherit | Read, Glob, Grep, Bash(git:*) | Design implementation plan |
 | 6 | **USER APPROVAL** | - | - | Last human touchpoint |
-| 7 | `implementation-agent` | opus | Read, Write, Edit, Bash | Execute plan |
-| 8 | `deslop:deslop-agent` | sonnet | Read, Grep, Glob, Bash(git:*) | Clean AI slop (uses deslop skill) |
-| 8 | `prepare-delivery:test-coverage-checker` | sonnet | Bash(npm:*), Read, Grep | Validate test coverage |
-| 9 | Phase 9 review loop | sonnet reviewers | Task(general-purpose) | Multi-pass review with parallel agents |
-| 10 | `prepare-delivery:delivery-validator` | sonnet | Bash(npm:*), Read | Validate completion |
-| 11 | `docs-updater` | sonnet | Read, Edit, Task(simple-fixer) | Update documentation |
+| 7 | `implementation-agent` | inherit | Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(npm:*), Bash(node:*), LSP | Execute plan |
+| 8 | `deslop:deslop-agent` | sonnet | Bash(git:*), Bash(node:*), Skill, Read, Glob, Grep | Find AI slop in the diff (uses deslop skill) |
+| 8 | `prepare-delivery:test-coverage-checker` | sonnet | Bash(git:*), Bash(node:*), Skill, Read, Grep, Glob | Validate test coverage |
+| 9 | Phase 9 review loop | sonnet reviewers | Task(general-purpose) | One reviewer, or up to 4 in parallel for large or risky diffs |
+| 10 | `prepare-delivery:delivery-validator` | sonnet | Skill, Bash(git:*), Bash(npm:*), Bash(node:*), Read, Grep, Glob | Validate completion |
+| 11 | `sync-docs:sync-docs-agent` | sonnet | Bash(git:*), Bash(node:*), Read, Glob, Grep | Find doc drift; `simple-fixer` applies the fixes |
 | 12 | `/ship` command | - | - | PR creation and merge |
+
+`inherit` means the agent has no `model` key and runs on the caller's model. [docs/reference/AGENTS.md](../docs/reference/AGENTS.md) is the source for each agent's model and tools.
 
 ### MUST-CALL Agents (Cannot Skip)
 
 - **`exploration-agent`** - Required for understanding codebase before planning
 - **`planning-agent`** - Required for creating implementation plan
-- **Phase 9 review loop** - Required for code review before shipping (uses orchestrate-review skill)
+- **Phase 9 review loop** - Required for code review before shipping
 - **`prepare-delivery:delivery-validator`** - Required before calling /ship
 
 ### Review Decision Gate
 
-If Phase 9 review loop reports `blocked: true` (iteration limit or stall), /next-task must decide:
-- Re-run Phase 9 review loop, or
-- Override and continue if issues are non-blocking (clear the queue file).
+The review loop stops when no critical or high findings remain, when the same findings come back twice (stalled), or after 3 rounds. A stalled or capped loop with open critical findings is blocked: /next-task reports them and asks the user whether to continue, fix manually, or stop.
 
 ---
 
@@ -96,10 +96,10 @@ If Phase 9 review loop reports `blocked: true` (iteration limit or stall), /next
 
 | Agent | Allowed Tools | Disallowed |
 |-------|---------------|------------|
-| worktree-manager | Bash(git:*) | Write, Edit |
-| ci-monitor | Bash(gh:*), Read, Task | Write, Edit |
+| worktree-manager | Bash(git:*), Read | Write, Edit |
+| ci-monitor | Bash(gh:*), Bash(git:*), Read, Task | Write, Edit |
 | simple-fixer | Read, Edit, Bash(git:*) | Task |
-| deslop:deslop-agent | Read, Grep, Glob, Bash(git:*) | Task |
+| deslop:deslop-agent | Bash(git:*), Bash(node:*), Skill, Read, Glob, Grep | Write, Edit, Task |
 
 ---
 

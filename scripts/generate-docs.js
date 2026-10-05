@@ -394,7 +394,7 @@ function generateAgentNavTable(agents, plugins) {
 /**
  * Generate the agents count summary line for docs/reference/AGENTS.md.
  *
- * Uses static fallbacks when local discovery returns nothing — the agentsys
+ * Uses static fallbacks when local discovery returns nothing: the agentsys
  * monorepo no longer contains plugins/, so discovery is empty in CI. Static
  * counts are derived from STATIC_PLUGIN_AGENT_COUNTS so they stay in sync as
  * plugins are added.
@@ -417,7 +417,7 @@ function generateAgentCounts(agents, plugins) {
     pluginsWithAgentsCount = fileBasedPluginsWithAgents + 1;
   }
 
-  return `**TL;DR:** ${totalAgents} agents across ${totalPlugins} plugins (${pluginsWithAgentsCount} have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5, Haiku 4.5). Each agent does one thing well. <!-- AGENT_COUNT_TOTAL: ${totalAgents} -->`;
+  return `**TL;DR:** ${totalAgents} agents across ${totalPlugins} plugins (${pluginsWithAgentsCount} have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5.5, Haiku 4.5) or inherits the caller's model, and does one thing. <!-- AGENT_COUNT_TOTAL: ${totalAgents} -->`;
 }
 
 // ---------------------------------------------------------------------------
