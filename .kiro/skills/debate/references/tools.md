@@ -8,7 +8,7 @@ Write the full prompt (template plus context, plus the `--context` material: `gi
 
 ## Transport
 
-Prefer ACP through the consult plugin's runner when it is installed: it spawns the tool with piped stdio, sends the prompt over JSON-RPC, allows the tool only read operations, and redacts secrets. The command resolves the runner and passes its path on: in Claude Code, `ls $HOME/.agentsys/plugins/debate/../../consult/*/acp/run.js` (the consult plugin next to this one; the variable expands in command text, not in this file). Otherwise Glob for `**/consult/*/acp/run.js` in the harness's plugin directory. There is no `acp/` directory in this plugin or in the user's repo.
+Prefer ACP through the consult plugin's runner when it is installed: it spawns the tool with piped stdio, sends the prompt over JSON-RPC, allows the tool only read operations, and redacts secrets. The installer puts the runner at `$HOME/.agentsys/plugins/consult/acp/run.js`. If that file is missing, Glob for `**/consult/**/acp/run.js` in the harness's plugin directory. There is no `acp/` directory in this plugin or in the user's repo.
 
 ```
 node <consult>/acp/run.js --detect --provider="claude"

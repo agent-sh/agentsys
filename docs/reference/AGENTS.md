@@ -3,7 +3,7 @@
 Every agent in the AgentSys plugins at the commits pinned in `.claude-plugin/marketplace.json`. Each plugin repo's `agents/*.md` is the source of truth; this page summarizes it.
 
 <!-- GEN:START:agents-counts -->
-**TL;DR:** 49 agents across 24 plugins (16 have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5, Haiku 4.5) or inherits the caller's model, and does one thing. <!-- AGENT_COUNT_TOTAL: 49 -->
+**TL;DR:** 49 agents across 24 plugins (16 have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5.5, Haiku 4.5) or inherits the caller's model, and does one thing. <!-- AGENT_COUNT_TOTAL: 49 -->
 <!-- GEN:END:agents-counts -->
 
 ## Quick Navigation
@@ -20,7 +20,7 @@ Related: [/next-task Workflow](../workflows/NEXT-TASK.md) shows how the agents w
 | Model | Resolves to | Used for |
 |-------|-------------|----------|
 | opus | Claude Opus 5.5 | Judgment where errors compound into later phases |
-| sonnet | Claude Sonnet 5 | Structured analysis and validation, most agents |
+| sonnet | Claude Sonnet 5.5 | Structured analysis and validation, most agents |
 | haiku | Claude Haiku 4.5 | Mechanical work with no judgment |
 | inherit | the caller's model | Agents with no `model` key |
 

@@ -4,7 +4,7 @@ Marketplace, installer and shared library for the agent-sh plugins. Works on Cla
 
 ## Critical Rules
 
-1. This is a production project with real users: a breaking change reaches every plugin user at once, so test the edge cases before committing and keep the docs accurate.
+1. This is a production project with real users: a breaking change reaches every plugin user at once. A feature or fix ships with tests for the changed behavior, edge cases included, and keeps the docs accurate.
 2. Optimize for developers using the plugins in their own repos, not for internal convenience here.
 3. Record finished work in CHANGELOG.md and the reply. Summary, audit or completion files (`*_AUDIT.md`, `*_SUMMARY.md`, `*_COMPLETION.md`) clutter the repo, so leave them out.
 4. Changes go through a PR to main, except a change of a few lines or an urgent hotfix. PRs give review, CI and an easy rollback.
@@ -86,7 +86,7 @@ Most have npm aliases (`npm test`, `npm run validate`, `npm run preflight`, `npm
 
 [docs/reference/AGENTS.md](./docs/reference/AGENTS.md) lists every agent with its model and tools; [README.md](./README.md#skills) lists the skills. Agents invoke skills, and skills hold the implementation.
 
-Model families: opus (Claude Opus 5.5) for judgment where errors compound, sonnet (Claude Sonnet 5) for validation and most agents, haiku (Claude Haiku 4.5) for mechanical work. An agent with no `model` key inherits the caller's.
+Model families: opus (Claude Opus 5.5) for judgment where errors compound, sonnet (Claude Sonnet 5.5) for validation and most agents, haiku (Claude Haiku 4.5) for mechanical work. An agent with no `model` key inherits the caller's.
 
 `/next-task` runs its phases in order: exploration-agent, planning-agent, user approval of the plan, implementation-agent, pre-review gates, review loop, delivery-validator, sync-docs-agent, then `/ship`. A phase whose plugin is not installed uses the inline fallback in next-task's `commands/next-task.md`.
 
