@@ -19,7 +19,7 @@ Arguments: `$ARGUMENTS`
 
 ## Evidence
 
-The collector is `scripts/collect.js` at the plugin root, two directories up from this skill. Run it from the repository root with the same arguments:
+The collector is `scripts/collect.js` at the plugin root, `$HOME/.agentsys/plugins/sync-docs`. Run it from the repository root with the same arguments:
 
 ```bash
 node <plugin>/scripts/collect.js --scope=before-pr --base=main

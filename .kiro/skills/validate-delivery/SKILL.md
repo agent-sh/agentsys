@@ -8,7 +8,7 @@ version: 0.2.0
 
 Decide, without asking anyone, whether the branch is ready to ship, and if not, say exactly what to fix. This gate runs after review and before docs sync.
 
-`<plugin>` is this plugin's root, two directories up from this skill.
+`<plugin>` is this plugin's root, `$HOME/.agentsys/plugins/prepare-delivery`.
 
 ## Inputs
 

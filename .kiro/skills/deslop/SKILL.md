@@ -17,7 +17,7 @@ Arguments: `$ARGUMENTS`
 
 ## Detection
 
-The detector is `scripts/detect.js` at the plugin root, two directories up from this skill. Resolve it to an absolute path and run it from the repository root. It prints JSON by default (`findings`, `summary`); `--compact` prints a short markdown table without the `autoFix` field, so use the JSON when building fixes. Add `--quick` or `--deep` for those thoroughness levels.
+The detector is `scripts/detect.js` at the plugin root, `$HOME/.agentsys/plugins/deslop`. Resolve it to an absolute path and run it from the repository root. It prints JSON by default (`findings`, `summary`); `--compact` prints a short markdown table without the `autoFix` field, so use the JSON when building fixes. Add `--quick` or `--deep` for those thoroughness levels.
 
 ```bash
 node <plugin>/scripts/detect.js .                                   # scope all

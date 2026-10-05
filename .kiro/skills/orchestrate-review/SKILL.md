@@ -10,7 +10,7 @@ metadata:
 
 Review a set of files with one reviewer per concern, fix what they find, and re-review until no open findings remain. The scope is the caller's: changed files in a delivery pipeline, the files or module the user named, or the project for an audit. Pick specialists from that scope.
 
-`<plugin>` is this plugin's root, two directories up from this skill.
+`<plugin>` is this plugin's root, `$HOME/.agentsys/plugins/prepare-delivery`.
 
 ## Passes
 

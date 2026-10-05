@@ -19,7 +19,7 @@ Arguments: `$ARGUMENTS`
 | `--context` | diff, file=PATH, none | none |
 | `--continue` | flag, or SESSION_ID | off |
 
-The question is everything in `$ARGUMENTS` that is not a flag. Templates, model defaults, parsing and redaction patterns per provider are in [references/providers.md](references/providers.md); `<plugin>` below is this plugin's root, two directories up from this skill.
+The question is everything in `$ARGUMENTS` that is not a flag. Templates, model defaults, parsing and redaction patterns per provider are in [references/providers.md](references/providers.md); `<plugin>` below is this plugin's root, `$HOME/.agentsys/plugins/consult`.
 
 ## Tool choice
 

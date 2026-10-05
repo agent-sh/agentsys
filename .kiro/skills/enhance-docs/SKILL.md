@@ -15,7 +15,7 @@ Make docs correct first, then easy to navigate for people and easy to retrieve f
 ## Run the analyzer
 
 ```bash
-node -e 'const a=require(process.argv[1]); console.log(JSON.stringify(a.analyzeAllDocs(process.argv[2], { mode: process.argv[3] }), null, 2))' \
+node -e 'const a=require(process.argv[1]); console.log(JSON.stringify(a.analyze({ doc: process.argv[2], mode: process.argv[3] }), null, 2))' \
   "$HOME/.agentsys/plugins/enhance/lib/enhance/docs-analyzer.js" "<path>" "<ai|both>"
 ```
 

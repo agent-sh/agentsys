@@ -12,7 +12,7 @@ Arguments: `$ARGUMENTS`
 
 ## Running it
 
-`scripts/repo-intel.js` at the plugin root (two directories up from this skill) runs every action and prints JSON:
+`scripts/repo-intel.js` at the plugin root (`$HOME/.agentsys/plugins/repo-intel`) runs every action and prints JSON:
 
 ```bash
 node <plugin>/scripts/repo-intel.js status

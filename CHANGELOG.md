@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Agent model tables in `AGENTS.md` and `docs/reference/AGENTS.md` show what each family alias resolves to.
 - `banthis` marketplace pin moves to `v0.4.0`: missing end-marker repair, no em dash in the written preamble, and explicit-only ban triggers.
 - Instruction files rewritten for current models: `AGENTS.md`, `docs/reference/AGENTS.md` and the `maintain-cross-platform` meta skill say each rule once, with its reason and without caps, and match the current code and the pinned plugins. The agent reference now lists all 39 file-based agents from the pinned `agents/*.md` (it missed the two repo-intel enrich agents, listed an `agnix-agent` that does not exist, and described ci-monitor as an unbounded 15-second poll; it waits on `gh pr checks --watch` with a 30-minute bound).
-- The `.kiro/` mirror is regenerated from the marketplace-pinned plugin commits through the Kiro transforms. It was a March snapshot: 27 skills and 33 agents had drifted from their sources, and skills now carry their `references/` files so their links resolve.
+- The `.kiro/` mirror is regenerated from the marketplace-pinned plugin commits through the Kiro transforms. It was a March snapshot: 27 skills and 33 agents had drifted from their sources, and skills now carry their `references/` files so their links resolve. Where a skill locates its scripts "two directories up from this skill", the mirror names `$HOME/.agentsys/plugins/<plugin>` instead, since two directories up from `.kiro/skills/<name>/` is `.kiro/`. The mirrored enhance-docs skill calls `analyze({ doc, mode })`, which handles a single file; `analyzeAllDocs` on a file returned no findings.
 
 ## [6.0.2] - 2026-08-17
 

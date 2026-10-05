@@ -17,6 +17,6 @@ Files that no test exercises are where a wrong fix goes unnoticed. With repo-int
 node -e "const q=require('<plugin>/lib/repo-intel/queries'); console.log(JSON.stringify(q.testGaps(process.cwd(), { limit: 20 })))"
 ```
 
-`<plugin>` is the plugin root, two directories up from the skill. The query returns an array of `{ path, ... }`. Mark findings in those files `"untested": true`, list them first in the report, and do not promote them into `fixes` on that basis. If the caller already passed a test-gaps list in the prompt, use it instead of running the query.
+`<plugin>` is the plugin root, `$HOME/.agentsys/plugins/deslop`. The query returns an array of `{ path, ... }`. Mark findings in those files `"untested": true`, list them first in the report, and do not promote them into `fixes` on that basis. If the caller already passed a test-gaps list in the prompt, use it instead of running the query.
 
 If the query throws (old agentsys, missing binary), note the reason once in the result and continue without it.
