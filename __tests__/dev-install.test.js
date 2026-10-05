@@ -170,6 +170,19 @@ describe('dev-install script', () => {
     test('copies to ~/.agentsys for OpenCode/Codex', () => {
       expect(devInstallSource.includes('copyToAgentSys')).toBe(true);
     });
+
+    test('installs whole Kiro skill directories through the CLI installer', () => {
+      // The behavior is covered in platform-adapter-install.test.js; this
+      // pins dev-install to the same code instead of a SKILL.md-only copy.
+      const installKiro = devInstallSource.slice(
+        devInstallSource.indexOf('function installKiro()'),
+        devInstallSource.indexOf('function copyToAgentSys()')
+      );
+      expect(devInstallSource).toContain("const { installSkillDir } = require(path.join(SOURCE_DIR, 'bin', 'cli.js'));");
+      expect(installKiro).toContain('installSkillDir(srcSkillDir,');
+      expect(installKiro).toContain('transforms.transformSkillForKiro(content, { pluginInstallPath })');
+      expect(installKiro).not.toContain("'SKILL.md'), content");
+    });
   });
 
   describe('external commands', () => {

@@ -37,20 +37,19 @@ When user runs `agentsys` and selects Codex:
 ```
 ~/.agentsys/           # Full package copy
 
-~/.codex/skills/            # 24 skills installed
-├── next-task/SKILL.md
-├── deslop/SKILL.md
-├── enhance/SKILL.md
+~/.codex/skills/            # one skill per command, plus plugin skills
+├── next-task/SKILL.md      # from a command (commands/next-task.md)
 ├── ship/SKILL.md
-├── audit-project/SKILL.md
-├── drift-detect/SKILL.md
-├── repo-intel/SKILL.md
-├── sync-docs/SKILL.md
-├── perf/SKILL.md
-└── ... (15 more internal skills)
+├── deslop/SKILL.md
+├── ...
+├── drift-analysis/         # a plugin skill: the whole skill directory
+│   ├── SKILL.md
+│   └── references/
+├── enhance-docs/SKILL.md
+└── ...
 ```
 
-Skills are invoked with `$` prefix: `$next-task`, `$ship`, etc.
+Skills are invoked with `$` prefix: `$next-task`, `$ship`, etc. A plugin skill named like a command (`deslop`, `consult`, ...) is not installed there: `$<name>` stays the command, and the skill stays in `~/.agentsys/plugins/<plugin>/skills/<name>/`.
 
 ---
 

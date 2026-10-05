@@ -4,19 +4,22 @@ const path = require('path');
 
 const discovery = require('../lib/discovery');
 const transforms = require('../lib/adapter-transforms');
-const { installForCursor, installForKiro } = require('../bin/cli');
+const { installForOpenCode, installForCodex, installForCursor, installForKiro } = require('../bin/cli');
 
-describe('Cursor and Kiro adapter installers', () => {
+describe('platform adapter installers', () => {
   let tempDir;
   let installDir;
   let originalHome;
+  let originalXdgConfigHome;
   let logSpy;
 
   beforeEach(() => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agentsys-platform-install-'));
     installDir = path.join(tempDir, 'install');
     originalHome = process.env.HOME;
+    originalXdgConfigHome = process.env.XDG_CONFIG_HOME;
     process.env.HOME = tempDir;
+    delete process.env.XDG_CONFIG_HOME;
     logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
 
     const pluginDir = path.join(installDir, 'plugins', 'test-plugin');
@@ -52,6 +55,11 @@ describe('Cursor and Kiro adapter installers', () => {
       delete process.env.HOME;
     } else {
       process.env.HOME = originalHome;
+    }
+    if (originalXdgConfigHome === undefined) {
+      delete process.env.XDG_CONFIG_HOME;
+    } else {
+      process.env.XDG_CONFIG_HOME = originalXdgConfigHome;
     }
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
@@ -115,55 +123,107 @@ describe('Cursor and Kiro adapter installers', () => {
     });
   });
 
-  test('installs whole Kiro skill directories with paths that work outside the plugin', () => {
+  // Each platform loads skills from its own skills directory, away from the
+  // plugin. `pluginRoot` is how `${CLAUDE_PLUGIN_ROOT}` reads after the
+  // platform's transform: OpenCode keeps a `${PLUGIN_ROOT}` placeholder.
+  const skillPlatforms = [
+    ['OpenCode', installForOpenCode, ['.config', 'opencode', 'skills'], () => '${PLUGIN_ROOT}'],
+    ['Codex', installForCodex, ['.codex', 'skills'], (installPath) => installPath],
+    ['Cursor', installForCursor, ['.cursor', 'skills'], (installPath) => installPath],
+    ['Kiro', installForKiro, ['.kiro', 'skills'], (installPath) => installPath]
+  ];
+
+  test.each(skillPlatforms)(
+    'installs whole %s skill directories with paths that work outside the plugin',
+    (_platform, install, skillsDir, pluginRoot) => {
+      const pluginDir = path.join(installDir, 'plugins', 'test-plugin');
+      const skillDir = path.join(pluginDir, 'skills', 'test-skill');
+      fs.mkdirSync(path.join(skillDir, 'references'), { recursive: true });
+      fs.mkdirSync(path.join(skillDir, 'scripts'), { recursive: true });
+      fs.mkdirSync(path.join(pluginDir, 'references'), { recursive: true });
+      fs.writeFileSync(path.join(skillDir, 'SKILL.md'), [
+        '---',
+        'name: test-skill',
+        'description: Test skill',
+        '---',
+        '`scripts/run.js` is at the plugin root, two directories up from this skill.',
+        'Details: [guide](references/guide.md). Shared: [categories](../../references/shared.md#rules).',
+        'Docs: [site](https://example.com/x). Outside the plugin: [repo](../../../README.md).',
+        'Same text: [../../references/shared.md](../../references/shared.md).',
+        ''
+      ].join('\n'));
+      fs.writeFileSync(
+        path.join(skillDir, 'references', 'guide.md'),
+        '`<plugin>` is the plugin root, two directories up from the skill. Run ${CLAUDE_PLUGIN_ROOT}/scripts/run.js.\n' +
+        'Back: [skill](../SKILL.md), [shared](../../../references/shared.md).\n' +
+        'Runner: Glob `**/consult/*/acp/run.js`.\n'
+      );
+      const binary = Buffer.from([0x23, 0x21, 0x00, 0xff]);
+      fs.writeFileSync(path.join(skillDir, 'scripts', 'helper.bin'), binary);
+      fs.writeFileSync(path.join(pluginDir, 'references', 'shared.md'), '# Shared\n');
+
+      // A file from an earlier install must not survive a reinstall.
+      const destSkill = path.join(tempDir, ...skillsDir, 'test-skill');
+      fs.mkdirSync(destSkill, { recursive: true });
+      fs.writeFileSync(path.join(destSkill, 'stale.md'), 'old');
+
+      install(installDir);
+
+      const installPath = path.join(installDir, 'plugins', 'test-plugin');
+      const skill = fs.readFileSync(path.join(destSkill, 'SKILL.md'), 'utf8');
+      const guide = fs.readFileSync(path.join(destSkill, 'references', 'guide.md'), 'utf8');
+
+      expect(skill).toContain('name: test-skill');
+      expect(skill).toContain(`is at the plugin root, \`${installPath}\`.`);
+      expect(skill).toContain('[guide](references/guide.md)');
+      expect(skill).toContain(`[categories](${installPath}/references/shared.md#rules)`);
+      expect(skill).toContain('[site](https://example.com/x)');
+      expect(skill).toContain('[repo](../../../README.md)');
+      expect(skill).toContain(`[${installPath}/references/shared.md](${installPath}/references/shared.md)`);
+      expect(guide).toContain(`is the plugin root, \`${installPath}\`.`);
+      expect(guide).toContain(`Run ${pluginRoot(installPath)}/scripts/run.js.`);
+      expect(guide).toContain('[skill](../SKILL.md)');
+      expect(guide).toContain(`[shared](${installPath}/references/shared.md)`);
+      expect(guide).toContain('`**/consult/**/acp/run.js`');
+      expect(fs.readFileSync(path.join(destSkill, 'scripts', 'helper.bin'))).toEqual(binary);
+      expect(fs.existsSync(path.join(destSkill, 'stale.md'))).toBe(false);
+    }
+  );
+
+  test('keeps Codex command skills over plugin skills of the same name', () => {
     const pluginDir = path.join(installDir, 'plugins', 'test-plugin');
-    const skillDir = path.join(pluginDir, 'skills', 'test-skill');
-    fs.mkdirSync(path.join(skillDir, 'references'), { recursive: true });
-    fs.mkdirSync(path.join(skillDir, 'scripts'), { recursive: true });
-    fs.mkdirSync(path.join(pluginDir, 'references'), { recursive: true });
-    fs.writeFileSync(path.join(skillDir, 'SKILL.md'), [
-      '---',
-      'name: test-skill',
-      'description: Test skill',
-      '---',
-      '`scripts/run.js` is at the plugin root, two directories up from this skill.',
-      'Details: [guide](references/guide.md). Shared: [categories](../../references/shared.md#rules).',
-      'Docs: [site](https://example.com/x). Outside the plugin: [repo](../../../README.md).',
-      'Same text: [../../references/shared.md](../../references/shared.md).',
-      ''
-    ].join('\n'));
+    fs.mkdirSync(path.join(pluginDir, 'skills', 'test-command', 'references'), { recursive: true });
     fs.writeFileSync(
-      path.join(skillDir, 'references', 'guide.md'),
-      '`<plugin>` is the plugin root, two directories up from the skill. Run ${CLAUDE_PLUGIN_ROOT}/scripts/run.js.\n' +
-      'Back: [skill](../SKILL.md), [shared](../../../references/shared.md).\n'
+      path.join(pluginDir, 'skills', 'test-command', 'SKILL.md'),
+      '---\nname: test-command\ndescription: Skill behind the command\n---\nSkill body.\n'
     );
-    const binary = Buffer.from([0x23, 0x21, 0x00, 0xff]);
-    fs.writeFileSync(path.join(skillDir, 'scripts', 'helper.bin'), binary);
-    fs.writeFileSync(path.join(pluginDir, 'references', 'shared.md'), '# Shared\n');
+    fs.writeFileSync(path.join(pluginDir, 'skills', 'test-command', 'references', 'notes.md'), '# Notes\n');
+    fs.mkdirSync(path.join(pluginDir, 'skills', 'no-description'), { recursive: true });
+    fs.writeFileSync(
+      path.join(pluginDir, 'skills', 'no-description', 'SKILL.md'),
+      '---\nname: no-description\n---\nBody.\n'
+    );
 
-    // A file from an earlier install must not survive a reinstall.
-    const destSkill = path.join(tempDir, '.kiro', 'skills', 'test-skill');
-    fs.mkdirSync(destSkill, { recursive: true });
-    fs.writeFileSync(path.join(destSkill, 'stale.md'), 'old');
+    installForCodex(installDir);
 
-    installForKiro(installDir);
+    const skillsDir = path.join(tempDir, '.codex', 'skills');
+    const command = fs.readFileSync(path.join(skillsDir, 'test-command', 'SKILL.md'), 'utf8');
+    expect(command).toContain('name: test-command');
+    expect(command).toContain('description: "Test command"');
+    expect(command).not.toContain('Skill body.');
+    expect(fs.existsSync(path.join(skillsDir, 'test-command', 'references'))).toBe(false);
+    expect(fs.existsSync(path.join(skillsDir, 'test-skill', 'SKILL.md'))).toBe(true);
+    // Codex needs a description to list a skill.
+    expect(fs.existsSync(path.join(skillsDir, 'no-description'))).toBe(false);
+  });
 
-    const installPath = path.join(installDir, 'plugins', 'test-plugin');
-    const skill = fs.readFileSync(path.join(destSkill, 'SKILL.md'), 'utf8');
-    const guide = fs.readFileSync(path.join(destSkill, 'references', 'guide.md'), 'utf8');
+  test('installs only the requested skill for a Codex component install', () => {
+    installForCodex(installDir, { filter: { agents: [], skills: [], commands: ['test-command'] } });
+    expect(fs.existsSync(path.join(tempDir, '.codex', 'skills', 'test-command', 'SKILL.md'))).toBe(true);
+    expect(fs.existsSync(path.join(tempDir, '.codex', 'skills', 'test-skill'))).toBe(false);
 
-    expect(skill).toContain(`is at the plugin root, \`${installPath}\`.`);
-    expect(skill).toContain('[guide](references/guide.md)');
-    expect(skill).toContain(`[categories](${installPath}/references/shared.md#rules)`);
-    expect(skill).toContain('[site](https://example.com/x)');
-    expect(skill).toContain('[repo](../../../README.md)');
-    expect(skill).toContain(`[${installPath}/references/shared.md](${installPath}/references/shared.md)`);
-    expect(guide).toContain(`is the plugin root, \`${installPath}\`.`);
-    expect(guide).toContain(`Run ${installPath}/scripts/run.js.`);
-    expect(guide).toContain('[skill](../SKILL.md)');
-    expect(guide).toContain(`[shared](${installPath}/references/shared.md)`);
-    expect(fs.readFileSync(path.join(destSkill, 'scripts', 'helper.bin'))).toEqual(binary);
-    expect(fs.existsSync(path.join(destSkill, 'stale.md'))).toBe(false);
+    installForCodex(installDir, { filter: { agents: [], skills: ['test-skill'], commands: [] } });
+    expect(fs.existsSync(path.join(tempDir, '.codex', 'skills', 'test-skill', 'SKILL.md'))).toBe(true);
   });
 
   test('points Kiro agents and prompts at the install layout instead of the versioned cache', () => {
@@ -198,5 +258,43 @@ describe('Cursor and Kiro adapter installers', () => {
     expect(prompt).toContain(`\`ls ${path.join(installDir, 'plugins')}/consult/acp/run.js\``);
     expect(prompt).toContain('`**/consult/**/acp/run.js`');
     expect(prompt).not.toContain('/*/');
+  });
+
+  test('points OpenCode, Codex and Cursor commands at the install layout instead of the versioned cache', () => {
+    const pluginDir = path.join(installDir, 'plugins', 'test-plugin');
+    fs.writeFileSync(
+      path.join(pluginDir, 'commands', 'test-command.md'),
+      '---\ndescription: Test command\n---\n' +
+      'Find the runner with `ls ${CLAUDE_PLUGIN_ROOT}/../../consult/*/acp/run.js` (or Glob `**/consult/*/acp/run.js`).\n'
+    );
+    fs.writeFileSync(path.join(pluginDir, 'agents', 'test-agent.md'), [
+      '---',
+      'name: test-agent',
+      'description: Test agent',
+      'tools: Read',
+      '---',
+      'If `${CLAUDE_PLUGIN_ROOT}` appears unexpanded, Glob for `**/test-plugin/*/skills/test-skill/SKILL.md`.',
+      ''
+    ].join('\n'));
+
+    installForOpenCode(installDir);
+    installForCodex(installDir);
+    installForCursor(installDir);
+
+    const pluginsDir = path.join(installDir, 'plugins');
+    const codex = fs.readFileSync(path.join(tempDir, '.codex', 'skills', 'test-command', 'SKILL.md'), 'utf8');
+    const cursor = fs.readFileSync(path.join(tempDir, '.cursor', 'commands', 'test-command.md'), 'utf8');
+    for (const command of [codex, cursor]) {
+      expect(command).toContain(`\`ls ${pluginsDir}/consult/acp/run.js\``);
+      expect(command).toContain('`**/consult/**/acp/run.js`');
+      expect(command).not.toContain('/*/');
+    }
+
+    // OpenCode keeps a ${PLUGIN_ROOT} placeholder, so only the globs change.
+    const opencodeDir = path.join(tempDir, '.config', 'opencode');
+    const command = fs.readFileSync(path.join(opencodeDir, 'commands', 'test-command.md'), 'utf8');
+    const agent = fs.readFileSync(path.join(opencodeDir, 'agents', 'test-agent.md'), 'utf8');
+    expect(command).toContain('`**/consult/**/acp/run.js`');
+    expect(agent).toContain('`**/test-plugin/**/skills/test-skill/SKILL.md`');
   });
 });

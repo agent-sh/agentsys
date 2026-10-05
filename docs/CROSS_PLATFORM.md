@@ -272,6 +272,8 @@ agentsys --tool codex
 
 This installs skills to `~/.codex/skills/` (`$next-task`, `$prepare-delivery`, `$gate-and-ship`, `$ship`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$sync-docs`, `$perf`, `$banthis`, `$learn`, `$agnix`, `$consult`, `$debate`, `$skillers`, `$skill-curator`, `$system-prompt-curator`, `$onboard`, `$can-i-help`).
 
+Plugin skills are installed next to them, each skill directory copied whole (`references/`, `scripts/`), with paths that pointed at the plugin root pointing at `~/.agentsys/plugins/<plugin>/`. A plugin skill named like a command (`deslop`, `consult`, ...) is not installed there: `$<name>` stays the command.
+
 ### Option 2: Custom Skills
 
 Create Codex skills in `~/.codex/skills/<name>/SKILL.md`:
@@ -341,7 +343,7 @@ The plugin auto-detects the platform and uses the appropriate directory. Overrid
 - State directory: `.opencode/`
 - Slash commands in `~/.config/opencode/commands/`
 - Agents in `~/.config/opencode/agents/` (39 agents)
-- Skills in `~/.config/opencode/skills/` (44 skills)
+- Skills in `~/.config/opencode/skills/<name>/` (44 skills, each skill directory copied whole)
 - Native plugin in `~/.config/opencode/plugins/agentsys.ts`
 - **Native plugin features:**
   - Auto-thinking selection (adjusts budget per agent)
@@ -352,12 +354,12 @@ The plugin auto-detects the platform and uses the appropriate directory. Overrid
 ### Codex CLI
 - OpenAI-native with GPT-5-Codex
 - State directory: `.codex/`
-- Skills in `~/.codex/skills/` (invoked with `$` prefix, e.g., `$next-task`)
+- Skills in `~/.codex/skills/` (invoked with `$` prefix, e.g., `$next-task`): one per command, plus each plugin skill directory copied whole unless a command has its name
 
 ### Cursor
-- Project-scoped installation
+- Global installation in `~/.cursor/`
 - State directory: `.cursor/`
-- Skills in `.cursor/skills/`, commands in `.cursor/commands/`
+- Skills in `~/.cursor/skills/<name>/` (the whole skill directory), commands in `~/.cursor/commands/`
 
 ### Kiro
 - Global installation in `~/.kiro/`

@@ -440,15 +440,14 @@ brew install agnix           # Install via Homebrew (macOS)
 
 **What happens when you run it:**
 
-1. **Pre-flight** - Detects CI platform, deployment platform, branch strategy
-2. **Commit** - Stages and commits with generated message (if uncommitted changes)
-3. **Push & PR** - Pushes branch, creates pull request
-4. **CI Monitor** - Waits for CI, retries on transient failures
-5. **Review Wait** - Waits 3 minutes for auto-reviewers (Copilot, Claude, Gemini, Codex)
-6. **Address Comments** - Handles every comment from every reviewer
-7. **Merge** - Merges when all comments resolved and CI passes
-8. **Deploy** - Deploys and validates (if multi-branch workflow)
-9. **Cleanup** - Removes worktree, closes issue, deletes branch
+1. **Pre-flight** - Detects CI platform, deployment platform, branch strategy, and whether you can merge
+2. **Commit** - Runs the tests, then stages and commits with a generated message (if uncommitted changes)
+3. **Push & PR** - Pushes the branch, opens a pull request or reuses the open one
+4. **CI and reviews** - Waits on CI with `gh pr checks --watch` instead of polling and fixes failures. Waits only for review bots that recent PRs show, and only for their review of the current commit (at most 15 minutes per wait). Fixes or answers every comment, up to 5 rounds
+5. **Review** - One review pass over the diff (standalone runs only)
+6. **Merge** - Merges when checks are green and no thread is unresolved. Without write access it stops at ready for review
+7. **Deploy** - Deploys, validates, and rolls back with `git revert` on failure (multi-branch workflow only)
+8. **Cleanup** - Removes the worktree and branch the run created, closes the issue for a /next-task GitHub task
 
 **Platform Detection:**
 
@@ -460,13 +459,13 @@ brew install agnix           # Install via Homebrew (macOS)
 
 **Review Comment Handling:**
 
-Every comment gets addressed. No exceptions. The workflow categorizes comments and handles each:
-- Code fixes get implemented
-- Style suggestions get applied
+Every comment gets fixed or answered:
+- Correct comments get fixed, nits included when the fix is cheap
+- Wrong or already-handled comments get one reply with the reason, and no code change
+- Out-of-scope comments get a reply saying so
 - Questions get answered
-- False positives get explained
 
-If something can't be fixed, the workflow replies explaining why and resolves the thread.
+On your own repo it resolves each thread it handled. On a repo you cannot merge to, it leaves threads to the maintainers and replies only where they asked.
 
 **Usage:**
 
@@ -474,6 +473,7 @@ If something can't be fixed, the workflow replies explaining why and resolves th
 /ship                       # Full workflow
 /ship --dry-run             # Preview without executing
 /ship --strategy rebase     # Use rebase instead of squash
+/ship --base develop        # Target a non-default branch
 ```
 
 [Full workflow documentation →](./docs/workflows/SHIP.md)

@@ -1577,7 +1577,7 @@ function installForOpenCode(installDir, options = {}) {
     console.log(`  [OK] Installed lib to ${libDestDir}`);
   }
 
-  // Install skills to the OpenCode global skills directory (~/.config/opencode/skills/<skill-name>/SKILL.md)
+  // Install skills to the OpenCode global skills directory (~/.config/opencode/skills/<skill-name>/)
   const skillsDestDir = path.join(opencodeConfigDir, 'skills');
   fs.mkdirSync(skillsDestDir, { recursive: true });
   console.log('  Installing skills...');
@@ -1594,13 +1594,11 @@ function installForOpenCode(installDir, options = {}) {
         if (filter && filter.skills.length > 0) {
           if (!filter.skills.includes(skillName)) continue;
         }
-        const srcSkillPath = path.join(srcSkillsDir, skillName, 'SKILL.md');
-        if (fs.existsSync(srcSkillPath)) {
-          const destSkillDir = path.join(skillsDestDir, skillName);
-          fs.mkdirSync(destSkillDir, { recursive: true });
-          let content = fs.readFileSync(srcSkillPath, 'utf8');
-          content = transforms.transformSkillBodyForOpenCode(content, installDir);
-          fs.writeFileSync(path.join(destSkillDir, 'SKILL.md'), content);
+        const srcSkillDir = path.join(srcSkillsDir, skillName);
+        if (fs.existsSync(path.join(srcSkillDir, 'SKILL.md'))) {
+          const pluginInstallPath = path.join(installDir, 'plugins', pluginName);
+          installSkillDir(srcSkillDir, path.join(skillsDestDir, skillName), pluginInstallPath,
+            (content) => transforms.transformSkillBodyForOpenCode(content, installDir, { pluginInstallPath }));
           skillCount++;
         }
       }
@@ -1690,6 +1688,27 @@ function installForCodex(installDir, options = {}) {
     }
   }
 
+  // Install plugin skills as whole directories. A command keeps its skill
+  // name, so `$deslop` stays the deslop command; the deslop plugin skill stays
+  // in the plugin's install directory.
+  const commandSkillNames = new Set(skillMappings.map(([skillName]) => skillName));
+  for (const skill of discovery.discoverSkills(installDir)) {
+    if (!/^[a-zA-Z0-9_-]+$/.test(skill.name) || commandSkillNames.has(skill.name)) continue;
+    if (filter && !(filter.skills || []).includes(skill.name)) continue;
+    if (!skill.frontmatter.description) {
+      console.log(`  [WARN] Skipping skill ${skill.name}: missing description`);
+      continue;
+    }
+    const pluginInstallPath = path.join(installDir, 'plugins', skill.plugin);
+    installSkillDir(
+      path.join(installDir, 'plugins', skill.plugin, 'skills', skill.dir),
+      path.join(skillsDir, skill.name),
+      pluginInstallPath,
+      (content) => transforms.transformSkillForCodex(content, { pluginInstallPath })
+    );
+    console.log(`  [OK] Installed skill: ${skill.name}`);
+  }
+
   console.log('\n[OK] Codex CLI installation complete!');
   console.log(`   Config: ${configDir}`);
   console.log(`   Skills: ${skillsDir}`);
@@ -1752,15 +1771,11 @@ function installForCursor(installDir, options = {}) {
     for (const entry of entries) {
       if (!/^[a-zA-Z0-9_-]+$/.test(entry.name)) continue;
       if (filter && filter.skills && filter.skills.length > 0 && !filter.skills.includes(entry.name)) continue;
-      const srcPath = path.join(srcSkillsDir, entry.name, 'SKILL.md');
-      if (!fs.existsSync(srcPath)) continue;
-      const destDir = path.join(skillsDir, entry.name);
-      fs.mkdirSync(destDir, { recursive: true });
-      let content = fs.readFileSync(srcPath, 'utf8');
-      content = transforms.transformSkillForCursor(content, {
-        pluginInstallPath: path.join(installDir, 'plugins', pluginName)
-      });
-      fs.writeFileSync(path.join(destDir, 'SKILL.md'), content);
+      const srcSkillDir = path.join(srcSkillsDir, entry.name);
+      if (!fs.existsSync(path.join(srcSkillDir, 'SKILL.md'))) continue;
+      const pluginInstallPath = path.join(installDir, 'plugins', pluginName);
+      installSkillDir(srcSkillDir, path.join(skillsDir, entry.name), pluginInstallPath,
+        (content) => transforms.transformSkillForCursor(content, { pluginInstallPath }));
       skillCount++;
     }
   }
@@ -1823,18 +1838,22 @@ function pointEscapingLinksAtPlugin(content, fileDir, skillDir, pluginInstallPat
 }
 
 /**
- * Copy one plugin skill directory to a Kiro skills directory.
+ * Copy one plugin skill directory into a platform's skills directory.
  *
- * Kiro loads a skill from ~/.kiro/skills/<name>/, away from its plugin, so the
- * whole directory goes (references, scripts, assets), every markdown file goes
- * through transformSkillForKiro, and links that leave the skill directory are
- * pointed at the plugin's install path. Symlinks are skipped.
+ * OpenCode, Codex, Cursor and Kiro load a skill from their own skills
+ * directory, away from its plugin, so the whole directory goes (references,
+ * scripts, assets), every markdown file goes through the platform's skill
+ * transform, and links that leave the skill directory are pointed at the
+ * plugin's install path. The previous copy is removed first, so a file the
+ * plugin dropped does not linger. Symlinks are skipped.
  *
  * @param {string} srcSkillDir - <plugin>/skills/<name>
- * @param {string} destSkillDir - ~/.kiro/skills/<name>
+ * @param {string} destSkillDir - <platform skills dir>/<name>
  * @param {string} pluginInstallPath - Where the plugin is installed
+ * @param {(content: string) => string} transformMarkdown - The platform's skill transform
  */
-function installSkillDirForKiro(srcSkillDir, destSkillDir, pluginInstallPath) {
+function installSkillDir(srcSkillDir, destSkillDir, pluginInstallPath, transformMarkdown) {
+  fs.rmSync(destSkillDir, { recursive: true, force: true });
   const copy = (srcDir, destDir) => {
     fs.mkdirSync(destDir, { recursive: true });
     for (const entry of fs.readdirSync(srcDir, { withFileTypes: true })) {
@@ -1843,8 +1862,7 @@ function installSkillDirForKiro(srcSkillDir, destSkillDir, pluginInstallPath) {
       if (entry.isDirectory()) {
         copy(srcPath, destPath);
       } else if (entry.isFile() && entry.name.endsWith('.md')) {
-        let content = fs.readFileSync(srcPath, 'utf8');
-        content = transforms.transformSkillForKiro(content, { pluginInstallPath });
+        let content = transformMarkdown(fs.readFileSync(srcPath, 'utf8'));
         content = pointEscapingLinksAtPlugin(content, srcDir, srcSkillDir, pluginInstallPath);
         fs.writeFileSync(destPath, content);
       } else if (entry.isFile()) {
@@ -1934,11 +1952,9 @@ function installForKiro(installDir, options = {}) {
       if (filter && filter.skills && filter.skills.length > 0 && !filter.skills.includes(entry.name)) continue;
       const srcSkillDir = path.join(srcSkillsDir, entry.name);
       if (!fs.existsSync(path.join(srcSkillDir, 'SKILL.md'))) continue;
-      installSkillDirForKiro(
-        srcSkillDir,
-        path.join(skillsDir, entry.name),
-        path.join(installDir, 'plugins', pluginName)
-      );
+      const pluginInstallPath = path.join(installDir, 'plugins', pluginName);
+      installSkillDir(srcSkillDir, path.join(skillsDir, entry.name), pluginInstallPath,
+        (content) => transforms.transformSkillForKiro(content, { pluginInstallPath }));
       skillCount++;
     }
   }
@@ -2032,7 +2048,7 @@ function removeInstallation() {
   console.log('\n[OK] Removed ~/.agentsys');
   console.log('\nTo fully uninstall, also remove:');
   console.log('  - Claude: /plugin marketplace remove agentsys');
-  console.log('  - OpenCode: Remove files under ~/.config/opencode/ (commands/*.md, agents/*.md, skills/*/SKILL.md) and ~/.config/opencode/plugins/agentsys.ts');
+  console.log('  - OpenCode: Remove files under ~/.config/opencode/ (commands/*.md, agents/*.md, skills/*/) and ~/.config/opencode/plugins/agentsys.ts');
   console.log('  - Codex: Remove ~/.codex/skills/*/');
   console.log('  - Cursor: Remove ~/.cursor/skills/, ~/.cursor/commands/, and ~/.cursor/rules/agentsys-*.mdc');
   console.log('  - Kiro: Remove ~/.kiro/skills/, ~/.kiro/prompts/, and ~/.kiro/agents/');
@@ -2434,7 +2450,10 @@ module.exports = {
   buildFilterFromComponent,
   resolvePluginSource,
   parseGitHubSource,
+  installForOpenCode,
+  installForCodex,
   installForCursor,
   installForKiro,
+  installSkillDir,
   claudeSpawnPlan
 };

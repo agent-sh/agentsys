@@ -35,6 +35,7 @@ const {
   WINDOWS_BATCH_SHIM
 } = require(path.join(SOURCE_DIR, 'lib', 'utils', 'command-parser'));
 const { claudeExecutable } = require(path.join(SOURCE_DIR, 'lib', 'utils', 'claude-executable'));
+const { installSkillDir } = require(path.join(SOURCE_DIR, 'bin', 'cli.js'));
 
 // Target directories
 const HOME = process.env.HOME || process.env.USERPROFILE;
@@ -542,7 +543,7 @@ function installKiro() {
   // Copy to ~/.agentsys first (Kiro needs local files for transforms)
   copyToAgentSys();
 
-  // Install skills
+  // Install whole skill directories, the same way `agentsys --tool kiro` does
   let skillCount = 0;
   for (const plugin of PLUGINS) {
     const srcSkillsDir = path.join(SOURCE_DIR, 'plugins', plugin, 'skills');
@@ -550,15 +551,11 @@ function installKiro() {
     const entries = fs.readdirSync(srcSkillsDir, { withFileTypes: true }).filter(d => d.isDirectory());
     for (const entry of entries) {
       if (!/^[a-zA-Z0-9_-]+$/.test(entry.name)) continue;
-      const srcPath = path.join(srcSkillsDir, entry.name, 'SKILL.md');
-      if (!fs.existsSync(srcPath)) continue;
-      const destDir = path.join(skillsDir, entry.name);
-      fs.mkdirSync(destDir, { recursive: true });
-      let content = fs.readFileSync(srcPath, 'utf8');
-      content = transforms.transformSkillForKiro(content, {
-        pluginInstallPath: path.join(AGENTSYS_DIR, 'plugins', plugin)
-      });
-      fs.writeFileSync(path.join(destDir, 'SKILL.md'), content);
+      const srcSkillDir = path.join(srcSkillsDir, entry.name);
+      if (!fs.existsSync(path.join(srcSkillDir, 'SKILL.md'))) continue;
+      const pluginInstallPath = path.join(AGENTSYS_DIR, 'plugins', plugin);
+      installSkillDir(srcSkillDir, path.join(skillsDir, entry.name), pluginInstallPath,
+        (content) => transforms.transformSkillForKiro(content, { pluginInstallPath }));
       skillCount++;
     }
   }

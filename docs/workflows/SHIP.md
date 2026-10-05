@@ -1,8 +1,8 @@
 # /ship Workflow
 
-Complete technical reference for the `/ship` workflow.
+Complete technical reference for the `/ship` workflow, from the ship plugin pinned in `.claude-plugin/marketplace.json`.
 
-**TL;DR:** Takes current branch to merged PR. Auto-detects CI/deploy platforms. Waits for reviewers, addresses every comment. Rollback on production failure.
+**TL;DR:** Takes the current branch to a merged PR, and on multi-branch repos through a validated production deploy. Waits on CI with `gh pr checks --watch` instead of polling, waits only for the review bots recent PRs show, and fixes or answers every review comment. Rolls production back with `git revert` when validation fails.
 
 ---
 
@@ -10,10 +10,11 @@ Complete technical reference for the `/ship` workflow.
 
 | Section | Jump to |
 |---------|---------|
+| [Arguments](#arguments) | Flags `/ship` accepts |
 | [Workflow Phases](#workflow-phases) | All phases from commit to merge |
-| [Review Comment Handling](#review-comment-handling) | How every comment gets addressed |
+| [Review Feedback Handling](#review-feedback-handling) | How every comment gets fixed or answered |
 | [Error Handling](#error-handling) | Exit codes and recovery |
-| [Integration with /next-task](#integration-with-next-task) | What changes when called from workflow |
+| [Integration with /next-task](#integration-with-next-task) | What changes when called from the workflow |
 | [Platform Detection Details](#platform-detection-details) | CI and deploy detection |
 | [Example Flow](#example-flow) | Full walkthrough |
 
@@ -25,374 +26,333 @@ Complete technical reference for the `/ship` workflow.
 
 ## Overview
 
-`/ship` takes your current branch from uncommitted changes (or already committed) to a merged PR with all CI checks passing and all review comments addressed.
+`/ship` takes your current branch from uncommitted changes (or already committed) to a merged PR with green checks and every review comment fixed or answered.
 
-**Why this design:** Shipping isn't just "create PR." It's monitoring CI, waiting for reviewers, reading comments, deciding how to respond, pushing fixes, waiting again. This workflow handles all of that. Every comment from every reviewer gets addressed—either fixed, explained, or marked as out of scope with a reason. You start `/ship` and check back when it's merged.
+**Why this design:** Shipping is more than opening a PR. It is waiting for CI, reading what reviewers said, deciding how to respond, pushing fixes, and waiting again. `/ship` does all of that. The run is done when the PR is merged (or, on a repo you cannot merge to, ready for the maintainers), CI is green on the merged head, review feedback is handled, and anything the run created locally is cleaned up.
+
+**Constraints the workflow keeps:**
+- It never force-pushes a branch other people build on. Production rollback uses `git revert`, not a reset.
+- It stages files by name and never stages `.env` files, keys or credentials.
+- It cleans up only what this run (or the `/next-task` run that called it) created: its worktree, its local branch, its task entry. Other worktrees and branches may be another agent's live work.
+- On a repo where you lack write access (a fork PR to an upstream project), it does not merge, does not resolve maintainers' threads, and replies only where a maintainer asked something. It stops at "ready for review".
+- It posts to an issue tracker only when the run came from `/next-task` with a GitHub task source.
+
+Without a `Task` tool it does review and fix work inline, and without `AskUserQuestion` it asks in plain text. No other plugin is required.
+
+---
+
+## Arguments
+
+| Flag | Meaning |
+|------|---------|
+| `--strategy squash\|merge\|rebase` | Merge strategy. Default `squash` |
+| `--skip-tests` | Skip the local test run before pushing. CI still has to pass |
+| `--dry-run` | Print the plan and stop. Changes nothing |
+| `--state-file PATH` | The `/next-task` flow state. Present means `/next-task` already ran review, deslop and docs |
+| `--base BRANCH` | PR target. Default: `git.baseBranch` from the flow state with `--state-file`, else the repo default branch |
 
 ---
 
 ## Workflow Phases
 
-### Phase 1: Pre-flight Checks
+### Phase 1: Pre-flight
 
-**Platform Detection:**
+The plugin's scripts detect the environment:
 
-The workflow detects your project setup:
+```bash
+PLATFORM=$(node "${CLAUDE_PLUGIN_ROOT}/lib/platform/detect-platform.js")   # ci, deployment, branchStrategy, mainBranch, packageManager
+TOOLS=$(node "${CLAUDE_PLUGIN_ROOT}/lib/platform/verify-tools.js")         # .gh.available etc.
+```
 
-| Detection | How |
-|-----------|-----|
-| CI Platform | Checks for `.github/workflows/`, `.gitlab-ci.yml`, `.circleci/config.yml`, `Jenkinsfile`, `.travis.yml` |
-| Deploy Platform | Checks for `railway.json`, `vercel.json`, `netlify.toml`, `fly.toml`, `render.yaml` |
-| Project Type | Checks for `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `pom.xml` |
-| Branch Strategy | Single-branch (main only) or multi-branch (dev + prod) |
-| Main Branch | `main` or `master` |
+- Stops with install and `gh auth login` instructions if `gh` is missing.
+- Stops if the current branch is the target branch: shipping needs a feature branch.
+- Resolves the target: `--base`, then the flow state's `git.baseBranch`, then `mainBranch`. An interactive run confirms a target that differs from the repo default; under `--state-file` the flow state is trusted.
+- `branchStrategy: multi-branch` (a dev and a production branch, `stable` by default) turns on Phases 7 to 10.
+- Checks write access once with `gh repo view <base-repo> --json viewerPermission`. `ADMIN`, `MAINTAIN` or `WRITE` means it can merge. On a fork, `<base-repo>` is the upstream parent.
 
-**Tool Verification:**
+`--dry-run` prints the plan and stops:
 
-Checks 25+ tools in parallel:
-- Required: `git`, `gh` (GitHub CLI)
-- Optional: `node`, `npm`, `docker`, `railway`, `vercel`, etc.
-
-Fails if `gh` is not available (required for PR workflow).
-
-**Git Status:**
-- Must be on a feature branch (not main/master)
-- Checks for uncommitted changes
+```
+## Dry Run
+Branch: <current> -> <target>
+Workflow: single-branch|dev-prod | CI: <ci> | Deploy: <deployment>
+Will: commit <n> files | push | open PR | monitor CI and reviews | merge (<strategy>) | deploy
+```
 
 ---
 
 ### Phase 2: Commit
 
-Only runs if there are uncommitted changes.
+Only runs when `git status --porcelain` shows changes. Unless `--skip-tests` is set, it runs the project's test command first and stops on a failure. It stages the relevant files by path and writes a conventional commit message that matches the repo's history (`git log --oneline -10`).
+
+---
+
+### Phase 3: Push and Open the PR
 
 ```bash
-# Stage files (excluding .env and other secrets)
-git add [files...]
-
-# Create semantic commit message
-git commit -m "type(scope): subject"
+git push -u origin <branch>
+gh pr list --head <branch>          # reuse an open PR for the branch
+gh pr create --base <target> ...    # otherwise open one
 ```
 
-Commit message is generated based on changes:
-- `feat:` for new features
-- `fix:` for bug fixes
-- `docs:` for documentation
-- `refactor:` for restructuring
-- `test:` for test changes
+The PR uses the repo's PR template if it has one. The body says what changed, why, and how it was tested, and links the issue (`Closes #N`) when there is one.
 
 ---
 
-### Phase 3: Push & Create PR
+### Phase 4: CI and Review Loop
+
+Runs on every `/ship`, including runs from `/next-task`: CI and external reviewers only see the code once the PR exists. Each round waits for CI, fixes failures, collects feedback, handles it, and pushes.
+
+**Waiting for CI** blocks on the checks instead of polling on a timer:
 
 ```bash
-git push -u origin $BRANCH_NAME
-
-gh pr create --base main --title "..." --body "..."
+gh pr checks "$PR" --watch --interval 30   # returns when all checks finish, non-zero if any failed
 ```
 
-PR body includes:
-- Summary of changes
-- Files modified
-- Test coverage status
-- Link to related issue (if from `/next-task`)
+It runs in the background when the harness supports that, so feedback can be read meanwhile. If `gh` reports no checks at all, the repo has no CI: that is noted and the loop moves on.
 
----
+**On a CI failure** it reads the failing job's log (`gh run view <run-id> --log-failed`), fixes the cause, commits, pushes, and waits again. With `next-task:ci-fixer` installed and a `Task` tool available it may hand the fix to ci-fixer with the check name and log excerpt; otherwise it fixes the failure itself. It never weakens a test, disables a lint rule or skips a check to get green.
 
-### Phase 4: CI Monitor Loop
-
-Polls CI status every 15 seconds:
+**Waiting for review bots:** there is no fixed wait. Many AI reviewers (a Claude or Codex review workflow, CodeRabbit, Gemini, Copilot) run as checks, so `--watch` already covers them. Some post as a GitHub App with no check run. If recent merged PRs in the repo show such a bot reviewing, `/ship` waits for that bot's review of the current head commit, in one bounded background wait:
 
 ```bash
-gh pr checks $PR_NUMBER --json name,state
+HEAD_SHA=$(gh pr view "$PR" --json headRefOid -q .headRefOid)
+timeout 900 bash -c 'until [ "$(gh pr view "$0" --json reviews -q "[.reviews[] | select(.author.login == \"$1\" and .commit.oid == \"$2\")] | length")" -gt 0 ]; do sleep 30; done' "$PR" "$BOT_LOGIN" "$HEAD_SHA"
 ```
 
-**States handled:**
-- `pending`, `queued`, `in_progress` - Keep waiting
-- `success` - Continue to next phase
-- `failure` - Invoke ci-fixer agent to diagnose and fix
+Only that bot's review of that commit counts: a human review, another bot, its own thread replies, or the bot's review of an older push do not. After 15 minutes it proceeds and mentions the missing review in the report. No sign of review bots on recent PRs means no wait.
 
-**Timeout:** 30 minutes max wait
+**Collecting feedback:** unresolved review threads from GraphQL, plus top-level review bodies and PR comments (`gh pr view "$PR" --json reviews,comments`), since some reviewers put findings there. A `CHANGES_REQUESTED` review counts as open feedback.
 
----
-
-### Phase 5: Review Wait
-
-Waits 3 minutes (configurable via `SHIP_INITIAL_WAIT` env var) for auto-reviewers to post comments.
-
-**Expected reviewers:**
-- GitHub Copilot
-- Claude (Anthropic)
-- Gemini (Google)
-- Codex (OpenAI)
-
----
-
-### Phase 6: Address Review Comments
-
-**Query unresolved threads:**
-
-```graphql
-query {
-  repository(owner: $owner, name: $repo) {
-    pullRequest(number: $pr) {
-      reviewThreads(first: 100) {
-        nodes {
-          isResolved
-          path
-          line
-          diffHunk
-          comments { body }
+```bash
+gh api graphql -f query='
+  query($owner: String!, $repo: String!, $pr: Int!) {
+    repository(owner: $owner, name: $repo) {
+      pullRequest(number: $pr) {
+        reviewThreads(first: 100) {
+          nodes { id isResolved path line comments(first: 20) { nodes { id databaseId author { login } body } } }
         }
       }
     }
-  }
-}
+  }' -f owner="$OWNER" -f repo="$REPO" -F pr="$PR" \
+  --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)'
 ```
 
-**For each unresolved thread:**
+How each item is handled is in [Review Feedback Handling](#review-feedback-handling). Fixes are committed with a message that names the change, then the next round starts. A round with replies only still ends with a check that nothing new arrived. Each round prints:
 
-1. Classify the comment:
-   - `code_fix_required` - Needs code change
-   - `style_suggestion` - Style/formatting issue
-   - `question` - Needs explanation
-   - `false_positive` - Incorrect finding
-   - `not_relevant` - Out of scope
-
-2. Handle based on classification:
-   - Code fixes: Use ci-fixer agent to implement
-   - Style fixes: Apply and commit
-   - Questions: Reply with explanation
-   - False positives: Reply explaining why, then resolve
-   - Not relevant: Reply explaining scope, then resolve
-
-3. Resolve thread via GraphQL mutation:
-
-```graphql
-mutation($threadId: ID!) {
-  resolveReviewThread(input: {threadId: $threadId}) {
-    thread { isResolved }
-  }
-}
+```
+[CI/Review] round <n>: CI <passed|failed|none> | fixed <a> | answered <b> | open <c>
 ```
 
-4. If changes were made: push and wait for CI again
-
-**Loop continues** until all threads resolved (max 10 iterations).
+**Exit condition:** all required checks pass and every review thread is fixed or answered. On a repo you own that means zero unresolved threads and no outstanding "changes requested". After 5 rounds without converging, it stops and reports what is left.
 
 ---
 
-### Phase 7: Internal Review (Standalone Only)
+### Phase 5: Standalone Review
 
-**Skipped when called from `/next-task`** (review already completed by Phase 9 review loop).
+**Skipped under `--state-file`** when the flow state shows the `/next-task` review loop approved.
 
-When standalone, launches core review passes in parallel:
-- Code quality (includes error handling)
-- Security
-- Performance
-- Test coverage
-
-Iterates until no non-false-positive issues remain (max 3 iterations).
+Otherwise it reviews the diff (`git diff <target>...HEAD`) once for correctness, security, performance and test coverage: a single pass, inline or in one `general-purpose` subagent. For a large diff (roughly 500+ changed lines or 15+ files) it may split the concerns across up to 3 parallel subagents when `Task` is available. Critical and high findings get fixed; medium ones when the fix is small and clearly correct; low ones are optional. It re-reviews only the changed hunks, at most 2 more rounds. Pushed fixes send it back to Phase 4.
 
 ---
 
-### Phase 8: Merge
+### Phase 6: Merge
 
-**Pre-merge verification:**
+Only with write access. Before merging it checks:
 
-1. Check `MERGEABLE` status via `gh pr view`
-2. Count unresolved threads (must be 0)
-3. Verify CI passing
+1. `gh pr view <n> --json mergeable,mergeStateStatus` reports `MERGEABLE`
+2. No unresolved review threads
+3. Checks are green on the current head
 
-**Merge execution:**
+Inside a worktree, `gh pr merge --delete-branch` tries to check out the base branch locally and fails, so the merge is split:
 
 ```bash
-gh pr merge $PR_NUMBER --squash --delete-branch
-git checkout main
-git pull origin main
+if [ -f "$(git rev-parse --show-toplevel)/.git" ]; then   # .git is a file inside a worktree
+  gh pr merge "$PR" --"$STRATEGY"
+  git push origin --delete "$BRANCH" || echo "[WARN] remote branch not deleted"
+else
+  gh pr merge "$PR" --"$STRATEGY" --delete-branch
+  git checkout "$TARGET" && git pull --ff-only origin "$TARGET"
+fi
+MERGE_SHA=$(gh pr view "$PR" --json mergeCommit -q .mergeCommit.oid)
 ```
 
 Merge strategy options:
 - `squash` (default) - Combines all commits
-- `merge` - Creates merge commit
-- `rebase` - Rebases onto main
+- `merge` - Creates a merge commit
+- `rebase` - Rebases onto the target
+
+If the repo has a cached `repo-intel.json`, it is refreshed through the agentsys runtime (`repoMap.update`), and skipped silently when the runtime or the map is missing.
 
 ---
 
-### Phase 9-10: Deploy & Validate (Multi-branch Only)
+### Phases 7-10: Deploy and Validate (Multi-branch Only)
 
-Only runs if project uses multi-branch workflow (dev + prod branches).
+Single-branch repos skip these: the merge is the deploy. Every deploy wait is bounded with `timeout` and runs in the background when the harness supports it.
 
-**Development Deploy:**
-1. Merge main to dev branch
-2. Wait for deployment
-3. Health check: `curl $DEV_URL/health`
-4. Error monitoring: Check for new errors in logs
+| Platform | Wait | Ready when |
+|----------|------|------------|
+| Vercel | `vercel inspect <deploy-url> --wait --timeout 10m` | `readyState` is `READY` (failure: `ERROR`) |
+| Netlify | `timeout 600 netlify watch` | deploy `.state` is `ready` (failure: `error`) |
+| Railway | `railway deployment list --json`, then a bounded wait on `railway deployment get <id> --json` | `.status` is `SUCCESS` (failure: `FAILED`) |
+| None detected | The merge is the deploy | - |
 
-**Production Deploy:**
-1. Merge main to prod branch
-2. Wait for deployment
-3. Health check: `curl $PROD_URL/health`
-4. Error monitoring: Check error rate
+**Development (Phases 7 and 8):** after the merge, it waits for the development deploy and validates it: a health probe (`curl` on `<dev-url>/health`, where 200, 301 or 302 passes), the platform status above, and the `smoke-test` script from `package.json` with `SMOKE_TEST_URL=<dev-url>` when there is one. Any failure stops the run before production.
 
-**Rollback on failure:**
+**Production (Phase 9):** promotion needs a branch checkout, so it does not run from a worktree. It records the current production head, merges the target into the production branch with `--no-ff` (one merge commit, which is what rollback reverts) and pushes. A rejected push stops the run, since validating the old deploy would report a false success. If an earlier run rolled production back, it reverts that revert first; otherwise the new fix would ship without the feature it fixes.
+
+**Validate production (Phase 10):** the same health probe, platform status, and `smoke-test:prod` script. The decision rests on the platform status API and the HTTP probe, never on counting words like "error" in logs: logs echo user input, so anyone who can get a string logged could force a rollback. With no platform API, it falls back to the conclusion of the last deploy workflow runs on the production branch.
+
+**Rollback:**
 
 ```bash
-git checkout prod
-git reset --hard HEAD~1
-git push --force-with-lease origin prod
+git checkout "$PROD_BRANCH" && git pull --ff-only origin "$PROD_BRANCH"
+git revert -m 1 --no-edit "$PROD_MERGE_SHA"
+git push origin "$PROD_BRANCH"
 ```
 
-Uses `--force-with-lease` for safety (prevents overwriting unexpected changes).
+A revert is a normal push, so nobody else's commits on the production branch are rewritten. Under `--state-file` the revert SHA is recorded in the flow state, because the next promotion has to revert it first. If the push is rejected because someone else pushed meanwhile, it stops and hands over to the user.
 
 ---
 
 ### Phase 11: Cleanup
 
-- Removes worktree directory (if from `/next-task`)
-- Closes GitHub issue with completion comment
-- Removes task from `tasks.json`
-- Deletes local feature branch
+Only after a merge (`gh pr view <n> --json state` is `MERGED`). If the PR is still open (no write access, or the run stopped early), the worktree, branch and task entry stay, and the issue stays open.
+
+- Under `--state-file`: if the flow state's `git.worktreePath` is the worktree `/next-task` created for this task, it removes it from the main checkout with `git worktree remove` (no `--force`; a worktree with uncommitted changes is left and reported), deletes its local branch, and releases the task entry with `releaseTask()`.
+- Standalone, outside a worktree: switches to the target branch and deletes the merged local branch.
+- Standalone, inside a worktree this run did not create: leaves it.
+- GitHub task from `/next-task`: comments on the issue with the PR number and merge commit, then closes it with `gh issue close <id> --reason completed`.
+
+Merged branches are deleted with `git branch -D`: after a squash or rebase merge git does not see the branch as merged, and the PR state already confirms the merge. Only branches this run shipped are deleted.
 
 ---
 
-### Phase 12: Completion Report
-
-Outputs summary:
-- PR number and URL
-- Review results
-- CI status
-- Deployment URLs (if applicable)
-
----
-
-## Review Comment Handling
-
-Every comment from every reviewer gets addressed. No exceptions.
-
-**Categorization logic:**
-
-| Category | When | Action |
-|----------|------|--------|
-| `code_fix_required` | Comment suggests code change | Implement fix |
-| `style_suggestion` | Formatting, naming, conventions | Apply fix |
-| `question` | Asks about approach or design | Reply with explanation |
-| `false_positive` | Incorrect finding | Explain why, resolve |
-| `not_relevant` | Out of scope for this PR | Explain scope, resolve |
-
-**Example handling:**
+### Phase 12: Report
 
 ```
-Comment: "This function could use destructuring"
-Category: style_suggestion
-Action: Apply destructuring, commit, push
+## Shipped
+PR: #<n> <url> | Merged to <target> at <sha> (or: ready for maintainer review)
+CI: <passed checks> | Review: <threads fixed>/<threads answered>
+Deploy: <dev url> [OK] | <prod url> [OK]   (or: single-branch, merge is the deploy)
+Cleanup: <what was removed, what was left and why>
+```
 
-Comment: "Why did you use a Map here instead of an object?"
-Category: question
-Action: Reply explaining Map benefits for this case, resolve
+Then it prints the completion line `/next-task` reads:
 
-Comment: "Potential SQL injection"
-Category: code_fix_required (but actually false positive)
-Action: Reply explaining parameterized query is used, resolve
+```json
+{"ok": true, "nextPhase": "completed", "status": "shipped"}
+```
+
+---
+
+## Review Feedback Handling
+
+Every review thread, review body and PR comment that asks for something gets fixed or answered. Each item is judged on its merits:
+
+| Feedback | Action |
+|----------|--------|
+| Correct and in scope | Fix it. Nits count when the fix is cheap and clearly right |
+| Wrong, or already handled | Reply once with the reason, pointing at the line or commit. No code change to appease a wrong comment |
+| Correct but out of scope | Reply saying so. A follow-up issue is opened only on a repo you own |
+| A question | Answer it |
+
+On a repo you own, each thread is resolved after it is fixed or answered, and review is re-requested from anyone who requested changes. On a repo you do not own, threads are never resolved (the maintainer decides), replies go only where a maintainer or a reviewer they rely on asked something, and everything else is folded into the PR body.
+
+```bash
+gh api -X POST "repos/$OWNER/$REPO/pulls/$PR/comments/$COMMENT_DATABASE_ID/replies" -f body="$REPLY"
+gh api graphql -f query='mutation($id: ID!) { resolveReviewThread(input: {threadId: $id}) { thread { isResolved } } }' -f id="$THREAD_ID"
 ```
 
 ---
 
 ## Error Handling
 
+When a phase fails, `/ship` stops that phase, reports what failed with the evidence (command, exit code, relevant log lines) and gives the recovery step. Re-running `/ship` resumes safely: it reuses the open PR and picks up at the CI and review loop.
+
 **Exit codes:**
 
 | Code | Meaning |
 |------|---------|
-| 0 | Success - PR merged |
+| 0 | Merged (or ready for maintainer review on a repo without write access) |
 | 1 | General failure |
-| 2 | CI failure (retryable) |
-| 3 | Review timeout |
-| 4 | Deployment failure |
+| 2 | CI failure |
+| 3 | Review loop did not converge |
+| 4 | Deploy failure |
 | 5 | Rollback triggered |
 
-**Recovery procedures:**
+**Recovery:**
 
-| Error | Recovery |
-|-------|----------|
-| CI failure | Fix issue, commit, push, run `/ship` again |
-| Merge conflict | Resolve conflict, commit, push, run `/ship` |
-| Max iterations | Manually address remaining comments, run `/ship` |
-| Deployment failure | Rollback happens automatically, investigate logs |
+| Failure | Recovery |
+|---------|----------|
+| `gh` missing or not authenticated | Install from https://cli.github.com, then `gh auth login` |
+| On the target branch | Create a feature branch and re-run |
+| Push rejected | Auth: `gh auth status`. Protected branch: push a feature branch. Behind remote: `git pull --rebase origin <branch>`, never a force push over someone else's commits |
+| PR creation failed | Existing PR: `gh pr list --head <branch>`. No commits: `git log <target>..HEAD` |
+| CI failure it could not fix | Fix and push, then re-run `/ship` |
+| Merge conflict with the target | `git fetch origin && git merge origin/<target>`, resolve, push, re-run. Rebase only if the branch is yours alone, then `git push --force-with-lease` |
+| Review loop did not converge in 5 rounds | Fix, answer, or ask the reviewer to close the open threads |
+| Deploy failed | Fix and re-run. Production was not touched if the failure was in development |
+| Production validation failed | Rollback already ran. Fix forward and ship again: the next promotion reverts the revert commit first |
+| Worktree could not be removed | Left in place on purpose (usually uncommitted changes). Inspect it, then `git worktree remove <path>` |
 
-**Debug mode:**
-
-```bash
-SHIP_DEBUG=1 /ship
-```
-
-Outputs detailed logging for each phase.
+To abandon a shipped but unmerged PR: `gh pr close <n>`, then `git push origin --delete <branch>`.
 
 ---
 
 ## Integration with /next-task
 
-When called from `/next-task` (via `--state-file` argument):
+`/next-task` calls `/ship --state-file <worktree>/<state-dir>/flow.json --base <base>` at the Merged, Deployed and Production stopping points.
 
-**Skipped phases:**
-- Phase 7 (internal review) - Already done by Phase 9 review loop
-- Deslop cleanup - Already done by deslop:deslop-agent
+**Skipped:**
+- Phase 5 (standalone review), when the flow state shows the `/next-task` review loop approved. `/next-task` has also run deslop and the docs sync by then; `/ship` runs neither itself
 
 **Still runs:**
-- Phase 6 (address comments) - External reviewers comment AFTER PR creation
+- Phase 4 (CI and review loop): external reviewers comment after the PR exists
 
-This ensures quality gates are trusted but post-PR feedback is still handled.
+**Also changes:**
+- The target defaults to `git.baseBranch` from the flow state
+- After the merge it removes the task's worktree, releases the task entry, and comments on and closes the issue for a GitHub task source
 
 ---
 
 ## Platform Detection Details
 
-**CI Platforms:**
+**CI platforms** (first match wins):
 
-| Platform | Detected By | Capabilities |
-|----------|-------------|--------------|
-| GitHub Actions | `.github/workflows/` | Full support |
-| GitLab CI | `.gitlab-ci.yml` | Full support |
-| CircleCI | `.circleci/config.yml` | Full support |
-| Jenkins | `Jenkinsfile` | Full support |
-| Travis CI | `.travis.yml` | Basic support |
+| Platform | Detected by |
+|----------|-------------|
+| GitHub Actions | `.github/workflows/` |
+| GitLab CI | `.gitlab-ci.yml` |
+| CircleCI | `.circleci/config.yml` |
+| Jenkins | `Jenkinsfile` |
+| Travis CI | `.travis.yml` |
 
-**Deploy Platforms:**
+The CI wait reads the PR's checks through `gh pr checks`, so it sees any CI that reports to the GitHub PR.
 
-| Platform | Detected By | Capabilities |
-|----------|-------------|--------------|
-| Railway | `railway.json` | Auto-deploy, health checks |
-| Vercel | `vercel.json` | Auto-deploy, preview URLs |
-| Netlify | `netlify.toml` | Auto-deploy, preview URLs |
-| Fly.io | `fly.toml` | Auto-deploy, health checks |
-| Render | `render.yaml` | Auto-deploy, health checks |
+**Deploy platforms** (first match wins):
+
+| Platform | Detected by |
+|----------|-------------|
+| Railway | `railway.json`, `railway.toml` |
+| Vercel | `vercel.json` |
+| Netlify | `netlify.toml`, `.netlify` |
+| Fly.io | `fly.toml` |
+| Platform.sh | `.platform.app.yaml` |
+| Render | `render.yaml` |
+
+Deploy waits and status checks exist for Vercel, Netlify and Railway. Fly.io, Platform.sh and Render are detected, but the deploy reference has no wait commands for them.
 
 ---
 
 ## Usage Examples
 
-**Basic usage:**
-
 ```bash
-/ship
-```
-
-**Preview without executing:**
-
-```bash
-/ship --dry-run
-```
-
-**Use rebase instead of squash:**
-
-```bash
-/ship --strategy rebase
-```
-
-**Integration with next-task:**
-
-```bash
-# Called automatically by sync-docs:sync-docs-agent agent
-/ship --state-file .claude/flow.json
+/ship                       # Full workflow
+/ship --dry-run             # Preview without executing
+/ship --strategy rebase     # Use rebase instead of squash
+/ship --base develop        # Target a non-default branch
+/ship --skip-tests          # Skip the local test run (CI still has to pass)
 ```
 
 ---
@@ -403,44 +363,33 @@ This ensures quality gates are trusted but post-PR feedback is still handled.
 User: /ship
 
 [Pre-flight]
-→ CI: GitHub Actions [OK]
-→ Deploy: Railway [OK]
-→ Branch: feature/add-dark-mode [OK]
+→ CI: github-actions | Deploy: railway | single-branch
+→ Branch: feature/add-dark-mode -> main | write access [OK]
 
 [Commit]
-→ Staged 3 files
+→ Tests pass [OK]
 → Committed: "feat(ui): add dark mode toggle"
 
 [Push & PR]
 → Pushed to origin/feature/add-dark-mode
 → Created PR #156
 
-[CI Monitor]
-→ Waiting for checks...
-→ lint: passed
-→ test: passed
-→ build: passed
-
-[Review Wait]
-→ Waiting 3 minutes for reviewers...
-
-[Address Comments]
-→ Found 4 comments from 3 reviewers
-→ Comment 1: Applied style fix
-→ Comment 2: Answered question
-→ Comment 3: Applied code fix
-→ Comment 4: Explained false positive
-→ All threads resolved [OK]
+[CI and reviews]
+→ gh pr checks --watch: lint, test, build passed
+→ Recent PRs show a review bot without a check run: waiting for its review of the head commit
+→ 4 comments from 3 reviewers: 2 fixed, 1 answered, 1 replied as already handled
+[CI/Review] round 1: CI passed | fixed 2 | answered 2 | open 0
+[CI/Review] round 2: CI passed | fixed 0 | answered 0 | open 0
 
 [Merge]
-→ Verified MERGEABLE status
+→ MERGEABLE, 0 unresolved threads, checks green
 → Merged PR #156 to main
 
 [Cleanup]
 → Deleted feature branch
-→ Closed issue #89
 
-Done! PR #156 merged.
+## Shipped
+PR: #156 | Merged to main at a1b2c3d
 ```
 
 ---

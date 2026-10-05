@@ -105,31 +105,23 @@ codex
 ## Installation Details
 
 The installer:
-1. Creates `~/.codex/skills/<skill>/SKILL.md` for each skill
-2. Copies command files with path adjustments
-3. Installs shared libraries (platform detection, patterns)
-4. Creates environment setup scripts
+1. Writes each plugin command to `~/.codex/skills/<command>/SKILL.md`, with Codex frontmatter and plugin paths pointing at `~/.agentsys/plugins/<plugin>/`
+2. Copies each plugin skill directory whole to `~/.codex/skills/<skill>/` (`references/`, `scripts/`), unless a command already has that name
+3. Leaves the plugins themselves, with their `lib/` and `scripts/`, in `~/.agentsys/plugins/`
 
 ### File Structure
 
 ```
 ~/.codex/skills/
-├── next-task/
-│   ├── deslop.md
-│   ├── next-task.md
-│   ├── audit-project.md
-│   └── ship.md
-├── lib/
-│   ├── platform/
-│   │   ├── detect-platform.js
-│   │   └── verify-tools.js
-│   ├── patterns/
-│   │   ├── review-patterns.js
-│   │   └── slop-patterns.js
-│   └── utils/
-│       └── context-optimizer.js
-├── env.sh
-└── README.md
+├── next-task/SKILL.md          # from commands/next-task.md
+├── ship/SKILL.md
+├── ...
+├── drift-analysis/             # a plugin skill directory
+│   ├── SKILL.md
+│   └── references/
+└── ...
+
+~/.agentsys/plugins/<plugin>/   # what the skills point at
 ```
 
 ---

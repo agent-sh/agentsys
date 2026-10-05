@@ -178,7 +178,7 @@ agentsys  # Select option 2
 **Locations:**
 - Commands: `~/.config/opencode/commands/`
 - Agents: `~/.config/opencode/agents/`
-- Skills: `~/.config/opencode/skills/`
+- Skills: `~/.config/opencode/skills/<name>/` (each skill directory copied whole)
 - Native plugin: `~/.config/opencode/plugins/agentsys.ts`
 
 **Commands:** `/next-task`, `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/perf`, `/sync-docs`, `/banthis`, `/agnix`, `/learn`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`
@@ -200,7 +200,7 @@ agentsys  # Select option 3
 
 **Skills:** `$next-task`, `$prepare-delivery`, `$gate-and-ship`, `$ship`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$perf`, `$sync-docs`, `$banthis`, `$agnix`, `$learn`, `$consult`, `$debate`, `$skillers`, `$skill-curator`, `$system-prompt-curator`, `$onboard`, `$can-i-help`
 
-**Internal skill:** `orchestrate-review` (Phase 9 review pass definitions used by /next-task and /audit-project)
+**Plugin skills:** each plugin skill directory is copied whole to `~/.codex/skills/<name>/`, for example `orchestrate-review` (Phase 9 review pass definitions used by /next-task and /audit-project), `enhance-docs` or `perf-profiler`. A plugin skill named like a command (`deslop`, `consult`, ...) is not installed there: `$<name>` stays the command, and the skill stays in `~/.agentsys/plugins/<plugin>/skills/<name>/`.
 
 Note: Codex uses `$` prefix instead of `/`.
 

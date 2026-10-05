@@ -349,11 +349,12 @@ gh auth login
 ### OpenCode
 - MCP server provides workflow tools
 - Slash commands defined in `~/.config/opencode/commands/`
+- Each skill directory is copied whole to `~/.config/opencode/skills/<name>/`
 - State stored in `.opencode/`
 
 ### Codex CLI
 - Uses `$` prefix instead of `/` for commands
-- Skills defined in `~/.codex/skills/`
+- Skills defined in `~/.codex/skills/`: one per command, plus each plugin skill directory copied whole unless a command has its name
 - State stored in `.codex/`
 
 ### Kiro
