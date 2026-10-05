@@ -366,9 +366,10 @@ gh auth login
 - **Note**: Kiro's subagent spawning is experimental (max 4). Workflows with parallel Task() calls (e.g., next-task Phase 9 with 4-10 reviewers) automatically fall back to 2 sequential combined reviewers (`reviewer-quality-security`, `reviewer-perf-test`)
 
 ### Skill directories on OpenCode, Codex, Cursor and Kiro
-- Each skill directory agentsys installs has a `.agentsys-skill` marker file. A reinstall replaces only marked directories, so a file you add inside one is removed.
-- A directory without the marker is never deleted or written to. If one has the name of a skill agentsys installs, the install skips that skill and prints a warning with the path.
-- Skill directories from agentsys versions before the marker have none, so the first install after upgrading skips them. Remove them and install again.
+- Each skill directory agentsys installs has a `.agentsys-skill` marker file. A reinstall replaces a marked directory, so a file you add inside one is removed.
+- Skill directories from agentsys versions before the marker have none. A reinstall replaces and marks such a directory when every file in it is one the skill ships, which is what those versions wrote (`SKILL.md` alone), so upgrading needs no manual step.
+- Any other directory with the name of a skill agentsys installs (one that holds a file the skill does not ship, or a symlink) is never deleted or written to: the install skips that skill and prints a warning with the path. To install the skill, move your files out and remove the directory.
+- To keep a directory agentsys installed as your own, delete its marker and add a file of your own to it.
 
 ---
 
