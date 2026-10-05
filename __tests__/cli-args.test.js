@@ -206,7 +206,7 @@ describe('claudeSpawnPlan', () => {
     const shim = 'C:\\npm\\claude.cmd';
     expect(claudeSpawnPlan(shim, args, 'cmd.exe', 'win32')).toEqual({
       file: 'cmd.exe',
-      args: ['/d', '/s', '/c', '""C:\\npm\\claude.cmd" "plugin" "install" "agentsys-core@agentsys""'],
+      args: ['/d', '/v:off', '/s', '/c', '""C:\\npm\\claude.cmd" "plugin" "install" "agentsys-core@agentsys""'],
       verbatim: true
     });
     expect(claudeSpawnPlan('C:\\npm\\claude.bat', args, 'cmd.exe', 'win32').file).toBe('cmd.exe');

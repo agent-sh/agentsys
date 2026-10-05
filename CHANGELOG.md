@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `.kiro/` mirror is regenerated from the marketplace-pinned plugin commits through the Kiro transforms. It was a March snapshot: 27 skills and 33 agents had drifted from their sources, and skills now carry their `references/` files so their links resolve. Where a skill locates its scripts "two directories up from this skill", the mirror names `$HOME/.agentsys/plugins/<plugin>` instead, since two directories up from `.kiro/skills/<name>/` is `.kiro/`. The debate reference names the consult runner at `$HOME/.agentsys/plugins/consult/acp/run.js`, where the installer puts it. The mirrored enhance-docs skill calls `analyze({ doc, mode })`, which handles a single file; `analyzeAllDocs` on a file returned no findings.
 - `agent-docs/workflow.md` and `docs/workflows/NEXT-TASK.md` match the pinned next-task agents: exploration-agent runs on sonnet, planning-agent and implementation-agent inherit the session model, and the review loop is sized to the diff (one reviewer, up to 4 for large or risky diffs, at most 3 rounds) instead of always spawning 4 reviewers through orchestrate-review.
 
+### Fixed
+
+- The `cmd.exe` plan for `.cmd` and `.bat` shims passes `/v:off`. On a machine whose cmd.exe enables delayed expansion by default, `!NAME!` inside an argument was replaced by the value of `NAME`. This covers the installer, `dev-cli`, `bump-version`, `dev-install` and the perf and custom-source runners, which all plan through `lib/utils/command-parser.js`. The file matches the copy in agent-core#35, so once that lands the next core sync leaves it alone.
+
 ## [6.0.2] - 2026-08-17
 
 ### Added

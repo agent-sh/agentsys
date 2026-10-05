@@ -201,7 +201,7 @@ describe('Custom Handler', () => {
       expect(result.available).toBe(true);
       expect(execFileSync).toHaveBeenCalledWith(
         'cmd.exe',
-        ['/d', '/s', '/c', '""npx.cmd" "--version""'],
+        ['/d', '/v:off', '/s', '/c', '""npx.cmd" "--version""'],
         expect.objectContaining({ windowsVerbatimArguments: true })
       );
     });

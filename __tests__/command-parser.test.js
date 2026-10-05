@@ -97,35 +97,37 @@ describe('planShimSpawn', () => {
 
   test('routes a batch shim through cmd.exe, which spawn cannot launch', () => {
     // Node's src disallows direct .bat/.cmd spawning since the CVE-2024-27980
-    // fix, so spawnSync/execFileSync fail with EINVAL on a shim.
+    // fix, so spawnSync/execFileSync fail with EINVAL on a shim. /v:off keeps
+    // !NAME! in an argument literal when the user's cmd.exe enables delayed
+    // expansion by default.
     expect(plan('npm.cmd', ['run', 'bench'])).toEqual({
       file: 'cmd.exe',
-      args: ['/d', '/s', '/c', '""npm.cmd" "run" "bench""'],
+      args: ['/d', '/v:off', '/s', '/c', '""npm.cmd" "run" "bench""'],
       verbatim: true
     });
-    expect(plan('yarn.bat', []).args).toEqual(['/d', '/s', '/c', '""yarn.bat""']);
+    expect(plan('yarn.bat', []).args).toEqual(['/d', '/v:off', '/s', '/c', '""yarn.bat""']);
   });
 
   test('quotes arguments so cmd.exe cannot reinterpret them', () => {
     // Inside double quotes cmd.exe leaves these alone, so a benchmark command
     // carrying them runs instead of being split into extra commands.
-    const [, , , payload] = plan('npm.cmd', ['run', 'a && calc', 'x|y', 'a>b']).args;
+    const payload = plan('npm.cmd', ['run', 'a && calc', 'x|y', 'a>b']).args.at(-1);
     expect(payload).toBe('""npm.cmd" "run" "a && calc" "x|y" "a>b""');
   });
 
   test('preserves an empty argument', () => {
-    const [, , , payload] = plan('npm.cmd', ['run', '']).args;
+    const payload = plan('npm.cmd', ['run', '']).args.at(-1);
     expect(payload).toBe('""npm.cmd" "run" """');
   });
 
   test('doubles trailing backslashes so the closing quote survives', () => {
     // "C:\dir\" would read as an escaped quote when the child parses argv back.
-    const [, , , payload] = plan('npm.cmd', ['--cwd', 'C:\\dir\\']).args;
+    const payload = plan('npm.cmd', ['--cwd', 'C:\\dir\\']).args.at(-1);
     expect(payload).toBe('""npm.cmd" "--cwd" "C:\\dir\\\\""');
   });
 
   test('doubles a long run of backslashes without backtracking', () => {
-    const [, , , payload] = plan('npm.cmd', ['\\'.repeat(5000)]).args;
+    const payload = plan('npm.cmd', ['\\'.repeat(5000)]).args.at(-1);
     expect(payload).toBe(`""npm.cmd" "${'\\'.repeat(10000)}""`);
   });
 

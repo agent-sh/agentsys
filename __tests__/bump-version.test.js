@@ -123,7 +123,7 @@ describe('bump-version', () => {
 
       expect(execFileSync).toHaveBeenCalledWith(
         'cmd.exe',
-        ['/d', '/s', '/c', '""npm.cmd" "version" "3.7.3" "--no-git-tag-version""'],
+        ['/d', '/v:off', '/s', '/c', '""npm.cmd" "version" "3.7.3" "--no-git-tag-version""'],
         expect.objectContaining({ windowsVerbatimArguments: true })
       );
     });
