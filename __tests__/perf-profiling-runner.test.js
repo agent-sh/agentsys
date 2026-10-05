@@ -54,7 +54,7 @@ it('runs a batch shim profiler command through cmd.exe', () => {
 
   expect(execFileSync).toHaveBeenCalledWith(
     'cmd.exe',
-    ['/d', '/s', '/c', '""npx.cmd" "clinic" "doctor""'],
+    ['/d', '/v:off', '/s', '/c', '""npx.cmd" "clinic" "doctor""'],
     expect.objectContaining({ windowsVerbatimArguments: true })
   );
 

@@ -223,7 +223,7 @@ describe('dev-install script', () => {
 
       expect(execFileSync).toHaveBeenCalledWith(
         'cmd.exe',
-        ['/d', '/s', '/c', '""claude.cmd" "plugin" "uninstall" "core@agentsys""'],
+        ['/d', '/v:off', '/s', '/c', '""claude.cmd" "plugin" "uninstall" "core@agentsys""'],
         { stdio: 'pipe', windowsVerbatimArguments: true }
       );
     });
@@ -247,7 +247,7 @@ describe('dev-install script', () => {
 
       expect(execFileSync).toHaveBeenCalledWith(
         'cmd.exe',
-        ['/d', '/s', '/c', '""npm.cmd" "install" "--production""'],
+        ['/d', '/v:off', '/s', '/c', '""npm.cmd" "install" "--production""'],
         { cwd: 'C:\\Users\\dev\\.agentsys', stdio: 'pipe', windowsVerbatimArguments: true }
       );
     });
@@ -357,7 +357,7 @@ describe('dev-install script', () => {
 
       expect(claudeCalls).toEqual([[
         'cmd.exe',
-        ['/d', '/s', '/c', `""${shim}" "plugin" "marketplace" "remove" "agent-sh/agentsys""`],
+        ['/d', '/v:off', '/s', '/c', `""${shim}" "plugin" "marketplace" "remove" "agent-sh/agentsys""`],
         { stdio: 'pipe', windowsVerbatimArguments: true }
       ]]);
     });

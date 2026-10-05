@@ -134,7 +134,7 @@ describe('runBenchmark', () => {
 
     expect(execFileSync).toHaveBeenCalledWith(
       'cmd.exe',
-      ['/d', '/s', '/c', '""npm.cmd" "run" "bench""'],
+      ['/d', '/v:off', '/s', '/c', '""npm.cmd" "run" "bench""'],
       expect.objectContaining({ windowsVerbatimArguments: true })
     );
   });
