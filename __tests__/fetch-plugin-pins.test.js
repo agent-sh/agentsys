@@ -194,6 +194,20 @@ describe('fetching plugins at their marketplace pins', () => {
     expect(fs.existsSync(path.join(getPluginCacheDir(), 'learn'))).toBe(false);
   });
 
+  test('an archive that does not name its commit is rejected for a commit pin', async () => {
+    const repos = drifted();
+    repos['agent-sh/learn'].archiveCommit = () => null;
+    fakeGitHub(repos);
+    await expect(fetchPlugin('learn', SOURCE, '1.2.0', { commit: SHA_PINNED }))
+      .rejects.toThrow(`archive for pinned commit ${SHA_PINNED} does not name its commit`);
+    expect(fs.existsSync(path.join(getPluginCacheDir(), 'learn'))).toBe(false);
+
+    // Unpinned, the same archive is installed without a recorded commit
+    await fetchPlugin('learn', SOURCE, '1.2.0');
+    expect(cached('COMMIT')).toBe(SHA_TAG);
+    expect(readCachedCommit('learn')).toBeNull();
+  });
+
   test('a malformed commit pin is an error, not an unpinned fetch', async () => {
     const requests = fakeGitHub(drifted());
     await expect(fetchPlugin('learn', SOURCE, '1.2.0', { commit: 'main' }))

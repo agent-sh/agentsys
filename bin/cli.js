@@ -491,15 +491,17 @@ async function fetchPlugin(name, source, version, pin = {}) {
 
       // Download and extract tarball
       const archiveCommit = await downloadAndExtractTarball(tarballUrl, pluginDir);
-      if (pin.commit && archiveCommit && !sameCommit(archiveCommit, pin.commit)) {
+      // A pinned fetch is cached only when the archive names the pinned commit
+      if (pin.commit && !sameCommit(archiveCommit, pin.commit)) {
         fs.rmSync(pluginDir, { recursive: true, force: true });
-        throw new Error(`${owner}/${repo} returned commit ${archiveCommit} for pinned commit ${pin.commit}`);
+        throw new Error(archiveCommit
+          ? `${owner}/${repo} returned commit ${archiveCommit} for pinned commit ${pin.commit}`
+          : `${owner}/${repo} archive for pinned commit ${pin.commit} does not name its commit`);
       }
-      const commit = archiveCommit || pin.commit;
 
       fs.writeFileSync(path.join(pluginDir, '.ref'), ref);
-      if (commit) {
-        fs.writeFileSync(path.join(pluginDir, '.commit'), commit.toLowerCase());
+      if (archiveCommit) {
+        fs.writeFileSync(path.join(pluginDir, '.commit'), archiveCommit.toLowerCase());
       }
       // Written last: the cache check reads `.version` first
       fs.writeFileSync(path.join(pluginDir, '.version'), version);
