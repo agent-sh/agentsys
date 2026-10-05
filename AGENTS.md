@@ -1,76 +1,29 @@
-# Project Memory: AgentSys
+# AgentSys
 
-> **Cross-tool compatible**: Works across all 5 platforms - Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.
+Marketplace, installer and shared library for the agent-sh plugins. Works on Claude Code, OpenCode, Codex CLI, Cursor and Kiro. Plugins live in their own repos in the agent-sh GitHub org and are pinned by commit in `.claude-plugin/marketplace.json`; this repo holds the installer (`bin/cli.js`), the dev CLI (`bin/dev-cli.js`), `lib/` (synced from agent-core), adapters, docs, checklists and the site.
 
-<project-memory>
+## Critical Rules
 
-<critical-rules>
-## Critical Rules (Priority Order)
+1. This is a production project with real users: a breaking change reaches every plugin user at once, so test the edge cases before committing and keep the docs accurate.
+2. Optimize for developers using the plugins in their own repos, not for internal convenience here.
+3. Record finished work in CHANGELOG.md and the reply. Summary, audit or completion files (`*_AUDIT.md`, `*_SUMMARY.md`, `*_COMPLETION.md`) clutter the repo, so leave them out.
+4. Changes go through a PR to main, except a change of a few lines or an urgent hotfix. PRs give review, CI and an easy rollback.
+5. Address every review comment from the auto-reviewers (Copilot, Claude, Gemini, Codex): fix it, or reply with why not. The first reviews arrive about 3 minutes after the PR opens and Claude's can take 10 minutes or more; wait up to 30 minutes in total, then note any reviewer that has not posted and continue. Iterate until no thread is unresolved.
+6. Before a multi-file change, read the checklist that applies; multi-file changes have hidden dependencies:
+   - Cross-platform work: `checklists/cross-platform-compatibility.md` (the master reference)
+   - Release: `checklists/release.md`
+   - New command, agent, skill or lib module: `checklists/new-command.md`, `checklists/new-agent.md`, `checklists/new-skill.md`, `checklists/new-lib-module.md`
+   - OpenCode plugin update: `checklists/update-opencode-plugin.md`
+   - Repo intel changes: `checklists/repo-intel.md`
+7. Work is done when every item of that checklist is done. That includes running `/enhance` on new or changed commands, agents, skills, hooks or prompts, checking OpenCode and Codex compatibility, and updating the `bin/cli.js` mappings for a new command or agent. The pre-push hook asks for the `/enhance` confirmation (`ENHANCE_CONFIRMED=1` in non-interactive runs).
+8. Status output uses the plain-text markers `[OK]`, `[ERROR]`, `[WARN]`, `[CRITICAL]` and markdown, with no emojis or ASCII-art boxes: they cost tokens and parse worse.
+9. gh and git on Windows: escape `$` as `\$` in GraphQL queries, avoid `!=` in jq (use `== "A" or == "B"`), and prefer double quotes with escaped inner quotes over single quotes. `gh pr checks` reports `state` (`SUCCESS`, `FAILURE`, `PENDING`), not `conclusion`. The Windows shell treats `$` and `!` differently and these fail silently.
+10. Run the pre-commit and pre-push hooks; when one blocks, fix the reported cause and retry.
+11. Fix every failing test you meet, including ones that look out of scope. A green run has to mean everything works.
+12. Report script failures before manual fallback. When a project script fails (`npm test`, `npm run ...`, `scripts/*`, `agentsys-dev`, `node bin/dev-cli.js`), report the exact error, find the cause and fix the script. NEVER silently fall back to doing its work by hand: that hides broken tooling.
 
-1. **Production project** - Real users depend on this. Test thoroughly and verify all edge cases before committing.
-   *WHY: Breaking changes affect all plugin users immediately.*
+In prose, write ` - ` (a single dash with spaces), not an em dash or a doubled dash.
 
-2. **Plugin for OTHER projects** - Optimize for plugin users, not internal dev convenience.
-   *WHY: Every decision MUST improve the experience for developers using this in their repos.*
-
-3. **Use CHANGELOG.md for completion tracking** - MUST use CHANGELOG.md for release notes. NEVER create `*_AUDIT.md`, `*_SUMMARY.md`, `*_COMPLETION.md` files.
-   *WHY: Summary files clutter repos and add no value. Report completion verbally.*
-
-4. **Unless** it is a very small change of max few lines, or an urgent hotfix, **MUST create PRs for all changes** - No direct pushes to main.
-   *WHY: PRs enable reviews, CI checks, and rollback if needed. Direct pushes are risky.*
-
-5. **PR reviews** - Wait 3 min for auto-reviewers, address ALL comments (Copilot, Claude, Gemini, Codex).
-   *WHY: Skipping comments leads to merged issues. Every comment must be addressed or explained.*
-
-6. **Read checklists BEFORE multi-file changes** - **MUST** read the relevant checklist before starting:
-   - **Cross-platform work → `checklists/cross-platform-compatibility.md`** (MASTER REF)
-   - Release → `checklists/release.md`
-   - New command → `checklists/new-command.md`
-   - New agent → `checklists/new-agent.md`
-   - New skill → `checklists/new-skill.md`
-   - New lib module → `checklists/new-lib-module.md`
-   - OpenCode plugin update → `checklists/update-opencode-plugin.md`
-   - Repo intel changes → `checklists/repo-intel.md`
-   *WHY: Multi-file changes have hidden dependencies. Checklists prevent missed updates.*
-
-7. **Especially Before release, and when delivering ANY work** - Check the relevant checklist for completion requirements:
-   - Identify which checklist applies to your work (see rule #6)
-   - Go through EVERY item in that checklist and apply it (e.g. run commands, which files to bump versions in, etc)
-   - Run the `/enhance` command on new or modified commands, agents, skills, hooks or prompts
-   - Verify cross-platform compatibility (OpenCode + Codex)
-   - Update `bin/cli.js` mappings if new command/agent added
-   - Only mark complete after ALL checklist items are done
-   *WHY: Checklists exist because we kept missing things. They are the definition of "done".*
-
-8. **Use plain text markers** - MUST use `[OK]`, `[ERROR]`, `[WARN]`, `[CRITICAL]` for status. NEVER use emojis or ASCII art boxes.
-   - Save tokens - conciseness and clarity over decorations
-   - Use markdown formatting instead of decorative borders
-   *WHY: Emojis and ASCII art waste tokens. AI models parse plain text better.*
-
-9. **gh/git on Windows** - Escape `$` as `\$` in GraphQL queries, avoid `!=` in jq (use `== "A" or == "B"`).
-   - `gh pr checks` uses `state` not `conclusion` - returns UPPERCASE: `SUCCESS`, `FAILURE`, `PENDING`
-   - Single quotes unreliable - use double quotes with escaped inner quotes
-   *WHY: Windows shell interprets $ and ! differently. These cause silent failures.*
-
-10. **Always run git hooks** - Run all pre-commit and pre-push hooks. If a hook blocks, fix the reported issue.
-   - Hooks catch problems before they reach the repo
-   - Fix the root cause, then retry
-   *WHY: Hooks are safety nets. Bypassing them defeats their purpose.*
-
-11. **Fix all test failures** - NEVER skip or ignore a failing test because it's "out of scope" or "pre-existing". Always fix it.
-   - If a test fails during your work, fix it before proceeding
-   - No test is someone else's problem
-   *WHY: Skipping failures erodes test trust. Every green run must mean everything works.*
-
-12. **Report script failures before manual fallback** - When any project script fails (npm test/run/build, scripts/*, agentsys-dev, node bin/dev-cli.js), you MUST:
-   - Report the failure with exact error output to the user
-   - Diagnose the root cause of the failure
-   - Fix the script/tooling issue, not work around it manually
-   - NEVER silently fall back to doing the work by hand
-   *WHY: Silent fallbacks mask broken tooling. A failed script needs fixing, not bypassing.*
-</critical-rules>
-
-<architecture>
 ## Architecture
 
 <!-- GEN:START:claude-architecture -->
@@ -110,101 +63,34 @@ bin/cli.js    → npm CLI installer
 | ada-spark | 0 | 1 |  |
 <!-- GEN:END:claude-architecture -->
 
-**Pattern**: `Command → Agent → Skill` (orchestration → invocation → implementation)
-</architecture>
+Pattern: command, then agent, then skill (orchestration, invocation, implementation).
 
-<commands>
 ## Commands
 
-### Core Workflow
-- `/next-task` - Master workflow: task → implementation → PR → merge
-- `/prepare-delivery` - Pre-ship quality gates: deslop, review, validation, docs sync
-- `/gate-and-ship` - Quality gates then ship (/prepare-delivery + /ship)
-- `/ship` - PR creation, CI monitoring, merge
-- `/enhance` - Run all enhancement analyzers
+User-facing commands are listed in [README.md](./README.md). Dev CLI (`npx agentsys-dev <command>` or `node bin/dev-cli.js <command>`):
 
-### Analysis
-- `/audit-project` - Multi-agent code review
-- `/deslop` - Clean AI slop patterns
-- `/drift-detect` - Compare plan vs implementation
-- `/perf` - Performance investigation
-- `/repo-intel` - Unified static analysis - git history, AST symbols, project metadata
-
-### Maintenance
-- `/sync-docs` - Update documentation to match code
-
-### Dev Commands
 ```bash
-npx agentsys-dev status           # Project health (version, counts, branch)
-npx agentsys-dev validate         # Run all validators
-npx agentsys-dev validate plugins # Run single validator
-npx agentsys-dev bump <version>   # Bump all version files (e.g., 3.7.3)
-npx agentsys-dev sync-lib         # Sync lib/ to plugins/
-npx agentsys-dev test             # Run test suite
-npx agentsys-dev preflight         # Change-aware checklist enforcement
-npx agentsys-dev preflight --all   # Run all checks
-npx agentsys-dev preflight --release # All checks + release extras
-npx agentsys-dev gen-docs          # Auto-generate doc sections
-npx agentsys-dev gen-docs --check  # Validate docs are fresh (CI)
-npx agentsys-dev new plugin <name>  # Scaffold new plugin
-npx agentsys-dev new agent <name> --plugin=<plugin>  # Scaffold new agent
-npx agentsys-dev new skill <name> --plugin=<plugin>  # Scaffold new skill
-npx agentsys-dev new command <name> --plugin=<plugin>  # Scaffold new command
-npx agentsys-dev --help           # Show all commands
-
-# Or invoke directly:
-node bin/dev-cli.js <command>
-
-# npm aliases still work:
-npm test                     # Run tests (do before commits)
-npm run validate             # All validators via dev-cli
-npm run preflight            # Change-aware preflight checks
-npm run preflight:all        # All preflight checks
-npm run preflight:release    # Release preflight
-npm run gen-docs             # Auto-generate documentation
-npm run gen-docs:check       # Check if docs are stale
-npm run new:plugin           # Scaffold new plugin
-npm run new:agent            # Scaffold new agent
-npm run new:skill            # Scaffold new skill
-npm run new:command          # Scaffold new command
-npm run bump <version>       # Bump versions via dev-cli
-npm pack                     # Build package
-agentsys                # Run installer
+npx agentsys-dev status                 # version, counts, branch
+npx agentsys-dev validate [name]        # all validators, or one (plugins, counts, ...)
+npx agentsys-dev test                   # test suite (npm test)
+npx agentsys-dev preflight [--all|--release]  # change-aware checklist checks
+npx agentsys-dev gen-docs [--check]     # regenerate GEN blocks; --check fails if stale (CI)
+npx agentsys-dev bump <version>         # bump every version file
+npx agentsys-dev new plugin|agent|skill|command <name> [--plugin=<plugin>]
+npx agentsys-dev --help                 # everything else
 ```
-</commands>
 
-<agents>
-## Agents
+Most have npm aliases (`npm test`, `npm run validate`, `npm run preflight`, `npm run gen-docs:check`, `npm run bump`). CI also runs `scripts/expand-templates.js --check` and `scripts/gen-adapters.js --check`. `agentsys` runs the installer.
 
-49 agents across 24 plugins (16 have agents; gate-and-ship is commands-only; banthis, skill-curator, system-prompt-curator, and agnix are skill/command-only; zig-lsp is config-only with no commands or agents; mojo and ada-spark are skill-only). Key agents by model:
+## Agents, skills and models
 
-| Model | Resolves to | Agents | Use Case |
-|-------|-------------|--------|----------|
-| **opus** | Claude Opus 5.5 | exploration, planning, implementation, perf-orchestrator, debate-orchestrator, skillers-recommender | Complex reasoning, analysis |
-| **sonnet** | Claude Sonnet 5 | task-discoverer, delivery-validator (prepare-delivery), ci-fixer, deslop-agent, reporters, learn, release-agent, skillers-compactor | Validation, structured checks |
-| **haiku** | Claude Haiku 4.5 | worktree-manager, ci-monitor, simple-fixer | Mechanical execution |
+[docs/reference/AGENTS.md](./docs/reference/AGENTS.md) lists every agent with its model and tools; [README.md](./README.md#skills) lists the skills. Agents invoke skills, and skills hold the implementation.
 
-See [README.md](./README.md#command-details) and [docs/reference/AGENTS.md](./docs/reference/AGENTS.md) for full agent list.
-</agents>
+Model families: opus (Claude Opus 5.5) for judgment where errors compound, sonnet (Claude Sonnet 5) for validation and most agents, haiku (Claude Haiku 4.5) for mechanical work. An agent with no `model` key inherits the caller's.
 
-<skills>
-## Skills
+`/next-task` runs its phases in order: exploration-agent, planning-agent, user approval of the plan, implementation-agent, pre-review gates, review loop, delivery-validator, sync-docs-agent, then `/ship`. A phase whose plugin is not installed uses the inline fallback in next-task's `commands/next-task.md`.
 
-44 skills across plugins. Agents invoke skills for reusable implementation.
-
-| Category | Key Skills |
-|----------|------------|
-| Workflow | `orchestrate-review`, `discover-tasks`, `validate-delivery` |
-| Enhancement | `enhance-*` (9 skills for plugins, agents, docs, prompts, hooks), `skill-curator`, `system-prompt-curator` |
-| Performance | `baseline`, `benchmark`, `profile`, `theory-tester` |
-| Cleanup | `deslop`, `sync-docs`, `drift-analysis`, `repo-intel` |
-| Memory | `banthis` |
-
-See [README.md](./README.md#skills) for full skill list.
-</skills>
-
-<state-files>
-## State Files
+## State files
 
 | File | Location | Purpose |
 |------|----------|---------|
@@ -213,91 +99,8 @@ See [README.md](./README.md#skills) for full skill list.
 | `preference.json` | `{stateDir}/sources/` | Cached task source |
 | `suppressions.json` | `~/.<claude\|opencode\|codex>/enhance/` | Auto-learned suppressions |
 
-Platform-aware state directory:
-- Claude Code: `.claude/`
-- OpenCode: `.opencode/`
-- Codex: `.codex/`
-- Cursor: `.cursor/`
-- Kiro: `.kiro/`
-</state-files>
+`stateDir` is `.claude/`, `.opencode/`, `.codex/`, `.cursor/` or `.kiro/` by platform.
 
-<workflow-agents>
-## Workflow Agents (MUST-CALL)
+## Priorities
 
-Cannot skip in /next-task:
-- `exploration-agent` → before planning
-- `planning-agent` → before implementation
-- **Phase 9 review loop** → MUST use orchestrate-review skill
-- `prepare-delivery:delivery-validator` → before sync-docs:sync-docs-agent
-- `sync-docs:sync-docs-agent` → before /ship
-</workflow-agents>
-
-<pr-auto-review>
-## PR Auto-Review
-
-4 reviewers: Copilot, Claude, Gemini, Codex
-
-1. Wait 3 min after PR creation (initial auto-reviews)
-2. Claude-review may take 10+ min - wait for it
-3. Read ALL comments
-4. Address EVERY comment
-5. Iterate until zero unresolved
-</pr-auto-review>
-
-<model-selection>
-## Model Selection
-
-| Model | When to Use |
-|-------|-------------|
-| **Opus** | Complex reasoning, analysis where imperfection compounds |
-| **Sonnet** | Validation, pattern matching, most agents |
-| **Haiku** | Mechanical execution, no judgment needed |
-</model-selection>
-
-<priorities>
-## Core Priorities
-
-1. User DX (plugin users)
-2. Worry-free automation
-3. Token efficiency
-4. Quality output
-5. Simplicity
-</priorities>
-
-<end-reminder>
-**REMEMBER**:
-- Use CHANGELOG.md for completion tracking (not summary files)
-- BEFORE starting → Read the relevant checklist (`checklists/*.md`)
-- BEFORE delivering any work, especially releases → Go through that checklist item by item
-- 5 platforms: Claude Code + OpenCode + Codex + Cursor + Kiro - ALL must work
-- Agent/Skill pattern: Agents invoke skills, skills have implementation
-- Create PRs for non-trivial changes
-</end-reminder>
-
-</project-memory>
-
-## Worktree and tmp hygiene (owner, 2026-08-17)
-
-- When work in a git worktree is finished - merged, banked, or abandoned - clean it up
-  as part of finishing: `git worktree remove <path>` AND delete its branch
-  (`git branch -d`; `-D` only once the owner's merge/abandon decision is recorded).
-  A closed lane leaves no `wt-*` directory and no stale branch behind.
-- Every use of /tmp (or any scratch space) is cleaned by the task that created it:
-  delete scratch files and dirs when the task closes, not when disk pressure finds
-  them. Motivating incident 2026-08-17: 7 GB of dead lane dirs in /tmp plus an
-  unthrottled upload storm flooded 25 GB of swap and stalled the rig.
-
-## Maintainer conventions
-
-- Every feature or fix needs quality tests that cover the changed behavior.
-- In prose, use a single dash with spaces, not an em dash or a doubled dash.
-- Report script failures before manual fallback. Never silently bypass broken tooling.
-
-## Validation scope
-
-Choose checks that cover the changed behavior. For CPU-only tooling, documentation
-and configuration changes, run the relevant CPU tests, static checks and configuration
-validation. Do not require a blanket GPU gate for those changes. Require GPU
-qualification when GPU, runtime or model behavior, or related claims, change.
-Preserve applicable native, model and hardware qualification gates. CPU checks do
-not qualify GPU behavior.
+In order: experience of plugin users, worry-free automation, token efficiency, output quality, simplicity.

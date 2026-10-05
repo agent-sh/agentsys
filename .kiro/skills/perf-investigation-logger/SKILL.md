@@ -1,26 +1,19 @@
 ---
 name: perf-investigation-logger
-description: "Use when appending structured perf investigation notes and evidence."
-version: 5.1.0
+description: "Use when appending a structured entry to a /perf investigation log: user quotes, phase summary, evidence, decisions."
+version: 5.2.0
 ---
 
 # perf-investigation-logger
 
-Append structured investigation notes to `{state-dir}/perf/investigations/<id>.md`.
+Append one entry per phase to `<stateDir>/perf/investigations/<id>.md` (`stateDir` is `AI_STATE_DIR` if set, else `.claude`). The log is how the investigation gets audited and resumed, so it records what was measured and decided, not a narrative. `lib/perf/investigation-state.js` has an `append<Phase>Log` helper for each phase; the phase script already calls them, so use this skill for notes the script does not capture.
 
-Follow `docs/perf-requirements.md` as the canonical contract.
+Quote the user verbatim. A paraphrase loses the exact requirement they stated.
 
-## Required Content
-
-1. Exact user quotes (verbatim)
-2. Phase summary
-3. Decisions and rationale
-4. Evidence pointers (files, metrics, commands)
-
-## Output Format
+## Output
 
 ```
-## <Phase Name> - <YYYY-MM-DD>
+## <Phase> - <YYYY-MM-DD>
 
 **User Quote:** "<exact quote>"
 
@@ -34,8 +27,3 @@ Follow `docs/perf-requirements.md` as the canonical contract.
 **Decision**
 - ...
 ```
-
-## Constraints
-
-- Use `AI_STATE_DIR` for state path (default `.claude`).
-- Do not paraphrase user quotes.

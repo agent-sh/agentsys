@@ -1,387 +1,50 @@
 ---
 name: enhance-claude-memory
-description: "Use when improving CLAUDE.md or AGENTS.md project memory files."
-version: 5.1.0
+description: "Use when reviewing CLAUDE.md or AGENTS.md project memory files for broken references, bloat, duplication with the README, and instructions that no longer help."
+version: 5.2.0
 ---
 
 # enhance-claude-memory
 
-Analyze project memory files (CLAUDE.md, AGENTS.md) for optimization.
+Project memory is read at the start of every session, so every line costs tokens on every run and every stale line misleads every run. Review it for accuracy first, then fit. Input (`$ARGUMENTS`): a path (default `.`), `--fix`, `--verbose`.
 
-## Cross-Tool Detection
+Files, in lookup order: `CLAUDE.md`, `AGENTS.md`, `.github/CLAUDE.md`, `.github/AGENTS.md`, plus nested ones in subdirectories and `.claude/CLAUDE.md`. Claude Code reads `CLAUDE.md`; OpenCode, Codex and most other harnesses read `AGENTS.md`. A repo serving several harnesses may keep both, or one that points at the other.
 
-Searches for project memory files in order:
-1. CLAUDE.md (Claude Code)
-2. AGENTS.md (OpenCode, Codex)
-3. .github/CLAUDE.md
-4. .github/AGENTS.md
+## Run the analyzer
 
-## File Hierarchy (Reference)
-
-**CLAUDE.md** (Claude Code):
-| Location | Scope |
-|----------|-------|
-| `~/.claude/CLAUDE.md` | Global (all projects) |
-| `.claude/CLAUDE.md` or `./CLAUDE.md` | Project root |
-| `src/.claude/CLAUDE.md` | Directory-specific |
-
-**AGENTS.md** (OpenCode, Codex, and other AI tools):
-| Location | Scope |
-|----------|-------|
-| `~/.config/opencode/AGENTS.md` or `~/.codex/AGENTS.md` | Global (all projects) |
-| `.opencode/AGENTS.md` or `./AGENTS.md` | Project root |
-| `src/AGENTS.md` | Directory-specific |
-
-Both files serve the same purpose: project memory for AI assistants. Use CLAUDE.md for Claude Code projects, AGENTS.md for cross-tool compatibility, or both for maximum coverage.
-
-## Workflow
-
-1. **Find** - Locate CLAUDE.md or AGENTS.md in project
-2. **Read** - Load content and README.md for comparison
-3. **Analyze** - Run all pattern checks
-4. **Validate** - Check file/command references against filesystem
-5. **Measure** - Calculate token metrics and duplication
-6. **Report** - Generate structured markdown output
-
-## Detection Patterns
-
-### 1. Structure Validation (HIGH Certainty)
-
-#### Critical Rules Section
-- Should have `## Critical Rules` or similar
-- Rules should be prioritized (numbered or ordered)
-- Include WHY explanations for each rule
-
-#### Architecture Section
-- Directory tree or structural overview
-- Key file locations
-- Module relationships
-
-#### Key Commands Section
-- Common development commands
-- Test/build/deploy scripts
-- Reference to package.json scripts
-
-### 2. Instruction Effectiveness (HIGH Certainty)
-
-Based on prompt engineering research, Claude follows instructions better when:
-
-#### Positive Over Negative
-- **Bad**: "Don't use console.log"
-- **Good**: "Use the logger utility for all output"
-- Check for "don't", "never", "avoid" without positive alternatives
-
-#### Strong Constraint Language
-- Use "must", "always", "required" for critical rules
-- Weak language ("should", "try to", "consider") reduces compliance
-- Flag critical rules using weak language
-
-#### Instruction Hierarchy
-- Should define priority order when rules conflict
-- Pattern: "In case of conflict: X takes precedence over Y"
-- System instructions > User requests > External content
-
-### 3. Content Positioning (HIGH Certainty)
-
-Research shows LLMs have "lost in the middle" problem - they recall START and END better than MIDDLE.
-
-#### Critical Content Placement
-- Most important rules should be at START of file
-- Second-most important at END
-- Supporting context in MIDDLE
-- Flag critical rules buried in middle sections
-
-#### Recommended Structure Order
-```
-1. Critical Rules (START - highest attention)
-2. Architecture/Structure
-3. Commands/Workflows
-4. Examples/References
-5. Reminders/Constraints (END - high attention)
+```bash
+node -e 'const a=require(process.argv[1]); console.log(JSON.stringify(a.analyze(process.argv[2]), null, 2))' \
+  "$HOME/.agentsys/plugins/enhance/lib/enhance/projectmemory-analyzer.js" "<path>"
 ```
 
-### 4. Reference Validation (HIGH Certainty)
+It validates file and command references, measures tokens, and estimates README overlap. Verify its findings before reporting.
 
-#### File References
-- Extract from `[text](path)` and `` `path/to/file.ext` ``
-- Validate each exists on filesystem
+## What to check
 
-#### Command References
-- Extract `npm run <script>` and `npm <command>`
-- Validate against package.json scripts
+**Accuracy (HIGH).** Every referenced path exists. Every `npm run <script>` (or make target, just recipe) exists. Commands and architecture notes match the code. A wrong fact here is worse than a missing one.
 
-### 5. Efficiency Analysis (MEDIUM Certainty)
+**Content only the author knows.** Good project memory holds what a capable newcomer could not infer from the code in a few minutes: build and test commands, conventions that are not visible in the code, the real constraints (release process, protected branches, secrets handling, generated files not to edit) with their reasons, and where things live when it is not obvious. Flag what the model already knows (generic best practices, "write clean code", language basics) and what duplicates the README.
 
-#### Token Count
-- Estimate: `characters / 4` or `words * 1.3`
-- Recommended max: 1500 tokens (~6000 characters)
-- Flag files exceeding threshold
+**Dated instruction style.** Apply the `enhance-prompts` guidance. In memory files the common cases are all-caps rule lists, rules without reasons, the same rule stated in several places, and history ("we switched to X after incident Y") where only the current rule matters. Never suggest strengthening language to MUST or ALWAYS, and never suggest adding emphasis markers: the analyzer's `missing_emphasis_markers` and prose-versus-bullets `verbose_instructions` findings encode older advice, so down-rank them to LOW at most.
 
-#### README Duplication
-- Detect overlap with README.md
-- Flag >40% content duplication
-- CLAUDE.md should complement README, not duplicate
+**Size.** Flag files well past roughly 1,500 tokens, and suggest moving reference material into files the memory links to, loaded when needed.
 
-#### Verbosity
-- Prefer bulleted lists over prose paragraphs
-- Constraints as lists are easier to follow
-- Flag long prose blocks (>5 sentences)
+**Cross-platform (advisory).** Hardcoded `.claude/` state paths in a file other harnesses read, or Claude-only terms in an `AGENTS.md`.
 
-### 6. Quality Checks (MEDIUM Certainty)
+**Model IDs.** Flag full model IDs with dates (they retire). Tier names or "inherit" age better.
 
-#### WHY Explanations
-- Rules should explain rationale
-- Pattern: `*WHY: explanation*` or indented explanation
-- Flag rules without explanations
+## Fix
 
-#### Structure Depth
-- Avoid deep nesting (>3 levels)
-- Keep hierarchy scannable
-- Flat structures parse better
+With `--fix`, apply HIGH certainty auto-fixes only (`applyFixes` in the analyzer). Never delete a rule in a fix: removing guidance is the author's call.
 
-#### XML-Style Tags (Optional Enhancement)
-- Claude was trained on XML tags
-- `<critical-rules>`, `<architecture>`, `<constraints>` improve parsing
-- Not required but can improve instruction following
-
-### 7. Agent/Skill Definitions (MEDIUM Certainty)
-
-If file defines custom agents or skills:
-
-#### Agent Definition Format
-```markdown
-### agent-name
-Model: claude-sonnet-4-20250514
-Description: What this agent does and when to use it
-Tools: Read, Grep, Glob
-Instructions: Specific behavioral instructions
-```
-
-Required fields: Description (when to use), Tools (restricted set)
-Optional: Model, Instructions
-
-#### Skill References
-- Skills should have clear trigger descriptions
-- "Use when..." pattern helps auto-invocation
-
-### 8. Cross-Platform Compatibility (MEDIUM/HIGH Certainty)
-
-#### State Directory
-- Don't hardcode `.claude/`
-- Support `.opencode/`, `.codex/`
-- Use `${STATE_DIR}/` or document variations
-
-#### Terminology
-- Avoid Claude-specific language for shared files
-- Use "AI assistant" generically
-- Or explicitly note "Claude Code" vs "OpenCode" differences
-
-## Output Format
+## Output
 
 ```markdown
-# Project Memory Analysis: {filename}
+# Project Memory Analysis: <file>
+File: <path> | ~<tokens> tokens | README overlap: <pct>%
 
-**File**: {path}
-**Type**: {CLAUDE.md | AGENTS.md}
-
-## Metrics
-| Metric | Value |
-|--------|-------|
-| Estimated Tokens | {tokens} |
-| README Overlap | {percent}% |
-
-## Summary
-| Certainty | Count |
-|-----------|-------|
-| HIGH | {n} |
-| MEDIUM | {n} |
-
-### Structure Issues ({n})
 | Issue | Fix | Certainty |
-
-### Instruction Issues ({n})
-| Issue | Fix | Certainty |
-
-### Positioning Issues ({n})
-| Issue | Fix | Certainty |
-
-### Reference Issues ({n})
-| Issue | Fix | Certainty |
-
-### Efficiency Issues ({n})
-| Issue | Fix | Certainty |
-
-### Cross-Platform Issues ({n})
-| Issue | Fix | Certainty |
+|---|---|---|
 ```
 
-## Pattern Statistics
-
-| Category | Patterns | Certainty |
-|----------|----------|-----------|
-| Structure | 3 | HIGH |
-| Instruction Effectiveness | 3 | HIGH |
-| Content Positioning | 2 | HIGH |
-| Reference | 2 | HIGH |
-| Efficiency | 3 | MEDIUM |
-| Quality | 3 | MEDIUM |
-| Agent/Skill Definitions | 2 | MEDIUM |
-| Cross-Platform | 2 | MEDIUM/HIGH |
-| **Total** | **20** | - |
-
-<examples>
-### Example: Missing WHY Explanations
-
-<bad_example>
-```markdown
-## Rules
-1. Always run tests before committing
-2. Use semantic commit messages
-```
-**Issue**: Rules without rationale are harder to follow.
-</bad_example>
-
-<good_example>
-```markdown
-## Critical Rules
-1. **Always run tests before committing**
-   *WHY: Catches regressions before they reach main branch.*
-```
-**Why it's good**: Motivation makes compliance easier.
-</good_example>
-
-### Example: Negative vs Positive Instructions
-
-<bad_example>
-```markdown
-- Don't use console.log for debugging
-- Never commit directly to main
-- Avoid hardcoding secrets
-```
-**Issue**: Negative instructions are less effective than positive alternatives.
-</bad_example>
-
-<good_example>
-```markdown
-- Use the logger utility for all debug output
-- Create feature branches and submit PRs for all changes
-- Store secrets in environment variables or .env files
-```
-**Why it's good**: Tells what TO do, not just what to avoid.
-</good_example>
-
-### Example: Weak vs Strong Constraint Language
-
-<bad_example>
-```markdown
-- You should probably run tests before pushing
-- Try to use TypeScript when possible
-- Consider adding error handling
-```
-**Issue**: Weak language ("should", "try", "consider") reduces compliance.
-</bad_example>
-
-<good_example>
-```markdown
-- **MUST** run tests before pushing (CI will reject failures)
-- **ALWAYS** use TypeScript for new files
-- **REQUIRED**: All async functions must have error handling
-```
-**Why it's good**: Strong language ensures critical rules are followed.
-</good_example>
-
-### Example: Content Positioning
-
-<bad_example>
-```markdown
-## Project Overview
-[Long description...]
-
-## Installation
-[Setup steps...]
-
-## Critical Rules
-1. Never push to main directly
-2. Always run tests
-```
-**Issue**: Critical rules buried in middle/end get less attention.
-</bad_example>
-
-<good_example>
-```markdown
-## Critical Rules (Read First)
-1. **Never push to main directly** - Use PRs
-2. **Always run tests** - CI enforces this
-
-## Project Overview
-[Description...]
-
-## Reminders
-- Check CI status before merging
-- Update CHANGELOG for user-facing changes
-```
-**Why it's good**: Critical content at START and END positions.
-</good_example>
-
-### Example: Cross-Platform Compatibility
-
-<bad_example>
-```markdown
-State files are stored in `.claude/tasks.json`
-```
-**Issue**: Hardcoded paths exclude other AI tools.
-</bad_example>
-
-<good_example>
-```markdown
-State files are stored in `${STATE_DIR}/tasks.json`
-(`.claude/` for Claude Code, `.opencode/` for OpenCode)
-```
-**Why it's good**: Works across multiple AI assistants.
-</good_example>
-
-### Example: Agent Definition
-
-<bad_example>
-```markdown
-## Agents
-- security-reviewer: reviews security
-- test-writer: writes tests
-```
-**Issue**: Missing required fields (Tools, when to use).
-</bad_example>
-
-<good_example>
-```markdown
-## Custom Agents
-
-### security-reviewer
-Model: claude-sonnet-4-20250514
-Description: Reviews code for security vulnerabilities. Use for PRs touching auth, API, or data handling.
-Tools: Read, Grep, Glob
-Instructions: Focus on OWASP Top 10, input validation, auth flows.
-
-### test-writer
-Model: claude-haiku-4
-Description: Writes unit tests. Use after implementing new functions.
-Tools: Read, Write, Bash(npm test:*)
-Instructions: Use Jest patterns. Aim for >80% coverage.
-```
-**Why it's good**: Complete definition with when to use, restricted tools.
-</good_example>
-</examples>
-
-## Research References
-
-Best practices derived from:
-- `agent-docs/PROMPT-ENGINEERING-REFERENCE.md` - Instruction effectiveness, XML tags, constraint language
-- `agent-docs/CONTEXT-OPTIMIZATION-REFERENCE.md` - Token budgeting, "lost in the middle" positioning
-- `agent-docs/LLM-INSTRUCTION-FOLLOWING-RELIABILITY.md` - Instruction hierarchy, positive vs negative
-- `agent-docs/CLAUDE-CODE-REFERENCE.md` - File hierarchy, agent definitions, skills format
-
-## Constraints
-
-- Always validate file references before reporting broken
-- Consider context when flagging efficiency issues
-- Cross-platform suggestions are advisory, not required
-- Positioning suggestions are HIGH certainty but may have valid exceptions
+When called by an enhancer agent, return the findings JSON that agent specifies instead.

@@ -1,319 +1,51 @@
 ---
 name: enhance-plugins
-description: "Use when analyzing plugin structures, MCP tools, and plugin security patterns."
-version: 5.1.0
+description: "Use when reviewing agent plugins: manifest structure, MCP tool schemas and descriptions, and plugin security patterns."
+version: 5.2.0
 argument-hint: "[path] [--fix]"
 ---
 
 # enhance-plugins
 
-Analyze plugin structures, MCP tools, and security patterns against best practices.
+Review a plugin so it installs cleanly, its tools get called correctly, and it cannot be turned against the user. Input (`$ARGUMENTS`): a path (default `.`), `--fix`, `--verbose`.
 
-## Parse Arguments
+Plugins are directories with `.claude-plugin/plugin.json` (Claude Code), OpenCode plugins under `.opencode/plugins/` with MCP servers in `opencode.json`, and Codex MCP servers in `~/.codex/config.toml`.
 
-```javascript
-const args = '$ARGUMENTS'.split(' ').filter(Boolean);
-const targetPath = args.find(a => !a.startsWith('--')) || '.';
-const fix = args.includes('--fix');
+## Run the analyzer
+
+```bash
+node -e 'const a=require(process.argv[1]); a.analyzePlugin(process.argv[2]).then(r => console.log(JSON.stringify(r, null, 2)))' \
+  "$HOME/.agentsys/plugins/enhance/lib/enhance/plugin-analyzer.js" "<plugin dir>"
 ```
 
-## Plugin Locations
+For a directory of plugins, `analyzeAllPlugins(<dir>)`. Verify each finding.
 
-| Platform | Location |
-|----------|----------|
-| Claude Code | `plugins/*/`, `.claude-plugin/plugin.json` |
-| OpenCode | `.opencode/plugins/`, MCP in `opencode.json` |
-| Codex | MCP in `~/.codex/config.toml` |
+## What to check
 
-## Workflow
+**Manifest (HIGH).** `plugin.json` has a kebab-case `name`, a semver `version`, and a `description`. If `package.json` also carries a version, the two agree. Components the manifest or `components.json` lists exist on disk.
 
-1. **Discover** - Find plugins in `plugins/` directory
-2. **Load** - Read `plugin.json`, agents, commands, skills
-3. **Analyze** - Run pattern checks by certainty level
-4. **Report** - Generate markdown output
-5. **Fix** - Apply auto-fixes if `--fix` (HIGH certainty only)
+**Tool descriptions (HIGH).** For tool calling, the description is the contract, and under-description is the common failure. Each tool says what it does, when to use it and when not to, what it returns, and its limits. Each parameter says its format, with an example value where the format is not obvious. Flag vague one-liners and missing parameter descriptions. Also flag the opposite problem: behavioral steering in a description ("ALWAYS call this first", "after results, always suggest...") or long worked examples, which belong in a skill or prompt, not the schema.
 
-## Detection Patterns
+**Schema (HIGH or MEDIUM).** `required` lists the required parameters, `additionalProperties: false` on object inputs, enums for closed sets, bounds on numbers, flat shapes over deep nesting.
 
-### 1. Tool Schema Design (HIGH)
+**Tool count (LOW).** Many overlapping tools make selection worse. Suggest merging near-duplicates, or deferred loading past a few dozen.
 
-Based on function calling best practices:
+**Security (HIGH, advisory).** Bare `Bash` in agent or skill tools, shell commands built from unvalidated input, path traversal (`../`) in file handling, hardcoded secrets, MCP servers that send data out without the user knowing, tool output treated as instructions. Missing input validation and missing timeouts on network tools are MEDIUM.
 
-**Required elements:**
-```json
-{
-  "name": "verb_noun",
-  "description": "What it does. When to use. What it returns.",
-  "input_schema": {
-    "type": "object",
-    "properties": {
-      "param": {
-        "type": "string",
-        "description": "Format and example"
-      }
-    },
-    "required": ["param"],
-    "additionalProperties": false
-  }
-}
-```
+**Errors (MEDIUM).** Tools return errors the model can act on: what failed and what to do next, with `is_error` set, instead of a bare stack trace.
 
-**The "Intern Test"** - Can someone use this tool given only the description?
+## Fix
 
-| Issue | Certainty | Auto-Fix |
-|-------|-----------|----------|
-| Missing `additionalProperties: false` | HIGH | Yes |
-| Missing `required` array | HIGH | Yes |
-| Missing tool description | HIGH | No |
-| Missing param descriptions | MEDIUM | No |
-| Vague names (`search`, `process`) | MEDIUM | No |
+With `--fix`, apply HIGH certainty auto-fixes only (`applyFixes` in the analyzer): `additionalProperties: false`, a `required` array, a version synced between `plugin.json` and `package.json`. Never change tool behavior, and never auto-fix security findings: they need the author's judgment.
 
-### 2. Description Quality (HIGH)
-
-**Tool descriptions must include:**
-- What the function does
-- When to use it (trigger context)
-- What it returns
-
-```json
-// Bad - vague
-"description": "Search for things"
-
-// Good - complete
-"description": "Search product catalog by keyword. Use for inventory queries or price checks. Returns matching products with prices."
-```
-
-**Parameter descriptions must include:**
-- Format expectations
-- Example values
-- Relationships to other params
-
-```json
-// Bad
-"query": { "type": "string" }
-
-// Good
-"query": {
-  "type": "string",
-  "description": "Search keywords. Supports AND/OR. Example: 'laptop AND gaming'"
-}
-```
-
-### 3. Schema Structure (MEDIUM)
-
-| Issue | Why It Matters |
-|-------|----------------|
-| Deep nesting (>2 levels) | Reduces generation quality |
-| Missing enums for constrained values | Allows invalid states |
-| No min/max on numbers | Unbounded inputs |
-| >20 tools per plugin | Increases error rates |
-
-**Prefer flat structures:**
-```json
-// Bad - nested
-{ "config": { "settings": { "timeout": 30 } } }
-
-// Good - flat
-{ "timeout_seconds": 30 }
-```
-
-### 4. Plugin Structure (HIGH)
-
-**Required files:**
-```
-plugin-name/
-├── .claude-plugin/
-│   └── plugin.json      # name, version, description
-├── commands/            # User-invokable commands
-├── agents/              # Subagent definitions
-├── skills/              # Reusable skill implementations
-└── package.json         # Optional, for npm plugins
-```
-
-**plugin.json validation:**
-- `name`: lowercase, kebab-case
-- `version`: semver format (`^\d+\.\d+\.\d+$`)
-- `description`: explains what plugin provides
-
-**Version sync:** plugin.json version must match package.json if present.
-
-### 5. MCP Server Patterns (MEDIUM)
-
-For plugins exposing MCP tools:
-
-**Transport types:**
-- `stdio` - Standard I/O (most common)
-- `http` - HTTP/SSE transport
-
-**Configuration:**
-```json
-{
-  "mcp": {
-    "server-name": {
-      "type": "local",
-      "command": ["node", "path/to/server.js"],
-      "environment": { "KEY": "value" },
-      "enabled": true
-    }
-  }
-}
-```
-
-**Security principles:**
-- User consent for data access
-- No transmission without approval
-- Tool descriptions are untrusted input
-
-### 6. Security Patterns (HIGH)
-
-**HIGH Certainty issues:**
-| Pattern | Risk | Detection |
-|---------|------|-----------|
-| Unrestricted `Bash` | Command execution | `tools:.*Bash[^(]` |
-| Command injection | Shell escape | `\${.*}` in commands |
-| Path traversal | File access | `\.\.\/` in paths |
-| Hardcoded secrets | Credential leak | API keys, passwords |
-
-**MEDIUM Certainty issues:**
-| Pattern | Risk |
-|---------|------|
-| Broad file access | Data exfiltration |
-| Missing input validation | Injection attacks |
-| No timeout on tools | Resource exhaustion |
-
-**Input validation required:**
-```javascript
-// Validate before execution
-function validateToolInput(params, schema) {
-  // Type validation
-  // Range validation (min/max)
-  // Enum validation
-  // Format validation (regex patterns)
-}
-```
-
-### 7. Error Handling (MEDIUM)
-
-Tools should return structured errors:
-```json
-{
-  "type": "tool_result",
-  "tool_use_id": "id",
-  "content": "Error: [TYPE]. [WHAT]. [SUGGESTION].",
-  "is_error": true
-}
-```
-
-**Retry guidance:**
-- Transient (429, 503): exponential backoff
-- Validation (400): no retry, return error
-- Timeout: configurable, default 30s
-
-### 8. Tool Count (LOW)
-
-**"Less-is-More" approach:**
-- Research shows reducing tools improves accuracy by up to 89%
-- Limit to 3-5 relevant tools per task context
-- Consider dynamic tool loading for large toolsets
-
-## Auto-Fixes
-
-| Issue | Fix |
-|-------|-----|
-| Missing `additionalProperties` | Add `"additionalProperties": false` |
-| Missing `required` | Add all properties to required array |
-| Version mismatch | Sync plugin.json with package.json |
-
-## Output Format
+## Output
 
 ```markdown
-## Plugin Analysis: {name}
+## Plugin Analysis: <name>
+Files scanned: <n>
 
-**Files scanned**: {count}
-
-| Certainty | Count |
-|-----------|-------|
-| HIGH | {n} |
-| MEDIUM | {n} |
-
-### Tool Schema Issues
-| Tool | Issue | Fix | Certainty |
-
-### Structure Issues
-| File | Issue | Certainty |
-
-### Security Issues
-| File | Line | Issue | Certainty |
+| File | Tool | Issue | Fix | Certainty |
+|---|---|---|---|---|
 ```
 
-## Pattern Statistics
-
-| Category | Patterns | Certainty |
-|----------|----------|-----------|
-| Tool Schema | 5 | HIGH |
-| Descriptions | 2 | HIGH |
-| Schema Structure | 4 | MEDIUM |
-| Plugin Structure | 3 | HIGH |
-| MCP Patterns | 2 | MEDIUM |
-| Security | 6 | HIGH/MEDIUM |
-| Error Handling | 2 | MEDIUM |
-| Tool Count | 1 | LOW |
-| **Total** | **25** | - |
-
-<examples>
-### Schema Strictness
-<bad_example>
-```json
-{
-  "properties": { "path": { "type": "string" } }
-}
-```
-</bad_example>
-<good_example>
-```json
-{
-  "properties": { "path": { "type": "string", "description": "File path" } },
-  "required": ["path"],
-  "additionalProperties": false
-}
-```
-</good_example>
-
-### Tool Description
-<bad_example>
-```json
-"description": "Search for things"
-```
-</bad_example>
-<good_example>
-```json
-"description": "Search product catalog by keyword. Use for inventory or price queries. Returns products with prices."
-```
-</good_example>
-
-### Security
-<bad_example>
-```yaml
-tools: Read, Bash  # Unrestricted
-```
-</bad_example>
-<good_example>
-```yaml
-tools: Read, Bash(git:*)  # Scoped
-```
-</good_example>
-</examples>
-
-## References
-
-- `agent-docs/FUNCTION-CALLING-TOOL-USE-REFERENCE.md` - Tool schema, descriptions, security
-- `agent-docs/CLAUDE-CODE-REFERENCE.md` - Plugin structure, MCP config
-- `agent-docs/OPENCODE-REFERENCE.md` - OpenCode MCP integration
-- `agent-docs/CODEX-REFERENCE.md` - Codex MCP config
-
-## Constraints
-
-- Auto-fix only HIGH certainty issues
-- Security warnings are advisory - do not auto-fix
-- Preserve existing plugin.json fields
-- Never modify tool behavior, only schema definitions
+When called by an enhancer agent, return the findings JSON that agent specifies instead.

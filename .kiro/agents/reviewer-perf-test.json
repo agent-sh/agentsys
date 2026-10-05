@@ -6,6 +6,6 @@
     "read"
   ],
   "resources": [
-    "file://.kiro/steering/**/*.md"
+    "file://.kiro/prompts/**/*.md"
   ]
 }

@@ -1,42 +1,23 @@
 ---
 name: perf-profiler
-description: "Use when profiling CPU/memory hot paths, generating flame graphs, or capturing JFR/perf evidence."
-version: 5.1.0
+description: "Use when profiling CPU or memory hot paths, generating flame graphs, or capturing JFR or perf evidence for a /perf scenario."
+version: 5.2.0
 argument-hint: "[tool] [command]"
 ---
 
 # perf-profiler
 
-Run profiling tools and capture hotspots with evidence.
+Find where the time or memory goes, down to `file:line`. Input (`$ARGUMENTS`): an optional profiler and the command to profile. Default to the runtime's built-in profiler: Node `--cpu-prof` or `--heap-prof`, Java JFR, Python cProfile, Go pprof, Rust `perf` with symbols. `lib/perf/profiling-runner.js` (`runProfiling`) picks one from the repo.
 
-Follow `docs/perf-requirements.md` as the canonical contract.
+Profile the scenario from setup, not the whole program. Check that debug symbols are present first: a profile of stripped frames shows addresses instead of `file:line`. Produce a flame graph or equivalent when the tool supports it.
 
-## Parse Arguments
-
-```javascript
-const args = '$ARGUMENTS'.split(' ').filter(Boolean);
-const tool = args[0] || '';
-const command = args.slice(1).join(' ');
-```
-
-## Required Rules
-
-- Verify debug symbols before profiling.
-- Capture file:line for hotspots.
-- Provide flame graph or equivalent output when possible.
-
-## Output Format
+## Output
 
 ```
 tool: <profiler>
 command: <command>
 hotspots:
-  - file:line - reason
+  - <file:line> - <share of time or memory, and why it matters>
 artifacts:
-  - <path to flame graph or profile>
+  - <path to profile or flame graph>
 ```
-
-## Constraints
-
-- No profiling without a clear scenario.
-- Keep outputs minimal and evidence-backed.

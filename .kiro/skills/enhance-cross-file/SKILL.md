@@ -1,110 +1,51 @@
 ---
 name: enhance-cross-file
-description: "Use when checking cross-file consistency: tools vs frontmatter, agent references, duplicate rules, contradictions."
-version: 5.1.0
+description: "Use when checking consistency across agents, skills, and commands: tools used but not declared, references to agents that do not exist, duplicated or contradictory rules."
+version: 5.2.0
 argument-hint: "[path]"
 ---
 
 # enhance-cross-file
 
-Analyze cross-file semantic consistency across agents, skills, and workflows.
+Find problems no single-file review sees. Input (`$ARGUMENTS`): a path (default `.`).
 
-## Parse Arguments
+## Run the analyzer
 
-```javascript
-const args = '$ARGUMENTS'.split(' ').filter(Boolean);
-const targetPath = args.find(a => !a.startsWith('--')) || '.';
+```bash
+node -e 'const a=require(process.argv[1]); console.log(JSON.stringify(a.analyze(process.argv[2]), null, 2))' \
+  "$HOME/.agentsys/plugins/enhance/lib/enhance/cross-file-analyzer.js" "<path>"
 ```
 
-## Purpose
+It returns `summary` and `findings`. Every finding is MEDIUM certainty: each needs context to confirm. Verify before reporting, and skip content inside bad-example blocks (`<bad_example>` and similar tags, or code blocks whose info string says bad).
 
-Detects issues that span multiple files - things single-file analysis misses:
-- Tools used in prompt body but not declared in frontmatter
-- Agent references that don't exist
-- Duplicate instructions across files (maintenance burden)
-- Contradictory rules (ALWAYS vs NEVER conflicts)
-- Orphaned agents not referenced by any workflow
-- Skill tool mismatches (allowed-tools vs actual usage)
+## What it finds
 
-## Workflow
+| Pattern | Meaning |
+|---|---|
+| `tool_not_in_allowed_list` | The body calls a tool its frontmatter does not grant |
+| `skill_tool_mismatch` | A skill's `allowed-tools` does not match what the body uses |
+| `missing_workflow_agent` | A `subagent_type` or `plugin:agent` reference points at an agent that does not exist in this repo |
+| `orphaned_prompt` | An agent nothing references. Entry points (orchestrators, validators, discoverers, agents invoked by users) are not orphans |
+| `incomplete_phase_transition` | A workflow mentions a phase with no section for it |
+| `duplicate_instructions` | The same rule in three or more files |
+| `contradictory_rules` | One file requires what another forbids |
 
-1. **Run Analyzer** - Execute the JavaScript analyzer to get findings:
-   ```bash
-   node -e "const a = require('./lib/enhance/cross-file-analyzer.js'); console.log(JSON.stringify(a.analyze('.'), null, 2));"
-   ```
-   For a specific path: `a.analyze('./plugins/enhance')`
+A reference to an agent from another plugin is not missing if the calling file says it is optional and gives a fallback. Report it as missing only when the caller depends on it.
 
-2. **Parse Results** - The analyzer returns JSON with `summary` and `findings`
-3. **Report** - Return findings grouped by category
-
-The JavaScript analyzer (`lib/enhance/cross-file-analyzer.js`) implements all cross-file detection. The patterns below are reference documentation.
-
-## Detection Patterns
-
-### 1. Tool Consistency (MEDIUM Certainty)
-
-**tool_not_in_allowed_list**: Tool used in prompt body but not in frontmatter `tools:` list
-
-```yaml
-# Frontmatter declares:
-tools: Read, Grep
-
-# But body uses:
-Use Write({ file_path: "/out" })  # <- Not declared!
-```
-
-**skill_tool_mismatch**: Skill's `allowed-tools` doesn't match actual tool usage in skill body
-
-### 2. Workflow Consistency (MEDIUM Certainty)
-
-**missing_workflow_agent**: `subagent_type: "plugin:agent-name"` references non-existent agent
-
-**orphaned_prompt**: Agent file exists but no workflow references it (may be entry point - check manually)
-
-**incomplete_phase_transition**: Workflow phase mentions "Phase N" but no corresponding section
-
-### 3. Instruction Consistency (MEDIUM Certainty)
-
-**duplicate_instructions**: Same MUST/NEVER instruction in 3+ files (extract to shared location)
-
-**contradictory_rules**: One file says "ALWAYS X" while another says "NEVER X"
-
-## Output Format
-
-```markdown
-## Cross-File Analysis
-
-**Files Analyzed**: {agents} agents, {skills} skills, {commands} commands
-
-### Tool Consistency ({n})
-| Agent | Issue | Fix |
-|-------|-------|-----|
-| exploration-agent | Uses Write but not in tools list | Add Write to frontmatter |
-
-### Workflow Issues ({n})
-| Source | Issue | Fix |
-|--------|-------|-----|
-| workflow.md | References nonexistent agent | Check spelling or create agent |
-
-### Instruction Consistency ({n})
-| Instruction | Files | Fix |
-|-------------|-------|-----|
-| "NEVER push --force" | 4 files | Extract to CLAUDE.md |
-```
+For duplicates, suggest one home for the rule (project memory or a shared skill) and a pointer elsewhere. For contradictions, show both lines; do not pick a side.
 
 ## Constraints
 
-- All patterns are MEDIUM certainty (require context)
-- No auto-fix (cross-file changes need human review)
-- Skip content inside `<bad-example>`, `<bad_example>`, `<badexample>` tags
-- Skip content inside code blocks with "bad" in info string
-- Entry point agents (orchestrator, validator, discoverer) are not orphaned
+No auto-fix. A cross-file change means choosing which file is right, and that is the author's decision.
 
-## Pattern Statistics
+## Output
 
-| Category | Patterns | Auto-Fixable |
-|----------|----------|--------------|
-| Tool Consistency | 2 | 0 |
-| Workflow | 3 | 0 |
-| Consistency | 3 | 0 |
-| **Total** | **8** | **0** |
+```markdown
+## Cross-File Analysis
+Files analyzed: <agents> agents, <skills> skills, <commands> commands
+
+| Pattern | Files | Issue | Suggested fix |
+|---|---|---|---|
+```
+
+When called by an enhancer agent, return the findings JSON that agent specifies instead.
