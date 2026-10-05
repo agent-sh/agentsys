@@ -164,7 +164,7 @@ Select your platform when prompted. The installer configures:
 | Claude Code | Marketplace | `.claude/` |
 | OpenCode | `~/.config/opencode/` | `.opencode/` |
 | Codex CLI | `~/.codex/` | `.codex/` |
-| Kiro | `.kiro/` (project-scoped) | `.kiro/` |
+| Kiro | `~/.kiro/` | `.kiro/` |
 
 > **Note:** Codex uses `$` prefix for skills (e.g., `$next-task` instead of `/next-task`).
 
@@ -357,10 +357,10 @@ gh auth login
 - State stored in `.codex/`
 
 ### Kiro
-- Project-scoped: installs to `.kiro/` in your project root
-- Commands become steering files in `.kiro/steering/` with `inclusion: manual`
-- Skills use standard SKILL.md format in `.kiro/skills/`
-- Agents converted to JSON in `.kiro/agents/`
+- Global: installs to `~/.kiro/`
+- Commands become prompts in `~/.kiro/prompts/` (invoke with `@name` in kiro-cli)
+- Each skill directory is copied whole to `~/.kiro/skills/<name>/`, references and scripts included; paths that pointed at the plugin root point at `~/.agentsys/plugins/<plugin>/`
+- Agents converted to JSON in `~/.kiro/agents/`
 - Reads AGENTS.md and `.kiro/steering/*.md` for instructions
 - **Note**: Kiro's subagent spawning is experimental (max 4). Workflows with parallel Task() calls (e.g., next-task Phase 9 with 4-10 reviewers) automatically fall back to 2 sequential combined reviewers (`reviewer-quality-security`, `reviewer-perf-test`)
 

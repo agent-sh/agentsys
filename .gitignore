@@ -51,6 +51,7 @@ logs/
 !.claude/hooks/**
 .opencode/
 .codex/
+.kiro/
 settings.local.json
 tasks.json
 workflow-state.json

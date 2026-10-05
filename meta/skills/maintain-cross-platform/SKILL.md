@@ -22,7 +22,6 @@ Platform details (config formats, frontmatter, env vars, label limits) are in `c
 | Transforms (frontmatter, tools to permissions, plugin-root paths, namespaces) | `lib/adapter-transforms.js`. `lib/` is synced from agent-sh/agent-core, so make the change there; an edit here is overwritten by the next sync. |
 | Platform adapters | `adapters/opencode-plugin/` (native OpenCode plugin), `adapters/opencode/`, `adapters/codex/`; `scripts/gen-adapters.js` keeps generated files fresh |
 | Dev installs | `node bin/dev-cli.js dev-install [tool]` (`scripts/dev-install.js`) |
-| This repo's Kiro mirror | `.kiro/skills/` and `.kiro/agents/`: the pinned plugins' skills and agents passed through `transformSkillForKiro` and `transformAgentForKiro`. Regenerate them from the pinned commits when the pins move. |
 | Versions | `package.json` is the source; `npx agentsys-dev bump X.Y.Z` stamps `package-lock.json`, `.claude-plugin/plugin.json`, `marketplace.json` and `site/content.json`. Plugin repos version independently. |
 | Generated doc sections | `<!-- GEN:START:... -->` blocks, rewritten by `npx agentsys-dev gen-docs` |
 
@@ -32,7 +31,7 @@ Platform details (config formats, frontmatter, env vars, label limits) are in `c
 - State directory: use `AI_STATE_DIR` (`.opencode`, `.codex`, `.cursor`, `.kiro`; unset means `.claude`) instead of a hardcoded `.claude/`. `validate paths` catches hardcoded ones.
 - OpenCode: model fields are stripped by default (`--no-strip` keeps them), tools become `permission:` entries, and AskUserQuestion labels longer than 30 characters fail.
 - Codex has no commands or agents: commands become skills invoked as `$name`, so every skill description needs trigger phrases ("Use when ...").
-- Kiro: commands become prompts in `~/.kiro/prompts/`, agents become JSON in `~/.kiro/agents/`, skills are copied as `SKILL.md`, and two combined reviewer agents fit its 4-subagent limit.
+- Kiro: commands become prompts in `~/.kiro/prompts/`, agents become JSON in `~/.kiro/agents/`, and two combined reviewer agents fit its 4-subagent limit. Each skill directory is copied whole to `~/.kiro/skills/<name>/`, away from its plugin, so the installer and the Kiro transforms point plugin-root wording ("two directories up from this skill"), relative links that leave the skill directory, and versioned-cache globs (`**/<plugin>/*/`) at `~/.agentsys/plugins/<plugin>`.
 
 ## Checks
 

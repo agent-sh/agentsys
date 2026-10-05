@@ -1793,6 +1793,68 @@ function installForCursor(installDir, options = {}) {
   return true;
 }
 
+/**
+ * Point relative markdown links that leave a skill directory at the plugin's
+ * install path, and the link text too when it repeats the target. Links inside
+ * the skill directory, URLs, anchors and absolute paths are left alone, and so
+ * is a link that leaves the plugin too.
+ *
+ * @param {string} content - Markdown content of one file in the skill
+ * @param {string} fileDir - Source directory of that file
+ * @param {string} skillDir - Source skill directory (<plugin>/skills/<name>)
+ * @param {string} pluginInstallPath - Where the plugin is installed
+ * @returns {string}
+ */
+function pointEscapingLinksAtPlugin(content, fileDir, skillDir, pluginInstallPath) {
+  const pluginRoot = path.dirname(path.dirname(skillDir));
+  const isOutside = (rel) => rel === '..' || rel.startsWith(`..${path.sep}`) || path.isAbsolute(rel);
+  return content.replace(/\[([^\]\n]*)\]\(([^)\s]+)\)/g, (match, text, target) => {
+    if (/^(?:[a-z][a-z0-9+.-]*:|[/\\#$~])/i.test(target)) return match;
+    const hashAt = target.indexOf('#');
+    const file = hashAt === -1 ? target : target.slice(0, hashAt);
+    const anchor = hashAt === -1 ? '' : target.slice(hashAt);
+    const resolved = path.resolve(fileDir, file);
+    if (!isOutside(path.relative(skillDir, resolved))) return match;
+    const fromPlugin = path.relative(pluginRoot, resolved);
+    if (isOutside(fromPlugin)) return match;
+    const installed = `${pluginInstallPath}/${fromPlugin.split(path.sep).join('/')}${anchor}`;
+    return `[${text === target ? installed : text}](${installed})`;
+  });
+}
+
+/**
+ * Copy one plugin skill directory to a Kiro skills directory.
+ *
+ * Kiro loads a skill from ~/.kiro/skills/<name>/, away from its plugin, so the
+ * whole directory goes (references, scripts, assets), every markdown file goes
+ * through transformSkillForKiro, and links that leave the skill directory are
+ * pointed at the plugin's install path. Symlinks are skipped.
+ *
+ * @param {string} srcSkillDir - <plugin>/skills/<name>
+ * @param {string} destSkillDir - ~/.kiro/skills/<name>
+ * @param {string} pluginInstallPath - Where the plugin is installed
+ */
+function installSkillDirForKiro(srcSkillDir, destSkillDir, pluginInstallPath) {
+  const copy = (srcDir, destDir) => {
+    fs.mkdirSync(destDir, { recursive: true });
+    for (const entry of fs.readdirSync(srcDir, { withFileTypes: true })) {
+      const srcPath = path.join(srcDir, entry.name);
+      const destPath = path.join(destDir, entry.name);
+      if (entry.isDirectory()) {
+        copy(srcPath, destPath);
+      } else if (entry.isFile() && entry.name.endsWith('.md')) {
+        let content = fs.readFileSync(srcPath, 'utf8');
+        content = transforms.transformSkillForKiro(content, { pluginInstallPath });
+        content = pointEscapingLinksAtPlugin(content, srcDir, srcSkillDir, pluginInstallPath);
+        fs.writeFileSync(destPath, content);
+      } else if (entry.isFile()) {
+        fs.copyFileSync(srcPath, destPath);
+      }
+    }
+  };
+  copy(srcSkillDir, destSkillDir);
+}
+
 function installForKiro(installDir, options = {}) {
   console.log('\n[INSTALL] Installing for Kiro...\n');
   const { filter = null } = options;
@@ -1870,15 +1932,13 @@ function installForKiro(installDir, options = {}) {
     for (const entry of entries) {
       if (!/^[a-zA-Z0-9_-]+$/.test(entry.name)) continue;
       if (filter && filter.skills && filter.skills.length > 0 && !filter.skills.includes(entry.name)) continue;
-      const srcPath = path.join(srcSkillsDir, entry.name, 'SKILL.md');
-      if (!fs.existsSync(srcPath)) continue;
-      const destDir = path.join(skillsDir, entry.name);
-      fs.mkdirSync(destDir, { recursive: true });
-      let content = fs.readFileSync(srcPath, 'utf8');
-      content = transforms.transformSkillForKiro(content, {
-        pluginInstallPath: path.join(installDir, 'plugins', pluginName)
-      });
-      fs.writeFileSync(path.join(destDir, 'SKILL.md'), content);
+      const srcSkillDir = path.join(srcSkillsDir, entry.name);
+      if (!fs.existsSync(path.join(srcSkillDir, 'SKILL.md'))) continue;
+      installSkillDirForKiro(
+        srcSkillDir,
+        path.join(skillsDir, entry.name),
+        path.join(installDir, 'plugins', pluginName)
+      );
       skillCount++;
     }
   }

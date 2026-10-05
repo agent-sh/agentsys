@@ -360,12 +360,12 @@ The plugin auto-detects the platform and uses the appropriate directory. Overrid
 - Skills in `.cursor/skills/`, commands in `.cursor/commands/`
 
 ### Kiro
-- Project-scoped installation
+- Global installation in `~/.kiro/`
 - State directory: `.kiro/`
-- Steering files in `.kiro/steering/` (commands with `inclusion: manual`)
-- Skills in `.kiro/skills/`, agents converted to JSON in `.kiro/agents/`
+- Prompts in `~/.kiro/prompts/` (commands with `inclusion: manual`, invoked with `@name`)
+- Skills in `~/.kiro/skills/<name>/` (the whole skill directory), agents converted to JSON in `~/.kiro/agents/`
 - Reads AGENTS.md and `.kiro/steering/*.md` for instructions
-- **Subagent spawning**: Experimental (max 4 agents). Primary agent invokes subagents by name from `.kiro/agents/*.json`. Sequential only - no parallel spawning publicly available yet.
+- **Subagent spawning**: Experimental (max 4 agents). Primary agent invokes subagents by name from `~/.kiro/agents/*.json`. Sequential only - no parallel spawning publicly available yet.
 - **Parallel Task() adaptation**: Workflows that spawn 4+ parallel reviewers (next-task Phase 9, audit-project Phase 2) are adapted with a try-4-then-fallback-to-2 pattern. Two combined reviewer agents (`reviewer-quality-security`, `reviewer-perf-test`) merge review passes for the sequential fallback.
 - **No team/swarm pattern**: TeamCreate, SendMessage not supported. All orchestration is single-primary with sequential subagent delegation.
 
@@ -373,7 +373,7 @@ The plugin auto-detects the platform and uses the appropriate directory. Overrid
 
 | Feature | Claude Code | Kiro | OpenCode | Codex | Cursor |
 |---------|-------------|------|----------|-------|--------|
-| Sub-agent spawning | Task() tool | By name from .kiro/agents/*.json | @agent syntax | N/A | N/A |
+| Sub-agent spawning | Task() tool | By name from ~/.kiro/agents/*.json | @agent syntax | N/A | N/A |
 | Parallel agents | Yes (multiple Task) | Experimental (max 4) | No | N/A | N/A |
 | Agent teams | TeamCreate + SendMessage | Not supported | Not supported | N/A | N/A |
 | Combined reviewers | Not needed (parallel) | reviewer-quality-security, reviewer-perf-test | Not needed (sequential) | N/A | N/A |

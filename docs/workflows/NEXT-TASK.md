@@ -2,7 +2,7 @@
 
 Complete technical reference for the `/next-task` workflow.
 
-**TL;DR:** 12 phases, 13 agents, 3 human interactions (policy, task selection, plan approval). After plan approval, fully autonomous until merged PR.
+**TL;DR:** 12 phases, 10 agents plus 1 to 4 review subagents, 3 human interactions (policy, task selection, plan approval). After plan approval the run is autonomous until the stopping point you chose: implemented, PR created, merged, or deployed.
 
 ---
 
@@ -26,7 +26,7 @@ Complete technical reference for the `/next-task` workflow.
 
 ## Overview
 
-`/next-task` is a master orchestrator that takes a task from discovery to merged PR. It coordinates 13 specialized agents across 12 phases with 3 human interaction points.
+`/next-task` is a master orchestrator that takes a task from discovery to the stopping point you choose. It runs 12 phases with 3 human interaction points and 10 agents: 6 from next-task (task-discoverer, worktree-manager, exploration-agent, planning-agent, implementation-agent, simple-fixer) and 4 from other plugins (deslop:deslop-agent, prepare-delivery:test-coverage-checker, prepare-delivery:delivery-validator, sync-docs:sync-docs-agent). The review loop adds 1 to 4 general-purpose reviewer subagents. A phase whose plugin is not installed runs an inline fallback and is named in the final report.
 
 **Why this design:** You shouldn't have to ask for the same workflow every session. The orchestrator handles the coordination (launching agents, tracking state, enforcing gates), so you can approve a plan and walk away. Human judgment is only required at meaningful decision points: what to work on, whether the plan is correct, and reviewing the final output. Everything between is automated.
 
@@ -42,11 +42,11 @@ You configure how the workflow will run:
 
 | Question | Options |
 |----------|---------|
-| Task Source | GitHub Issues, GitHub Projects, GitLab Issues, Local `tasks.md`, Custom source |
-| Priority Filter | Bugs, Security, Features, All |
-| Stopping Point | Implemented, PR Created, All Green, Merged, Deployed, Production |
+| Task Source | GitHub Issues, GitHub Projects, GitLab Issues, Local `tasks.md`, Custom, Other |
+| Priority Filter | All, Bugs, Security, Features |
+| Stopping Point | Merged, PR Created, Implemented, Deployed, Production |
 
-Your selection is cached in `{state-dir}/sources/preference.json` so subsequent runs skip this step.
+Your source choice is cached in `{state-dir}/sources/preference.json` and offered first, marked "(last used)", on the next run.
 
 ---
 
@@ -56,16 +56,12 @@ Your selection is cached in `{state-dir}/sources/preference.json` so subsequent 
 **Human interaction: Yes**
 
 The agent:
-1. Loads `tasks.json` to find already-claimed tasks (excludes them)
-2. Fetches tasks from your configured source
-3. Applies priority scoring based on:
-   - Labels (bug, security, priority)
-   - Blockers (blocking other issues)
-   - Age (older issues score higher)
-   - Reactions (engagement signals importance)
-4. Validates tasks against codebase (filters out already-implemented)
-5. Presents top 5 as checkboxes via AskUserQuestion
-6. Posts "Workflow Started" comment to the selected GitHub issue
+1. Fetches open tasks from your configured source
+2. Excludes tasks claimed in `tasks.json` by another run and, for GitHub sources, issues that already have an open PR
+3. Applies the priority filter and scores what is left: critical or p0 +100, high or p1 +50, security +40, small or quick +20, bug open more than 30 days +10
+4. Returns up to 5 ranked candidates
+
+The orchestrator shows them (AskUserQuestion, or a numbered list) and you pick one. Nothing is posted to the issue yet; that waits for plan approval.
 
 ---
 
@@ -75,11 +71,11 @@ The agent:
 **Human interaction: No**
 
 The agent:
-1. Creates `../worktrees/{task-slug}/` directory
-2. Creates `feature/{task-slug}` branch from main
-3. **Claims task in `tasks.json`** (prevents parallel workflows on same task)
-4. Creates `flow.json` in worktree for state tracking
-5. Changes working directory to worktree
+1. Validates the task ID and base branch before any git command
+2. Creates `../worktrees/{task-slug}/` on `feature/{task-slug}` from `origin/<base>`, or reuses that worktree on a resume
+3. Returns the absolute worktree path and branch
+
+The orchestrator then claims the task in `tasks.json` (locked, so a parallel run cannot take it) and creates `flow.json` in the worktree. Every later agent gets the absolute worktree path.
 
 ---
 
@@ -115,15 +111,19 @@ The agent:
 ```
 === PLAN_START ===
 {
-  "steps": [...],
-  "files": [...],
-  "risks": [...],
-  "complexity": "medium"
+  "overview": "...",
+  "architecture": "...",
+  "steps": [{ "title": "...", "files": [...], "risks": [...] }],
+  "tests": [...],
+  "testCommand": "...",
+  "critical": { "highRisk": [...], "security": [...] },
+  "openQuestions": [],
+  "complexity": { "overall": "Medium", "confidence": "High" }
 }
 === PLAN_END ===
 ```
 
-5. Posts plan summary to GitHub issue as comment
+The agent does not post anything; the orchestrator comments on the issue after you approve.
 
 ---
 
@@ -136,8 +136,11 @@ The workflow:
 2. Presents formatted plan from planning-agent
 3. You can request changes or ask questions
 4. You approve via ExitPlanMode
+5. For GitHub sources, the orchestrator comments once on the issue with the plan summary
 
-**After this point, the workflow runs autonomously until delivery.**
+With `--implement`, Phases 4 and 5 are skipped: the orchestrator writes a short plan from the task and still asks for this approval.
+
+**After this point, the workflow runs autonomously until the stopping point.**
 
 ---
 
@@ -147,36 +150,33 @@ The workflow:
 **Human interaction: No**
 
 The agent:
-1. Executes approved plan step-by-step
-2. Creates atomic commits per logical step
-3. Runs type checks, linting, and tests after each step
-4. Updates `flow.json` after each step (for resume capability)
+1. Executes the approved plan step by step, with the tests it calls for
+2. Creates one local commit per coherent step
+3. Runs the covering tests, type check, lint and build once the implementation is complete
+4. Returns a summary with any deviations from the plan; the orchestrator records state
 
-**Restrictions enforced:**
-- MUST NOT create PR
-- MUST NOT push to remote
-- MUST NOT invoke review agents (handled by workflow)
+It does not push, open a PR, or run review agents: the review and validation phases are what make a push safe.
 
 ---
 
 ### Phase 8: Pre-Review Gates
 
-**Agents:** deslop:deslop-agent (sonnet), prepare-delivery:test-coverage-checker (sonnet)
+**Agents:** deslop:deslop-agent (sonnet), prepare-delivery:test-coverage-checker (sonnet), next-task:simple-fixer (haiku)
 **Human interaction: No**
-**Triggered by:** SubagentStop hook after implementation
 
-Both agents run in parallel:
+The orchestrator runs these in parallel where the harness allows:
 
-**deslop:deslop-agent:**
-- Analyzes git diff (only new changes)
-- Invokes `/deslop` pipeline
-- Applies HIGH certainty fixes automatically
-- Flags LOW certainty for manual review
+**deslop:deslop-agent** (`Mode: apply`, `Scope: diff`, `Thoroughness: normal`):
+- Scans the files changed on the branch and returns a `DESLOP_RESULT` block; it does not edit
+- Only HIGH certainty findings with a fix strategy become `fixes`; the orchestrator hands them to simple-fixer, which commits `fix: clean up AI slop`
+- MEDIUM and LOW findings stay in the report
+- Not installed: the orchestrator reviews the diff for debug output, leftover TODOs and dead code
 
 **prepare-delivery:test-coverage-checker:**
-- Validates tests exist for new code
-- Checks tests are meaningful (not just path matching)
-- Advisory only - does not block workflow
+- Checks that changed code has tests that exercise it, not just a test file with a matching name
+- Advisory and read-only - does not block the workflow
+
+**`simplify` skill** on the diff, when available.
 
 ---
 
@@ -206,55 +206,55 @@ The loop stops when no critical or high findings remain (approved), when the sam
 **Agent:** prepare-delivery:delivery-validator (sonnet)
 **Human interaction: No**
 
-Five checks run:
-1. Review status - no open issues remaining (or explicit override)
+Five checks decide, plus one advisory:
+1. Review status - the review loop approved (or the user overrode it)
 2. Tests pass
-3. Build passes
-4. Task requirements met (extracts from task description, maps to changes)
-5. No regressions
+3. Build or type check passes
+4. Task requirements met (each requirement in the task maps to the diff)
+5. No regressions - no deleted, skipped or weakened tests without a stated reason
+6. Diff risk (advisory) - high-risk files from repo-intel need a test that exercises them
 
-**On failure:** Returns to implementation with fix instructions (automatic retry)
-
-**Restrictions enforced:**
-- MUST NOT create PR
-- MUST NOT push
-- MUST NOT skip sync-docs:sync-docs-agent
+**On failure:** the fix instructions go back through Phase 7, then Phases 8 to 10 run again. After two failed validations the run stops and reports.
 
 ---
 
 ### Phase 11: Documentation Update
 
 **Agent:** sync-docs:sync-docs-agent (sonnet)
-**Helper:** simple-fixer (haiku)
+**Helper:** next-task:simple-fixer (haiku)
 **Human interaction: No**
 
-The agent:
-1. Finds documentation referencing changed files
-2. Updates CHANGELOG with entry
-3. Updates outdated imports/versions
-4. Delegates simple mechanical edits to simple-fixer
-5. **Explicitly invokes `/ship`** (does not rely on hooks alone)
+The agent (`Mode: apply`, `Scope: before-pr`) is read-only:
+1. Finds docs that reference the changed files
+2. Checks removed exports, code examples, outdated versions and whether CHANGELOG lists the branch's `feat` and `fix` commits
+3. Returns confirmed issues and exact `fixes` in a `SYNC_DOCS_RESULT` block
+
+The orchestrator hands the fixes to simple-fixer, which commits `docs: sync documentation with code changes`, then moves to the stopping point. Not installed: the orchestrator updates the README and CHANGELOG itself when the change is user-visible.
 
 ---
 
-### Phase 12: Ship
+### Phase 12: Stopping Point
 
-**Command:** `/ship`
-**Agents:** ci-monitor (haiku), ci-fixer (sonnet)
 **Human interaction: No**
 
-Full shipping workflow:
-1. Pushes branch to remote
-2. Creates pull request
-3. Monitors CI status (polls every 15 seconds)
-4. Waits 3 minutes for auto-reviewers
-5. Addresses ALL comments from ALL reviewers
-6. Merges when CI passes and all threads resolved
-7. Cleanup:
-   - Removes worktree
-   - Removes task from `tasks.json`
-   - Closes GitHub issue with completion comment
-   - Deletes feature branch
+| Stopping point | What happens |
+|----------------|--------------|
+| Implemented | Stops and reports the worktree and branch |
+| PR Created | Pushes the branch, opens the PR (`Closes #<id>`), reports the URL and stops |
+| Merged, Deployed, Production | Runs `/ship --state-file <worktree>/<state-dir>/flow.json --base <base>` |
+
+`/ship` (optional agent: next-task:ci-fixer, sonnet):
+1. Pushes the branch and opens the PR, or reuses an open one
+2. Waits on CI with `gh pr checks --watch`, no fixed polling, and fixes failures (delegating to ci-fixer when it is installed)
+3. Waits for review bots that recent PRs show reviewing this repo, at most 15 minutes per wait
+4. Fixes or answers each review comment; on a repo you own it resolves the thread. After 5 rounds without converging it stops and reports
+5. Merges when checks are green and no thread is unresolved (needs write access; otherwise it stops at ready for review)
+6. Deploys and validates on multi-branch repos
+7. Cleanup after the merge:
+   - Removes this task's worktree (left in place if it has uncommitted changes)
+   - Releases the task in `tasks.json`
+   - Comments on and closes the GitHub issue (GitHub task sources)
+   - Deletes the feature branch
 
 ---
 
@@ -286,36 +286,24 @@ Override with `AI_STATE_DIR` environment variable.
 ```
 
 The workflow:
-1. Reads `tasks.json` to find worktree path
-2. Reads `flow.json` in worktree for last completed step
-3. Maps step to phase and continues
+1. Reads `tasks.json` in the main checkout to find the worktree path
+2. Reads `flow.json` in the worktree for the recorded phase
+3. Continues from that phase
 
-**Step-to-phase mapping:**
+`flow.json` records one of these phases: `policy-selection`, `task-discovery`, `worktree-setup`, `exploration`, `planning`, `user-approval`, `implementation`, `pre-review-gates`, `review-loop`, `delivery-validation`, `docs-update`, `shipping`, `complete`.
 
-| Step | Resumes at |
-|------|------------|
-| worktree-created | exploration |
-| exploration-completed | planning |
-| plan-approved | implementation |
-| implementation-completed | pre-review-gates |
-| deslop-completed | review-loop |
-| review-approved | delivery-validation |
-| delivery-validation-passed | docs-update |
-| docs-updated | ship |
+A bare `/next-task` never auto-resumes: with active tasks in the registry, it asks whether to resume one or start fresh.
 
 ---
 
 ## Workflow Enforcement
 
-A SubagentStop hook enforces the workflow sequence. When any agent completes, the hook determines what runs next.
+While a `/next-task` flow is in progress, a SubagentStop hook reminds the orchestrator, each time an agent finishes, of the phase order and what comes next. Outside a flow it does nothing.
 
-**Enforced rules:**
-- Cannot skip deslop:deslop-agent or prepare-delivery:test-coverage-checker
-- Cannot skip Phase 9 review loop
-- Cannot skip prepare-delivery:delivery-validator
-- Cannot skip sync-docs:sync-docs-agent
-- Cannot create PR before `/ship` is invoked
-- Cannot push to remote before `/ship` is invoked
+**Gates:**
+- The pre-review gates, the Phase 9 review loop, delivery validation and docs sync run before anything is pushed
+- A gate whose plugin is not installed runs its inline fallback and is named in the final report instead of being skipped silently
+- Agents commit locally only; the push happens at the stopping point (the PR step or `/ship`)
 
 ---
 
@@ -324,8 +312,10 @@ A SubagentStop hook enforces the workflow sequence. When any agent completes, th
 | Model | Agents | Why |
 |-------|--------|-----|
 | **inherit** | planning-agent, implementation-agent | No `model` key, so they run on the model the session uses |
-| **sonnet** | task-discoverer, exploration-agent, deslop:deslop-agent, prepare-delivery:test-coverage-checker, prepare-delivery:delivery-validator, sync-docs:sync-docs-agent, ci-fixer, Phase 9 reviewers | Structured analysis and validation |
-| **haiku** | worktree-manager, simple-fixer, ci-monitor | Mechanical execution, no judgment needed |
+| **sonnet** | task-discoverer, exploration-agent, deslop:deslop-agent, prepare-delivery:test-coverage-checker, prepare-delivery:delivery-validator, sync-docs:sync-docs-agent, Phase 9 reviewers, ci-fixer (when `/ship` delegates to it) | Structured analysis and validation |
+| **haiku** | worktree-manager, simple-fixer | Mechanical execution, no judgment needed |
+
+next-task also ships ci-monitor (haiku), a standalone CI watcher. `/next-task` and `/ship` do not spawn it.
 
 ---
 
@@ -333,11 +323,11 @@ A SubagentStop hook enforces the workflow sequence. When any agent completes, th
 
 ### On Success
 
-`/ship` handles cleanup:
-- Removes worktree directory
-- Removes task entry from `tasks.json`
-- Closes GitHub issue with completion comment
-- Deletes feature branch (via `--delete-branch` on merge)
+`/ship` handles cleanup after a merge:
+- Removes this task's worktree (left in place if it has uncommitted changes)
+- Releases the task entry in `tasks.json`
+- Comments on and closes the GitHub issue (GitHub task sources)
+- Deletes the feature branch
 
 ### On Abort
 
@@ -346,9 +336,9 @@ A SubagentStop hook enforces the workflow sequence. When any agent completes, th
 ```
 
 The abort:
-- Updates `flow.json` status to 'aborted'
-- Clears active task from `tasks.json`
-- Worktree remains (manual cleanup or run worktree-manager)
+- Marks the flow `aborted` in `flow.json`
+- Releases the task entry in `tasks.json`
+- Removes the worktree if it has no uncommitted changes; otherwise leaves it and says so
 
 ---
 
@@ -395,14 +385,13 @@ User: /next-task
 → Implementing step 4... [OK]
 
 [Pre-Review Gates]
-→ deslop: Removed 2 console.logs
-→ prepare-delivery:test-coverage-checker: 94% coverage [OK]
+→ deslop: 2 debug logs, simple-fixer removed them [OK]
+→ prepare-delivery:test-coverage-checker: new code has tests [OK]
 
 [Review Loop]
 → Round 1: Found 3 issues (1 high, 2 medium)
 → Fixing high issue... [OK]
-→ deslop: Clean [OK]
-→ Round 2: Found 0 open issues [OK]
+→ Round 2: Found 0 critical or high issues [OK]
 
 [Delivery Validation]
 → Tests pass [OK]

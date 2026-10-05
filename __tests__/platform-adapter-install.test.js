@@ -114,4 +114,89 @@ describe('Cursor and Kiro adapter installers', () => {
       tools: ['read', 'write']
     });
   });
+
+  test('installs whole Kiro skill directories with paths that work outside the plugin', () => {
+    const pluginDir = path.join(installDir, 'plugins', 'test-plugin');
+    const skillDir = path.join(pluginDir, 'skills', 'test-skill');
+    fs.mkdirSync(path.join(skillDir, 'references'), { recursive: true });
+    fs.mkdirSync(path.join(skillDir, 'scripts'), { recursive: true });
+    fs.mkdirSync(path.join(pluginDir, 'references'), { recursive: true });
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'), [
+      '---',
+      'name: test-skill',
+      'description: Test skill',
+      '---',
+      '`scripts/run.js` is at the plugin root, two directories up from this skill.',
+      'Details: [guide](references/guide.md). Shared: [categories](../../references/shared.md#rules).',
+      'Docs: [site](https://example.com/x). Outside the plugin: [repo](../../../README.md).',
+      'Same text: [../../references/shared.md](../../references/shared.md).',
+      ''
+    ].join('\n'));
+    fs.writeFileSync(
+      path.join(skillDir, 'references', 'guide.md'),
+      '`<plugin>` is the plugin root, two directories up from the skill. Run ${CLAUDE_PLUGIN_ROOT}/scripts/run.js.\n' +
+      'Back: [skill](../SKILL.md), [shared](../../../references/shared.md).\n'
+    );
+    const binary = Buffer.from([0x23, 0x21, 0x00, 0xff]);
+    fs.writeFileSync(path.join(skillDir, 'scripts', 'helper.bin'), binary);
+    fs.writeFileSync(path.join(pluginDir, 'references', 'shared.md'), '# Shared\n');
+
+    // A file from an earlier install must not survive a reinstall.
+    const destSkill = path.join(tempDir, '.kiro', 'skills', 'test-skill');
+    fs.mkdirSync(destSkill, { recursive: true });
+    fs.writeFileSync(path.join(destSkill, 'stale.md'), 'old');
+
+    installForKiro(installDir);
+
+    const installPath = path.join(installDir, 'plugins', 'test-plugin');
+    const skill = fs.readFileSync(path.join(destSkill, 'SKILL.md'), 'utf8');
+    const guide = fs.readFileSync(path.join(destSkill, 'references', 'guide.md'), 'utf8');
+
+    expect(skill).toContain(`is at the plugin root, \`${installPath}\`.`);
+    expect(skill).toContain('[guide](references/guide.md)');
+    expect(skill).toContain(`[categories](${installPath}/references/shared.md#rules)`);
+    expect(skill).toContain('[site](https://example.com/x)');
+    expect(skill).toContain('[repo](../../../README.md)');
+    expect(skill).toContain(`[${installPath}/references/shared.md](${installPath}/references/shared.md)`);
+    expect(guide).toContain(`is the plugin root, \`${installPath}\`.`);
+    expect(guide).toContain(`Run ${installPath}/scripts/run.js.`);
+    expect(guide).toContain('[skill](../SKILL.md)');
+    expect(guide).toContain(`[shared](${installPath}/references/shared.md)`);
+    expect(fs.readFileSync(path.join(destSkill, 'scripts', 'helper.bin'))).toEqual(binary);
+    expect(fs.existsSync(path.join(destSkill, 'stale.md'))).toBe(false);
+  });
+
+  test('points Kiro agents and prompts at the install layout instead of the versioned cache', () => {
+    const pluginDir = path.join(installDir, 'plugins', 'test-plugin');
+    fs.writeFileSync(path.join(pluginDir, 'agents', 'test-agent.md'), [
+      '---',
+      'name: test-agent',
+      'description: Test agent',
+      'tools: Read',
+      '---',
+      'Read `${CLAUDE_PLUGIN_ROOT}/skills/test-skill/SKILL.md`. If it appears unexpanded, Glob for `**/test-plugin/*/skills/test-skill/SKILL.md`.',
+      'Find the consult runner with Glob `**/consult/*/acp/run.js`.',
+      ''
+    ].join('\n'));
+    fs.writeFileSync(
+      path.join(pluginDir, 'commands', 'test-command.md'),
+      '---\ndescription: Test command\n---\n' +
+      'Find the runner with `ls ${CLAUDE_PLUGIN_ROOT}/../../consult/*/acp/run.js` (or Glob `**/consult/*/acp/run.js`).\n'
+    );
+
+    installForKiro(installDir);
+
+    const installPath = path.join(installDir, 'plugins', 'test-plugin');
+    const agent = JSON.parse(
+      fs.readFileSync(path.join(tempDir, '.kiro', 'agents', 'test-agent.json'), 'utf8')
+    );
+    const prompt = fs.readFileSync(path.join(tempDir, '.kiro', 'prompts', 'test-command.md'), 'utf8');
+
+    expect(agent.prompt).toContain(`Read \`${installPath}/skills/test-skill/SKILL.md\``);
+    expect(agent.prompt).toContain('`**/test-plugin/**/skills/test-skill/SKILL.md`');
+    expect(agent.prompt).toContain('`**/consult/**/acp/run.js`');
+    expect(prompt).toContain(`\`ls ${path.join(installDir, 'plugins')}/consult/acp/run.js\``);
+    expect(prompt).toContain('`**/consult/**/acp/run.js`');
+    expect(prompt).not.toContain('/*/');
+  });
 });
