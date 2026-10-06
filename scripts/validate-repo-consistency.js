@@ -265,13 +265,14 @@ function validateAgentCounts() {
 // Docs and site must not carry an exact test count: it goes stale every release.
 const TEST_COUNT_FILES = [
   'README.md',
+  'checklists/cross-platform-compatibility.md',
   'docs/ARCHITECTURE.md',
   'site/content.json',
   'site/index.html',
   'site/ux-spec.md'
 ];
 const TEST_COUNT_PATTERNS = [
-  /\b\d[\d,]*\+?\s+tests\b/i,
+  /\b\d[\d,.]*[k+]?\s+(?:(?:unit|e2e|integration)\s+)?(?:tests|test\s+cases)\b/i,
   /(?:"label":\s*"|stats__label">)Tests\b/i
 ];
 

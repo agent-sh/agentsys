@@ -5,6 +5,8 @@ describe('hard-coded test count guard', () => {
     expect(findHardcodedTestCounts('<b>50 agents · 3,518 tests · 5 platforms</b>')).toHaveLength(1);
     expect(findHardcodedTestCounts('- [x] All 3,445+ tests passing')).toHaveLength(1);
     expect(findHardcodedTestCounts('Works with Kiro. 3662 tests. Production-grade.')).toHaveLength(1);
+    expect(findHardcodedTestCounts('Runs 3.6k tests, 3,518 unit tests or 1307+ test cases')).toHaveLength(1);
+    expect(findHardcodedTestCounts('`npm test` passes (all 1307+ tests)')).toHaveLength(1);
   });
 
   test('flags a Tests stat tile in site JSON and HTML', () => {
