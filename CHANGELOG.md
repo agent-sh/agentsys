@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `AGENTS.md` says every change reaches main through a PR, with no exception for small fixes or hotfixes, and drops the 30-minute wait on Copilot, Claude, Gemini and Codex reviews. A PR gets a self-review (a fresh-context subagent reviews the diff and posts it as a PR comment), revuto and CI comments and failures are addressed, and when revuto is capped or down the self-review is enough and the PR body says so. `agent-docs/release.md`, `checklists/release.md` and the `bump-version` next steps merge the release commit through a PR and push only the tag, not `main` or `--tags`.
+
 ### Fixed
 
 - OpenCode, Codex, Cursor and Kiro installs get onboard and can-i-help. Neither ships a `.claude-plugin/plugin.json` at its pinned commit, and plugin discovery lists only directories with a plugin.json, so the installer fetched both plugins and installed nothing from them. Claude Code installs such a plugin from its marketplace entry and loads `commands/`, `agents/` and `skills/` from the plugin root; the installer now does the same. A fetched plugin without a plugin.json gets one in `~/.agentsys/plugins/<name>/` made from its marketplace entry (name, version, description), and a cache from an earlier version gets it without a new download. onboard and can-i-help now install their command, agent and skill.

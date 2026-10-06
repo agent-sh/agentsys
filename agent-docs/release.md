@@ -15,25 +15,31 @@ Releases are automated via GitHub Actions. The workflow handles:
 ### Option 1: Tag Push (Recommended)
 
 ```bash
-# 1. Prepare release (update versions, changelog, README)
-# 2. Commit changes
+# 1. Prepare release (update versions, changelog, README) on a branch
+# 2. Commit and open a PR to main. The release reaches main through the PR like any other change
+git checkout -b chore/release-X.Y.Z
 git add -A && git commit -m "chore: release vX.Y.Z"
+git push -u origin chore/release-X.Y.Z
+gh pr create --base main
 
-# 3. Create and push tag
+# 3. After the PR merges, tag the merge commit on main and push the tag only
+git checkout main && git pull --ff-only
 git tag vX.Y.Z
-git push origin main --tags
+git push origin vX.Y.Z
 ```
 
-The workflow triggers automatically on tag push.
+The workflow triggers automatically on tag push. It refuses a tag whose commit is not reachable from `origin/main`.
 
 ### Pre-release Channels (rc / beta)
 
 Use pre-release tags to publish to npm without moving `latest`. The tag must point to a commit where all version fields have already been bumped to the prerelease version (e.g., `X.Y.Z-rc.N`).
 
 ```bash
+# After the bump commit has merged to main through a PR, tag that commit on main
+git checkout main && git pull --ff-only
 git tag vX.Y.Z-rc.1
 git tag vX.Y.Z-beta.1
-git push origin main --tags
+git push origin vX.Y.Z-rc.1 vX.Y.Z-beta.1
 ```
 
 Behavior:
@@ -206,5 +212,5 @@ If re-releasing the same version:
 git tag -d vX.Y.Z          # delete local
 git push origin :vX.Y.Z    # delete remote
 git tag vX.Y.Z             # recreate
-git push origin --tags     # push
+git push origin vX.Y.Z    # push
 ```
