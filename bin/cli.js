@@ -494,7 +494,7 @@ function pluginSubdir(name, subdir) {
  * OpenCode, Codex, Cursor and Kiro lists only directories with a plugin.json,
  * so without one they got nothing from the plugin. A shipped plugin.json is
  * left as it is; a `.claude-plugin` or `plugin.json` that is a symlink is an
- * error, since writing through it could land outside the plugin.
+ * error, since reading or writing through it could reach outside the plugin.
  *
  * @param {string} pluginDir - The plugin root in the cache or staging dir
  * @param {string} name - Marketplace name
@@ -504,8 +504,8 @@ function pluginSubdir(name, subdir) {
 function ensurePluginManifest(pluginDir, name, version, description) {
   const manifestDir = path.join(pluginDir, '.claude-plugin');
   const manifestPath = path.join(manifestDir, 'plugin.json');
-  if (fs.existsSync(manifestPath)) return;
-  // Never write through a symlink: the archive could point either one out of the plugin
+  // Check for symlinks before anything follows them: the archive could point either one
+  // out of the plugin, and a manifest found there must not be read or written
   for (const [target, rel] of [[manifestDir, '.claude-plugin'], [manifestPath, '.claude-plugin/plugin.json']]) {
     let stat = null;
     try {
@@ -514,9 +514,10 @@ function ensurePluginManifest(pluginDir, name, version, description) {
       continue;
     }
     if (stat.isSymbolicLink() || (target === manifestDir && !stat.isDirectory())) {
-      throw new Error(`Not writing a plugin.json for ${name}: ${rel} is ${stat.isSymbolicLink() ? 'a symlink' : 'not a directory'}`);
+      throw new Error(`Not using a plugin.json for ${name}: ${rel} is ${stat.isSymbolicLink() ? 'a symlink' : 'not a directory'}`);
     }
   }
+  if (fs.existsSync(manifestPath)) return;
   const manifest = { name, version };
   if (description) manifest.description = description;
   fs.mkdirSync(manifestDir, { recursive: true });
@@ -595,6 +596,9 @@ async function fetchPlugin(name, source, version, pin = {}, listing = {}) {
         rootStat = fs.lstatSync(rootDir);
       } catch {
         // reported below
+      }
+      if (rootStat && rootStat.isSymbolicLink()) {
+        throw new Error(`${owner}/${repo} at ${ref}: folder ${subdir} is a symlink`);
       }
       if (!rootStat || !rootStat.isDirectory()) {
         throw new Error(`${owner}/${repo} at ${ref} has no folder ${subdir}`);

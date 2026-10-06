@@ -745,9 +745,9 @@ describe('plugins resolved the way Claude Code reads the marketplace', () => {
     });
     const fetchFrom = (name) => fetchPlugin(name, `https://github.com/acme/${name}.git`, '1.0.0', { commit: SHA_PINNED });
 
-    await expect(fetchFrom('dirlink')).rejects.toThrow('Not writing a plugin.json for dirlink: .claude-plugin is a symlink');
+    await expect(fetchFrom('dirlink')).rejects.toThrow('Not using a plugin.json for dirlink: .claude-plugin is a symlink');
     await expect(fetchFrom('filelink'))
-      .rejects.toThrow('Not writing a plugin.json for filelink: .claude-plugin/plugin.json is a symlink');
+      .rejects.toThrow('Not using a plugin.json for filelink: .claude-plugin/plugin.json is a symlink');
     expect(fs.readdirSync(outside)).toEqual([]);
     expect(fs.readdirSync(home('.agentsys'))).toEqual(['outside']);
 
@@ -756,9 +756,21 @@ describe('plugins resolved the way Claude Code reads the marketplace', () => {
     const cachedManifestDir = path.join(getPluginCacheDir(), 'plain', '.claude-plugin');
     fs.rmSync(cachedManifestDir, { recursive: true });
     fs.symlinkSync(outside, cachedManifestDir);
-    await expect(fetchFrom('plain')).rejects.toThrow('Not writing a plugin.json for plain: .claude-plugin is a symlink');
+    await expect(fetchFrom('plain')).rejects.toThrow('Not using a plugin.json for plain: .claude-plugin is a symlink');
     expect(requests.filter(r => r.repo === 'acme/plain')).toHaveLength(1);
     expect(fs.readdirSync(outside)).toEqual([]);
+  });
+
+  (process.platform === 'win32' ? test.skip : test)('a manifest reached through a symlink out of the plugin is not read', async () => {
+    const outsideWithManifest = home('.agentsys', 'elsewhere');
+    fs.mkdirSync(outsideWithManifest, { recursive: true });
+    fs.writeFileSync(path.join(outsideWithManifest, 'plugin.json'), JSON.stringify({ name: 'not-this-plugin' }));
+    fakeGitHub({
+      'acme/readlink': { refs: { pinned: SHA_PINNED }, manifest: false, files: { '.claude-plugin': { symlink: '../elsewhere' } } }
+    });
+    await expect(fetchPlugin('readlink', 'https://github.com/acme/readlink.git', '1.0.0', { commit: SHA_PINNED }))
+      .rejects.toThrow('Not using a plugin.json for readlink: .claude-plugin is a symlink');
+    expect(fs.existsSync(path.join(getPluginCacheDir(), 'readlink'))).toBe(false);
   });
 
   test('a cache without plugin.json from an earlier version gets one without a refetch', async () => {
