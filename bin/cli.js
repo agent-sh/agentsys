@@ -1208,6 +1208,7 @@ async function installPlugin(nameWithVersion, args) {
   }
 
   // Fetch all
+  const failedFetches = [];
   for (const depName of toFetch) {
     const dep = pluginMap[depName];
     if (!dep) continue;
@@ -1229,8 +1230,14 @@ async function installPlugin(nameWithVersion, args) {
     try {
       await fetchPlugin(depName, source.value, ver, pin);
     } catch (err) {
+      failedFetches.push(depName);
       console.error(`  [ERROR] Failed to fetch ${depName}: ${err.message}`);
     }
+  }
+  // Installing or recording a plugin that did not arrive would report an
+  // install that never happened.
+  if (failedFetches.length > 0) {
+    throw new Error(`Not installing ${name}: failed to fetch ${failedFetches.join(', ')}`);
   }
 
   // Resolve component filter if a specific component was requested

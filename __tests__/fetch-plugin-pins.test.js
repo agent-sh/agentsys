@@ -248,6 +248,24 @@ describe('fetching plugins at their marketplace pins', () => {
     expect(fs.readFileSync(path.join(tmpHome, '.kiro', 'skills', 'learn', 'SKILL.md'), 'utf8')).toContain('pinned installs');
   });
 
+  test('an install whose pinned fetch fails installs and records nothing', async () => {
+    const pin = resolvePluginSource(loadMarketplace().plugins.find(p => p.name === 'learn').source).commit;
+    const skill = '---\nname: learn\ndescription: Use when testing pinned installs.\n---\n\nBody.\n';
+    fakeGitHub({
+      'agent-sh/learn': {
+        refs: { 'v1.2.0': SHA_TAG, pinned: pin },
+        files: { 'skills/learn/SKILL.md': skill },
+        archiveCommit: () => null
+      }
+    });
+
+    await expect(installPlugin('learn', { tool: 'kiro', tools: [] }))
+      .rejects.toThrow('Not installing learn: failed to fetch learn');
+
+    expect(loadInstalledJson().plugins).not.toHaveProperty('learn');
+    expect(fs.existsSync(path.join(tmpHome, '.kiro', 'skills', 'learn'))).toBe(false);
+  });
+
   test('installed.json records the commit the cache holds', async () => {
     fakeGitHub(drifted());
     await fetchPlugin('learn', SOURCE, '1.2.0', { commit: SHA_PINNED });
