@@ -99,6 +99,8 @@ agentsys --tools claude,opencode,codex
 
 The installer downloads each plugin into `~/.agentsys/plugins/<name>/` at the commit pinned in `.claude-plugin/marketplace.json`, the same commit Claude Code installs. The pin is the entry's `sha`, the key Claude Code reads, or its `commit` when it has no `sha`; every entry carries both with the same value. A pin is a full 40-character SHA. Each plugin directory records the fetched commit in `.commit`. A download is extracted beside the cache and moved into `plugins/` only when it is complete and from the pinned commit, so a failed download leaves no plugin directory. A full `agentsys` run starts from an empty `~/.agentsys` and downloads every plugin again; `agentsys install <plugin>` reuses a cached plugin whose `.commit` matches the pin. `agentsys install <plugin>@<version>` for a version other than the marketplace one is not pinned: it tries the `v<version>` tag, then `<version>`, `main` and `master`. Set `GITHUB_TOKEN` if GitHub rate-limits the downloads.
 
+The plugin directory holds what Claude Code installs for the marketplace entry: the repo root, or for a `git-subdir` source the folder its `path` names. A plugin that ships no `.claude-plugin/plugin.json` there (can-i-help and onboard at their pins, agnix at its repo root) gets one made from its marketplace entry, so OpenCode, Codex, Cursor and Kiro install its commands, agents and skills.
+
 ### Model Stripping
 
 By default, model specifications (sonnet/opus/haiku) are stripped from agents when installing for OpenCode. This prevents errors when the target platform doesn't have the same model mappings configured.

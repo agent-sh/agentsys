@@ -270,13 +270,16 @@ function loadMarketplace() {
  * - string URL/path (legacy)
  * - object: { source: "url", url: "..." } (current)
  * - object: { source: "path", path: "..." } (local/bundled)
+ * - object: { source: "git-subdir", url: "...", path: "..." } (a plugin in a
+ *   folder of its repo, as Claude Code reads it; `url` may be owner/repo)
  *
  * A remote object source keeps its commit and `ref` pins, so the fetch
  * downloads exactly what the marketplace pins. The commit pin is `sha`, the
- * key Claude Code installs from, or `commit` when there is no `sha`.
+ * key Claude Code installs from, or `commit` when there is no `sha`. A
+ * git-subdir source also keeps its `path`, the plugin's folder in the repo.
  *
  * @param {string|Object} source
- * @returns {{type: 'remote'|'local', value: string, commit?: string, ref?: string}|null}
+ * @returns {{type: 'remote'|'local', value: string, commit?: string, ref?: string, path?: string}|null}
  */
 function resolvePluginSource(source) {
   const normalized = normalizePluginSource(source);
@@ -288,7 +291,15 @@ function resolvePluginSource(source) {
   if (commit) normalized.commit = commit;
   const ref = pin(source.ref);
   if (ref) normalized.ref = ref;
+  if (isGitSubdirSource(source) && source.path.trim()) {
+    normalized.path = source.path.trim();
+  }
   return normalized;
+}
+
+function isGitSubdirSource(source) {
+  return typeof source.source === 'string' && source.source.toLowerCase() === 'git-subdir' &&
+    typeof source.url === 'string' && typeof source.path === 'string';
 }
 
 function normalizePluginSource(source) {
@@ -311,6 +322,13 @@ function normalizePluginSource(source) {
 
   if (sourceType === 'url' && typeof source.url === 'string') {
     return { type: 'remote', value: source.url };
+  }
+
+  // Checked before the fallbacks: its `path` is a folder in the repo, not a local plugin
+  if (isGitSubdirSource(source)) {
+    const url = source.url.trim();
+    const shorthand = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(url);
+    return { type: 'remote', value: shorthand ? `https://github.com/${url}` : url };
   }
 
   // Backward/forward-compatible fallbacks
@@ -438,37 +456,91 @@ function pluginFetchRefs(parsedSource, version, pin = {}) {
 /**
  * Whether the cached copy of a plugin is what this fetch would download.
  * A commit pin needs a matching `.commit` and a ref pin a matching `.ref`, so
- * a cache written before pins were honored is fetched again.
+ * a cache written before pins were honored is fetched again. A plugin in a
+ * repo folder needs a matching `.path`; one at the repo root has none.
  */
-function isPluginCacheCurrent(pluginDir, version, pin = {}) {
+function isPluginCacheCurrent(pluginDir, version, pin = {}, subdir = null) {
   if (readPluginMarker(pluginDir, '.version') !== version) return false;
+  if (readPluginMarker(pluginDir, '.path') !== subdir) return false;
   if (pin.commit) return sameCommit(readPluginMarker(pluginDir, '.commit'), pin.commit);
   if (pin.ref) return readPluginMarker(pluginDir, '.ref') === pin.ref;
   return true;
 }
 
 /**
+ * The plugin's folder in its repo, from a git-subdir source's `path`, as a
+ * '/'-separated relative path, or null for the repo root.
+ *
+ * @param {string} name - Plugin name
+ * @param {string} [subdir]
+ * @returns {string|null}
+ */
+function pluginSubdir(name, subdir) {
+  if (!subdir) return null;
+  const parts = subdir.replace(/\\/g, '/').split('/').filter(part => part && part !== '.');
+  if (/^([/\\]|[A-Za-z]:)/.test(subdir) || parts.includes('..')) {
+    throw new Error(`Invalid plugin path for ${name}: ${subdir} (a path is a folder inside the repo)`);
+  }
+  return parts.length > 0 ? parts.join('/') : null;
+}
+
+/**
+ * Give a plugin that ships no `.claude-plugin/plugin.json` one made from its
+ * marketplace entry.
+ *
+ * Claude Code installs such a plugin from the entry and loads commands/,
+ * agents/ and skills/ from the plugin root (can-i-help and onboard at their
+ * pins; agnix, whose url source points at its repo root). Discovery for
+ * OpenCode, Codex, Cursor and Kiro lists only directories with a plugin.json,
+ * so without one they got nothing from the plugin. A shipped plugin.json is
+ * left as it is.
+ *
+ * @param {string} pluginDir - The plugin root in the cache or staging dir
+ * @param {string} name - Marketplace name
+ * @param {string} version
+ * @param {string} [description] - Marketplace description
+ */
+function ensurePluginManifest(pluginDir, name, version, description) {
+  const manifestPath = path.join(pluginDir, '.claude-plugin', 'plugin.json');
+  if (fs.existsSync(manifestPath)) return;
+  const manifest = { name, version };
+  if (description) manifest.description = description;
+  fs.mkdirSync(path.dirname(manifestPath), { recursive: true });
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+}
+
+/**
  * Download a GitHub repo tarball and extract to cache directory.
  *
  * Next to the plugin files it writes `.ref` (the ref requested), `.commit`
- * (the commit the archive was built from) and `.version`, so a reinstall at
- * the same pin reuses the cache.
+ * (the commit the archive was built from), `.version` and, for a plugin in a
+ * repo folder, `.path`, so a reinstall at the same pin reuses the cache.
+ *
+ * The cache holds what Claude Code installs for the marketplace entry: the
+ * `listing.path` folder of the repo when the source names one, else the repo
+ * root, with a plugin.json from the entry when the plugin ships none
+ * (ensurePluginManifest).
  *
  * @param {string} name - Plugin name
  * @param {string} source - GitHub source URL (e.g. "github:agent-sh/agentsys-plugin-next-task")
  * @param {string} version - Expected version string
  * @param {{commit?: string, ref?: string}} [pin] - Marketplace pins from resolvePluginSource
+ * @param {{path?: string, description?: string}} [listing] - From the marketplace
+ *   entry: the plugin's folder in the repo (resolvePluginSource) and its description
  * @returns {Promise<string>} Path to extracted plugin directory
  */
-async function fetchPlugin(name, source, version, pin = {}) {
+async function fetchPlugin(name, source, version, pin = {}, listing = {}) {
   const cacheDir = getPluginCacheDir();
   const pluginDir = path.join(cacheDir, name);
 
   if (pin.commit && !COMMIT_PIN.test(pin.commit)) {
     throw new Error(`Invalid commit pin for ${name}: ${pin.commit} (a pin is a full 40-character commit SHA)`);
   }
+  const subdir = pluginSubdir(name, listing.path);
 
-  if (isPluginCacheCurrent(pluginDir, version, pin)) {
+  if (isPluginCacheCurrent(pluginDir, version, pin, subdir)) {
+    // a cache from before the installer wrote missing manifests gets one now
+    ensurePluginManifest(pluginDir, name, version, listing.description);
     return pluginDir;
   }
 
@@ -501,28 +573,50 @@ async function fetchPlugin(name, source, version, pin = {}) {
           : `${owner}/${repo} archive for pinned commit ${pin.commit} does not name its commit`);
       }
 
+      // The plugin root: the source's repo folder, when it names one
+      const rootDir = subdir ? path.join(stagingDir, ...subdir.split('/')) : stagingDir;
+      let rootStat = null;
+      try {
+        rootStat = fs.lstatSync(rootDir);
+      } catch {
+        // reported below
+      }
+      if (!rootStat || !rootStat.isDirectory()) {
+        throw new Error(`${owner}/${repo} at ${ref} has no folder ${subdir}`);
+      }
+      // A symlinked folder on the way could lead out of the archive
+      const fromStaging = path.relative(fs.realpathSync(stagingDir), fs.realpathSync(rootDir));
+      if (fromStaging === '..' || fromStaging.startsWith(`..${path.sep}`) || path.isAbsolute(fromStaging)) {
+        throw new Error(`${owner}/${repo} at ${ref}: folder ${subdir} leads out of the repo`);
+      }
+
       // The markers describe this fetch. A file of the same name shipped in
       // the archive is removed first, so the cache check never trusts it.
-      for (const marker of ['.ref', '.commit', '.version']) {
-        fs.rmSync(path.join(stagingDir, marker), { recursive: true, force: true });
+      for (const marker of ['.ref', '.commit', '.version', '.path']) {
+        fs.rmSync(path.join(rootDir, marker), { recursive: true, force: true });
       }
-      fs.writeFileSync(path.join(stagingDir, '.ref'), ref);
+      fs.writeFileSync(path.join(rootDir, '.ref'), ref);
       if (archiveCommit) {
-        fs.writeFileSync(path.join(stagingDir, '.commit'), archiveCommit.toLowerCase());
+        fs.writeFileSync(path.join(rootDir, '.commit'), archiveCommit.toLowerCase());
       }
-      fs.writeFileSync(path.join(stagingDir, '.version'), version);
+      fs.writeFileSync(path.join(rootDir, '.version'), version);
+      if (subdir) {
+        fs.writeFileSync(path.join(rootDir, '.path'), subdir);
+      }
+      ensurePluginManifest(rootDir, name, version, listing.description);
 
       fs.mkdirSync(cacheDir, { recursive: true });
       try {
-        fs.renameSync(stagingDir, pluginDir);
+        fs.renameSync(rootDir, pluginDir);
       } catch {
         // Windows can refuse to rename a tree a virus scanner holds open
-        fs.cpSync(stagingDir, pluginDir, { recursive: true, verbatimSymlinks: true });
-        try {
-          fs.rmSync(stagingDir, { recursive: true, force: true });
-        } catch {
-          // the cache is complete; a leftover staging dir is replaced on the next fetch
-        }
+        fs.cpSync(rootDir, pluginDir, { recursive: true, verbatimSymlinks: true });
+      }
+      // What is left: the staging dir after a copy, or the repo around a plugin folder
+      try {
+        fs.rmSync(stagingDir, { recursive: true, force: true });
+      } catch {
+        // the cache is complete; a leftover staging dir is replaced on the next fetch
       }
       return pluginDir;
     } catch (err) {
@@ -757,7 +851,8 @@ async function fetchExternalPlugins(pluginNames, marketplace) {
     }
 
     try {
-      await fetchPlugin(name, source.value, plugin.version, { commit: source.commit, ref: source.ref });
+      await fetchPlugin(name, source.value, plugin.version, { commit: source.commit, ref: source.ref },
+        { path: source.path, description: plugin.description });
       fetched.push(name);
     } catch (err) {
       failed.push(name);
@@ -1263,7 +1358,7 @@ async function installPlugin(nameWithVersion, args) {
       pin = {};
     }
     try {
-      await fetchPlugin(depName, source.value, ver, pin);
+      await fetchPlugin(depName, source.value, ver, pin, { path: source.path, description: dep.description });
     } catch (err) {
       failedFetches.push(depName);
       console.error(`  [ERROR] Failed to fetch ${depName}: ${err.message}`);

@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- OpenCode, Codex, Cursor and Kiro installs get agnix, onboard and can-i-help. can-i-help and onboard ship no `.claude-plugin/plugin.json` at their pinned commits, and agnix has none at its repo root, which is what its `url` source points at. Plugin discovery lists only directories with a plugin.json, so the installer fetched the three plugins and installed nothing from them. Claude Code installs such a plugin from its marketplace entry and loads `commands/`, `agents/` and `skills/` from the plugin root; the installer now does the same. A fetched plugin without a plugin.json gets one in `~/.agentsys/plugins/<name>/` made from its marketplace entry (name, version, description), and a cache from an earlier version gets it without a new download. can-i-help and onboard now install their command, agent and skill. agnix installs the `agnix` skill from its repo root, the one skill Claude Code loads for it: the command, agent and skill under its `plugin/` folder are not read by Claude Code either, because the marketplace entry names no folder. A `git-subdir` source (`url` plus `path`, Claude Code's shape for a plugin in a repo folder) is fetched as that folder; before, its `path` made the installer treat it as a local plugin and fetch nothing. No current marketplace entry uses it.
+
 ## [6.1.0] - 2026-10-06
 
 ### Changed

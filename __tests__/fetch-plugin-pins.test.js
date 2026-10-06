@@ -27,6 +27,7 @@ const {
   archiveCommitFromTarHead,
   readCachedCommit,
   recordInstall,
+  installForKiro,
   loadInstalledJson,
   getPluginCacheDir
 } = require('../bin/cli.js');
@@ -37,9 +38,10 @@ const SHA_MAIN = 'be1858a00000000000000000000000000000cafe';
 
 // --- a minimal tar writer: pax global header with the commit, like git archive ---
 
-function tarHeader(name, size, type) {
+function tarHeader(name, size, type, linkname = '') {
   const h = Buffer.alloc(512);
   h.write(name, 0, 100, 'latin1');
+  h.write(linkname, 157, 100, 'latin1');
   h.write(type === '5' ? '0000755\0' : '0000644\0', 100, 'latin1');
   h.write('0000000\0', 108, 'latin1');
   h.write('0000000\0', 116, 'latin1');
@@ -54,13 +56,13 @@ function tarHeader(name, size, type) {
   return h;
 }
 
-function tarEntry(name, data, type) {
+function tarEntry(name, data, type, linkname) {
   const body = Buffer.from(data, 'latin1');
   const pad = Buffer.alloc((512 - (body.length % 512)) % 512);
-  return Buffer.concat([tarHeader(name, body.length, type), body, pad]);
+  return Buffer.concat([tarHeader(name, body.length, type, linkname), body, pad]);
 }
 
-/** A GitHub-style tarball: pax header naming `commit`, then <prefix>/ files. */
+/** A GitHub-style tarball: pax header naming `commit`, then <prefix>/ files ({ symlink } is a link). */
 function githubTarball(commit, prefix, files) {
   const parts = [];
   if (commit) {
@@ -69,7 +71,9 @@ function githubTarball(commit, prefix, files) {
   }
   parts.push(tarEntry(`${prefix}/`, '', '5'));
   for (const [file, content] of Object.entries(files)) {
-    parts.push(tarEntry(`${prefix}/${file}`, content, '0'));
+    parts.push(content && content.symlink
+      ? tarEntry(`${prefix}/${file}`, '', '2', content.symlink)
+      : tarEntry(`${prefix}/${file}`, content, '0'));
   }
   parts.push(Buffer.alloc(1024));
   return zlib.gzipSync(Buffer.concat(parts));
@@ -78,7 +82,7 @@ function githubTarball(commit, prefix, files) {
 // --- fake GitHub tarball endpoint ---
 
 /**
- * repos: { 'owner/repo': { refs: { <ref>: <commit> }, files?: {}, archiveCommit?: fn, cut?: bool } }
+ * repos: { 'owner/repo': { refs: { <ref>: <commit> }, files?: {}, archiveCommit?: fn, cut?: bool, manifest?: false } }
  * A full commit SHA a repo knows is always servable, as on GitHub. `cut`
  * serves the first three quarters of the gzip stream, like a dropped download.
  */
@@ -99,7 +103,8 @@ function fakeGitHub(repos) {
       if (commit) {
         const served = known.archiveCommit ? known.archiveCommit(commit) : commit;
         body = githubTarball(served, `${owner}-${repo}-${commit.slice(0, 7)}`, {
-          '.claude-plugin/plugin.json': JSON.stringify({ name: repo }),
+          // manifest: false serves a repo without a root plugin.json
+          ...(known.manifest === false ? {} : { '.claude-plugin/plugin.json': JSON.stringify({ name: repo }) }),
           'COMMIT': commit,
           ...(known.files || {})
         });
@@ -507,6 +512,227 @@ describe('current marketplace pins', () => {
       expect(requests).toContainEqual({ repo: `${owner}/${repo}`, ref: source.commit });
       expect(readCachedCommit(plugin.name)).toBe(source.commit);
     }
+  });
+});
+
+describe('plugins resolved the way Claude Code reads the marketplace', () => {
+  let tmpHome;
+  let origHome;
+  let origXdg;
+
+  beforeEach(() => {
+    tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'agentsys-layout-'));
+    origHome = process.env.HOME;
+    origXdg = process.env.XDG_CONFIG_HOME;
+    process.env.HOME = tmpHome;
+    // OpenCode installs under $XDG_CONFIG_HOME when it is set
+    delete process.env.XDG_CONFIG_HOME;
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    process.env.HOME = origHome;
+    if (origXdg === undefined) delete process.env.XDG_CONFIG_HOME;
+    else process.env.XDG_CONFIG_HOME = origXdg;
+    fs.rmSync(tmpHome, { recursive: true, force: true });
+  });
+
+  const LOCAL = { tool: null, tools: ['kiro', 'opencode', 'codex', 'cursor'] };
+  const home = (...parts) => path.join(tmpHome, ...parts);
+  const read = (...parts) => fs.readFileSync(home(...parts), 'utf8');
+  const command = (text) => `---\ndescription: ${text}\ncodex-description: Use when ${text}\n---\n\n${text}\n`;
+  const agent = (name) => `---\nname: ${name}\ndescription: Agent for ${name}\ntools:\n  - Read\n---\n\nBody.\n`;
+  const skill = (name, text) => `---\nname: ${name}\ndescription: Use when ${text}\n---\n\n${text}\n`;
+  const entry = (name) => loadMarketplace().plugins.find(p => p.name === name);
+
+  test.each(['can-i-help', 'onboard'])('%s, which has no plugin.json at its pin, installs its command, agent and skill', async (name) => {
+    const { repo, commit } = marketplaceRepo(name);
+    fakeGitHub({
+      [repo]: {
+        refs: { pinned: commit },
+        manifest: false,
+        files: {
+          [`commands/${name}.md`]: command(`running ${name}`),
+          [`agents/${name}-agent.md`]: agent(`${name}-agent`),
+          [`skills/${name}/SKILL.md`]: skill(name, `${name} skill`)
+        }
+      }
+    });
+    // A cache dir the marketplace does not list stays undiscovered without a plugin.json
+    fs.mkdirSync(home('.agentsys', 'plugins', 'stray', 'skills', 'stray'), { recursive: true });
+    fs.writeFileSync(home('.agentsys', 'plugins', 'stray', 'skills', 'stray', 'SKILL.md'), skill('stray', 'stray'));
+
+    await installPlugin(name, LOCAL);
+
+    expect(read('.kiro', 'prompts', `${name}.md`)).toContain(`running ${name}`);
+    expect(fs.existsSync(home('.kiro', 'agents', `${name}-agent.json`))).toBe(true);
+    expect(read('.kiro', 'skills', name, 'SKILL.md')).toContain(`${name} skill`);
+    expect(read('.config', 'opencode', 'commands', `${name}.md`)).toContain(`running ${name}`);
+    expect(fs.existsSync(home('.config', 'opencode', 'agents', `${name}-agent.md`))).toBe(true);
+    expect(read('.config', 'opencode', 'skills', name, 'SKILL.md')).toContain(`${name} skill`);
+    // Codex: the command keeps the name, so $<name> is the command
+    expect(read('.codex', 'skills', name, 'SKILL.md')).toContain(`running ${name}`);
+    expect(read('.cursor', 'commands', `${name}.md`)).toContain(`running ${name}`);
+    expect(read('.cursor', 'skills', name, 'SKILL.md')).toContain(`${name} skill`);
+
+    // The plugin.json comes from the marketplace entry, so installed skills name the plugin and version
+    expect(JSON.parse(read('.agentsys', 'plugins', name, '.claude-plugin', 'plugin.json')))
+      .toEqual({ name, version: entry(name).version, description: entry(name).description });
+    expect(JSON.parse(read('.kiro', 'skills', name, '.agentsys-skill')))
+      .toMatchObject({ plugin: name, version: entry(name).version });
+
+    for (const dir of ['.kiro', '.cursor', '.codex']) {
+      expect(fs.existsSync(home(dir, 'skills', 'stray'))).toBe(false);
+    }
+  });
+
+  test('agnix installs its repo root skill, as Claude Code does, and nothing from plugin/', async () => {
+    // agnix's url source names no folder, so Claude Code installs the repo root:
+    // one skill (skills/agnix), no command, no agent. plugin/ is not read.
+    const { repo, commit } = marketplaceRepo('agnix');
+    fakeGitHub({
+      [repo]: {
+        refs: { pinned: commit },
+        manifest: false,
+        files: {
+          'skills/agnix/SKILL.md': skill('agnix', 'repo root skill'),
+          'plugin/.claude-plugin/plugin.json': JSON.stringify({ name: 'agnix' }),
+          'plugin/commands/agnix.md': command('plugin folder command'),
+          'plugin/agents/agnix-agent.md': agent('agnix-agent'),
+          'plugin/skills/agnix/SKILL.md': skill('agnix', 'plugin folder skill')
+        }
+      }
+    });
+
+    await installPlugin('agnix', LOCAL);
+
+    for (const dir of [['.kiro'], ['.config', 'opencode'], ['.codex'], ['.cursor']]) {
+      expect(read(...dir, 'skills', 'agnix', 'SKILL.md')).toContain('repo root skill');
+    }
+    for (const file of [
+      ['.kiro', 'prompts', 'agnix.md'],
+      ['.kiro', 'agents', 'agnix-agent.json'],
+      ['.config', 'opencode', 'commands', 'agnix.md'],
+      ['.config', 'opencode', 'agents', 'agnix-agent.md'],
+      ['.cursor', 'commands', 'agnix.md']
+    ]) {
+      expect([file.join('/'), fs.existsSync(home(...file))]).toEqual([file.join('/'), false]);
+    }
+  });
+
+  test('the three plugins name no folder, so Claude Code reads their repo root', () => {
+    for (const name of ['agnix', 'onboard', 'can-i-help']) {
+      const source = resolvePluginSource(entry(name).source);
+      expect([name, source.type, source.path]).toEqual([name, 'remote', undefined]);
+    }
+  });
+
+  test('a git-subdir source keeps its folder, and owner/repo is a GitHub repo', () => {
+    expect(resolvePluginSource({
+      source: 'git-subdir', url: 'https://github.com/acme/mono.git', path: 'tools/plugin', commit: SHA_PINNED
+    })).toEqual({ type: 'remote', value: 'https://github.com/acme/mono.git', path: 'tools/plugin', commit: SHA_PINNED });
+    expect(resolvePluginSource({ source: 'git-subdir', url: 'acme/mono', path: 'p', ref: 'v1' }))
+      .toEqual({ type: 'remote', value: 'https://github.com/acme/mono', path: 'p', ref: 'v1' });
+  });
+
+  const MONO_URL = 'https://github.com/acme/mono.git';
+  const monoRepo = () => ({
+    'acme/mono': {
+      refs: { pinned: SHA_PINNED },
+      manifest: false,
+      files: {
+        'README.md': 'repo readme',
+        'tools/plugin/commands/mono.md': command('mono command'),
+        'tools/plugin/skills/mono/SKILL.md': skill('mono', 'mono skill')
+      }
+    }
+  });
+
+  test('a git-subdir source installs the plugin from its folder', async () => {
+    const requests = fakeGitHub(monoRepo());
+    const marketplace = {
+      plugins: [{
+        name: 'mono',
+        version: '1.0.0',
+        description: 'Plugin in a monorepo folder',
+        source: { source: 'git-subdir', url: MONO_URL, path: './tools/plugin/', commit: SHA_PINNED }
+      }]
+    };
+
+    await fetchExternalPlugins(['mono'], marketplace);
+    const cache = path.join(getPluginCacheDir(), 'mono');
+    expect(fs.existsSync(path.join(cache, 'skills', 'mono', 'SKILL.md'))).toBe(true);
+    expect(fs.existsSync(path.join(cache, 'README.md'))).toBe(false);
+    expect(fs.readFileSync(path.join(cache, '.path'), 'utf8')).toBe('tools/plugin');
+    expect(readCachedCommit('mono')).toBe(SHA_PINNED);
+    expect(JSON.parse(fs.readFileSync(path.join(cache, '.claude-plugin', 'plugin.json'), 'utf8')))
+      .toEqual({ name: 'mono', version: '1.0.0', description: 'Plugin in a monorepo folder' });
+    expect(fs.readdirSync(home('.agentsys'))).toEqual(['plugins']);
+
+    installForKiro(home('.agentsys'));
+    expect(read('.kiro', 'skills', 'mono', 'SKILL.md')).toContain('mono skill');
+    expect(read('.kiro', 'prompts', 'mono.md')).toContain('mono command');
+
+    // Same folder reuses the cache; a cache of another folder (or the root) is fetched again
+    await fetchPlugin('mono', MONO_URL, '1.0.0', { commit: SHA_PINNED }, { path: 'tools/plugin' });
+    expect(requests).toHaveLength(1);
+    await fetchPlugin('mono', MONO_URL, '1.0.0', { commit: SHA_PINNED });
+    expect(requests).toHaveLength(2);
+    expect(fs.existsSync(path.join(cache, 'README.md'))).toBe(true);
+    expect(fs.existsSync(path.join(cache, '.path'))).toBe(false);
+  });
+
+  test('a folder outside the repo or missing from it is an error and leaves nothing', async () => {
+    const requests = fakeGitHub(monoRepo());
+    for (const bad of ['../escape', 'tools/../../escape', '/abs', 'C:\\abs']) {
+      await expect(fetchPlugin('mono', MONO_URL, '1.0.0', { commit: SHA_PINNED }, { path: bad }))
+        .rejects.toThrow(`Invalid plugin path for mono: ${bad}`);
+    }
+    expect(requests).toEqual([]);
+
+    await expect(fetchPlugin('mono', MONO_URL, '1.0.0', { commit: SHA_PINNED }, { path: 'nope' }))
+      .rejects.toThrow(`acme/mono at ${SHA_PINNED} has no folder nope`);
+    // no staging dir and no cache
+    expect(fs.readdirSync(home('.agentsys'))).toEqual([]);
+  });
+
+  // Windows tar needs extra rights to create symlinks
+  (process.platform === 'win32' ? test.skip : test)('a folder reached through a symlink out of the repo is refused', async () => {
+    const outside = home('.agentsys', 'outside', 'b');
+    fs.mkdirSync(path.join(outside, 'skills', 'x'), { recursive: true });
+    fs.writeFileSync(path.join(outside, 'skills', 'x', 'SKILL.md'), skill('x', 'outside the repo'));
+    const repos = monoRepo();
+    // extracted to ~/.agentsys/.fetch-mono/a, so ../outside is ~/.agentsys/outside
+    repos['acme/mono'].files.a = { symlink: '../outside' };
+    fakeGitHub(repos);
+
+    await expect(fetchPlugin('mono', MONO_URL, '1.0.0', { commit: SHA_PINNED }, { path: 'a/b' }))
+      .rejects.toThrow(`acme/mono at ${SHA_PINNED}: folder a/b leads out of the repo`);
+    expect(fs.existsSync(path.join(outside, 'skills', 'x', 'SKILL.md'))).toBe(true);
+    expect(fs.readdirSync(home('.agentsys'))).toEqual(['outside']);
+  });
+
+  test('a cache without plugin.json from an earlier version gets one without a refetch', async () => {
+    const { repo, commit } = marketplaceRepo('can-i-help');
+    const requests = fakeGitHub({ [repo]: { refs: { pinned: commit }, manifest: false } });
+    const source = resolvePluginSource(entry('can-i-help').source);
+    await fetchPlugin('can-i-help', source.value, '0.2.0', { commit }, { description: 'Contributor guidance' });
+    const manifest = path.join(getPluginCacheDir(), 'can-i-help', '.claude-plugin', 'plugin.json');
+    fs.rmSync(manifest);
+
+    await fetchPlugin('can-i-help', source.value, '0.2.0', { commit }, { description: 'Contributor guidance' });
+    expect(requests).toHaveLength(1);
+    expect(JSON.parse(fs.readFileSync(manifest, 'utf8')))
+      .toEqual({ name: 'can-i-help', version: '0.2.0', description: 'Contributor guidance' });
+  });
+
+  test('a plugin.json the plugin ships is kept as it is', async () => {
+    fakeGitHub({ 'agent-sh/learn': { refs: { pinned: SHA_PINNED } } });
+    await fetchPlugin('learn', 'https://github.com/agent-sh/learn.git', '1.2.0', { commit: SHA_PINNED },
+      { description: 'from the marketplace' });
+    expect(fs.readFileSync(path.join(getPluginCacheDir(), 'learn', '.claude-plugin', 'plugin.json'), 'utf8'))
+      .toBe(JSON.stringify({ name: 'learn' }));
   });
 });
 
