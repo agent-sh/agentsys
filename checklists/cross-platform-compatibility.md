@@ -360,7 +360,7 @@ const skillMappings = [
 
 ### Testing
 
-- [ ] `npm test` passes (all 1307+ tests)
+- [ ] `npm test` passes (the whole suite)
 - [ ] Test on Claude Code: `/new-command`
 - [ ] Test on OpenCode: `/new-command`
 - [ ] Test on Codex CLI: `$new-skill`

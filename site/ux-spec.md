@@ -226,10 +226,10 @@ Done. Task to merged PR in 12 minutes.
 ### Stats (left to right)
 | Stat | Value | Label |
 |------|-------|-------|
-| 1 | 20 | Plugins |
-| 2 | 49 | Agents |
-| 3 | 41 | Skills |
-| 4 | 3,518 | Tests Passing |
+| 1 | 24 | Plugins |
+| 2 | 50 | Agents |
+| 3 | 44 | Skills |
+| 4 | 5 | Platforms |
 
 ### Styling
 - **Number:** 48px, font-weight 700, white, `font-variant-numeric: tabular-nums` (prevents layout shift during count)

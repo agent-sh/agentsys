@@ -36,7 +36,6 @@ disabled_rules = [
     "AGM-005",     # Cursor platform examples are reference content in AGENTS.md
     "AGM-006",     # Intentional - root AGENTS.md (instructions) + docs/reference/AGENTS.md (reference)
     "AS-012",      # enhance-hooks is a comprehensive hook reference (needs >500 lines)
-    "AS-014",      # False positives on regex escape sequences (\n, \s, \d)
     "CC-AG-009",   # False positive - Skill, AskUserQuestion, LSP are valid Claude Code tools
     "CC-HK-008",   # Hook script path resolution differs on Windows (forward slash prefix)
     "CC-MEM-005",  # "Be concise" is ecosystem-wide boilerplate
