@@ -72,19 +72,23 @@ head -5 ~/.codex/skills/*/SKILL.md
 ## Release Commands
 
 ```bash
-# Commit version bump
+# Commit the version bump on a branch and open a PR to main
+git checkout -b chore/release-X.Y.Z
 git add -A && git commit -m "chore: release vX.Y.Z"
+git push -u origin chore/release-X.Y.Z
+gh pr create --base main
 
-# Create and push tag (triggers GitHub Actions)
+# After the PR merges: tag the merge commit and push the tag only (triggers GitHub Actions)
+git checkout main && git pull --ff-only
 git tag vX.Y.Z
-git push origin main --tags
+git push origin vX.Y.Z
 
 # Pre-release tags (publish to npm tag + prerelease GH)
-# 1) Bump ALL version fields to X.Y.Z-rc.N or X.Y.Z-beta.N and commit
+# 1) Bump ALL version fields to X.Y.Z-rc.N or X.Y.Z-beta.N and merge that commit to main through a PR
 # 2) Tag that prerelease commit
 git tag vX.Y.Z-rc.1    # npm tag: rc
 git tag vX.Y.Z-beta.1  # npm tag: beta
-git push origin main --tags
+git push origin vX.Y.Z-rc.1    # or vX.Y.Z-beta.1
 ```
 
 ## Post-Release Verification
