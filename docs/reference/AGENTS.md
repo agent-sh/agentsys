@@ -3,7 +3,7 @@
 Every agent in the AgentSys plugins at the commits pinned in `.claude-plugin/marketplace.json`. Each plugin repo's `agents/*.md` is the source of truth; this page summarizes it.
 
 <!-- GEN:START:agents-counts -->
-**TL;DR:** 49 agents across 24 plugins (16 have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5.5, Haiku 4.5) or inherits the caller's model, and does one thing. <!-- AGENT_COUNT_TOTAL: 49 -->
+**TL;DR:** 50 agents across 24 plugins (17 have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5.5, Haiku 4.5) or inherits the caller's model, and does one thing. <!-- AGENT_COUNT_TOTAL: 50 -->
 <!-- GEN:END:agents-counts -->
 
 ## Quick Navigation
@@ -26,10 +26,10 @@ Related: [/next-task Workflow](../workflows/NEXT-TASK.md) shows how the agents w
 
 Family aliases resolve to the current model in that family, so agent files do not pin versions.
 
-- **File-based agents** (39): `agents/*.md` with frontmatter in each plugin repo. <!-- AGENT_COUNT_FILE_BASED: 39 -->
+- **File-based agents** (40): `agents/*.md` with frontmatter in each plugin repo. <!-- AGENT_COUNT_FILE_BASED: 40 -->
 - **Role-based agents** (10): audit-project review passes, spawned through Task with a pass-specific prompt. <!-- AGENT_COUNT_ROLE_BASED: 10 -->
 
-Plugins with no agents: gate-and-ship (commands only); banthis, skill-curator, system-prompt-curator and agnix (skill and command only); mojo and ada-spark (skills only); zig-lsp (LSP config only).
+Plugins with no agents: gate-and-ship (commands only); banthis, skill-curator and system-prompt-curator (skill and command only); mojo and ada-spark (skills only); zig-lsp (LSP config only).
 
 Tool lists are abbreviated: `Bash(git, gh)` means `Bash(git:*), Bash(gh:*)`.
 
@@ -137,6 +137,7 @@ Role-based: `/audit-project` spawns one subagent per pass with the pass's prompt
 | skillers | skillers-recommender | opus | Read, Glob, Grep, Bash(node), Skill | Ranks at most five hooks, skills and agents worth creating from the knowledge, checked against what is installed. |
 | onboard | onboard-agent | sonnet | Read, Glob, Grep, Bash(git), AskUserQuestion | Gives a short, code-grounded tour of an unfamiliar codebase from collected data, then answers follow-up questions. |
 | can-i-help | can-i-help-agent | sonnet | Read, Glob, Grep, Bash(git, gh), AskUserQuestion | Matches a developer's interests to contribution targets: test gaps, stale docs, bugspots, cleanup candidates, open issues. |
+| agnix | agnix-agent | sonnet | Bash(agnix, cargo), Read, Glob, Grep | Runs the agnix CLI for `/agnix` (with `--fix` only when asked) and returns the diagnostics as an `AGNIX_RESULT` block. |
 
 ## Navigation
 

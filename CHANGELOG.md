@@ -7,6 +7,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- OpenCode, Codex, Cursor and Kiro installs get onboard and can-i-help. Neither ships a `.claude-plugin/plugin.json` at its pinned commit, and plugin discovery lists only directories with a plugin.json, so the installer fetched both plugins and installed nothing from them. Claude Code installs such a plugin from its marketplace entry and loads `commands/`, `agents/` and `skills/` from the plugin root; the installer now does the same. A fetched plugin without a plugin.json gets one in `~/.agentsys/plugins/<name>/` made from its marketplace entry (name, version, description), and a cache from an earlier version gets it without a new download. onboard and can-i-help now install their command, agent and skill.
+- The installer fetches a `git-subdir` source (`url` plus `path`, Claude Code's source for a plugin in a repo folder) as that folder, pinned by `sha` or `commit` like a `url` source, and records the folder in the cache's `.path`. Before, its `path` made the installer treat it as a local plugin and fetch nothing. A `path` with `..`, an absolute path, a folder missing at the pin and a symlinked folder that leads out of the archive are errors.
+- agnix installs its `/agnix` command, agnix-agent and `agnix` skill on every platform. Its marketplace entry was a `url` source for the whole repo, and the plugin lives in the repo's `plugin/` folder, so Claude Code installed only the repo root `skills/agnix` skill, and OpenCode, Codex, Cursor and Kiro installed nothing. The entry is now a `git-subdir` source for `plugin/` at the same commit (ed9e01e, agnix 0.56.5). A scratch `claude plugin install agnix@agentsys` (Claude Code 2.1.290) installs the folder at the pinned commit with the command, the agent and the skill; the npm installer gives OpenCode the command, agent and skill, Kiro the prompt, agent and skill, Cursor the command and skill, and Codex the command as `$agnix` (the skill shares its name, so it is left out, as for deslop and consult). `scripts/pin-marketplace.js` pins `git-subdir` entries as well as `url` ones and keeps their `path`, and the marketplace tests check the commit, `sha` and folder of every `git-subdir` entry. The agent count is 50 (40 file-based), with agnix-agent in `docs/reference/AGENTS.md`.
+
 ## [6.1.0] - 2026-10-06
 
 ### Changed

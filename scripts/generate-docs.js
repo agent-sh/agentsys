@@ -444,7 +444,7 @@ const STATIC_PLUGIN_AGENT_COUNTS = {
   'banthis': 0,
   'perf': 6,
   'learn': 1,
-  'agnix': 0,
+  'agnix': 1,
   'consult': 1,
   'debate': 1,
   'skill-curator': 0,
