@@ -517,12 +517,22 @@ async function fetchPlugin(name, source, version, pin = {}) {
       } catch {
         // Windows can refuse to rename a tree a virus scanner holds open
         fs.cpSync(stagingDir, pluginDir, { recursive: true, verbatimSymlinks: true });
-        fs.rmSync(stagingDir, { recursive: true, force: true });
+        try {
+          fs.rmSync(stagingDir, { recursive: true, force: true });
+        } catch {
+          // the cache is complete; a leftover staging dir is replaced on the next fetch
+        }
       }
       return pluginDir;
     } catch (err) {
-      fs.rmSync(stagingDir, { recursive: true, force: true });
-      fs.rmSync(pluginDir, { recursive: true, force: true });
+      // remove the plugin dir first: a partial tree there would pass the cache check
+      for (const dir of [pluginDir, stagingDir]) {
+        try {
+          fs.rmSync(dir, { recursive: true, force: true });
+        } catch {
+          // keep going; the other dir still gets removed
+        }
+      }
       lastError = err;
       const isNotFound = /HTTP 404/.test(err.message);
       if (isNotFound && !exact) {
@@ -651,6 +661,10 @@ function downloadAndExtractTarball(url, dest) {
         gunzip.on('end', finishHead);
         gunzip.on('error', finishHead);
 
+        res.on('error', (err) => {
+          tar.kill();
+          reject(err);
+        });
         res.pipe(tar.stdin);
         res.pipe(gunzip);
 

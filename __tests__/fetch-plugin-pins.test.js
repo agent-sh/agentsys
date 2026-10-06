@@ -107,8 +107,15 @@ function fakeGitHub(repos) {
       }
     }
     res.statusCode = body ? 200 : 404;
+    const known = match && repos[`${match[1]}/${match[2]}`];
     setImmediate(() => {
       callback(res);
+      if (body && known && known.reset) {
+        // the connection drops part way through the download
+        res.write(body.subarray(0, Math.floor(body.length / 2)));
+        setImmediate(() => res.emit('error', Object.assign(new Error('read ECONNRESET'), { code: 'ECONNRESET' })));
+        return;
+      }
       res.end(body || undefined);
     });
     return req;
@@ -333,6 +340,45 @@ describe('fetching plugins at their marketplace pins', () => {
     expect(cached('COMMIT')).toBe(SHA_PINNED);
     expect(readCachedCommit('learn')).toBe(SHA_PINNED);
     expect(fs.readdirSync(path.join(tmpHome, '.agentsys'))).toEqual(['plugins']);
+  });
+
+  test('a connection reset mid-download fails the fetch instead of hanging, and leaves nothing', async () => {
+    const learn = marketplaceRepo('learn');
+    fakeGitHub({
+      [learn.repo]: {
+        refs: { pinned: learn.commit },
+        files: { 'noise.bin': crypto.randomBytes(256 * 1024).toString('latin1') },
+        reset: true
+      }
+    });
+    await expect(fetchPlugin('learn', SOURCE, '1.2.0', { commit: learn.commit })).rejects.toThrow(/ECONNRESET/);
+    expect(fs.existsSync(path.join(getPluginCacheDir(), 'learn'))).toBe(false);
+    expect(fs.readdirSync(path.join(tmpHome, '.agentsys')).filter(e => e.includes('learn'))).toEqual([]);
+  });
+
+  test('when the copy fallback fails and the staging dir cannot be removed, no partial cache is left', async () => {
+    fakeGitHub(drifted());
+    const realCp = fs.cpSync;
+    const realRm = fs.rmSync;
+    jest.spyOn(fs, 'renameSync').mockImplementationOnce(() => {
+      throw Object.assign(new Error('EPERM: operation not permitted, rename'), { code: 'EPERM' });
+    });
+    let copied = false;
+    jest.spyOn(fs, 'cpSync').mockImplementationOnce((from, to, opts) => {
+      realCp(from, to, opts);
+      copied = true;
+      throw Object.assign(new Error('EBUSY: resource busy'), { code: 'EBUSY' });
+    });
+    // only the cleanup after the failed copy is blocked, as on Windows with a scanner holding files
+    jest.spyOn(fs, 'rmSync').mockImplementation((target, opts) => {
+      if (copied && String(target).includes('.fetch-learn')) {
+        throw Object.assign(new Error('EBUSY: resource busy'), { code: 'EBUSY' });
+      }
+      return realRm(target, opts);
+    });
+    await expect(fetchPlugin('learn', SOURCE, '1.2.0', { commit: SHA_PINNED })).rejects.toThrow(/EBUSY/);
+    fs.rmSync.mockRestore();
+    expect(fs.existsSync(path.join(getPluginCacheDir(), 'learn'))).toBe(false);
   });
 
   test('cache markers shipped inside an archive are replaced, never trusted', async () => {
