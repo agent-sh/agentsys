@@ -636,6 +636,8 @@ function downloadAndExtractTarball(url, dest) {
 
         let stderr = '';
         tar.stderr.on('data', (d) => { stderr += d; });
+        // EPIPE or EOF on tar's stdin means tar stopped early; its exit code reports the failure
+        tar.stdin.on('error', () => {});
 
         // Decompress only the start of the stream, beside tar, to read the
         // commit from the archive's pax header.
@@ -662,8 +664,10 @@ function downloadAndExtractTarball(url, dest) {
         gunzip.on('error', finishHead);
 
         res.on('error', (err) => {
-          tar.kill();
           reject(err);
+          res.unpipe(tar.stdin);
+          res.unpipe(gunzip);
+          tar.kill();
         });
         res.pipe(tar.stdin);
         res.pipe(gunzip);
