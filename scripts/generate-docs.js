@@ -204,7 +204,7 @@ function generateCommandsTable(commands) {
     'prepare-delivery': 'Pre-ship quality gates: deslop, review, validation, docs sync',
     'gate-and-ship': 'Quality gates then ship (/prepare-delivery + /ship)',
     'banthis': 'Durable negative memory: persist banned agent behaviors',
-    'agnix': 'Lint agent configurations (399 rules)',
+    'agnix': 'Lint agent configurations (457 rules)',
     'ship': 'PR creation, CI monitoring, merge',
     'deslop': 'Clean AI slop patterns',
     'perf': 'Performance investigation with baselines and profiling',
