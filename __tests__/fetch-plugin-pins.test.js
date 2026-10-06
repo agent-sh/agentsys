@@ -713,6 +713,35 @@ describe('plugins resolved the way Claude Code reads the marketplace', () => {
     expect(fs.readdirSync(home('.agentsys'))).toEqual(['outside']);
   });
 
+  (process.platform === 'win32' ? test.skip : test)('a plugin.json is never written through a symlink', async () => {
+    const outside = home('.agentsys', 'outside');
+    fs.mkdirSync(outside, { recursive: true });
+    const linked = (files) => ({ refs: { pinned: SHA_PINNED }, manifest: false, files });
+    const requests = fakeGitHub({
+      // .claude-plugin points out of the archive, at a directory with no plugin.json
+      'acme/dirlink': linked({ '.claude-plugin': { symlink: '../outside' } }),
+      // plugin.json is a dangling link out of the archive
+      'acme/filelink': linked({ '.claude-plugin/plugin.json': { symlink: '../../outside/plugin.json' } }),
+      'acme/plain': linked({})
+    });
+    const fetchFrom = (name) => fetchPlugin(name, `https://github.com/acme/${name}.git`, '1.0.0', { commit: SHA_PINNED });
+
+    await expect(fetchFrom('dirlink')).rejects.toThrow('Not writing a plugin.json for dirlink: .claude-plugin is a symlink');
+    await expect(fetchFrom('filelink'))
+      .rejects.toThrow('Not writing a plugin.json for filelink: .claude-plugin/plugin.json is a symlink');
+    expect(fs.readdirSync(outside)).toEqual([]);
+    expect(fs.readdirSync(home('.agentsys'))).toEqual(['outside']);
+
+    // and on cache reuse
+    await fetchFrom('plain');
+    const cachedManifestDir = path.join(getPluginCacheDir(), 'plain', '.claude-plugin');
+    fs.rmSync(cachedManifestDir, { recursive: true });
+    fs.symlinkSync(outside, cachedManifestDir);
+    await expect(fetchFrom('plain')).rejects.toThrow('Not writing a plugin.json for plain: .claude-plugin is a symlink');
+    expect(requests.filter(r => r.repo === 'acme/plain')).toHaveLength(1);
+    expect(fs.readdirSync(outside)).toEqual([]);
+  });
+
   test('a cache without plugin.json from an earlier version gets one without a refetch', async () => {
     const { repo, commit } = marketplaceRepo('can-i-help');
     const requests = fakeGitHub({ [repo]: { refs: { pinned: commit }, manifest: false } });

@@ -493,7 +493,8 @@ function pluginSubdir(name, subdir) {
  * pins; agnix, whose url source points at its repo root). Discovery for
  * OpenCode, Codex, Cursor and Kiro lists only directories with a plugin.json,
  * so without one they got nothing from the plugin. A shipped plugin.json is
- * left as it is.
+ * left as it is; a `.claude-plugin` or `plugin.json` that is a symlink is an
+ * error, since writing through it could land outside the plugin.
  *
  * @param {string} pluginDir - The plugin root in the cache or staging dir
  * @param {string} name - Marketplace name
@@ -501,12 +502,26 @@ function pluginSubdir(name, subdir) {
  * @param {string} [description] - Marketplace description
  */
 function ensurePluginManifest(pluginDir, name, version, description) {
-  const manifestPath = path.join(pluginDir, '.claude-plugin', 'plugin.json');
+  const manifestDir = path.join(pluginDir, '.claude-plugin');
+  const manifestPath = path.join(manifestDir, 'plugin.json');
   if (fs.existsSync(manifestPath)) return;
+  // Never write through a symlink: the archive could point either one out of the plugin
+  for (const [target, rel] of [[manifestDir, '.claude-plugin'], [manifestPath, '.claude-plugin/plugin.json']]) {
+    let stat = null;
+    try {
+      stat = fs.lstatSync(target);
+    } catch {
+      continue;
+    }
+    if (stat.isSymbolicLink() || (target === manifestDir && !stat.isDirectory())) {
+      throw new Error(`Not writing a plugin.json for ${name}: ${rel} is ${stat.isSymbolicLink() ? 'a symlink' : 'not a directory'}`);
+    }
+  }
   const manifest = { name, version };
   if (description) manifest.description = description;
-  fs.mkdirSync(path.dirname(manifestPath), { recursive: true });
-  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+  fs.mkdirSync(manifestDir, { recursive: true });
+  // 'wx' fails instead of following a symlink created since the check
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n', { flag: 'wx' });
 }
 
 /**
