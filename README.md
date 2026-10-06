@@ -45,12 +45,13 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 ---
 > Building custom skills, agents, hooks, or MCP tools? [agnix](https://github.com/agent-sh/agnix) is the CLI + LSP linter that catches config errors before they fail silently - real-time IDE validation, auto suggestions, auto-fix, and 423 rules for Claude Code, Codex, OpenCode, Cursor, Kiro, Copilot, Gemini CLI, Cline, Windsurf, Roo Code, Amp, and more.
 
-## What's New in 6.0.2
+## What's New in 6.1.0
 
-- Fixes Windows installs: the Claude Code executable is resolved with `where.exe` instead of an assumed `claude.cmd`, and `.cmd` shims are launched through `cmd.exe` at every spawn site.
-- `agentsys install` reports failures instead of printing success when Claude Code rejected a plugin, and exits non-zero.
-- Deletes the two adapter `install.sh` scripts, which deleted a working install and reported success; `agentsys --tool codex` / `--tool opencode` is the install path.
-- CI now runs the suite on Windows as well as Linux.
+- The npm installer fetches each plugin at the commit `marketplace.json` pins, so OpenCode, Codex, Cursor and Kiro get the same plugin code Claude Code installs.
+- A first `agentsys install <plugin>` for OpenCode, Codex, Cursor or Kiro installs the plugin. It used to delete the fetched plugin and still report success.
+- OpenCode, Codex, Cursor and Kiro installs copy whole skill directories, so `references/` and `scripts/` arrive with `SKILL.md`, and Codex installs plugin skills as well as commands.
+- Marketplace pins move to newer plugin commits; the CHANGELOG lists the versions.
+- Windows: `.cmd` shims run with delayed expansion off, so `!NAME!` in an argument stays literal.
 
 ## What This Is
 

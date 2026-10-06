@@ -11,9 +11,9 @@ const repoRoot = path.join(__dirname, '..');
 
 const expectedStandalonePlugins = {
   'skill-curator': {
-    version: '1.1.0',
-    ref: 'v1.1.0',
-    commit: '6687d8c474f3f5049843b03ba9349f2f09351839',
+    version: '1.2.0',
+    ref: 'v1.2.0',
+    commit: '62f7a2682b3d04830abfbd72c163dada97e875de',
     command: '/skill-curator',
     category: 'development',
   },
@@ -25,9 +25,9 @@ const expectedStandalonePlugins = {
     category: 'development',
   },
   banthis: {
-    version: '0.5.0',
-    ref: 'v0.5.0',
-    commit: 'ea38796ed89ef71a3d82c9be16864ada8d3db345',
+    version: '0.6.0',
+    ref: 'v0.6.0',
+    commit: '700cb0eea3f9de83d22724d6de38b01f7971cf1f',
     command: '/banthis',
     category: 'productivity',
   },

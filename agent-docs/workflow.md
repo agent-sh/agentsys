@@ -77,7 +77,7 @@ Phase 4 runs on every run, including runs from /next-task: CI and external auto-
 
 **Responsibility:** Fix one CI failure or one review comment that needs a code change, commit it, and push the PR branch. Used by `/ship` Phase 4 and by ci-monitor.
 
-**Tools:** `Bash(git:*)`, `Bash(npm:*)`, `Read`, `Edit`, `Grep`, `Glob`
+**Tools:** `Bash(git:*)`, `Bash(npm:*)`, `Bash(gh run view:*)`, `Read`, `Edit`, `Grep`, `Glob`
 
 **Behavior:**
 1. Makes the smallest change that fixes the cause in the log or the comment
@@ -94,7 +94,7 @@ Phase 4 runs on every run, including runs from /next-task: CI and external auto-
 |-------|---------------|------------|
 | worktree-manager | Bash(git:*), Read | Write, Edit |
 | ci-monitor | Bash(gh:*), Bash(git:*), Read, Task | Write, Edit |
-| ci-fixer | Bash(git:*), Bash(npm:*), Read, Edit, Grep, Glob | Bash(gh:*), Task |
+| ci-fixer | Bash(git:*), Bash(npm:*), Bash(gh run view:*), Read, Edit, Grep, Glob | Other Bash(gh:*) commands, Task |
 | simple-fixer | Read, Edit, Bash(git:*) | Task |
 | deslop:deslop-agent | Bash(git:*), Bash(node:*), Skill, Read, Glob, Grep | Write, Edit, Task |
 
