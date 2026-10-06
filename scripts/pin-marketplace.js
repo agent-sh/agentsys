@@ -9,6 +9,11 @@
  * to a tag (for humans) AND the tag's resolved commit SHA (for integrity)
  * ensures the exact bytes we ship are the exact bytes users get.
  *
+ * The SHA is written twice. Claude Code's `url` source reads `url`, `ref` and
+ * `sha` and ignores any other key, so `sha` is the pin Claude Code installs.
+ * `bin/cli.js` reads `sha` first and falls back to `commit`, so both carry the
+ * same SHA.
+ *
  * Usage: node scripts/pin-marketplace.js [--dry-run]
  *
  * Requires: `gh` CLI authenticated against the agent-sh org.
@@ -132,6 +137,7 @@ function pinPlugin(plugin) {
   if (sha) {
     src.ref = tag;
     src.commit = sha;
+    src.sha = sha;
     return { status: 'pinned', name: plugin.name, tag, sha };
   }
 
@@ -142,6 +148,7 @@ function pinPlugin(plugin) {
   // `ref` would otherwise ignore the new commit pin.
   delete src.ref;
   src.commit = head;
+  src.sha = head;
   return { status: 'fallback', name: plugin.name, wantedTag: tag, sha: head };
 }
 

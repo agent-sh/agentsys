@@ -271,8 +271,9 @@ function loadMarketplace() {
  * - object: { source: "url", url: "..." } (current)
  * - object: { source: "path", path: "..." } (local/bundled)
  *
- * A remote object source keeps its `commit` and `ref` pins, so the fetch
- * downloads exactly what the marketplace pins.
+ * A remote object source keeps its commit and `ref` pins, so the fetch
+ * downloads exactly what the marketplace pins. The commit pin is `sha`, the
+ * key Claude Code installs from, or `commit` when there is no `sha`.
  *
  * @param {string|Object} source
  * @returns {{type: 'remote'|'local', value: string, commit?: string, ref?: string}|null}
@@ -282,11 +283,11 @@ function resolvePluginSource(source) {
   if (!normalized || normalized.type !== 'remote' || !source || typeof source !== 'object') {
     return normalized;
   }
-  for (const key of ['commit', 'ref']) {
-    if (typeof source[key] === 'string' && source[key].trim()) {
-      normalized[key] = source[key].trim();
-    }
-  }
+  const pin = (value) => (typeof value === 'string' && value.trim() ? value.trim() : null);
+  const commit = pin(source.sha) || pin(source.commit);
+  if (commit) normalized.commit = commit;
+  const ref = pin(source.ref);
+  if (ref) normalized.ref = ref;
   return normalized;
 }
 

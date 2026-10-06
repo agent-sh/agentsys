@@ -101,6 +101,8 @@ describe('pinPlugin fallback behavior', () => {
     expect(result.status).toBe('pinned');
     expect(plugin.source.ref).toBe('v1.2.3');
     expect(plugin.source.commit).toBe('abc123');
+    // Claude Code reads `sha`, not `commit`
+    expect(plugin.source.sha).toBe('abc123');
   });
 
   test('fallback clears stale ref from a previous pin', () => {
@@ -127,12 +129,14 @@ describe('pinPlugin fallback behavior', () => {
         url: 'https://github.com/agent-sh/x.git',
         ref: 'v0.9.0',      // stale
         commit: 'oldsha',   // stale
+        sha: 'oldsha',      // stale
       },
     };
     const result = pinPlugin(plugin);
     expect(result.status).toBe('fallback');
     expect(plugin.source.ref).toBeUndefined();
     expect(plugin.source.commit).toBe('newheadsha');
+    expect(plugin.source.sha).toBe('newheadsha');
   });
 
   test('skips non-url plugins', () => {

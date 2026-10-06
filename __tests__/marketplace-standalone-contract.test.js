@@ -66,6 +66,7 @@ test('standalone curator and memory plugins are pinned to immutable release comm
       url: `https://github.com/agent-sh/${name}.git`,
       ref: expected.ref,
       commit: expected.commit,
+      sha: expected.commit,
     });
   }
 });
@@ -94,5 +95,16 @@ test('all url-sourced marketplace plugins carry a commit pin', () => {
     if (plugin.source.ref) {
       expect(plugin.source.ref).toBe(`v${plugin.version}`);
     }
+  }
+});
+
+// Claude Code's `url` source reads `url`, `ref` and `sha` and ignores
+// `commit`, so without `sha` Claude Code installs the `ref` tag or the default
+// branch HEAD. The npm installer reads the same pin, so the two must agree.
+test('every url-sourced marketplace plugin pins Claude Code with sha equal to commit', () => {
+  const remote = marketplace.plugins.filter((plugin) => plugin.source?.source === 'url');
+  expect(remote.length).toBeGreaterThan(0);
+  for (const plugin of remote) {
+    expect([plugin.name, plugin.source.sha]).toEqual([plugin.name, plugin.source.commit]);
   }
 });

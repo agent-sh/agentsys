@@ -47,7 +47,8 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 
 ## What's New in 6.1.0
 
-- The npm installer fetches each plugin at the commit `marketplace.json` pins, so OpenCode, Codex, Cursor and Kiro get the same plugin code Claude Code installs.
+- Claude Code installs each plugin at the commit `marketplace.json` pins. It reads a pin from `sha` and ignored the `commit` key the pins were in, so it installed a release tag or the plugin's default branch; every entry now carries `sha`.
+- The npm installer fetches each plugin at that same commit, so OpenCode, Codex, Cursor and Kiro get the plugin code Claude Code installs.
 - A first `agentsys install <plugin>` for OpenCode, Codex, Cursor or Kiro installs the plugin. It used to delete the fetched plugin and still report success.
 - OpenCode, Codex, Cursor and Kiro installs copy whole skill directories, so `references/` and `scripts/` arrive with `SKILL.md`, and Codex installs plugin skills as well as commands.
 - Marketplace pins move to newer plugin commits; the CHANGELOG lists the versions.

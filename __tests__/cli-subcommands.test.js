@@ -472,6 +472,46 @@ describe('resolvePluginSource', () => {
       value: './plugins/ship'
     });
   });
+
+  const SHA_A = 'a'.repeat(40);
+  const SHA_B = 'b'.repeat(40);
+
+  test('takes the commit pin from sha, the key Claude Code installs', () => {
+    expect(resolvePluginSource({
+      source: 'url',
+      url: 'https://github.com/agent-sh/ship.git',
+      ref: 'v1.0.0',
+      sha: SHA_A
+    })).toEqual({
+      type: 'remote',
+      value: 'https://github.com/agent-sh/ship.git',
+      commit: SHA_A,
+      ref: 'v1.0.0'
+    });
+  });
+
+  test('prefers sha over commit when they differ', () => {
+    expect(resolvePluginSource({
+      source: 'url',
+      url: 'https://github.com/agent-sh/ship.git',
+      commit: SHA_B,
+      sha: SHA_A
+    })).toMatchObject({ commit: SHA_A });
+  });
+
+  test('falls back to commit when there is no sha', () => {
+    expect(resolvePluginSource({
+      source: 'url',
+      url: 'https://github.com/agent-sh/ship.git',
+      commit: SHA_B
+    })).toMatchObject({ commit: SHA_B });
+    expect(resolvePluginSource({
+      source: 'url',
+      url: 'https://github.com/agent-sh/ship.git',
+      commit: SHA_B,
+      sha: '  '
+    })).toMatchObject({ commit: SHA_B });
+  });
 });
 
 describe('parseGitHubSource', () => {
