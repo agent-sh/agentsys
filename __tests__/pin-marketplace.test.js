@@ -19,6 +19,7 @@ describe('parseOrgRepo', () => {
     ['https://github.com/agent-sh/foo.git/', 'agent-sh', 'foo'],
     ['git@github.com:agent-sh/foo.git', 'agent-sh', 'foo'],
     ['https://github.com/agent-sh/next-task.git', 'agent-sh', 'next-task'],
+    ['agent-sh/foo', 'agent-sh', 'foo'],
   ])('parses %s', (url, owner, repo) => {
     expect(parseOrgRepo(url)).toEqual({ owner, repo });
   });
@@ -137,6 +138,27 @@ describe('pinPlugin fallback behavior', () => {
     expect(plugin.source.ref).toBeUndefined();
     expect(plugin.source.commit).toBe('newheadsha');
     expect(plugin.source.sha).toBe('newheadsha');
+  });
+
+  test('pins a git-subdir entry and keeps its folder', () => {
+    setGhRunner((args) => {
+      expect(args).toEqual(['api', 'repos/agent-sh/mono/git/ref/tags/v2.0.0']);
+      return JSON.stringify({ object: { type: 'commit', sha: 'def456' } });
+    });
+    const plugin = {
+      name: 'mono',
+      version: '2.0.0',
+      source: { source: 'git-subdir', url: 'agent-sh/mono', path: 'plugin' },
+    };
+    expect(pinPlugin(plugin).status).toBe('pinned');
+    expect(plugin.source).toEqual({
+      source: 'git-subdir',
+      url: 'agent-sh/mono',
+      path: 'plugin',
+      ref: 'v2.0.0',
+      commit: 'def456',
+      sha: 'def456',
+    });
   });
 
   test('skips non-url plugins', () => {

@@ -29,7 +29,7 @@ In prose, write ` - ` (a single dash with spaces), not an em dash or a doubled d
 <!-- GEN:START:claude-architecture -->
 ```
 lib/          → Shared library (vendored to plugins)
-plugins/      → 24 plugins, 49 agents (39 file-based + 10 role-based), 44 skills
+plugins/      → 24 plugins, 50 agents (40 file-based + 10 role-based), 44 skills
 adapters/     → Platform adapters (opencode-plugin/, opencode/, codex/)
 checklists/   → Action checklists (9 files)
 bin/cli.js    → npm CLI installer
@@ -50,7 +50,7 @@ bin/cli.js    → npm CLI installer
 | banthis | 0 | 1 | Durable negative behavior memory |
 | perf | 6 | 8 | Performance investigation |
 | learn | 1 | 1 | Topic research and learning guides |
-| agnix | 0 | 1 | Agent config linting |
+| agnix | 1 | 1 | Agent config linting |
 | consult | 1 | 1 | Cross-tool AI consultation |
 | debate | 1 | 1 | Multi-perspective debate analysis |
 | skill-curator | 0 | 1 | Skill authoring and review |

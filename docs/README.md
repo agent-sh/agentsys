@@ -44,7 +44,7 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 
 | Document | Description |
 |----------|-------------|
-| [reference/AGENTS.md](./reference/AGENTS.md) | All 49 agents: purpose, model, tools, restrictions. <!-- AGENT_COUNT_TOTAL: 49 --> |
+| [reference/AGENTS.md](./reference/AGENTS.md) | All 50 agents: purpose, model, tools, restrictions. <!-- AGENT_COUNT_TOTAL: 50 --> |
 | [reference/SLOP-PATTERNS.md](./reference/SLOP-PATTERNS.md) | All detection patterns by language, severity, auto-fix. |
 
 ### Platform & Architecture

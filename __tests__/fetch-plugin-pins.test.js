@@ -500,7 +500,9 @@ describe('current marketplace pins', () => {
       const { owner, repo } = parseGitHubSource(source.value, plugin.version, plugin.name);
       const refs = { [`v${plugin.version}`]: SHA_TAG, main: SHA_MAIN, pinned: source.commit };
       if (source.ref) refs[source.ref] = source.commit;
-      repos[`${owner}/${repo}`] = { refs };
+      // a git-subdir plugin (agnix) is the folder its path names
+      const files = source.path ? { [`${source.path}/README.md`]: plugin.name } : {};
+      repos[`${owner}/${repo}`] = { refs, files };
     }
     const requests = fakeGitHub(repos);
 
@@ -587,17 +589,19 @@ describe('plugins resolved the way Claude Code reads the marketplace', () => {
     }
   });
 
-  test('agnix installs its repo root skill, as Claude Code does, and nothing from plugin/', async () => {
-    // agnix's url source names no folder, so Claude Code installs the repo root:
-    // one skill (skills/agnix), no command, no agent. plugin/ is not read.
+  test('agnix installs its command, agent and skill from plugin/, as Claude Code does', async () => {
+    // agnix's git-subdir source names plugin/, so Claude Code installs that
+    // folder: the /agnix command, agnix-agent and the agnix skill. The skill at
+    // the repo root is not part of it.
     const { repo, commit } = marketplaceRepo('agnix');
-    fakeGitHub({
+    const requests = fakeGitHub({
       [repo]: {
         refs: { pinned: commit },
         manifest: false,
         files: {
+          'README.md': 'repo readme',
           'skills/agnix/SKILL.md': skill('agnix', 'repo root skill'),
-          'plugin/.claude-plugin/plugin.json': JSON.stringify({ name: 'agnix' }),
+          'plugin/.claude-plugin/plugin.json': JSON.stringify({ name: 'agnix', version: entry('agnix').version }),
           'plugin/commands/agnix.md': command('plugin folder command'),
           'plugin/agents/agnix-agent.md': agent('agnix-agent'),
           'plugin/skills/agnix/SKILL.md': skill('agnix', 'plugin folder skill')
@@ -607,22 +611,34 @@ describe('plugins resolved the way Claude Code reads the marketplace', () => {
 
     await installPlugin('agnix', LOCAL);
 
-    for (const dir of [['.kiro'], ['.config', 'opencode'], ['.codex'], ['.cursor']]) {
-      expect(read(...dir, 'skills', 'agnix', 'SKILL.md')).toContain('repo root skill');
+    expect(requests).toEqual([{ repo, ref: commit }]);
+    expect(read('.kiro', 'prompts', 'agnix.md')).toContain('plugin folder command');
+    expect(fs.existsSync(home('.kiro', 'agents', 'agnix-agent.json'))).toBe(true);
+    expect(read('.config', 'opencode', 'commands', 'agnix.md')).toContain('plugin folder command');
+    expect(fs.existsSync(home('.config', 'opencode', 'agents', 'agnix-agent.md'))).toBe(true);
+    expect(read('.cursor', 'commands', 'agnix.md')).toContain('plugin folder command');
+    for (const dir of [['.kiro'], ['.config', 'opencode'], ['.cursor']]) {
+      expect(read(...dir, 'skills', 'agnix', 'SKILL.md')).toContain('plugin folder skill');
     }
-    for (const file of [
-      ['.kiro', 'prompts', 'agnix.md'],
-      ['.kiro', 'agents', 'agnix-agent.json'],
-      ['.config', 'opencode', 'commands', 'agnix.md'],
-      ['.config', 'opencode', 'agents', 'agnix-agent.md'],
-      ['.cursor', 'commands', 'agnix.md']
-    ]) {
-      expect([file.join('/'), fs.existsSync(home(...file))]).toEqual([file.join('/'), false]);
-    }
+    // Codex: the skill shares the command's name, so $agnix is the command
+    expect(read('.codex', 'skills', 'agnix', 'SKILL.md')).toContain('plugin folder command');
+
+    // The cache is the plugin/ folder, with the plugin.json agnix ships there
+    const cache = path.join(getPluginCacheDir(), 'agnix');
+    expect(read('.agentsys', 'plugins', 'agnix', '.path')).toBe('plugin');
+    expect(readCachedCommit('agnix')).toBe(commit);
+    expect(fs.existsSync(path.join(cache, 'README.md'))).toBe(false);
+    expect(read('.agentsys', 'plugins', 'agnix', 'skills', 'agnix', 'SKILL.md')).toContain('plugin folder skill');
+    expect(JSON.parse(read('.agentsys', 'plugins', 'agnix', '.claude-plugin', 'plugin.json')))
+      .toEqual({ name: 'agnix', version: entry('agnix').version });
   });
 
-  test('the three plugins name no folder, so Claude Code reads their repo root', () => {
-    for (const name of ['agnix', 'onboard', 'can-i-help']) {
+  test('agnix names its plugin/ folder; onboard and can-i-help are their repo root', () => {
+    const agnix = entry('agnix').source;
+    expect(resolvePluginSource(agnix)).toEqual({
+      type: 'remote', value: 'https://github.com/agent-sh/agnix.git', path: 'plugin', commit: agnix.sha
+    });
+    for (const name of ['onboard', 'can-i-help']) {
       const source = resolvePluginSource(entry(name).source);
       expect([name, source.type, source.path]).toEqual([name, 'remote', undefined]);
     }
@@ -634,6 +650,9 @@ describe('plugins resolved the way Claude Code reads the marketplace', () => {
     })).toEqual({ type: 'remote', value: 'https://github.com/acme/mono.git', path: 'tools/plugin', commit: SHA_PINNED });
     expect(resolvePluginSource({ source: 'git-subdir', url: 'acme/mono', path: 'p', ref: 'v1' }))
       .toEqual({ type: 'remote', value: 'https://github.com/acme/mono', path: 'p', ref: 'v1' });
+    // sha, the key Claude Code installs from, wins over commit, as for a url source
+    expect(resolvePluginSource({ source: 'git-subdir', url: MONO_URL, path: 'p', sha: SHA_PINNED, commit: SHA_MAIN }))
+      .toEqual({ type: 'remote', value: MONO_URL, path: 'p', commit: SHA_PINNED });
   });
 
   const MONO_URL = 'https://github.com/acme/mono.git';

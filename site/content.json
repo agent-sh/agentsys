@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "agentsys",
-    "description": "A modular runtime and orchestration system for AI agents. 24 plugins, 49 agents, 44 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.",
+    "description": "A modular runtime and orchestration system for AI agents. 24 plugins, 50 agents, 44 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.",
     "url": "https://agent-sh.github.io/agentsys",
     "repo": "https://github.com/agent-sh/agentsys",
     "npm": "https://www.npmjs.com/package/agentsys",
@@ -28,7 +28,7 @@
       "suffix": ""
     },
     {
-      "value": "49",
+      "value": "50",
       "label": "Agents",
       "suffix": ""
     },
@@ -387,8 +387,8 @@
     }
   ],
   "agents": {
-    "total": 49,
-    "file_based": 39,
+    "total": 50,
+    "file_based": 40,
     "role_based": 10,
     "by_model": [
       {

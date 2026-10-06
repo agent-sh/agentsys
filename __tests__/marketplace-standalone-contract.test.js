@@ -86,10 +86,13 @@ test('standalone plugins are represented in user-facing docs and Codex metadata'
   }
 });
 
-test('all url-sourced marketplace plugins carry a commit pin', () => {
-  for (const plugin of marketplace.plugins) {
-    if (plugin.source?.source !== 'url') continue;
+// The git sources Claude Code pins with `ref` and `sha`: `url` (a whole repo)
+// and `git-subdir` (one folder of a repo).
+const gitSourced = marketplace.plugins.filter((plugin) => ['url', 'git-subdir'].includes(plugin.source?.source));
 
+test('all git-sourced marketplace plugins carry a commit pin', () => {
+  expect(gitSourced.length).toBeGreaterThan(0);
+  for (const plugin of gitSourced) {
     expect(plugin.source.url).toMatch(/^https:\/\/github\.com\/agent-sh\/.+\.git$/);
     expect(plugin.source.commit).toMatch(/^[0-9a-f]{40}$/);
     if (plugin.source.ref) {
@@ -98,13 +101,23 @@ test('all url-sourced marketplace plugins carry a commit pin', () => {
   }
 });
 
-// Claude Code's `url` source reads `url`, `ref` and `sha` and ignores
-// `commit`, so without `sha` Claude Code installs the `ref` tag or the default
-// branch HEAD. The npm installer reads the same pin, so the two must agree.
-test('every url-sourced marketplace plugin pins Claude Code with sha equal to commit', () => {
-  const remote = marketplace.plugins.filter((plugin) => plugin.source?.source === 'url');
-  expect(remote.length).toBeGreaterThan(0);
-  for (const plugin of remote) {
+// Claude Code's `url` and `git-subdir` sources read the commit pin from `sha`
+// and ignore `commit`, so without `sha` Claude Code installs the `ref` tag or
+// the default branch HEAD. The npm installer reads the same pin, so the two
+// must agree.
+test('every git-sourced marketplace plugin pins Claude Code with sha equal to commit', () => {
+  for (const plugin of gitSourced) {
     expect([plugin.name, plugin.source.sha]).toEqual([plugin.name, plugin.source.commit]);
+  }
+});
+
+// A git-subdir `path` is the plugin's folder inside the repo: Claude Code
+// checks out only that folder, and bin/cli.js refuses a path with `..` or a
+// leading slash, so the entry would install nothing on the other platforms.
+test('every git-subdir marketplace plugin names a folder inside its repo', () => {
+  for (const plugin of gitSourced.filter((p) => p.source.source === 'git-subdir')) {
+    const parts = plugin.source.path.split('/');
+    expect([plugin.name, plugin.source.path]).toEqual([plugin.name, expect.stringMatching(/^[^/\\]/)]);
+    expect([plugin.name, parts.includes('..'), parts.every(Boolean)]).toEqual([plugin.name, false, true]);
   }
 });

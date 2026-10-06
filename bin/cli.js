@@ -490,7 +490,7 @@ function pluginSubdir(name, subdir) {
  *
  * Claude Code installs such a plugin from the entry and loads commands/,
  * agents/ and skills/ from the plugin root (can-i-help and onboard at their
- * pins; agnix, whose url source points at its repo root). Discovery for
+ * pins). Discovery for
  * OpenCode, Codex, Cursor and Kiro lists only directories with a plugin.json,
  * so without one they got nothing from the plugin. A shipped plugin.json is
  * left as it is; a `.claude-plugin` or `plugin.json` that is a symlink is an

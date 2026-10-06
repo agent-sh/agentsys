@@ -224,8 +224,9 @@
     {
       "name": "agnix",
       "source": {
-        "source": "url",
+        "source": "git-subdir",
         "url": "https://github.com/agent-sh/agnix.git",
+        "path": "plugin",
         "commit": "ed9e01e53c22bff37e9a3d711f97a0cc745c4cd6",
         "sha": "ed9e01e53c22bff37e9a3d711f97a0cc745c4cd6"
       },
