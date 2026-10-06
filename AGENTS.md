@@ -8,7 +8,7 @@ Marketplace, installer and shared library for the agent-sh plugins. Works on Cla
 2. Optimize for developers using the plugins in their own repos, not for internal convenience here.
 3. Record finished work in CHANGELOG.md and the reply. Summary, audit or completion files (`*_AUDIT.md`, `*_SUMMARY.md`, `*_COMPLETION.md`) clutter the repo, so leave them out.
 4. Every change reaches main through a PR, whatever its size, including a one-line fix or an urgent hotfix. Never push to main directly. Keep the branch short-lived and rebase it on main before you open the PR. PRs give review, CI and an easy rollback.
-5. Self-review every PR: a fresh-context subagent reviews the diff and posts its review as a PR comment. Address every revuto comment and every CI failure: fix it, or reply with why not. Merge through the PR once CI is green. When revuto is capped or down, do not wait and do not re-trigger it: the self-review is enough, and the PR body says so. Review bots are not waited on beyond the PR's CI.
+5. Self-review every PR: a fresh-context subagent reviews the diff and posts its review as a PR comment. Address every comment from revuto (the `revuto-review` check) and every CI failure: fix it, or reply with why not. Merge through the PR once CI is green. When revuto is capped or down, do not wait and do not re-trigger it: the self-review is enough, and the PR body says so. Review bots are not waited on beyond the PR's CI.
 6. Before a multi-file change, read the checklist that applies; multi-file changes have hidden dependencies:
    - Cross-platform work: `checklists/cross-platform-compatibility.md` (the master reference)
    - Release: `checklists/release.md`

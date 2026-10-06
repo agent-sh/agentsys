@@ -85,7 +85,8 @@ git push origin vX.Y.Z
 
 # Pre-release tags (publish to npm tag + prerelease GH)
 # 1) Bump ALL version fields to X.Y.Z-rc.N or X.Y.Z-beta.N and merge that commit to main through a PR
-# 2) Tag that prerelease commit
+# 2) Update main to the merged bump commit and tag it
+git checkout main && git pull --ff-only
 git tag vX.Y.Z-rc.1    # npm tag: rc
 git tag vX.Y.Z-beta.1  # npm tag: beta
 git push origin vX.Y.Z-rc.1    # or vX.Y.Z-beta.1

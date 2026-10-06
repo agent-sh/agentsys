@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `AGENTS.md` says every change reaches main through a PR, with no exception for small fixes or hotfixes, and drops the 30-minute wait on Copilot, Claude, Gemini and Codex reviews. A PR gets a self-review (a fresh-context subagent reviews the diff and posts it as a PR comment), revuto and CI comments and failures are addressed, and when revuto is capped or down the self-review is enough and the PR body says so. `agent-docs/release.md` and `checklists/release.md` merge the release commit through a PR and push only the tag, not `main --tags`.
+- `AGENTS.md` says every change reaches main through a PR, with no exception for small fixes or hotfixes, and drops the 30-minute wait on Copilot, Claude, Gemini and Codex reviews. A PR gets a self-review (a fresh-context subagent reviews the diff and posts it as a PR comment), revuto and CI comments and failures are addressed, and when revuto is capped or down the self-review is enough and the PR body says so. `agent-docs/release.md`, `checklists/release.md` and the `bump-version` next steps merge the release commit through a PR and push only the tag, not `main` or `--tags`.
 
 ### Fixed
 

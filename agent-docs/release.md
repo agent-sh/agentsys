@@ -35,7 +35,8 @@ The workflow triggers automatically on tag push. It refuses a tag whose commit i
 Use pre-release tags to publish to npm without moving `latest`. The tag must point to a commit where all version fields have already been bumped to the prerelease version (e.g., `X.Y.Z-rc.N`).
 
 ```bash
-# After the bump commit has merged to main through a PR, tag that commit
+# After the bump commit has merged to main through a PR, tag that commit on main
+git checkout main && git pull --ff-only
 git tag vX.Y.Z-rc.1
 git tag vX.Y.Z-beta.1
 git push origin vX.Y.Z-rc.1 vX.Y.Z-beta.1
@@ -211,5 +212,5 @@ If re-releasing the same version:
 git tag -d vX.Y.Z          # delete local
 git push origin :vX.Y.Z    # delete remote
 git tag vX.Y.Z             # recreate
-git push origin --tags     # push
+git push origin vX.Y.Z    # push
 ```

@@ -82,9 +82,11 @@ Files updated (via npm version + stamp-version.js):
 
 Next steps:
   1. Update CHANGELOG.md with release notes
-  2. git add -A && git commit -m "chore: release v${newVersion}"
-  3. git tag v${newVersion}
-  4. git push origin main v${newVersion}
+  2. git checkout -b chore/release-${newVersion}
+  3. git add -A && git commit -m "chore: release v${newVersion}"
+  4. git push -u origin chore/release-${newVersion} and open a PR to main
+  5. After the PR merges: git checkout main && git pull --ff-only
+  6. git tag v${newVersion} && git push origin v${newVersion}
 `);
   return 0;
 }
