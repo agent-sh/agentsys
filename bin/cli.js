@@ -408,12 +408,12 @@ function readCachedCommit(name) {
   return readPluginMarker(path.join(getPluginCacheDir(), name), '.commit');
 }
 
-// A pin may be abbreviated; the archive always reports the full commit.
+// A pin is a full SHA and must equal the commit the archive or cache names.
 function sameCommit(resolved, pinned) {
-  return Boolean(resolved && pinned) && resolved.toLowerCase().startsWith(pinned.toLowerCase());
+  return Boolean(resolved && pinned) && resolved.toLowerCase() === pinned.toLowerCase();
 }
 
-const COMMIT_PIN = /^[0-9a-f]{7,40}$/i;
+const COMMIT_PIN = /^[0-9a-f]{40}$/i;
 
 /**
  * Refs to request, in order, for one plugin fetch.
@@ -464,7 +464,7 @@ async function fetchPlugin(name, source, version, pin = {}) {
   const pluginDir = path.join(cacheDir, name);
 
   if (pin.commit && !COMMIT_PIN.test(pin.commit)) {
-    throw new Error(`Invalid commit pin for ${name}: ${pin.commit}`);
+    throw new Error(`Invalid commit pin for ${name}: ${pin.commit} (a pin is a full 40-character commit SHA)`);
   }
 
   if (isPluginCacheCurrent(pluginDir, version, pin)) {
@@ -476,6 +476,11 @@ async function fetchPlugin(name, source, version, pin = {}) {
   const repo = parsedSource.repo;
   const { refs, exact } = pluginFetchRefs(parsedSource, version, pin);
 
+  // The archive is extracted beside the cache, outside the plugins/ dir that
+  // discovery scans, and moves into place only once it is complete and its
+  // commit checks out. A failed fetch leaves no tree behind to be installed.
+  const stagingDir = path.join(path.dirname(cacheDir), `.fetch-${name}`);
+
   let lastError = null;
   for (const ref of refs) {
     const tarballUrl = `https://api.github.com/repos/${owner}/${repo}/tarball/${ref}`;
@@ -483,30 +488,41 @@ async function fetchPlugin(name, source, version, pin = {}) {
     try {
       console.log(`  Fetching ${name}@${version} from ${owner}/${repo} (${ref})...`);
 
-      // Clean and recreate
-      if (fs.existsSync(pluginDir)) {
-        fs.rmSync(pluginDir, { recursive: true, force: true });
-      }
-      fs.mkdirSync(pluginDir, { recursive: true });
+      fs.rmSync(pluginDir, { recursive: true, force: true });
+      fs.rmSync(stagingDir, { recursive: true, force: true });
+      fs.mkdirSync(stagingDir, { recursive: true });
 
-      // Download and extract tarball
-      const archiveCommit = await downloadAndExtractTarball(tarballUrl, pluginDir);
+      const archiveCommit = await downloadAndExtractTarball(tarballUrl, stagingDir);
       // A pinned fetch is cached only when the archive names the pinned commit
       if (pin.commit && !sameCommit(archiveCommit, pin.commit)) {
-        fs.rmSync(pluginDir, { recursive: true, force: true });
         throw new Error(archiveCommit
           ? `${owner}/${repo} returned commit ${archiveCommit} for pinned commit ${pin.commit}`
           : `${owner}/${repo} archive for pinned commit ${pin.commit} does not name its commit`);
       }
 
-      fs.writeFileSync(path.join(pluginDir, '.ref'), ref);
-      if (archiveCommit) {
-        fs.writeFileSync(path.join(pluginDir, '.commit'), archiveCommit.toLowerCase());
+      // The markers describe this fetch. A file of the same name shipped in
+      // the archive is removed first, so the cache check never trusts it.
+      for (const marker of ['.ref', '.commit', '.version']) {
+        fs.rmSync(path.join(stagingDir, marker), { recursive: true, force: true });
       }
-      // Written last: the cache check reads `.version` first
-      fs.writeFileSync(path.join(pluginDir, '.version'), version);
+      fs.writeFileSync(path.join(stagingDir, '.ref'), ref);
+      if (archiveCommit) {
+        fs.writeFileSync(path.join(stagingDir, '.commit'), archiveCommit.toLowerCase());
+      }
+      fs.writeFileSync(path.join(stagingDir, '.version'), version);
+
+      fs.mkdirSync(cacheDir, { recursive: true });
+      try {
+        fs.renameSync(stagingDir, pluginDir);
+      } catch {
+        // Windows can refuse to rename a tree a virus scanner holds open
+        fs.cpSync(stagingDir, pluginDir, { recursive: true, verbatimSymlinks: true });
+        fs.rmSync(stagingDir, { recursive: true, force: true });
+      }
       return pluginDir;
     } catch (err) {
+      fs.rmSync(stagingDir, { recursive: true, force: true });
+      fs.rmSync(pluginDir, { recursive: true, force: true });
       lastError = err;
       const isNotFound = /HTTP 404/.test(err.message);
       if (isNotFound && !exact) {
@@ -1202,8 +1218,8 @@ async function installPlugin(nameWithVersion, args) {
   const installDir = getInstallDir();
   const needsLocal = platforms.includes('opencode') || platforms.includes('codex') || platforms.includes('cursor') || platforms.includes('kiro');
   if (needsLocal && !fs.existsSync(path.join(installDir, 'lib'))) {
-    // Need local install for transforms
-    cleanOldInstallation(installDir);
+    // Need local install for transforms. Copy over what is there: removing
+    // ~/.agentsys first would drop installed.json and the other plugins' records.
     copyFromPackage(installDir);
   }
 

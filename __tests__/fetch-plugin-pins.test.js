@@ -6,6 +6,7 @@
  * download, `tar` extraction, the archive commit check and the cache markers.
  */
 
+const crypto = require('crypto');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -18,6 +19,7 @@ const {
   fetchPlugin,
   fetchExternalPlugins,
   installPlugin,
+  removePlugin,
   loadMarketplace,
   resolvePluginSource,
   pluginFetchRefs,
@@ -76,8 +78,9 @@ function githubTarball(commit, prefix, files) {
 // --- fake GitHub tarball endpoint ---
 
 /**
- * repos: { 'owner/repo': { refs: { <ref>: <commit> }, files?: {}, archiveCommit?: fn } }
- * A full commit SHA a repo knows is always servable, as on GitHub.
+ * repos: { 'owner/repo': { refs: { <ref>: <commit> }, files?: {}, archiveCommit?: fn, cut?: bool } }
+ * A full commit SHA a repo knows is always servable, as on GitHub. `cut`
+ * serves the first three quarters of the gzip stream, like a dropped download.
  */
 function fakeGitHub(repos) {
   const requests = [];
@@ -100,6 +103,7 @@ function fakeGitHub(repos) {
           'COMMIT': commit,
           ...(known.files || {})
         });
+        if (known.cut) body = body.subarray(0, Math.floor(body.length * 0.75));
       }
     }
     res.statusCode = body ? 200 : 404;
@@ -111,6 +115,16 @@ function fakeGitHub(repos) {
   });
   return requests;
 }
+
+/** The fake repo key and pinned commit of a marketplace plugin. */
+function marketplaceRepo(name) {
+  const plugin = loadMarketplace().plugins.find(p => p.name === name);
+  const source = resolvePluginSource(plugin.source);
+  const { owner, repo } = parseGitHubSource(source.value, plugin.version, name);
+  return { repo: `${owner}/${repo}`, commit: source.commit };
+}
+
+const skillFile = (name) => `---\nname: ${name}\ndescription: Use when testing pinned installs.\n---\n\nBody.\n`;
 
 describe('fetching plugins at their marketplace pins', () => {
   let tmpHome;
@@ -219,7 +233,7 @@ describe('fetching plugins at their marketplace pins', () => {
     const requests = fakeGitHub(drifted());
     await fetchPlugin('learn', SOURCE, '1.2.0', { commit: SHA_PINNED });
     await fetchPlugin('learn', SOURCE, '1.2.0', { commit: SHA_PINNED });
-    await fetchPlugin('learn', SOURCE, '1.2.0', { commit: SHA_PINNED.slice(0, 7) });
+    await fetchPlugin('learn', SOURCE, '1.2.0', { commit: SHA_PINNED.toUpperCase() });
     expect(requests).toHaveLength(1);
 
     // A cache written before pins were honored has `.version` but no `.commit`
@@ -264,6 +278,102 @@ describe('fetching plugins at their marketplace pins', () => {
 
     expect(loadInstalledJson().plugins).not.toHaveProperty('learn');
     expect(fs.existsSync(path.join(tmpHome, '.kiro', 'skills', 'learn'))).toBe(false);
+  });
+
+  test('an abbreviated commit pin is an error, so a pin names exactly one commit', async () => {
+    const requests = fakeGitHub(drifted());
+    for (const pin of [SHA_PINNED.slice(0, 7), SHA_PINNED.slice(0, 39), `${SHA_PINNED}0`]) {
+      await expect(fetchPlugin('learn', SOURCE, '1.2.0', { commit: pin }))
+        .rejects.toThrow(`Invalid commit pin for learn: ${pin}`);
+    }
+    expect(requests).toEqual([]);
+
+    // A full pin does not match a cache or an archive at another commit with the same prefix
+    await fetchPlugin('learn', SOURCE, '1.2.0', { commit: SHA_PINNED });
+    const samePrefix = SHA_PINNED.slice(0, 7) + '0'.repeat(33);
+    await expect(fetchPlugin('learn', SOURCE, '1.2.0', { commit: samePrefix })).rejects.toThrow(/HTTP 404/);
+    expect(requests.map(r => r.ref)).toEqual([SHA_PINNED, samePrefix]);
+  });
+
+  test('a cut-off download leaves no cache dir, and a later install does not install it', async () => {
+    const learn = marketplaceRepo('learn');
+    const deslop = marketplaceRepo('deslop');
+    fakeGitHub({
+      [learn.repo]: {
+        refs: { pinned: learn.commit },
+        files: {
+          'skills/learn/SKILL.md': skillFile('learn'),
+          // Incompressible, so the cut lands inside it, after the files above
+          'noise.bin': crypto.randomBytes(256 * 1024).toString('latin1')
+        },
+        cut: true
+      },
+      [deslop.repo]: { refs: { pinned: deslop.commit }, files: { 'skills/deslop/SKILL.md': skillFile('deslop') } }
+    });
+
+    await expect(installPlugin('learn', { tool: 'kiro', tools: [] }))
+      .rejects.toThrow('Not installing learn: failed to fetch learn');
+    expect(console.error.mock.calls.flat().join('\n')).toMatch(/Failed to fetch learn: tar extraction failed/);
+    expect(fs.existsSync(path.join(getPluginCacheDir(), 'learn'))).toBe(false);
+    // The partial extraction is gone too, not left beside the cache
+    expect(fs.readdirSync(path.join(tmpHome, '.agentsys')).filter(e => e.includes('learn'))).toEqual([]);
+
+    await installPlugin('deslop', { tool: 'kiro', tools: [] });
+    expect(fs.existsSync(path.join(tmpHome, '.kiro', 'skills', 'deslop', 'SKILL.md'))).toBe(true);
+    expect(fs.existsSync(path.join(tmpHome, '.kiro', 'skills', 'learn'))).toBe(false);
+    expect(Object.keys(loadInstalledJson().plugins)).toEqual(['deslop']);
+  });
+
+  test('a fetch whose rename into the cache fails still installs, by copying', async () => {
+    fakeGitHub(drifted());
+    jest.spyOn(fs, 'renameSync').mockImplementationOnce(() => {
+      throw Object.assign(new Error('EPERM: operation not permitted, rename'), { code: 'EPERM' });
+    });
+    await fetchPlugin('learn', SOURCE, '1.2.0', { commit: SHA_PINNED });
+    expect(cached('COMMIT')).toBe(SHA_PINNED);
+    expect(readCachedCommit('learn')).toBe(SHA_PINNED);
+    expect(fs.readdirSync(path.join(tmpHome, '.agentsys'))).toEqual(['plugins']);
+  });
+
+  test('cache markers shipped inside an archive are replaced, never trusted', async () => {
+    const repos = drifted();
+    repos['agent-sh/learn'].files = { '.commit': SHA_PINNED, '.ref': SHA_PINNED, '.version': '1.2.0' };
+    // Unpinned, from an archive that does not name its commit
+    repos['agent-sh/learn'].archiveCommit = () => null;
+    const requests = fakeGitHub(repos);
+
+    await fetchPlugin('learn', SOURCE, '1.2.0');
+    expect(cached('COMMIT')).toBe(SHA_TAG);
+    expect(readCachedCommit('learn')).toBeNull();
+    expect(cached('.ref')).toBe('v1.2.0');
+
+    // So a pinned install fetches its commit instead of reusing that tree
+    delete repos['agent-sh/learn'].archiveCommit;
+    await fetchPlugin('learn', SOURCE, '1.2.0', { commit: SHA_PINNED });
+    expect(requests.map(r => r.ref)).toEqual(['v1.2.0', SHA_PINNED]);
+    expect(cached('COMMIT')).toBe(SHA_PINNED);
+  });
+
+  test('a first local install keeps the records of plugins installed before it', async () => {
+    const learn = marketplaceRepo('learn');
+    fakeGitHub({ [learn.repo]: { refs: { pinned: learn.commit }, files: { 'skills/learn/SKILL.md': skillFile('learn') } } });
+    // A Claude-only `agentsys install deslop` records deslop and sets up no local files
+    recordInstall('deslop', '1.0.0', ['claude']);
+    expect(fs.existsSync(path.join(tmpHome, '.agentsys', 'lib'))).toBe(false);
+
+    await installPlugin('learn', { tool: 'kiro', tools: [] });
+    expect(Object.keys(loadInstalledJson().plugins).sort()).toEqual(['deslop', 'learn']);
+
+    // `agentsys remove deslop` finds it; PATH is emptied so no real `claude` runs
+    jest.spyOn(process, 'exit').mockImplementation((code) => { throw new Error(`process.exit(${code})`); });
+    const origPath = process.env.PATH;
+    process.env.PATH = '';
+    try {
+      removePlugin('deslop');
+    } finally {
+      process.env.PATH = origPath;
+    }
+    expect(Object.keys(loadInstalledJson().plugins)).toEqual(['learn']);
   });
 
   test('installed.json records the commit the cache holds', async () => {
