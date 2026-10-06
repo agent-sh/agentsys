@@ -262,6 +262,40 @@ function validateAgentCounts() {
   }
 }
 
+// Docs and site must not carry an exact test count: it goes stale every release.
+const TEST_COUNT_FILES = [
+  'README.md',
+  'docs/ARCHITECTURE.md',
+  'site/content.json',
+  'site/index.html',
+  'site/ux-spec.md'
+];
+const TEST_COUNT_PATTERNS = [
+  /\b\d[\d,]*\+?\s+tests\b/i,
+  /(?:"label":\s*"|stats__label">)Tests\b/i
+];
+
+function findHardcodedTestCounts(text) {
+  const found = [];
+  text.split('\n').forEach((line, index) => {
+    if (TEST_COUNT_PATTERNS.some(pattern => pattern.test(line))) {
+      found.push({ line: index + 1, text: line.trim() });
+    }
+  });
+  return found;
+}
+
+function validateNoHardcodedTestCount() {
+  for (const file of TEST_COUNT_FILES) {
+    const filePath = path.join(ROOT_DIR, file);
+    if (!fs.existsSync(filePath)) continue;
+    const hits = findHardcodedTestCounts(fs.readFileSync(filePath, 'utf8'));
+    for (const hit of hits) {
+      errors.push(`${file}:${hit.line} hard-codes a test count (it goes stale every release): ${hit.text}`);
+    }
+  }
+}
+
 function validatePerfDocs() {
   const requiredDocs = [
     path.join(ROOT_DIR, 'docs', 'perf-requirements.md'),
@@ -361,6 +395,7 @@ function main() {
   validateVersions();
   validateMappings();
   validateAgentCounts();
+  validateNoHardcodedTestCount();
   validatePerfDocs();
   validatePerfAgentSkillUsage();
   validateEnhanceAgentSkillUsage();
@@ -380,4 +415,4 @@ if (require.main === module) {
   if (typeof code === 'number') process.exit(code);
 }
 
-module.exports = { main };
+module.exports = { main, findHardcodedTestCounts };

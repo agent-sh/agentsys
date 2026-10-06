@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The docs and the site no longer carry an exact test count. "3,518 tests" had been stale since v5.13.5 (the suite runs about 3,660), and `README.md`, `docs/ARCHITECTURE.md`, `site/content.json`, `site/index.html` and `site/ux-spec.md` now say the suite runs on Linux and Windows. The site stats bar shows Platforms (5) in place of Tests Passing, and its Agents tile reads 50 to match `site/content.json`. `npx agentsys-dev validate consistency` fails when any of those files hard-codes a test count again.
+
+### Fixed
+
+- `.agnix.toml` no longer disables AS-014, a rule agnix removed. agnix 0.56.5 printed a config warning for it.
+
 ## [6.1.1] - 2026-10-06
 
 ### Changed

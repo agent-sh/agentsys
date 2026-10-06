@@ -229,7 +229,7 @@ Done. Task to merged PR in 12 minutes.
 | 1 | 20 | Plugins |
 | 2 | 49 | Agents |
 | 3 | 41 | Skills |
-| 4 | 3,518 | Tests Passing |
+| 4 | 5 | Platforms |
 
 ### Styling
 - **Number:** 48px, font-weight 700, white, `font-variant-numeric: tabular-nums` (prevents layout shift during count)

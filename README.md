@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <b>24 plugins · 50 agents · 44 skills (across all repos) · 30k lines of lib code · 3,518 tests · 5 platforms</b><br>
+  <b>24 plugins · 50 agents · 44 skills (across all repos) · 30k lines of lib code · tests on Linux and Windows · 5 platforms</b><br>
   <em>Plugins distributed as standalone repos under <a href="https://github.com/agent-sh">agent-sh</a> org - agentsys is the marketplace &amp; installer</em>
 </p>
 
@@ -1231,7 +1231,7 @@ The system is built on research, not guesswork.
 - Instruction following reliability
 
 **Testing:**
-- 3,518 tests passing
+- Jest suite runs on Linux and Windows in CI
 - Drift-detect validated on 1,000+ repositories
 - E2E workflow testing across all commands
 - Cross-platform validation (Claude Code, OpenCode, Codex CLI, Cursor, Kiro)
