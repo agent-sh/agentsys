@@ -137,7 +137,7 @@ The package provides these capabilities through commands, agents, and skills:
 | Drift detection | `/drift-detect` | Plan vs implementation analysis |
 | Code review | `/audit-project` | Multi-agent code review |
 | Negative memory | `/banthis` | Persist banned agent behaviors |
-| Config linting | `/agnix` | Lint agent configurations (385 rules) |
+| Config linting | `/agnix` | Lint agent configurations (457 rules) |
 | Research | `/learn` | Research topics, create learning guides |
 | AI consultation | `/consult` | Cross-tool AI consultation |
 | AI debate | `/debate` | Structured debate between AI tools |

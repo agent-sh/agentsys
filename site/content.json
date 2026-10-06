@@ -5,7 +5,7 @@
     "url": "https://agent-sh.github.io/agentsys",
     "repo": "https://github.com/agent-sh/agentsys",
     "npm": "https://www.npmjs.com/package/agentsys",
-    "version": "6.0.2",
+    "version": "6.1.0",
     "author": "Avi Fenesh",
     "author_url": "https://github.com/avifenesh"
   },
@@ -119,7 +119,7 @@
     {
       "name": "/agnix",
       "tagline": "Lint agent configs before they break",
-      "description": "423 validation rules (129 auto-fixable) for Skills, Memory, Hooks, MCP, and Plugins across 10+ AI tools including Claude Code, Cursor, GitHub Copilot, Codex CLI, OpenCode, Gemini CLI, Cline, Windsurf, Roo Code, and Amp. SARIF output for GitHub Code Scanning.",
+      "description": "457 validation rules for Skills, Memory, Hooks, MCP, and Plugins across 10+ AI tools including Claude Code, Cursor, GitHub Copilot, Codex CLI, OpenCode, Gemini CLI, Cline, Windsurf, Roo Code, and Amp. SARIF output for GitHub Code Scanning.",
       "example": "/agnix --fix",
       "category": "linting"
     },

@@ -44,7 +44,7 @@ Tool lists are abbreviated: `Bash(git, gh)` means `Bash(git:*), Bash(gh:*)`.
 | implementation-agent | inherit | Read, Write, Edit, Glob, Grep, Bash(git, npm, node), LSP | Implements the approved plan with tests as local commits. Does not push, open a PR or run review agents: `/ship` owns the push. |
 | simple-fixer | haiku | Read, Edit, Bash(git) | Applies a precomputed list of mechanical edits (remove line, replace text, insert line) from deslop or sync-docs and commits them. |
 | ci-monitor | haiku | Bash(gh, git), Read, Task | Blocks on `gh pr checks --watch` with the whole wait bounded to 30 minutes, reports failing checks and review feedback, and hands fixes to ci-fixer for at most 5 rounds. Reports `passed`, `failed`, `timeout` or `no-checks`; does not reply to reviewers or merge. |
-| ci-fixer | sonnet | Bash(git, npm), Read, Edit, Grep, Glob | Fixes one CI failure or one review comment that needs a code change, commits it and pushes the PR branch. |
+| ci-fixer | sonnet | Bash(git, npm, gh run view), Read, Edit, Grep, Glob | Fixes one CI failure or one review comment that needs a code change, commits it and pushes the PR branch. |
 
 ## prepare-delivery Plugin Agents
 

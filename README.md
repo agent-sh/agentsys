@@ -43,14 +43,16 @@
 AI models can write code. That's not the hard part anymore. The hard part is everything around it - task selection, branch management, code review, artifact cleanup, CI, PR comments, deployment. **AgentSys is the runtime that orchestrates agents to handle all of it** - structured pipelines, gated phases, specialized agents, and persistent state that survives session boundaries.
 
 ---
-> Building custom skills, agents, hooks, or MCP tools? [agnix](https://github.com/agent-sh/agnix) is the CLI + LSP linter that catches config errors before they fail silently - real-time IDE validation, auto suggestions, auto-fix, and 423 rules for Claude Code, Codex, OpenCode, Cursor, Kiro, Copilot, Gemini CLI, Cline, Windsurf, Roo Code, Amp, and more.
+> Building custom skills, agents, hooks, or MCP tools? [agnix](https://github.com/agent-sh/agnix) is the CLI + LSP linter that catches config errors before they fail silently - real-time IDE validation, auto suggestions, auto-fix, and 457 rules for Claude Code, Codex, OpenCode, Cursor, Kiro, Copilot, Gemini CLI, Cline, Windsurf, Roo Code, Amp, and more.
 
-## What's New in 6.0.2
+## What's New in 6.1.0
 
-- Fixes Windows installs: the Claude Code executable is resolved with `where.exe` instead of an assumed `claude.cmd`, and `.cmd` shims are launched through `cmd.exe` at every spawn site.
-- `agentsys install` reports failures instead of printing success when Claude Code rejected a plugin, and exits non-zero.
-- Deletes the two adapter `install.sh` scripts, which deleted a working install and reported success; `agentsys --tool codex` / `--tool opencode` is the install path.
-- CI now runs the suite on Windows as well as Linux.
+- Claude Code installs each plugin at the commit `marketplace.json` pins. It reads a pin from `sha` and ignored the `commit` key the pins were in, so it installed a release tag or the plugin's default branch; every entry now carries `sha`.
+- The npm installer fetches each plugin at that same commit, so OpenCode, Codex, Cursor and Kiro get the plugin code Claude Code installs.
+- A first `agentsys install <plugin>` for OpenCode, Codex, Cursor or Kiro installs the plugin. It used to delete the fetched plugin and still report success.
+- OpenCode, Codex, Cursor and Kiro installs copy whole skill directories, so `references/` and `scripts/` arrive with `SKILL.md`, and Codex installs plugin skills as well as commands.
+- Marketplace pins move to newer plugin commits; the CHANGELOG lists the versions.
+- Windows: `.cmd` shims run with delayed expansion off, so `!NAME!` in an argument stays literal.
 
 ## What This Is
 
@@ -128,7 +130,7 @@ The investment shifts from model spend to pipeline design. Better prompts, riche
 | [`/prepare-delivery`](#prepare-delivery) | Pre-ship quality gates: deslop, review, validation, docs sync |
 | [`/gate-and-ship`](#gate-and-ship) | Quality gates then ship (/prepare-delivery + /ship) |
 | [`/banthis`](#banthis) | Durable negative memory: persist banned agent behaviors |
-| [`/agnix`](#agnix) | Lint agent configurations (423 rules) |
+| [`/agnix`](#agnix) | Lint agent configurations (457 rules) |
 | [`/ship`](#ship) | PR creation, CI monitoring, merge |
 | [`/deslop`](#deslop) | Clean AI slop patterns |
 | [`/perf`](#perf) | Performance investigation with baselines and profiling |
@@ -368,7 +370,7 @@ agnix catches these issues before they cause problems.
 | **Best Practices** | Tool restrictions, model selection, trigger phrase quality |
 | **Cross-Platform** | Compatibility across Claude Code, Codex, OpenCode, Cursor, Kiro, Copilot, Gemini CLI, Cline, Windsurf, Roo Code, Amp, and more |
 
-**423 validation rules** (129 auto-fixable) derived from:
+**457 validation rules** derived from:
 - Official tool specifications (Claude Code, Codex CLI, OpenCode, Cursor, Kiro, GitHub Copilot, Gemini CLI, Cline, Windsurf, Roo Code, Amp, and more)
 - Research papers on agent reliability and prompt injection
 - Real-world testing across 500+ repositories

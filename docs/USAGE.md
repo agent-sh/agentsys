@@ -42,7 +42,7 @@ You shouldn't have to repeat the same requests every session. These commands han
 | `/onboard` | Codebase onboarding - project orientation | Newcomer guidance |
 | `/can-i-help` | Contributor guidance - match skills to project needs | Contributor matching |
 | `/release` | Versioned release with automatic ecosystem detection | Tag, changelog, publish |
-| `/agnix` | Linter for AI agent configs | Rule validation (385 rules) |
+| `/agnix` | Linter for AI agent configs | Rule validation (457 rules) |
 | `/prepare-delivery` | Pre-ship validation checks | Tests, build, lint verification |
 | `/gate-and-ship` | Gated shipping workflow | Validation gate then ship |
 

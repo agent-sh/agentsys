@@ -11,9 +11,9 @@ const repoRoot = path.join(__dirname, '..');
 
 const expectedStandalonePlugins = {
   'skill-curator': {
-    version: '1.1.0',
-    ref: 'v1.1.0',
-    commit: '6687d8c474f3f5049843b03ba9349f2f09351839',
+    version: '1.2.0',
+    ref: 'v1.2.0',
+    commit: '62f7a2682b3d04830abfbd72c163dada97e875de',
     command: '/skill-curator',
     category: 'development',
   },
@@ -25,9 +25,9 @@ const expectedStandalonePlugins = {
     category: 'development',
   },
   banthis: {
-    version: '0.5.0',
-    ref: 'v0.5.0',
-    commit: 'ea38796ed89ef71a3d82c9be16864ada8d3db345',
+    version: '0.6.0',
+    ref: 'v0.6.0',
+    commit: '700cb0eea3f9de83d22724d6de38b01f7971cf1f',
     command: '/banthis',
     category: 'productivity',
   },
@@ -66,6 +66,7 @@ test('standalone curator and memory plugins are pinned to immutable release comm
       url: `https://github.com/agent-sh/${name}.git`,
       ref: expected.ref,
       commit: expected.commit,
+      sha: expected.commit,
     });
   }
 });
@@ -94,5 +95,16 @@ test('all url-sourced marketplace plugins carry a commit pin', () => {
     if (plugin.source.ref) {
       expect(plugin.source.ref).toBe(`v${plugin.version}`);
     }
+  }
+});
+
+// Claude Code's `url` source reads `url`, `ref` and `sha` and ignores
+// `commit`, so without `sha` Claude Code installs the `ref` tag or the default
+// branch HEAD. The npm installer reads the same pin, so the two must agree.
+test('every url-sourced marketplace plugin pins Claude Code with sha equal to commit', () => {
+  const remote = marketplace.plugins.filter((plugin) => plugin.source?.source === 'url');
+  expect(remote.length).toBeGreaterThan(0);
+  for (const plugin of remote) {
+    expect([plugin.name, plugin.source.sha]).toEqual([plugin.name, plugin.source.commit]);
   }
 });
