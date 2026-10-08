@@ -227,11 +227,11 @@
         "source": "git-subdir",
         "url": "https://github.com/agent-sh/agnix.git",
         "path": "plugin",
-        "commit": "ed9e01e53c22bff37e9a3d711f97a0cc745c4cd6",
-        "sha": "ed9e01e53c22bff37e9a3d711f97a0cc745c4cd6"
+        "commit": "2c0e4efede3181599eca37619e8067ae2d941c00",
+        "sha": "2c0e4efede3181599eca37619e8067ae2d941c00"
       },
       "description": "Lint agent configuration files (SKILL.md, CLAUDE.md, hooks, MCP) against 457 rules across 10+ AI tools",
-      "version": "0.56.5",
+      "version": "0.57.0",
       "category": "development",
       "homepage": "https://github.com/agent-sh/agnix"
     },
