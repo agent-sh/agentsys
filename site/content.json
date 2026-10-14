@@ -236,6 +236,13 @@
       "description": "Collects 5 contributor signals (good-first areas, test gaps, doc drift, bugspots, open issues), asks about developer background, then recommends specific areas with concrete first steps.",
       "example": "/can-i-help",
       "category": "learning"
+    },
+    {
+      "name": "/tower-crane-*",
+      "tagline": "Hand over an issue, a goal or a project",
+      "description": "Tower Crane plans the work into tasks, spawns a worker per task in its own worktree and sandbox, has each change reviewed by an agent that did not write it, and merges it once software gates pass. Needs the tower-crane CLI on PATH.",
+      "example": "/tower-crane-inbox",
+      "category": "workflow"
     }
   ],
   "philosophy": [
@@ -440,6 +447,17 @@
           "ci-monitor",
           "simple-fixer",
           "map-validator"
+        ]
+      },
+      {
+        "model": "Inherit",
+        "use_case": "The caller's model",
+        "agents": [
+          "tower-crane-orchestrator",
+          "tower-crane-worker",
+          "tower-crane-researcher",
+          "tower-crane-reviewer",
+          "tower-crane-small"
         ]
       }
     ]

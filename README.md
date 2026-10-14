@@ -1024,7 +1024,7 @@ The system prompt curator rewrites prompts around task-matched identity, phased 
 
 Tower Crane is a CLI and a Claude Code plugin. An orchestrator agent plans the work into tasks and spawns a worker per task in its own worktree and sandbox. An agent that did not write the change reviews it. Software gates (tests, cleanup, CI at the exact commit) decide acceptance, and the merge pins the accepted head. The plan and its progress live in JSON files under `.tower-crane/` that only the CLI writes. Owner questions are queued as decisions and block only the tasks they name.
 
-**Requires:** the CLI on `PATH` (`npm install -g @agent-sh/tower-crane`), Node 24 or newer, git, an authenticated `gh` and the harness CLIs its ladder names (`claude` and `codex` by default).
+**Requires:** the CLI on `PATH` (`npm install -g @agent-sh/tower-crane`), Node 24 or newer, git, an authenticated `gh`, the harness CLIs its ladder names (`claude` and `codex` by default) and, for code tasks, a cleanup tool for the clean gate ([deslop](https://github.com/agent-sh/deslop) on `PATH`, or `TOWER_CRANE_CLEAN_CMD`).
 
 **Usage:** hand the `tower-crane` skill an issue URL, a goal or a plan file. It plans, dispatches, gates and merges.
 
