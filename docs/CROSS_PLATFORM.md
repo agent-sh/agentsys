@@ -104,7 +104,7 @@ claude --plugin-dir /path/to/agentsys/plugins/next-task
 - `/system-prompt-curator` - System prompt curation
 - `/onboard` - Codebase onboarding
 - `/can-i-help` - Contributor guidance
-- `/tower-crane-inbox`, `/tower-crane-spawn-ready`, `/tower-crane-merge-accepted`, `/tower-crane-rework-from-review`, `/tower-crane-release-dead` - Tower Crane delegated delivery (needs the `tower-crane` CLI)
+- `/tower-crane-inbox`, `/tower-crane-spawn-ready`, `/tower-crane-merge-accepted`, `/tower-crane-rework-from-review`, `/tower-crane-release-dead`, `/tower-crane-watch` - Tower Crane delegated delivery (needs the `tower-crane` CLI; `/tower-crane-watch` is registered by the Claude Code mod)
 
 ### Available Agents (55 total: 45 file-based agents + 10 role-based)
 

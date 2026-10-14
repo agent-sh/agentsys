@@ -446,7 +446,9 @@
           "worktree-manager",
           "ci-monitor",
           "simple-fixer",
-          "map-validator"
+          "map-validator",
+          "repo-intel-summarizer",
+          "repo-intel-weighter"
         ]
       },
       {

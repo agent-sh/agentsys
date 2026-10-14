@@ -703,15 +703,16 @@ banthis list">
     <section class="agents-skills" id="agents-skills" aria-labelledby="as-title">
       <div class="agents-skills__inner">
         <h2 class="agents-skills__title anim-fade-up" id="as-title">55 Agents. 47 Skills.</h2>
-        <p class="agents-skills__subtitle anim-fade-up" data-delay="100">Right model for the task. Opus reasons. Sonnet validates. Haiku executes.</p>
+        <p class="agents-skills__subtitle anim-fade-up" data-delay="100">Right model for the task. Opus reasons. Sonnet validates. Haiku executes. Inherit uses the caller's model.</p>
 
         <!-- Agent tier tabs -->
         <div class="agents-skills__tabs anim-fade-up" data-delay="200">
           <div class="agent-tabs" role="tablist" aria-label="Agent tiers">
             <button class="agent-tabs__tab agent-tabs__tab--active" role="tab" aria-selected="true" aria-controls="agent-tier-opus" id="agent-tab-opus" data-index="0">Opus <span class="agent-tabs__count">14</span></button>
-            <button class="agent-tabs__tab" role="tab" aria-selected="false" aria-controls="agent-tier-sonnet" id="agent-tab-sonnet" tabindex="-1" data-index="1">Sonnet <span class="agent-tabs__count">21</span></button>
-            <button class="agent-tabs__tab" role="tab" aria-selected="false" aria-controls="agent-tier-haiku" id="agent-tab-haiku" tabindex="-1" data-index="2">Haiku <span class="agent-tabs__count">4</span></button>
-            <button class="agent-tabs__tab" role="tab" aria-selected="false" aria-controls="agent-tier-specialists" id="agent-tab-specialists" tabindex="-1" data-index="3">Specialists <span class="agent-tabs__count">10</span></button>
+            <button class="agent-tabs__tab" role="tab" aria-selected="false" aria-controls="agent-tier-sonnet" id="agent-tab-sonnet" tabindex="-1" data-index="1">Sonnet <span class="agent-tabs__count">20</span></button>
+            <button class="agent-tabs__tab" role="tab" aria-selected="false" aria-controls="agent-tier-haiku" id="agent-tab-haiku" tabindex="-1" data-index="2">Haiku <span class="agent-tabs__count">6</span></button>
+            <button class="agent-tabs__tab" role="tab" aria-selected="false" aria-controls="agent-tier-inherit" id="agent-tab-inherit" tabindex="-1" data-index="3">Inherit <span class="agent-tabs__count">5</span></button>
+            <button class="agent-tabs__tab" role="tab" aria-selected="false" aria-controls="agent-tier-specialists" id="agent-tab-specialists" tabindex="-1" data-index="4">Specialists <span class="agent-tabs__count">10</span></button>
           </div>
 
           <!-- Opus agents -->
@@ -753,7 +754,6 @@ banthis list">
               <div class="agent-card"><span class="agent-card__name">sync-docs-agent</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Documentation sync and update</p></div>
               <div class="agent-card"><span class="agent-card__name">agnix-agent</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Agent config linting orchestration</p></div>
               <div class="agent-card"><span class="agent-card__name">consult-agent</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Cross-tool AI consultation orchestration</p></div>
-              <div class="agent-card"><span class="agent-card__name">web-session</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Browser automation and session management</p></div>
               <div class="agent-card"><span class="agent-card__name">skillers-compactor</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Transcript compaction into knowledge themes</p></div>
               <div class="agent-card"><span class="agent-card__name">release-agent</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Versioned release with ecosystem detection</p></div>
               <div class="agent-card"><span class="agent-card__name">onboard-agent</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Codebase orientation and guided onboarding</p></div>
@@ -768,6 +768,19 @@ banthis list">
               <div class="agent-card"><span class="agent-card__name">ci-monitor</span><span class="tier-badge tier-badge--haiku">haiku</span><p class="agent-card__desc">CI pipeline status polling</p></div>
               <div class="agent-card"><span class="agent-card__name">simple-fixer</span><span class="tier-badge tier-badge--haiku">haiku</span><p class="agent-card__desc">Mechanical code fixes and formatting</p></div>
               <div class="agent-card"><span class="agent-card__name">map-validator</span><span class="tier-badge tier-badge--haiku">haiku</span><p class="agent-card__desc">Repo map structural validation</p></div>
+              <div class="agent-card"><span class="agent-card__name">repo-intel-summarizer</span><span class="tier-badge tier-badge--haiku">haiku</span><p class="agent-card__desc">Three-depth repository summary</p></div>
+              <div class="agent-card"><span class="agent-card__name">repo-intel-weighter</span><span class="tier-badge tier-badge--haiku">haiku</span><p class="agent-card__desc">One-sentence descriptor per source file</p></div>
+            </div>
+          </div>
+
+          <!-- Inherit agents -->
+          <div class="agent-tier tabs__panel" role="tabpanel" id="agent-tier-inherit" aria-labelledby="agent-tab-inherit" hidden>
+            <div class="agent-grid">
+              <div class="agent-card"><span class="agent-card__name">tower-crane-orchestrator</span><span class="tier-badge tier-badge--inherit">inherit</span><p class="agent-card__desc">Plans work, dispatches workers, runs gates and merges</p></div>
+              <div class="agent-card"><span class="agent-card__name">tower-crane-worker</span><span class="tier-badge tier-badge--inherit">inherit</span><p class="agent-card__desc">Builds one task from its brief and opens the PR</p></div>
+              <div class="agent-card"><span class="agent-card__name">tower-crane-researcher</span><span class="tier-badge tier-badge--inherit">inherit</span><p class="agent-card__desc">Research-task worker with web access</p></div>
+              <div class="agent-card"><span class="agent-card__name">tower-crane-reviewer</span><span class="tier-badge tier-badge--inherit">inherit</span><p class="agent-card__desc">Clean-context review of a submitted task</p></div>
+              <div class="agent-card"><span class="agent-card__name">tower-crane-small</span><span class="tier-badge tier-badge--inherit">inherit</span><p class="agent-card__desc">One mechanical check, recorded with the CLI</p></div>
             </div>
           </div>
 
@@ -804,8 +817,8 @@ banthis list">
             <span class="skill-group__label">enhance</span>
             <div class="skill-group__items">
               <span class="skill-card">enhance-orchestrator</span>
-              <span class="skill-card">enhance-agents</span>
-              <span class="skill-card">enhance-claudemd</span>
+              <span class="skill-card">enhance-agent-prompts</span>
+              <span class="skill-card">enhance-claude-memory</span>
               <span class="skill-card">enhance-docs</span>
               <span class="skill-card">enhance-hooks</span>
               <span class="skill-card">enhance-plugins</span>
@@ -858,6 +871,8 @@ banthis list">
               <span class="skill-card">can-i-help</span>
               <span class="skill-card">audit-project</span>
               <span class="skill-card">agnix</span>
+              <span class="skill-card">mojo</span>
+              <span class="skill-card">ada-spark</span>
             </div>
           </div>
           <div class="skill-group">
