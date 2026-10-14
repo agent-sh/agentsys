@@ -1506,6 +1506,12 @@
   border: 1px solid rgba(var(--color-info-rgb), 0.2);
 }
 
+.tier-badge--inherit {
+  color: var(--color-success);
+  background: var(--color-success-muted);
+  border: 1px solid rgba(34, 197, 94, 0.28);
+}
+
 /* Skills grid */
 .skills-grid {
   display: grid;

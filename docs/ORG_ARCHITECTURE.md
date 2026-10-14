@@ -36,6 +36,9 @@
 | [glidemq](https://github.com/agent-sh/glidemq) | Glide-MQ message queue skills | Active |
 | [prepare-delivery](https://github.com/agent-sh/prepare-delivery) | Pre-ship quality gates plugin | Active |
 | [gate-and-ship](https://github.com/agent-sh/gate-and-ship) | Quality gates then ship plugin | Active |
+| [tower-crane](https://github.com/agent-sh/tower-crane) | Delegated delivery: plan, workers, independent review, gates, merge (CLI + plugin) | Active |
+| [mojo](https://github.com/agent-sh/mojo) | Mojo language skill plugin | Active |
+| [ada-spark](https://github.com/agent-sh/ada-spark) | Ada and SPARK language skill plugin | Active |
 
 **Org**: [github.com/agent-sh](https://github.com/agent-sh)
 **npm scope**: `@agentsys` (claimed on npmjs.com, not yet used)

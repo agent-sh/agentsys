@@ -386,6 +386,169 @@ function validateEnhanceAgentSkillUsage() {
   }
 }
 
+function namesInPanel(html, panelId) {
+  const start = html.indexOf(`id="${panelId}"`);
+  if (start < 0) return null;
+  const nextPanel = html.indexOf('id="agent-tier-', start + 1);
+  const skillsTitle = html.indexOf('agents-skills__skills-title', start);
+  let end = html.length;
+  if (nextPanel > start) end = Math.min(end, nextPanel);
+  if (skillsTitle > start) end = Math.min(end, skillsTitle);
+  return [...html.slice(start, end).matchAll(/agent-card__name">([^<]+)/g)].map(match => match[1]);
+}
+
+function listDiff(label, actual, expected) {
+  const missing = expected.filter(name => !actual.includes(name));
+  const extra = actual.filter(name => !expected.includes(name));
+  if (missing.length === 0 && extra.length === 0) return null;
+  return `${label}: missing ${missing.join(', ') || 'none'}; extra ${extra.join(', ') || 'none'}`;
+}
+
+function duplicateNames(list) {
+  const seen = new Set();
+  const dupes = [];
+  for (const name of list) {
+    if (seen.has(name)) dupes.push(name);
+    seen.add(name);
+  }
+  return dupes;
+}
+
+// The agents/skills section of site/index.html is static. Headings, tab
+// counts and cards have to match site/content.json and the skill list, or
+// the page advertises agents and skills it does not show.
+function siteCatalogMismatches(html, content, { skillNames = [], pluginCount = null } = {}) {
+  const found = [];
+  const push = (message) => { if (message) found.push(message); };
+
+  const heading = html.match(/id="as-title">(\d+) Agents\. (\d+) Skills\./);
+  const skillsTitle = html.match(/agents-skills__skills-title[^>]*>(\d+) Skills across (\d+) Plugins/);
+  if (!heading) push('site/index.html is missing the "N Agents. M Skills." heading');
+  if (!skillsTitle) push('site/index.html is missing the "N Skills across P Plugins" heading');
+
+  const agents = content && content.agents;
+  const stats = Array.isArray(content && content.stats) ? content.stats : [];
+  const statValue = (label) => {
+    const row = stats.find(item => item.label === label);
+    return row ? Number(row.value) : null;
+  };
+
+  const byModel = agents && Array.isArray(agents.by_model)
+    ? agents.by_model.flatMap(group => group.agents || [])
+    : [];
+  const specialistNames = namesInPanel(html, 'agent-tier-specialists') || [];
+  const tabPanels = [...html.matchAll(/aria-controls="(agent-tier-[^"]+)"[^>]*>[\s\S]*?agent-tabs__count">(\d+)/g)];
+  const cardNames = [];
+
+  if (tabPanels.length === 0) push('site/index.html has no agent tier tabs');
+  for (const [, panelId, countText] of tabPanels) {
+    const names = namesInPanel(html, panelId);
+    if (!names) {
+      push(`site/index.html tab ${panelId} has no panel`);
+      continue;
+    }
+    cardNames.push(...names);
+    if (names.length !== Number(countText)) {
+      push(`site/index.html ${panelId} shows ${countText} but has ${names.length} cards`);
+    }
+  }
+
+  const fileCards = cardNames.filter(name => !specialistNames.includes(name));
+  push(listDiff('site agent cards vs content.json agents.by_model', fileCards, byModel));
+
+  const cardDupes = duplicateNames(cardNames);
+  const modelDupes = duplicateNames(byModel);
+  if (cardDupes.length) push(`site/index.html repeats agent cards: ${cardDupes.join(', ')}`);
+  if (modelDupes.length) push(`site/content.json repeats agents: ${modelDupes.join(', ')}`);
+
+  if (agents) {
+    if (byModel.length !== agents.file_based) {
+      push(`content.json by_model lists ${byModel.length} agents, file_based is ${agents.file_based}`);
+    }
+    if (specialistNames.length !== agents.role_based) {
+      push(`site specialist cards are ${specialistNames.length}, role_based is ${agents.role_based}`);
+    }
+    if (cardNames.length !== agents.total) {
+      push(`site agent cards are ${cardNames.length}, agents.total is ${agents.total}`);
+    }
+  } else {
+    push('site/content.json is missing agents');
+  }
+
+  if (heading && agents && Number(heading[1]) !== agents.total) {
+    push(`site heading says ${heading[1]} agents, agents.total is ${agents.total}`);
+  }
+  const skillStat = statValue('Skills');
+  const agentStat = statValue('Agents');
+  const pluginStat = statValue('Plugins');
+  if (heading && skillStat !== null && Number(heading[2]) !== skillStat) {
+    push(`site heading says ${heading[2]} skills, stats Skills is ${skillStat}`);
+  }
+  if (heading && agentStat !== null && Number(heading[1]) !== agentStat) {
+    push(`site heading says ${heading[1]} agents, stats Agents is ${agentStat}`);
+  }
+  if (skillsTitle && heading && skillsTitle[1] !== heading[2]) {
+    push(`skills heading says ${skillsTitle[1]}, agents heading says ${heading[2]} skills`);
+  }
+  if (skillsTitle && pluginStat !== null && Number(skillsTitle[2]) !== pluginStat) {
+    push(`skills heading says ${skillsTitle[2]} plugins, stats Plugins is ${pluginStat}`);
+  }
+  if (pluginCount !== null && skillsTitle && Number(skillsTitle[2]) !== pluginCount) {
+    push(`skills heading says ${skillsTitle[2]} plugins, marketplace has ${pluginCount}`);
+  }
+
+  const htmlStats = [...html.matchAll(/data-target="(\d+)"[\s\S]*?stats__label">([^<]+)/g)];
+  for (const label of ['Plugins', 'Agents', 'Skills']) {
+    const pair = htmlStats.find(([, , name]) => name.trim() === label);
+    const expected = statValue(label);
+    if (!pair) {
+      push(`site/index.html stats bar is missing ${label}`);
+    } else if (expected !== null && Number(pair[1]) !== expected) {
+      push(`site/index.html stats bar ${label} is ${pair[1]}, content.json is ${expected}`);
+    }
+  }
+
+  const skillCards = [...html.matchAll(/class="skill-card">([^<]+)/g)].map(match => match[1]);
+  if (heading && skillCards.length !== Number(heading[2])) {
+    push(`site skill cards are ${skillCards.length}, heading says ${heading[2]}`);
+  }
+  if (skillNames.length) {
+    push(listDiff('site skill cards vs STATIC_SKILLS', skillCards, skillNames));
+  }
+
+  return found;
+}
+
+function staticSkillNames(source) {
+  const block = source.match(/const STATIC_SKILLS = \[([\s\S]*?)\];/);
+  if (!block) return [];
+  return [...block[1].matchAll(/name:\s*'([^']+)'/g)].map(match => match[1]);
+}
+
+function validateSiteCatalog() {
+  const htmlPath = path.join(ROOT_DIR, 'site', 'index.html');
+  const contentPath = path.join(ROOT_DIR, 'site', 'content.json');
+  const docsPath = path.join(ROOT_DIR, 'scripts', 'generate-docs.js');
+  const marketPath = path.join(ROOT_DIR, '.claude-plugin', 'marketplace.json');
+  if (!fs.existsSync(htmlPath) || !fs.existsSync(contentPath)) return;
+
+  const content = readJson(contentPath, 'site/content.json');
+  if (!content) return;
+  const marketplace = readJson(marketPath, '.claude-plugin/marketplace.json');
+  const skillSource = fs.existsSync(docsPath) ? fs.readFileSync(docsPath, 'utf8') : '';
+  const mismatches = siteCatalogMismatches(
+    fs.readFileSync(htmlPath, 'utf8'),
+    content,
+    {
+      skillNames: staticSkillNames(skillSource),
+      pluginCount: marketplace && Array.isArray(marketplace.plugins) ? marketplace.plugins.length : null
+    }
+  );
+  for (const mismatch of mismatches) {
+    errors.push(`site catalog: ${mismatch}`);
+  }
+}
+
 function main() {
   // Reset errors for each invocation (prevents state leakage across requires)
   errors = [];
@@ -400,6 +563,7 @@ function main() {
   validatePerfDocs();
   validatePerfAgentSkillUsage();
   validateEnhanceAgentSkillUsage();
+  validateSiteCatalog();
 
   if (errors.length > 0) {
     console.log('[ERROR] Consistency checks failed:\n');
@@ -416,4 +580,4 @@ if (require.main === module) {
   if (typeof code === 'number') process.exit(code);
 }
 
-module.exports = { main, findHardcodedTestCounts };
+module.exports = { main, findHardcodedTestCounts, siteCatalogMismatches };

@@ -203,6 +203,7 @@ You should see commands:
 - `/system-prompt-curator` - System prompt curation
 - `/onboard` - Codebase onboarding
 - `/can-i-help` - Contributor guidance
+- `/tower-crane-inbox`, `/tower-crane-spawn-ready`, `/tower-crane-merge-accepted`, `/tower-crane-rework-from-review`, `/tower-crane-release-dead`, `/tower-crane-watch` - Tower Crane delegated delivery (needs the `tower-crane` CLI)
 - `/release` - Versioned release with ecosystem detection
 - `/agnix` - Linter for AI agent configs
 - `/prepare-delivery` - Pre-ship validation checks
