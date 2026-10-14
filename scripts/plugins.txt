@@ -21,4 +21,5 @@ skill-curator
 skillers
 sync-docs
 system-prompt-curator
+tower-crane
 zig-lsp

@@ -44,7 +44,7 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 
 | Document | Description |
 |----------|-------------|
-| [reference/AGENTS.md](./reference/AGENTS.md) | All 50 agents: purpose, model, tools, restrictions. <!-- AGENT_COUNT_TOTAL: 50 --> |
+| [reference/AGENTS.md](./reference/AGENTS.md) | All 55 agents: purpose, model, tools, restrictions. <!-- AGENT_COUNT_TOTAL: 55 --> |
 | [reference/SLOP-PATTERNS.md](./reference/SLOP-PATTERNS.md) | All detection patterns by language, severity, auto-fix. |
 
 ### Platform & Architecture
@@ -80,6 +80,7 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 | `/system-prompt-curator` | Create and improve autonomous agent system prompts |
 | `/onboard` | Codebase onboarding - project orientation |
 | `/can-i-help` | Contributor guidance - match skills to project needs |
+| `/tower-crane-*` | Tower Crane: hand over an issue, a goal or a project; agents plan, build, review and merge it |
 | `/release` | Versioned release with automatic ecosystem detection |
 | `/agnix` | Linter for AI agent configs |
 | `/prepare-delivery` | Pre-ship validation checks |

@@ -3,7 +3,7 @@
 Every agent in the AgentSys plugins at the commits pinned in `.claude-plugin/marketplace.json`. Each plugin repo's `agents/*.md` is the source of truth; this page summarizes it.
 
 <!-- GEN:START:agents-counts -->
-**TL;DR:** 50 agents across 24 plugins (17 have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5.5, Haiku 4.5) or inherits the caller's model, and does one thing. <!-- AGENT_COUNT_TOTAL: 50 -->
+**TL;DR:** 55 agents across 25 plugins (18 have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5.5, Haiku 4.5) or inherits the caller's model, and does one thing. <!-- AGENT_COUNT_TOTAL: 55 -->
 <!-- GEN:END:agents-counts -->
 
 ## Quick Navigation
@@ -26,7 +26,7 @@ Related: [/next-task Workflow](../workflows/NEXT-TASK.md) shows how the agents w
 
 Family aliases resolve to the current model in that family, so agent files do not pin versions.
 
-- **File-based agents** (40): `agents/*.md` with frontmatter in each plugin repo. <!-- AGENT_COUNT_FILE_BASED: 40 -->
+- **File-based agents** (45): `agents/*.md` with frontmatter in each plugin repo. <!-- AGENT_COUNT_FILE_BASED: 45 -->
 - **Role-based agents** (10): audit-project review passes, spawned through Task with a pass-specific prompt. <!-- AGENT_COUNT_ROLE_BASED: 10 -->
 
 Plugins with no agents: gate-and-ship (commands only); banthis, skill-curator and system-prompt-curator (skill and command only); mojo and ada-spark (skills only); zig-lsp (LSP config only).
@@ -138,6 +138,11 @@ Role-based: `/audit-project` spawns one subagent per pass with the pass's prompt
 | onboard | onboard-agent | sonnet | Read, Glob, Grep, Bash(git), AskUserQuestion | Gives a short, code-grounded tour of an unfamiliar codebase from collected data, then answers follow-up questions. |
 | can-i-help | can-i-help-agent | sonnet | Read, Glob, Grep, Bash(git, gh), AskUserQuestion | Matches a developer's interests to contribution targets: test gaps, stale docs, bugspots, cleanup candidates, open issues. |
 | agnix | agnix-agent | sonnet | Bash(agnix, cargo), Read, Glob, Grep | Runs the agnix CLI for `/agnix` (with `--fix` only when asked) and returns the diagnostics as an `AGNIX_RESULT` block. |
+| tower-crane | tower-crane-orchestrator | inherit | Bash, Read, Edit, Write, Grep, Glob, Skill, Agent, WebFetch, WebSearch | Runs a Tower Crane project on the orchestrator rung: plans, writes briefs, dispatches workers and reviewers, runs the gates and merges. No force push. |
+| tower-crane | tower-crane-worker | inherit | Bash, Read, Edit, Write, Grep, Glob, Skill | Builds one task from its brief in its worktree, verifies its acceptance, opens the PR and submits it with the tower-crane CLI. No web, no review or merge. |
+| tower-crane | tower-crane-researcher | inherit | Bash, Read, Edit, Write, Grep, Glob, Skill, WebSearch, WebFetch | The worker for research tasks: same scope, with web access. |
+| tower-crane | tower-crane-reviewer | inherit | Bash, Read, Grep, Glob, Skill | Reviews a submitted task with a clean context against its acceptance and gate reports, posts the review on the PR and records review evidence. Read-only on the code. |
+| tower-crane | tower-crane-small | inherit | Bash, Read, Grep, Glob | Runs one mechanical check, such as confirming lines the cleanup tool flagged, and records the result with the tower-crane CLI. Read-only on the code. |
 
 ## Navigation
 

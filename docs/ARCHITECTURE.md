@@ -73,12 +73,13 @@ agentsys/
     ├── KNOWLEDGE-LIBRARY.md      # Index
     └── *-REFERENCE.md            # Research documents
 
-NOTE: plugins/ has been removed. All 24 plugins are now standalone repos
+NOTE: plugins/ has been removed. All 25 plugins are now standalone repos
 under the agent-sh org. The installer fetches them from GitHub at install time.
 Plugin repos: agent-sh/{next-task,prepare-delivery,gate-and-ship,ship,deslop,
               audit-project,enhance,perf,drift-detect,sync-docs,repo-intel,
               banthis,learn,consult,debate,agnix,skillers,
-              skill-curator,system-prompt-curator,onboard,can-i-help,zig-lsp}
+              skill-curator,system-prompt-curator,onboard,can-i-help,
+              tower-crane,zig-lsp,mojo,ada-spark}
 ```
 
 ### Cross-Platform Library (`lib/cross-platform/`)
@@ -146,6 +147,7 @@ The package provides these capabilities through commands, agents, and skills:
 | Prompt curation | `/system-prompt-curator` | Create and improve autonomous agent prompts |
 | Onboarding | `/onboard` | Codebase orientation for newcomers |
 | Contributor guidance | `/can-i-help` | Match contributor skills to project needs |
+| Delegated delivery | `/tower-crane-*` | Tower Crane: plan into tasks, a worker per task, independent review, gates, merge |
 
 **Slop detection** uses the full 3-phase pipeline:
 - Phase 1: Regex patterns (HIGH certainty)
@@ -167,7 +169,7 @@ agentsys  # Select option 1
 
 **Location:** `~/.claude/plugins/agentsys/`
 
-**Commands:** `/next-task`, `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/perf`, `/sync-docs`, `/banthis`, `/agnix`, `/learn`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`
+**Commands:** `/next-task`, `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/perf`, `/sync-docs`, `/banthis`, `/agnix`, `/learn`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`, `/tower-crane-inbox`, `/tower-crane-spawn-ready`, `/tower-crane-merge-accepted`, `/tower-crane-rework-from-review`, `/tower-crane-release-dead`, `/tower-crane-watch`
 
 ### OpenCode
 
@@ -181,7 +183,7 @@ agentsys  # Select option 2
 - Skills: `~/.config/opencode/skills/<name>/` (each skill directory copied whole)
 - Native plugin: `~/.config/opencode/plugins/agentsys.ts`
 
-**Commands:** `/next-task`, `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/perf`, `/sync-docs`, `/banthis`, `/agnix`, `/learn`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`
+**Commands:** `/next-task`, `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/perf`, `/sync-docs`, `/banthis`, `/agnix`, `/learn`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`, `/tower-crane-inbox`, `/tower-crane-spawn-ready`, `/tower-crane-merge-accepted`, `/tower-crane-rework-from-review`, `/tower-crane-release-dead`
 
 **Native Plugin Features:**
 - Auto-thinking selection per agent
@@ -198,7 +200,7 @@ agentsys  # Select option 3
 - Config: `~/.codex/config.toml`
 - Skills: `~/.codex/skills/`
 
-**Skills:** `$next-task`, `$prepare-delivery`, `$gate-and-ship`, `$ship`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$perf`, `$sync-docs`, `$banthis`, `$agnix`, `$learn`, `$consult`, `$debate`, `$skillers`, `$skill-curator`, `$system-prompt-curator`, `$onboard`, `$can-i-help`
+**Skills:** `$next-task`, `$prepare-delivery`, `$gate-and-ship`, `$ship`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$perf`, `$sync-docs`, `$banthis`, `$agnix`, `$learn`, `$consult`, `$debate`, `$skillers`, `$skill-curator`, `$system-prompt-curator`, `$onboard`, `$can-i-help`, `$tower-crane-inbox`, `$tower-crane-spawn-ready`, `$tower-crane-merge-accepted`, `$tower-crane-rework-from-review`, `$tower-crane-release-dead`
 
 **Plugin skills:** each plugin skill directory is copied whole to `~/.codex/skills/<name>/`, for example `orchestrate-review` (Phase 9 review pass definitions used by /next-task and /audit-project), `enhance-docs` or `perf-profiler`. A plugin skill named like a command (`deslop`, `consult`, ...) is not installed there: `$<name>` stays the command, and the skill stays in `~/.agentsys/plugins/<plugin>/skills/<name>/`.
 
@@ -239,6 +241,7 @@ description: Master workflow orchestrator for task-to-production automation
 | `/system-prompt-curator` | [OK] Full | [OK] Full | [OK] Full | Agent prompt curation |
 | `/onboard` | [OK] Full | [OK] Full | [OK] Full | Codebase orientation |
 | `/can-i-help` | [OK] Full | [OK] Full | [OK] Full | Contributor guidance |
+| `/tower-crane-*` | [OK] Full | [WARN] Partial | [WARN] Partial | Requires the `tower-crane` CLI; the MCP server and `/tower-crane-watch` are Claude Code only |
 
 ## Knowledge Base
 

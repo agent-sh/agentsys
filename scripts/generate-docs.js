@@ -51,6 +51,7 @@ const CATEGORY_MAP = {
   'next-task': 'Workflow',
   'prepare-delivery': 'Workflow',
   'gate-and-ship': 'Workflow',
+  'tower-crane': 'Workflow',
   'deslop': 'Cleanup',
   'sync-docs': 'Cleanup',
   'drift-detect': 'Analysis',
@@ -114,6 +115,9 @@ const STATIC_SKILLS = [
   { plugin: 'audit-project', name: 'audit-project' },
   { plugin: 'mojo', name: 'mojo' },
   { plugin: 'ada-spark', name: 'ada-spark' },
+  { plugin: 'tower-crane', name: 'tower-crane' },
+  { plugin: 'tower-crane', name: 'tower-crane-work' },
+  { plugin: 'tower-crane', name: 'tower-crane-review' },
   { plugin: 'glidemq', name: 'glide-mq' },
   { plugin: 'glidemq', name: 'glide-mq-migrate-bullmq' },
   { plugin: 'glidemq', name: 'glide-mq-migrate-bee' },
@@ -142,7 +146,8 @@ const PURPOSE_MAP = {
   'skill-curator': 'Skill authoring and review',
   'system-prompt-curator': 'System prompt curation',
   'onboard': 'Codebase onboarding',
-  'can-i-help': 'Contributor guidance'
+  'can-i-help': 'Contributor guidance',
+  'tower-crane': 'Delegated delivery: plan, workers, review, gates, merge'
 };
 
 // ---------------------------------------------------------------------------
@@ -452,6 +457,7 @@ const STATIC_PLUGIN_AGENT_COUNTS = {
   'skillers': 2,
   'onboard': 1,
   'can-i-help': 1,
+  'tower-crane': 5,
   'zig-lsp': 0,
   'mojo': 0,
   'ada-spark': 0

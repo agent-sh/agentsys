@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <b>24 plugins · 50 agents · 44 skills (across all repos) · 30k lines of lib code · tests on Linux and Windows · 5 platforms</b><br>
+  <b>25 plugins · 55 agents · 47 skills (across all repos) · 30k lines of lib code · tests on Linux and Windows · 5 platforms</b><br>
   <em>Plugins distributed as standalone repos under <a href="https://github.com/agent-sh">agent-sh</a> org - agentsys is the marketplace &amp; installer</em>
 </p>
 
@@ -54,7 +54,7 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 
 ## What This Is
 
-An agent orchestration system - 24 plugins, 50 agents (40 file-based + 10 role-based specialists in audit-project), and 44 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
+An agent orchestration system - 25 plugins, 55 agents (45 file-based + 10 role-based specialists in audit-project), and 47 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
 
 Each agent has a single responsibility, a specific model assignment, and defined inputs/outputs. Pipelines enforce phase gates so agents can't skip steps. State persists across sessions so work survives interruptions.
 
@@ -146,6 +146,7 @@ The investment shifts from model spend to pipeline design. Better prompts, riche
 | [`/system-prompt-curator`](#system-prompt-curator) | Create and improve autonomous agent system prompts |
 | [`/onboard`](#onboard) | Codebase orientation for newcomers |
 | [`/can-i-help`](#can-i-help) | Match contributor skills to project needs |
+| [`/tower-crane-*`](#tower-crane) | Tower Crane: hand over an issue, a goal or a project; agents plan, build, review and merge it |
 
 Each command works standalone. Together, they compose into end-to-end pipelines.
 
@@ -153,11 +154,11 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 
 ## Skills
 
-44 skills included across the plugins:
+47 skills included across the plugins:
 
 | Category | Skills |
 |----------|--------|
-| **Workflow** | `discover-tasks`, `prepare-delivery`, `check-test-coverage`, `orchestrate-review`, `validate-delivery` |
+| **Workflow** | `discover-tasks`, `prepare-delivery`, `check-test-coverage`, `orchestrate-review`, `validate-delivery`, `tower-crane`, `tower-crane-work`, `tower-crane-review` |
 | **Message Queues** | `glide-mq-migrate-bee`, `glide-mq-migrate-bullmq`, `glide-mq` |
 | **Enhancement** | `enhance-agent-prompts`, `enhance-claude-memory`, `enhance-cross-file`, `enhance-docs`, `enhance-hooks`, `enhance-orchestrator`, `enhance-plugins`, `enhance-prompts`, `enhance-skills`, `skill-curator`, `system-prompt-curator` |
 | **Performance** | `baseline`, `benchmark`, `code-paths`, `investigation-logger`, `perf-analyzer`, `profile`, `theory-gatherer`, `theory-tester` |
@@ -188,8 +189,8 @@ Skills are the reusable implementation units. Agents invoke skills; commands orc
 |---------|--------------|
 | [The Approach](#the-approach) | Why it's built this way |
 | [Benchmarks](#benchmarks) | Sonnet + agentsys vs raw Opus |
-| [Commands](#commands) | All 24 commands overview |
-| [Skills](#skills) | 44 skills across plugins |
+| [Commands](#commands) | Overview of every command |
+| [Skills](#skills) | 47 skills across plugins |
 | [Skill-Only Plugins](#skill-only-plugins) | glide-mq and other non-command plugins |
 | [Command Details](#command-details) | Deep dive into each command |
 | [How Commands Work Together](#how-commands-work-together) | Standalone vs integrated |
@@ -1014,6 +1015,35 @@ The system prompt curator rewrites prompts around task-matched identity, phased 
 **Agent:** can-i-help-agent (sonnet model)
 
 [Full documentation →](https://github.com/agent-sh/can-i-help)
+
+---
+
+### Tower Crane
+
+**Purpose:** Hand over an issue, a goal or a whole project and let agents carry it to merged PRs.
+
+Tower Crane is a CLI and a Claude Code plugin. An orchestrator agent plans the work into tasks and spawns a worker per task in its own worktree and sandbox. An agent that did not write the change reviews it. Software gates (tests, cleanup, CI at the exact commit) decide acceptance, and the merge pins the accepted head. The plan and its progress live in JSON files under `.tower-crane/` that only the CLI writes. Owner questions are queued as decisions and block only the tasks they name.
+
+**Requires:** the CLI on `PATH` (`npm install -g @agent-sh/tower-crane`), Node 24 or newer, git, an authenticated `gh` and the harness CLIs its ladder names (`claude` and `codex` by default).
+
+**Usage:** hand the `tower-crane` skill an issue URL, a goal or a plan file. It plans, dispatches, gates and merges.
+
+| Command | What it does |
+|---------|--------------|
+| `/tower-crane-inbox` | Read actionable findings and their resolving commands |
+| `/tower-crane-spawn-ready` | Dispatch ready tasks within the worker limit |
+| `/tower-crane-merge-accepted` | Merge accepted PRs through the queue and stack gates |
+| `/tower-crane-rework-from-review` | Send a task back with its failed review's findings |
+| `/tower-crane-release-dead` | Recover claims whose spawned processes exited |
+| `/tower-crane-watch` | Arm the event follower that wakes the orchestrator (Claude Code only) |
+
+**Agents:** tower-crane-orchestrator, tower-crane-worker, tower-crane-researcher, tower-crane-reviewer, tower-crane-small (all inherit the caller's model)
+
+**Skills:** tower-crane, tower-crane-work, tower-crane-review
+
+On Claude Code the plugin also adds the `tower-crane` MCP server and the mod that registers `/tower-crane-watch`. OpenCode, Codex, Cursor and Kiro installs get the commands, agents and skills.
+
+[Full documentation →](https://github.com/agent-sh/tower-crane)
 
 ---
 
