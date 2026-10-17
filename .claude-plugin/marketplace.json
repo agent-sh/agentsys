@@ -308,12 +308,12 @@
       "source": {
         "source": "url",
         "url": "https://github.com/agent-sh/tower-crane.git",
-        "ref": "v0.1.2",
-        "commit": "a033e5f47fc5843e280292775af136b3b2ff67d4",
-        "sha": "a033e5f47fc5843e280292775af136b3b2ff67d4"
+        "ref": "v0.1.3",
+        "commit": "b4972a72ff38db1dabf3df8b3dd909f122c9e179",
+        "sha": "b4972a72ff38db1dabf3df8b3dd909f122c9e179"
       },
       "description": "Hand over an issue, a goal or a whole project: plan into tasks, dispatch workers, clean-context review, software gates and merges. Needs the tower-crane CLI on PATH",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "category": "development",
       "homepage": "https://github.com/agent-sh/tower-crane"
     },
