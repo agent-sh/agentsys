@@ -123,22 +123,18 @@ test('every git-subdir marketplace plugin names a folder inside its repo', () =>
 });
 
 // foreman replaces next-task and tower-crane (#434). Claude Code installs the
-// `sha`, so the pin must be a full 40-hex commit, not a tag or a short hash.
-const FOREMAN_COMMIT = 'f5f307e12cd35ed69932d3998c9150866d9c4ee0';
-
+// `sha`, so the pin must be a full 40-hex commit, not a tag or a short hash, and
+// bin/cli.js reads `commit` as its fallback, so both name the same commit.
 test('foreman is offered and pinned to a full 40-hex sha', () => {
   const foreman = pluginByName('foreman');
   expect(foreman).toBeTruthy();
-  expect(foreman.version).toBe('0.1.0');
+  expect(foreman.version).toMatch(/^\d+\.\d+\.\d+$/);
   expect(foreman.category).toBe('productivity');
   expect(foreman.homepage).toBe('https://github.com/agent-sh/foreman');
-  expect(foreman.source).toEqual({
-    source: 'url',
-    url: 'https://github.com/agent-sh/foreman.git',
-    commit: FOREMAN_COMMIT,
-    sha: FOREMAN_COMMIT,
-  });
+  expect(foreman.source.source).toBe('url');
+  expect(foreman.source.url).toBe('https://github.com/agent-sh/foreman.git');
   expect(foreman.source.sha).toMatch(/^[0-9a-f]{40}$/);
+  expect(foreman.source.commit).toBe(foreman.source.sha);
 });
 
 test('foreman is listed in the docs, the site, the Codex metadata and the docs generator', () => {
