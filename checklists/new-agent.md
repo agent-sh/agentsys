@@ -1,6 +1,6 @@
 # New Agent Checklist
 
-Adding a new specialist agent to the workflow.
+Adding a new specialist agent to a plugin.
 
 ## Best Practices Reference
 
@@ -11,7 +11,7 @@ Adding a new specialist agent to the workflow.
 
 ## 1. Create Agent File
 
-Location: `plugins/next-task/agents/{agent-name}.md`
+Location: `plugins/<plugin>/agents/{agent-name}.md` in the plugin's own repo
 
 Use this template structure:
 
@@ -63,22 +63,24 @@ If tool not listed, respond: "Tool not available"
 
 ## 3. Update Workflow Documentation
 
-File: `agent-docs/workflow.md`
+File: `docs/reference/AGENTS.md`
 
-Add to the agent table:
+Add a row to the plugin's agent table:
 ```markdown
-| Phase | Agent | Model | Required Tools | Purpose |
-| X | `new-agent` | sonnet | Tool1, Tool2 | Brief purpose |
+| Agent | Model | Tools | What it does |
+| new-agent | sonnet | Tool1, Tool2 | Brief purpose |
 ```
+
+If the agent runs in the /ship workflow or the pre-ship gates, also add it to `agent-docs/workflow.md`.
 
 ## 4. Update Orchestrator
 
-File: `plugins/next-task/commands/next-task.md`
+File: `plugins/<plugin>/commands/<command>.md` (the command that spawns the agent)
 
 Add agent invocation at appropriate phase:
 ```javascript
 await Task({
-  subagent_type: "next-task:new-agent",
+  subagent_type: "<plugin>:new-agent",
   model: "sonnet",  // or opus/haiku
   prompt: `Task description for agent`
 });
@@ -86,14 +88,14 @@ await Task({
 
 ## 5. Update Hooks (if needed)
 
-File: `plugins/next-task/hooks/hooks.json`
+File: `plugins/<plugin>/hooks/hooks.json`
 
 If agent should trigger automatically after another agent:
 ```json
 {
   "SubagentStop": {
     "triggers": {
-      "previous-agent": "next-task:new-agent"
+      "previous-agent": "<plugin>:new-agent"
     }
   }
 }
@@ -134,7 +136,7 @@ The installer (`bin/cli.js`) automatically handles:
 
 ```bash
 # Run /enhance on the new agent
-/enhance plugins/next-task/agents/new-agent.md
+/enhance plugins/<plugin>/agents/new-agent.md
 
 # Run tests
 npm test
@@ -150,11 +152,11 @@ echo "1 2 3" | agentsys
 # Verify agent is installed for OpenCode
 ls ~/.config/opencode/agents/ | grep new-agent
 
-# Run workflow and verify agent is called
-/next-task
+# Run the command that spawns it and verify the agent is called
+/<command>
 
 # Or test agent directly
-Task({ subagent_type: "next-task:new-agent", prompt: "Test" })
+Task({ subagent_type: "<plugin>:new-agent", prompt: "Test" })
 ```
 
 ## 10. Update Agent Count

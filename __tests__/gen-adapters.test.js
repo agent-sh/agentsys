@@ -35,7 +35,7 @@ describe('adapter-transforms', () => {
     });
 
     test('strips plugin prefixes from agent references', () => {
-      const input = '`next-task:exploration-agent` and next-task:planning-agent';
+      const input = '`perf:perf-orchestrator` and perf:perf-analyzer';
       const result = transforms.transformBodyForOpenCode(input, REPO_ROOT);
       // When plugins/ dir exists, prefixes are stripped using discovered plugin names.
       // When plugins are extracted to standalone repos, the regex has no plugin names
@@ -44,12 +44,12 @@ describe('adapter-transforms', () => {
       const pluginsDir = path.join(REPO_ROOT, 'plugins');
       const hasPlugins = fs.existsSync(pluginsDir) && fs.readdirSync(pluginsDir).some(f => fs.statSync(path.join(pluginsDir, f)).isDirectory());
       if (hasPlugins) {
-        expect(result).toContain('`exploration-agent`');
-        expect(result).toContain('planning-agent');
-        expect(result).not.toContain('next-task:');
+        expect(result).toContain('`perf-orchestrator`');
+        expect(result).toContain('perf-analyzer');
+        expect(result).not.toContain('perf:');
       } else {
         // No plugins discovered - prefixes not stripped
-        expect(result).toContain('next-task:exploration-agent');
+        expect(result).toContain('perf:perf-orchestrator');
       }
     });
 
@@ -60,9 +60,9 @@ describe('adapter-transforms', () => {
     });
 
     test('transforms JS code blocks with Task calls', () => {
-      const input = '```javascript\nawait Task({ subagent_type: "next-task:exploration-agent" })\n```';
+      const input = '```javascript\nawait Task({ subagent_type: "perf:perf-orchestrator" })\n```';
       const result = transforms.transformBodyForOpenCode(input, REPO_ROOT);
-      expect(result).toContain('@exploration-agent');
+      expect(result).toContain('@perf-orchestrator');
       expect(result).not.toContain('```javascript');
     });
 
@@ -73,10 +73,10 @@ describe('adapter-transforms', () => {
     });
 
     test('transforms multiple Task() calls in one code block', () => {
-      const input = '```javascript\nawait Task({ subagent_type: "next-task:exploration-agent" });\nawait Task({ subagent_type: "next-task:planning-agent" });\n```';
+      const input = '```javascript\nawait Task({ subagent_type: "perf:perf-orchestrator" });\nawait Task({ subagent_type: "perf:perf-analyzer" });\n```';
       const result = transforms.transformBodyForOpenCode(input, REPO_ROOT);
-      expect(result).toContain('@exploration-agent');
-      expect(result).toContain('@planning-agent');
+      expect(result).toContain('@perf-orchestrator');
+      expect(result).toContain('@perf-analyzer');
     });
 
     test('extracts startPhase calls from code blocks', () => {

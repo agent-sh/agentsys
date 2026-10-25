@@ -23,34 +23,6 @@ const OPENCODE_MAX_LABEL_LENGTH = 30;
 
 // Agent definitions to create for OpenCode
 const OPENCODE_AGENTS = {
-  'task-discoverer': {
-    description: 'Find and rank tasks from configured sources',
-    model: 'anthropic/claude-sonnet-4-20250514',
-    mode: 'subagent',
-    temperature: 0.3,
-    permissions: { read: 'allow', edit: 'deny', bash: 'allow' }
-  },
-  'exploration-agent': {
-    description: 'Deep codebase analysis and pattern discovery',
-    model: 'anthropic/claude-opus-4-20250514',
-    mode: 'subagent',
-    temperature: 0.5,
-    permissions: { read: 'allow', edit: 'deny', bash: 'deny' }
-  },
-  'planning-agent': {
-    description: 'Design implementation plans for tasks',
-    model: 'anthropic/claude-opus-4-20250514',
-    mode: 'subagent',
-    temperature: 0.4,
-    permissions: { read: 'allow', edit: 'deny', bash: 'deny' }
-  },
-  'implementation-agent': {
-    description: 'Execute approved implementation plans',
-    model: 'anthropic/claude-opus-4-20250514',
-    mode: 'subagent',
-    temperature: 0.2,
-    permissions: { read: 'allow', edit: 'allow', bash: 'allow' }
-  },
   'deslop-agent': {
     description: 'Detect and clean AI slop patterns from code',
     model: 'anthropic/claude-sonnet-4-20250514',

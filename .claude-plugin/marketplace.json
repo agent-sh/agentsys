@@ -1,6 +1,6 @@
 {
   "name": "agentsys",
-  "description": "25 specialized plugins for AI workflow automation - task orchestration, PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, unified static analysis, durable memory, negative behavior memory, skill and system prompt curation, perf investigations, topic research, agent config linting, cross-tool AI consultation, structured AI debate, workflow pattern learning, codebase onboarding, contributor guidance, delegated project delivery with independent review, Zig language support, Mojo language support, and Ada/SPARK language support",
+  "description": "23 specialized plugins for AI workflow automation - PR workflow, slop detection, code review, drift detection, enhancement analysis, documentation sync, unified static analysis, durable memory, negative behavior memory, skill and system prompt curation, perf investigations, topic research, agent config linting, cross-tool AI consultation, structured AI debate, workflow pattern learning, codebase onboarding, contributor guidance, Zig language support, Mojo language support, and Ada/SPARK language support",
   "version": "6.1.1",
   "owner": {
     "name": "Avi Fenesh",
@@ -22,19 +22,6 @@
     "multi-agent"
   ],
   "plugins": [
-    {
-      "name": "next-task",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/agent-sh/next-task.git",
-        "commit": "8e5752000b2a57ccb7983c1233fdb19ea1030e58",
-        "sha": "8e5752000b2a57ccb7983c1233fdb19ea1030e58"
-      },
-      "description": "Master workflow orchestrator: autonomous workflow with model optimization (opus/sonnet/haiku), two-file state management, workflow enforcement gates, 8 specialist agents",
-      "version": "1.3.0",
-      "category": "productivity",
-      "homepage": "https://github.com/agent-sh/next-task"
-    },
     {
       "name": "prepare-delivery",
       "source": {
@@ -70,7 +57,7 @@
         "commit": "ccd66abb96ffc12b8269e1c28eec17590b5c9cb2",
         "sha": "ccd66abb96ffc12b8269e1c28eec17590b5c9cb2"
       },
-      "description": "Complete PR workflow: commit to production, skips review when called from next-task, removes task from registry on cleanup, automatic rollback",
+      "description": "Complete PR workflow: commit to production, CI and review loop, merge, automatic rollback",
       "version": "1.3.0",
       "category": "deployment",
       "homepage": "https://github.com/agent-sh/ship"
@@ -302,20 +289,6 @@
       "version": "0.2.0",
       "category": "productivity",
       "homepage": "https://github.com/agent-sh/can-i-help"
-    },
-    {
-      "name": "tower-crane",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/agent-sh/tower-crane.git",
-        "ref": "v0.1.7",
-        "commit": "7938043d219d2188d99eb8bbe1ff23b22805495b",
-        "sha": "7938043d219d2188d99eb8bbe1ff23b22805495b"
-      },
-      "description": "Hand over an issue, a goal or a whole project: plan into tasks, dispatch workers, clean-context review, software gates and merges. Needs the tower-crane CLI on PATH",
-      "version": "0.1.7",
-      "category": "development",
-      "homepage": "https://github.com/agent-sh/tower-crane"
     },
     {
       "name": "zig-lsp",

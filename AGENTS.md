@@ -29,7 +29,7 @@ In prose, write ` - ` (a single dash with spaces), not an em dash or a doubled d
 <!-- GEN:START:claude-architecture -->
 ```
 lib/          → Shared library (vendored to plugins)
-plugins/      → 25 plugins, 55 agents (45 file-based + 10 role-based), 47 skills
+plugins/      → 23 plugins, 42 agents (32 file-based + 10 role-based), 43 skills
 adapters/     → Platform adapters (opencode-plugin/, opencode/, codex/)
 checklists/   → Action checklists (9 files)
 bin/cli.js    → npm CLI installer
@@ -37,7 +37,6 @@ bin/cli.js    → npm CLI installer
 
 | Plugin | Agents | Skills | Purpose |
 |--------|--------|--------|---------|
-| next-task | 8 | 1 | Master workflow orchestration |
 | prepare-delivery | 3 | 4 | Pre-ship quality gates |
 | gate-and-ship | 0 | 0 | Quality gates then ship |
 | ship | 1 | 1 | PR creation and deployment |
@@ -58,7 +57,6 @@ bin/cli.js    → npm CLI installer
 | skillers | 2 | 2 | Workflow pattern learning |
 | onboard | 1 | 1 | Codebase onboarding |
 | can-i-help | 1 | 1 | Contributor guidance |
-| tower-crane | 5 | 3 | Delegated delivery: plan, workers, review, gates, merge |
 | zig-lsp | 0 | 0 |  |
 | mojo | 0 | 1 |  |
 | ada-spark | 0 | 1 |  |
@@ -89,15 +87,11 @@ Most have npm aliases (`npm test`, `npm run validate`, `npm run preflight`, `npm
 
 Model families: opus (Claude Opus 5.5) for judgment where errors compound, sonnet (Claude Sonnet 5.5) for validation and most agents, haiku (Claude Haiku 4.5) for mechanical work. An agent with no `model` key inherits the caller's.
 
-`/next-task` runs its phases in order: exploration-agent, planning-agent, user approval of the plan, implementation-agent, pre-review gates, review loop, delivery-validator, sync-docs-agent, then `/ship`. A phase whose plugin is not installed uses the inline fallback in next-task's `commands/next-task.md`.
-
 ## State files
 
 | File | Location | Purpose |
 |------|----------|---------|
-| `tasks.json` | `{stateDir}/` | Active task registry |
 | `flow.json` | `{stateDir}/` (worktree) | Workflow progress |
-| `preference.json` | `{stateDir}/sources/` | Cached task source |
 | `suppressions.json` | `~/.<claude\|opencode\|codex>/enhance/` | Auto-learned suppressions |
 
 `stateDir` is `.claude/`, `.opencode/`, `.codex/`, `.cursor/` or `.kiro/` by platform.

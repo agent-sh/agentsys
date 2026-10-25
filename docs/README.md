@@ -1,6 +1,6 @@
 # Documentation
 
-AgentSys is a modular runtime and orchestration system for AI agents. These docs cover the architecture, commands, and workflows — how agents compose into pipelines, how phases gate execution, and how state persists across sessions.
+AgentSys is a modular runtime and orchestration system for AI agents. These docs cover the architecture, commands, and workflows - how agents compose into pipelines, how phases gate execution, and how state persists across sessions.
 
 **New here?** Start with [USAGE.md](./USAGE.md) to see commands in action.
 
@@ -12,7 +12,6 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 |-------------|-------|
 | Install and start using | [INSTALLATION.md](./INSTALLATION.md) |
 | See examples and workflows | [USAGE.md](./USAGE.md) |
-| Understand how /next-task works | [workflows/NEXT-TASK.md](./workflows/NEXT-TASK.md) |
 | Understand how /ship works | [workflows/SHIP.md](./workflows/SHIP.md) |
 | Run /perf investigations | [perf-requirements.md](./perf-requirements.md) |
 | Use with OpenCode or Codex | [CROSS_PLATFORM.md](./CROSS_PLATFORM.md) |
@@ -35,7 +34,6 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 
 | Document | Description |
 |----------|-------------|
-| [workflows/NEXT-TASK.md](./workflows/NEXT-TASK.md) | Complete /next-task flow: phases, agents, state management, resume. |
 | [workflows/SHIP.md](./workflows/SHIP.md) | Complete /ship flow: CI monitoring, review handling, merge, deploy. |
 | [perf-requirements.md](./perf-requirements.md) | /perf rules and required phases. |
 | [perf-research-methodology.md](./perf-research-methodology.md) | /perf process details, benchmarking method. |
@@ -44,7 +42,7 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 
 | Document | Description |
 |----------|-------------|
-| [reference/AGENTS.md](./reference/AGENTS.md) | All 55 agents: purpose, model, tools, restrictions. <!-- AGENT_COUNT_TOTAL: 55 --> |
+| [reference/AGENTS.md](./reference/AGENTS.md) | All 42 agents: purpose, model, tools, restrictions. <!-- AGENT_COUNT_TOTAL: 42 --> |
 | [reference/SLOP-PATTERNS.md](./reference/SLOP-PATTERNS.md) | All detection patterns by language, severity, auto-fix. |
 
 ### Platform & Architecture
@@ -62,7 +60,6 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 
 | Command | Purpose |
 |---------|---------|
-| `/next-task` | Task discovery → implementation → review → ship |
 | `/ship` | Push → PR → CI → reviews → merge → deploy |
 | `/deslop` | 3-phase slop detection and cleanup |
 | `/audit-project` | Multi-agent code review |
@@ -80,7 +77,6 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 | `/system-prompt-curator` | Create and improve autonomous agent system prompts |
 | `/onboard` | Codebase onboarding - project orientation |
 | `/can-i-help` | Contributor guidance - match skills to project needs |
-| `/tower-crane-*` | Tower Crane: hand over an issue, a goal or a project; agents plan, build, review and merge it |
 | `/release` | Versioned release with automatic ecosystem detection |
 | `/agnix` | Linter for AI agent configs |
 | `/prepare-delivery` | Pre-ship validation checks |
@@ -88,15 +84,13 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 
 ### Internal Skills
 
-- `orchestrate-review` â€” Defines review passes and signal thresholds for the Phase 9 review loop
+- `orchestrate-review` - Defines review passes and signal thresholds for the review loop
 
 ### State Files
 
 | File | Location | Purpose |
 |------|----------|---------|
-| `tasks.json` | `{state-dir}/` | Which task is active |
 | `flow.json` | `{state-dir}/` (worktree) | Which phase you're in |
-| `preference.json` | `{state-dir}/sources/` | Cached task source preference |
 | `repo-intel.json` | `{state-dir}/` | Cached symbol map |
 
 State directories by platform:
@@ -110,9 +104,9 @@ State directories by platform:
 
 | Model | Used For |
 |-------|----------|
-| opus | Complex reasoning (exploration, planning, implementation, review) |
+| opus | Complex reasoning (planning, review, synthesis) |
 | sonnet | Pattern matching (slop detection, validation, discovery) |
-| haiku | Mechanical execution (worktree, simple-fixer, ci-monitor) |
+| haiku | Mechanical execution with no judgment |
 
 ### Certainty Levels
 

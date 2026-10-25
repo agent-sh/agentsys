@@ -23,7 +23,6 @@ You shouldn't have to repeat the same requests every session. These commands han
 
 | Command | Purpose | Scope |
 |---------|---------|-------|
-| `/next-task` | Find and implement prioritized tasks | Full autonomous workflow |
 | `/ship` | Complete PR workflow to production | CI, deployment, validation |
 | `/deslop` | Clean up debugging code, TODOs | Fast codebase scan |
 | `/audit-project` | Multi-agent code review | Thorough analysis |
@@ -41,7 +40,6 @@ You shouldn't have to repeat the same requests every session. These commands han
 | `/system-prompt-curator` | Create and improve autonomous agent system prompts | Agent prompt curation |
 | `/onboard` | Codebase onboarding - project orientation | Newcomer guidance |
 | `/can-i-help` | Contributor guidance - match skills to project needs | Contributor matching |
-| `/tower-crane-*` | Tower Crane: plan into tasks, dispatch workers, independent review, gates, merge | Delegated project delivery |
 | `/release` | Versioned release with automatic ecosystem detection | Tag, changelog, publish |
 | `/agnix` | Linter for AI agent configs | Rule validation (457 rules) |
 | `/prepare-delivery` | Pre-ship validation checks | Tests, build, lint verification |
@@ -50,12 +48,6 @@ You shouldn't have to repeat the same requests every session. These commands han
 ---
 
 ## When to Use Each Command
-
-**Starting Your Day:**
-```bash
-/next-task
-# Shows prioritized tasks from GitHub issues
-```
 
 **Before Committing:**
 ```bash
@@ -113,39 +105,6 @@ Remove debugging code, old TODOs, and AI slop from your codebase with a 3-phase 
 - Phantom references
 - Buzzword inflation
 - Code smells and over-engineering patterns
-
----
-
-### `/next-task`
-
-Complete task-to-production automation with state management.
-
-```bash
-/next-task                        # Start new workflow with policy selection
-/next-task --status               # Check current workflow state
-/next-task --resume               # Resume from last checkpoint
-/next-task --abort                # Cancel workflow and cleanup
-/next-task bug                    # Filter by task type
-/next-task --implement            # Start implementing selected task
-```
-
-**12-Phase Workflow:**
-1. Policy Selection → Choose task source, priority, stopping point
-2. Task Discovery → Find and prioritize tasks, you pick one
-3. Worktree Setup → Create isolated branch and directory
-4. Exploration → Deep codebase analysis
-5. Planning → Design implementation plan
-6. **User Approval → Approve the plan (LAST human interaction)**
-7. Implementation → Execute the plan
-8. Pre-Review → Clean AI slop, check test coverage
-9. Review Loop → Multi-agent review until clean
-10. Delivery Validation → Verify tests, build, requirements
-11. Docs Update → Sync documentation
-12. Ship → Create PR, monitor CI, address comments, merge
-
-Phase 9 uses the `orchestrate-review` skill to define review passes and signal thresholds.
-
-[Full workflow documentation →](./workflows/NEXT-TASK.md)
 
 ---
 
@@ -237,7 +196,7 @@ Complete PR workflow from commit to production.
 /ship                             # Full workflow
 /ship --dry-run                   # Preview without executing
 /ship --strategy rebase           # Use rebase instead of squash
-/ship --state-file PATH           # Integrate with next-task workflow
+/ship --state-file PATH           # Use flow state from a calling workflow
 ```
 
 **Stages:**
@@ -292,49 +251,7 @@ Ready to commit!
 
 ---
 
-### Example 2: Find What to Work On Next
-
-**Scenario**: 20 GitHub issues, need to prioritize.
-
-```text
-You: /next-task
-
-Claude:
-Analyzing tasks from GitHub Issues...
-Found 20 open issues
-
-Top 5 Priority Tasks:
-
-1. [P1] Fix authentication timeout bug (#142)
-   Status: Not implemented
-   Priority Score: 85
-   Estimated effort: Small
-   Files: src/auth/session.ts
-
-2. [P2] Add dark mode to settings (#89)
-   Status: Partially done
-   Priority Score: 60
-   Estimated effort: Medium
-   Files: src/components/Settings.tsx
-
-Which task would you like to work on?
-
-You: /next-task --implement
-
-Claude:
-Creating branch: fix/auth-timeout-bug-142
-Investigating implementation...
-Found issue: Session timeout hardcoded to 5 minutes
-
-Implementing fix...
-[OK]Fix implemented
-[OK]Tests written and passing
-[OK]Ready to ship
-```
-
----
-
-### Example 3: Get Code Review Before PR
+### Example 2: Get Code Review Before PR
 
 **Scenario**: Finished login feature, want thorough review.
 
@@ -377,7 +294,7 @@ Code is ready to ship!
 
 ---
 
-### Example 4: Ship Feature to Production
+### Example 3: Ship Feature to Production
 
 **Scenario**: Feature finished, want to deploy.
 
@@ -423,7 +340,7 @@ Phase 9-10: Deploying to production...
 
 ---
 
-### Example 5: Quick Security Audit
+### Example 4: Quick Security Audit
 
 **Scenario**: Quick security check before release.
 
@@ -464,11 +381,10 @@ Security issues resolved!
 ### Starting New Feature
 
 ```text
-1. /next-task --implement    # Pick task and start
-2. *develop feature*
-3. /deslop apply      # Clean up
-4. /audit-project           # Get feedback
-5. /ship                     # Deploy
+1. *develop feature*
+2. /deslop apply      # Clean up
+3. /audit-project           # Get feedback
+4. /ship                     # Deploy
 ```
 
 ### Code Review Flow
@@ -486,8 +402,7 @@ Security issues resolved!
 ```text
 1. /deslop report     # See all slop
 2. /deslop apply      # Clean it up
-3. /next-task                # See priorities
-4. /audit-project           # Full audit
+3. /audit-project           # Full audit
 ```
 
 ### Ship Your Work
@@ -507,11 +422,10 @@ Don't start with `/ship` on production immediately!
 
 **Try this order:**
 1. `/deslop report` - Just look, no changes
-2. `/next-task` - See task prioritization
-3. `/deslop apply` - Make safe changes
-4. `/audit-project --quick` - Quick feedback
-5. `/ship --dry-run` - Preview the workflow
-6. `/ship` - Full deployment
+2. `/deslop apply` - Make safe changes
+3. `/audit-project --quick` - Quick feedback
+4. `/ship --dry-run` - Preview the workflow
+5. `/ship` - Full deployment
 
 ### Tip 2: Let Claude Explain
 
@@ -550,7 +464,6 @@ Your code is cleaned, reviewed, and deployed!
 ### Tip 4: Use Filters
 
 ```bash
-/next-task bug              # Focus on bugs only
 /audit-project --domain security   # Security review only
 /deslop apply src/ 10        # Limit scope
 ```

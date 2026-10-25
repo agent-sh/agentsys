@@ -12,7 +12,6 @@
 | [agent-core](https://github.com/agent-sh/agent-core) | Shared libs — synced to all repos on merge | Created |
 | [agent-knowledge](https://github.com/agent-sh/agent-knowledge) | Research guides and RAG indexes | Active (10 guides) |
 | [.github](https://github.com/agent-sh/.github) | Org profile, shared templates, reusable workflows | Active |
-| [next-task](https://github.com/agent-sh/next-task) | Master workflow orchestration plugin | Active |
 | [ship](https://github.com/agent-sh/ship) | PR creation and deployment plugin | Active |
 | [deslop](https://github.com/agent-sh/deslop) | AI slop cleanup plugin | Active |
 | [audit-project](https://github.com/agent-sh/audit-project) | Multi-agent code review plugin | Active |
@@ -36,7 +35,6 @@
 | [glidemq](https://github.com/agent-sh/glidemq) | Glide-MQ message queue skills | Active |
 | [prepare-delivery](https://github.com/agent-sh/prepare-delivery) | Pre-ship quality gates plugin | Active |
 | [gate-and-ship](https://github.com/agent-sh/gate-and-ship) | Quality gates then ship plugin | Active |
-| [tower-crane](https://github.com/agent-sh/tower-crane) | Delegated delivery: plan, workers, independent review, gates, merge (CLI + plugin) | Active |
 | [mojo](https://github.com/agent-sh/mojo) | Mojo language skill plugin | Active |
 | [ada-spark](https://github.com/agent-sh/ada-spark) | Ada and SPARK language skill plugin | Active |
 
@@ -64,7 +62,6 @@
 - [x] HTTPS enforcement on agentsys Pages (agnix cert provisioning)
 
 ### Feature: GitHub Projects as Task Source (#247)
-- [x] Added `gh-projects` as 6th task source in next-task workflow
 - [x] `needsProjectFollowUp()` + `getProjectQuestions()` for project number/owner
 - [x] Input validation (integer check, owner regex, scientific notation rejection)
 - [x] Merged via PR [#248](https://github.com/agent-sh/agentsys/pull/248), issue auto-closed

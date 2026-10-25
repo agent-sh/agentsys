@@ -48,6 +48,6 @@ Quick reference for which files need updating:
 |--------|-----------------|
 | **Release** | package.json, CHANGELOG.md, README.md, all plugin.json files |
 | **New Command** | plugin commands/, plugin.json, ARCHITECTURE.md, bin/cli.js |
-| **New Agent** | plugin agents/, workflow.md, next-task.md |
+| **New Agent** | plugin agents/, the command that spawns it, docs/reference/AGENTS.md |
 | **New Skill** | plugin skills/{skill-name}/SKILL.md, agent tools if agent-invoked |
 | **New Lib Module** | lib/, lib/index.js, sync to plugins/, tests |

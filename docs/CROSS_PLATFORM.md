@@ -27,7 +27,7 @@ Build tools once, run everywhere. The core workflows are the same regardless of 
 | Cursor | Skills + commands | N/A | [OK] Supported |
 | Kiro | Steering + skills + agents | N/A | [OK] Supported |
 
-> **Note:** Codex CLI uses `$` prefix for skills (e.g., `$next-task`, `$ship`) instead of `/` slash commands.
+> **Note:** Codex CLI uses `$` prefix for skills (e.g., `$ship`, `$deslop`) instead of `/` slash commands.
 
 ## Common Architecture
 
@@ -53,7 +53,7 @@ For OpenCode and Codex CLI, the installer adapts the platform argument handling 
 /plugin marketplace add agent-sh/agentsys
 
 # Install plugins
-/plugin install next-task@agentsys
+/plugin install prepare-delivery@agentsys
 /plugin install ship@agentsys
 ```
 
@@ -78,11 +78,11 @@ agentsys --development
 ### Option 4: Plugin Directory (Local Development)
 
 ```bash
-claude --plugin-dir /path/to/agentsys/plugins/next-task
+git clone https://github.com/agent-sh/ship.git
+claude --plugin-dir ./ship
 ```
 
 ### Available Commands
-- `/next-task` - Master workflow orchestrator
 - `/prepare-delivery` - Pre-ship quality gates
 - `/gate-and-ship` - Quality gates then ship
 - `/ship` - Complete PR workflow
@@ -104,28 +104,10 @@ claude --plugin-dir /path/to/agentsys/plugins/next-task
 - `/system-prompt-curator` - System prompt curation
 - `/onboard` - Codebase onboarding
 - `/can-i-help` - Contributor guidance
-- `/tower-crane-inbox`, `/tower-crane-spawn-ready`, `/tower-crane-merge-accepted`, `/tower-crane-rework-from-review`, `/tower-crane-release-dead`, `/tower-crane-watch` - Tower Crane delegated delivery (needs the `tower-crane` CLI; `/tower-crane-watch` is registered by the Claude Code mod)
 
-### Available Agents (55 total: 45 file-based agents + 10 role-based)
+### Available Agents (42 total: 32 file-based agents + 10 role-based)
 
 **Key agents shown below:**
-
-**next-task: Core Workflow (10 agents)**
-
-| Agent | Model | Purpose |
-|-------|-------|---------|
-| exploration-agent | opus | Deep codebase analysis |
-| planning-agent | opus | Design implementation plans |
-| implementation-agent | opus | Execute plans with quality code |
-| prepare-delivery:test-coverage-checker | sonnet | Validate test coverage |
-| prepare-delivery:delivery-validator | sonnet | Autonomous delivery validation |
-| task-discoverer | sonnet | Find and prioritize tasks |
-| worktree-manager | haiku | Create isolated worktrees |
-| ci-monitor | haiku | Monitor CI status |
-| ci-fixer | sonnet | Fix CI failures and PR comments |
-| simple-fixer | haiku | Execute pre-defined fixes |
-
-*Note: Phase 9 review loop uses inline orchestration (orchestrate-review skill) to spawn parallel Task agents*
 
 **enhance: Quality Analyzers (9 agents)**
 
@@ -190,7 +172,7 @@ agentsys --tool opencode --no-strip
 ```
 
 This installs:
-- Slash commands (`/next-task`, `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/sync-docs`, `/perf`, `/banthis`, `/learn`, `/agnix`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`, `/tower-crane-inbox`, `/tower-crane-spawn-ready`, `/tower-crane-merge-accepted`, `/tower-crane-rework-from-review`, `/tower-crane-release-dead`)
+- Slash commands (`/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/sync-docs`, `/perf`, `/banthis`, `/learn`, `/agnix`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`)
 - **Native OpenCode plugin** with advanced features:
 
 ### Native Plugin Features
@@ -208,10 +190,9 @@ The native plugin (`~/.config/opencode/plugins/agentsys.ts`) provides deep integ
 
 | Tier | Budget | Agents |
 |------|--------|--------|
-| Execution | 0 | worktree-manager, simple-fixer, ci-monitor |
-| Discovery | 8k | task-discoverer |
-| Analysis | 12k | exploration-agent, deslop-agent, ci-fixer |
-| Reasoning | 16k | planning-agent, implementation-agent |
+| Discovery | 8k | docs-updater |
+| Analysis | 12k | deslop-agent, test-coverage-checker |
+| Reasoning | 16k | delivery-validator, the enhance analyzers |
 | Synthesis | 20k | plan-synthesizer, enhancement-orchestrator |
 
 **Provider-Specific Thinking:**
@@ -235,11 +216,11 @@ mkdir -p ~/.config/opencode/agent/
 # Agent files follow OpenCode markdown format (see below)
 ```
 
-**OpenCode Agent Format** (`.opencode/agents/workflow.md`):
+**OpenCode Agent Format** (`.opencode/agents/release-checker.md`):
 
 ```markdown
 ---
-name: workflow-orchestrator
+name: release-checker
 model: claude-sonnet-4-20250514
 tools:
   read: true
@@ -249,17 +230,17 @@ tools:
   grep: true
 ---
 
-You are a workflow orchestrator that manages development tasks.
+You check that the current branch is ready to ship.
 
 When invoked, you should:
-1. Check for existing workflow state in .claude/workflow-state.json
-2. Continue from the last checkpoint if resuming
-3. Follow the 18-phase workflow from policy selection to completion
+1. Run /prepare-delivery on the branch
+2. Report the gates that failed with their fixes
+3. Hand a clean branch to /ship
 ```
 
 ## Codex CLI Integration
 
-> **Note:** Codex uses `$` prefix for skills instead of `/` slash commands (e.g., `$next-task`, `$ship`).
+> **Note:** Codex uses `$` prefix for skills instead of `/` slash commands (e.g., `$ship`, `$deslop`).
 
 ### Option 1: npm Global Install (Recommended)
 
@@ -271,7 +252,7 @@ agentsys  # Select option 3 for Codex CLI
 agentsys --tool codex
 ```
 
-This installs skills to `~/.codex/skills/` (`$next-task`, `$prepare-delivery`, `$gate-and-ship`, `$ship`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$sync-docs`, `$perf`, `$banthis`, `$learn`, `$agnix`, `$consult`, `$debate`, `$skillers`, `$skill-curator`, `$system-prompt-curator`, `$onboard`, `$can-i-help`, `$tower-crane-inbox`, `$tower-crane-spawn-ready`, `$tower-crane-merge-accepted`, `$tower-crane-rework-from-review`, `$tower-crane-release-dead`).
+This installs skills to `~/.codex/skills/` (`$prepare-delivery`, `$gate-and-ship`, `$ship`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$sync-docs`, `$perf`, `$banthis`, `$learn`, `$agnix`, `$consult`, `$debate`, `$skillers`, `$skill-curator`, `$system-prompt-curator`, `$onboard`, `$can-i-help`).
 
 Plugin skills are installed next to them, each skill directory copied whole (`references/`, `scripts/`), with paths that pointed at the plugin root pointing at `~/.agentsys/plugins/<plugin>/`. A plugin skill named like a command (`deslop`, `consult`, ...) is not installed there: `$<name>` stays the command.
 
@@ -281,13 +262,13 @@ Create Codex skills in `~/.codex/skills/<name>/SKILL.md`:
 
 ```markdown
 ---
-name: next-task
-description: Master workflow orchestrator for task automation
+name: my-review
+description: Review the current branch before shipping
 ---
 
-# Next Task Workflow
+# Review Workflow
 
-Run `$next-task` to start the master workflow orchestrator.
+Run `$deslop` on the changed files, then `$ship` when the review is clean.
 ```
 
 ## Shared Libraries
@@ -327,9 +308,7 @@ State files are stored in platform-specific directories:
 The plugin auto-detects the platform and uses the appropriate directory. Override with `AI_STATE_DIR` environment variable.
 
 **Files stored in state directory:**
-- `tasks.json` - Active task tracking (main project)
 - `flow.json` - Workflow progress (worktree)
-- `sources/preference.json` - Task source preferences
 
 ## Platform-Specific Considerations
 
@@ -343,8 +322,8 @@ The plugin auto-detects the platform and uses the appropriate directory. Overrid
 - Works with any model provider (Claude, OpenAI, Google, local)
 - State directory: `.opencode/`
 - Slash commands in `~/.config/opencode/commands/`
-- Agents in `~/.config/opencode/agents/` (37 agents at the pinned plugin commits)
-- Skills in `~/.config/opencode/skills/<name>/` (38 skills at the pinned plugin commits, each skill directory copied whole)
+- Agents in `~/.config/opencode/agents/` (29 agents at the pinned plugin commits)
+- Skills in `~/.config/opencode/skills/<name>/` (37 skills at the pinned plugin commits, each skill directory copied whole)
 - Native plugin in `~/.config/opencode/plugins/agentsys.ts`
 - **Native plugin features:**
   - Auto-thinking selection (adjusts budget per agent)
@@ -355,7 +334,7 @@ The plugin auto-detects the platform and uses the appropriate directory. Overrid
 ### Codex CLI
 - OpenAI-native with GPT-5-Codex
 - State directory: `.codex/`
-- Skills in `~/.codex/skills/` (invoked with `$` prefix, e.g., `$next-task`): one per command, plus each plugin skill directory copied whole unless a command has its name
+- Skills in `~/.codex/skills/` (invoked with `$` prefix, e.g., `$ship`): one per command, plus each plugin skill directory copied whole unless a command has its name
 
 ### Cursor
 - Global installation in `~/.cursor/`
@@ -369,7 +348,7 @@ The plugin auto-detects the platform and uses the appropriate directory. Overrid
 - Skills in `~/.kiro/skills/<name>/` (the whole skill directory), agents converted to JSON in `~/.kiro/agents/`
 - Reads AGENTS.md and `.kiro/steering/*.md` for instructions
 - **Subagent spawning**: Experimental (max 4 agents). Primary agent invokes subagents by name from `~/.kiro/agents/*.json`. Sequential only - no parallel spawning publicly available yet.
-- **Parallel Task() adaptation**: Workflows that spawn 4+ parallel reviewers (next-task Phase 9, audit-project Phase 2) are adapted with a try-4-then-fallback-to-2 pattern. Two combined reviewer agents (`reviewer-quality-security`, `reviewer-perf-test`) merge review passes for the sequential fallback.
+- **Parallel Task() adaptation**: Workflows that spawn 4+ parallel reviewers (audit-project Phase 2, the prepare-delivery review loop) are adapted with a try-4-then-fallback-to-2 pattern. Two combined reviewer agents (`reviewer-quality-security`, `reviewer-perf-test`) merge review passes for the sequential fallback.
 - **No team/swarm pattern**: TeamCreate, SendMessage not supported. All orchestration is single-primary with sequential subagent delegation.
 
 ### Subagent Capabilities by Platform

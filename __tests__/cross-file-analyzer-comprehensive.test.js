@@ -284,9 +284,9 @@ Use Read({ file_path: "/correct" })
 
   describe('extractAgentReferences - MUST flag', () => {
     it('MUST extract subagent_type with double quotes', () => {
-      const content = 'Task({ subagent_type: "next-task:exploration-agent" })';
+      const content = 'Task({ subagent_type: "perf:perf-orchestrator" })';
       const refs = crossFileAnalyzer.extractAgentReferences(content);
-      expect(refs).toContain('next-task:exploration-agent');
+      expect(refs).toContain('perf:perf-orchestrator');
     });
 
     it('MUST extract subagent_type with single quotes', () => {

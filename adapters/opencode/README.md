@@ -37,27 +37,6 @@ opencode
 
 ---
 
-### `/next-task` - Intelligent Task Prioritization
-
-Discover what to work on next with AI analysis.
-
-```bash
-opencode
-> /next-task
-> /next-task bug
-> /next-task --include-blocked
-```
-
-**What it does:**
-- Analyzes GitHub Issues (required)
-- Validates tasks aren't already implemented
-- Scores by impact, urgency, effort
-- Provides top 5 recommendations with evidence
-
-**Requires:** GitHub CLI (`gh`)
-
----
-
 ### `/audit-project` - Multi-Agent Code Review
 
 Comprehensive review with specialized AI agents.
@@ -133,10 +112,10 @@ This runs `git diff --name-only` and includes the output in the prompt.
 
 ```bash
 opencode
-> /next-task @PLAN.md !gh issue list
+> /drift-detect @PLAN.md !git log --oneline -20
 ```
 
-Analyzes tasks with PLAN.md content and current GitHub issues.
+Compares PLAN.md with the recent commits.
 
 ---
 
@@ -153,7 +132,6 @@ The installer:
 ```
 ~/.config/opencode/commands/
 ├── deslop.md
-├── next-task.md
 ├── audit-project.md
 ├── ship.md
 ├── lib/
@@ -191,15 +169,6 @@ opencode
 # Iteration 1: Found 4 issues (2 critical, 2 high)
 # [OK] Fixed SQL injection in auth.py:45
 # [OK] Fixed race condition in api.py:123
-```
-
-### Next task with context
-```bash
-opencode
-> /next-task @PLAN.md !gh issue list
-
-# Top 5 Priority Tasks:
-# (includes analysis from PLAN.md and GitHub issues)
 ```
 
 ### Ship with diff review

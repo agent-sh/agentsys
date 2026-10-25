@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- `next-task` and `tower-crane` leave the marketplace and the installer. Their repos, agent-sh/next-task and agent-sh/tower-crane, are being deleted, and an install or update that points at a deleted repo fails. `.claude-plugin/marketplace.json`, `scripts/plugins.txt`, `.codex-plugin/plugin.json`, the `bin/cli.js` help and examples, the OpenCode plugin's thinking tiers, `scripts/generate-docs.js`, `README.md`, `docs/`, `agent-docs/`, `checklists/`, the adapter READMEs and `site/` no longer offer them, and `docs/workflows/NEXT-TASK.md` is gone. ship's marketplace description and `docs/workflows/SHIP.md` no longer name next-task; `--state-file` is described as a flow state from any calling orchestrator. Counts are now 23 plugins, 42 agents (32 file-based + 10 role-based) and 43 skills.
+- If you installed either plugin, uninstall it:
+  - Claude Code: `/plugin uninstall next-task@agentsys` and `/plugin uninstall tower-crane@agentsys` (from a shell: `claude plugin uninstall next-task@agentsys`).
+  - npm installer: `agentsys remove next-task` and `agentsys remove tower-crane`. This deletes the cached copy in `~/.agentsys/plugins/` and runs the Claude Code uninstall.
+  - The Tower Crane CLI: `npm uninstall -g @agent-sh/tower-crane`.
+  - OpenCode, Codex, Cursor and Kiro keep the files an earlier install wrote; delete them by hand. OpenCode: `~/.config/opencode/commands/next-task.md`, `~/.config/opencode/commands/tower-crane-*.md`, `~/.config/opencode/agents/tower-crane-*.md` and the next-task agents `task-discoverer`, `worktree-manager`, `exploration-agent`, `planning-agent`, `implementation-agent`, `simple-fixer`, `ci-monitor` and `ci-fixer` (`.md`) in `~/.config/opencode/agents/`. Codex: `~/.codex/skills/next-task`, `~/.codex/skills/discover-tasks` and `~/.codex/skills/tower-crane*`. Cursor: `~/.cursor/commands/next-task.md`, `~/.cursor/commands/tower-crane-*.md`, `~/.cursor/skills/discover-tasks` and `~/.cursor/skills/tower-crane*`. Kiro: `~/.kiro/prompts/next-task.md`, `~/.kiro/prompts/tower-crane-*.md`, `~/.kiro/skills/discover-tasks`, `~/.kiro/skills/tower-crane*`, and the same agent names as `.json` in `~/.kiro/agents/`.
+
 ### Added
 
 - Tower Crane joins the marketplace as `tower-crane`, pinned to v0.1.7 (commit 7938043). The site agent tabs list its five agents under Inherit, and the skills grid lists `tower-crane`, `tower-crane-work`, `tower-crane-review`, `mojo` and `ada-spark`. `npx agentsys-dev validate consistency` fails when those grids drift from the headings. Tower Crane is a CLI and a Claude Code plugin: an orchestrator agent plans the work into tasks, spawns a worker per task in its own worktree and sandbox, has each change reviewed by an agent that did not write it, and merges it once software gates pass. The plugin adds the `tower-crane`, `tower-crane-work` and `tower-crane-review` skills, five agents, five command files and, on Claude Code, an MCP server and the mod that registers `/tower-crane-watch`. It needs the CLI on `PATH` (`npm install -g @agent-sh/tower-crane`). A scratch `claude plugin install tower-crane@agentsys` (Claude Code 2.1.300) installs it at the pinned commit, and the npm installer gives OpenCode, Codex, Cursor and Kiro its commands, agents and skills. Counts are now 25 plugins, 55 agents (45 file-based) and 47 skills across `README.md`, `AGENTS.md`, `docs/`, `site/` and `.codex-plugin/plugin.json`; `docs/CROSS_PLATFORM.md` had still said 47 agents.
@@ -19,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `agentsys update` skips a cached plugin the marketplace no longer lists, with a `[WARN]` that names the `agentsys remove` command. It exited with "Unknown plugin" before and updated nothing.
+- `agentsys remove <plugin>` removes a plugin that is only in the cache. The full installer caches plugins without recording them in `installed.json`, so `remove` reported them as not installed. The plugin name must be a plain plugin name, so the cache path stays inside `~/.agentsys/plugins/`.
 - `.agnix.toml` no longer disables AS-014, a rule agnix removed. agnix 0.56.5 printed a config warning for it.
 
 ## [6.1.1] - 2026-10-06

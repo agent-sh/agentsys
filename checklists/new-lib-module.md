@@ -109,7 +109,7 @@ This copies `lib/` to all `plugins/*/lib/` directories.
 node -e "const lib = require('./lib'); console.log(Object.keys(lib.newModule));"
 
 # Test module loads from a plugin
-node -e "const lib = require('./plugins/next-task/lib'); console.log(Object.keys(lib.newModule));"
+node -e "const lib = require('./plugins/<plugin>/lib'); console.log(Object.keys(lib.newModule));"
 ```
 
 ## 6. Update Documentation

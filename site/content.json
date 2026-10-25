@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "agentsys",
-    "description": "A modular runtime and orchestration system for AI agents. 25 plugins, 55 agents, 47 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.",
+    "description": "A modular runtime and orchestration system for AI agents. 23 plugins, 42 agents, 43 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.",
     "url": "https://agent-sh.github.io/agentsys",
     "repo": "https://github.com/agent-sh/agentsys",
     "npm": "https://www.npmjs.com/package/agentsys",
@@ -11,7 +11,7 @@
   },
   "hero": {
     "title": "A modular runtime and orchestration system for AI agents",
-    "subtitle": "AI models can write code. That's not the hard part anymore. The hard part is everything around it - task selection, branch management, code review, artifact cleanup, CI, deployment. AgentSys is the runtime that orchestrates agents to handle all of it.",
+    "subtitle": "AI models can write code. That's not the hard part anymore. The hard part is everything around it - branch management, code review, artifact cleanup, CI, deployment. AgentSys is the runtime that orchestrates agents to handle all of it.",
     "cta_primary": {
       "text": "Get Started",
       "url": "#installation"
@@ -23,17 +23,17 @@
   },
   "stats": [
     {
-      "value": "25",
+      "value": "23",
       "label": "Plugins",
       "suffix": ""
     },
     {
-      "value": "55",
+      "value": "42",
       "label": "Agents",
       "suffix": ""
     },
     {
-      "value": "47",
+      "value": "43",
       "label": "Skills",
       "suffix": ""
     },
@@ -83,13 +83,6 @@
     ]
   },
   "commands": [
-    {
-      "name": "/next-task",
-      "tagline": "Task to production, fully automated",
-      "description": "12-phase workflow: discovers tasks, explores codebase, plans implementation, writes code, reviews, and ships. One plan approval unlocks autonomous execution through to merged PR.",
-      "example": "/next-task",
-      "category": "workflow"
-    },
     {
       "name": "/prepare-delivery",
       "tagline": "Pre-ship quality gates",
@@ -236,19 +229,12 @@
       "description": "Collects 5 contributor signals (good-first areas, test gaps, doc drift, bugspots, open issues), asks about developer background, then recommends specific areas with concrete first steps.",
       "example": "/can-i-help",
       "category": "learning"
-    },
-    {
-      "name": "/tower-crane-*",
-      "tagline": "Hand over an issue, a goal or a project",
-      "description": "Tower Crane plans the work into tasks, spawns a worker per task in its own worktree and sandbox, has each change reviewed by an agent that did not write it, and merges it once software gates pass. Needs the tower-crane CLI on PATH.",
-      "example": "/tower-crane-inbox",
-      "category": "workflow"
     }
   ],
   "philosophy": [
     {
       "title": "One agent, one job, done extremely well",
-      "description": "Same principle as good code: single responsibility. The exploration-agent explores. The implementation-agent implements. Specialized agents with narrow scope and clear success criteria."
+      "description": "Same principle as good code: single responsibility. The deslop-agent cleans. The delivery-validator checks requirements. Specialized agents with narrow scope and clear success criteria."
     },
     {
       "title": "Pipeline with gates, not a monolith",
@@ -264,11 +250,11 @@
     },
     {
       "title": "Validate plan and results, not every step",
-      "description": "Approve the plan. See the results. The middle is automated. One plan approval unlocks autonomous execution through implementation, review, cleanup, and shipping."
+      "description": "Approve the plan. See the results. The middle is automated. Gates run cleanup, review, validation, and shipping without a prompt at each step."
     },
     {
       "title": "Composable, not monolithic",
-      "description": "Every command works standalone. /deslop cleans code without /next-task. /ship merges PRs without the full workflow. Pieces compose together, but each piece is useful on its own."
+      "description": "Every command works standalone. /deslop cleans code without /prepare-delivery. /ship merges PRs without the full workflow. Pieces compose together, but each piece is useful on its own."
     }
   ],
   "installation": {
@@ -281,7 +267,6 @@
       ],
       "commands": [
         "/plugin marketplace add agent-sh/agentsys",
-        "/plugin install next-task@agentsys",
         "/plugin install ship@agentsys"
       ]
     },
@@ -389,16 +374,14 @@
     }
   ],
   "agents": {
-    "total": 55,
-    "file_based": 45,
+    "total": 42,
+    "file_based": 32,
     "role_based": 10,
     "by_model": [
       {
         "model": "Opus",
         "use_case": "Complex reasoning, analysis",
         "agents": [
-          "planning-agent",
-          "implementation-agent",
           "perf-orchestrator",
           "perf-analyzer",
           "perf-theory-gatherer",
@@ -417,11 +400,8 @@
         "model": "Sonnet",
         "use_case": "Validation, pattern matching",
         "agents": [
-          "task-discoverer",
-          "exploration-agent",
           "prepare-delivery-agent",
           "delivery-validator",
-          "ci-fixer",
           "test-coverage-checker",
           "deslop-agent",
           "cross-file-enhancer",
@@ -443,23 +423,9 @@
         "model": "Haiku",
         "use_case": "Mechanical execution",
         "agents": [
-          "worktree-manager",
-          "ci-monitor",
-          "simple-fixer",
           "map-validator",
           "repo-intel-summarizer",
           "repo-intel-weighter"
-        ]
-      },
-      {
-        "model": "Inherit",
-        "use_case": "The caller's model",
-        "agents": [
-          "tower-crane-orchestrator",
-          "tower-crane-worker",
-          "tower-crane-researcher",
-          "tower-crane-reviewer",
-          "tower-crane-small"
         ]
       }
     ]

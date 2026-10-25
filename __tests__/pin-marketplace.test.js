@@ -18,7 +18,7 @@ describe('parseOrgRepo', () => {
     ['https://github.com/agent-sh/foo/', 'agent-sh', 'foo'],
     ['https://github.com/agent-sh/foo.git/', 'agent-sh', 'foo'],
     ['git@github.com:agent-sh/foo.git', 'agent-sh', 'foo'],
-    ['https://github.com/agent-sh/next-task.git', 'agent-sh', 'next-task'],
+    ['https://github.com/agent-sh/prepare-delivery.git', 'agent-sh', 'prepare-delivery'],
     ['agent-sh/foo', 'agent-sh', 'foo'],
   ])('parses %s', (url, owner, repo) => {
     expect(parseOrgRepo(url)).toEqual({ owner, repo });

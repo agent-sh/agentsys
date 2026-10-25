@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AgentSys - Agent Runtime &amp; Orchestration System</title>
-  <meta name="description" content="A modular runtime and orchestration system for AI agents. 25 plugins, 55 agents, 47 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.">
+  <meta name="description" content="A modular runtime and orchestration system for AI agents. 23 plugins, 42 agents, 43 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.">
   <meta name="theme-color" content="#09090b">
 
   <!-- Open Graph -->
   <meta property="og:title" content="AgentSys">
-  <meta property="og:description" content="A modular runtime and orchestration system for AI agents. 25 plugins, 55 agents, 47 skills.">
+  <meta property="og:description" content="A modular runtime and orchestration system for AI agents. 23 plugins, 42 agents, 43 skills.">
   <meta property="og:image" content="https://agent-sh.github.io/agentsys/assets/logo.png">
   <meta property="og:url" content="https://agent-sh.github.io/agentsys/">
   <meta property="og:type" content="website">
@@ -17,7 +17,7 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="AgentSys">
-  <meta name="twitter:description" content="AI workflow automation. 25 plugins, 55 agents, 47 skills.">
+  <meta name="twitter:description" content="AI workflow automation. 23 plugins, 42 agents, 43 skills.">
   <meta name="twitter:image" content="https://agent-sh.github.io/agentsys/assets/logo.png">
 
   <!-- Content Security Policy -->
@@ -107,7 +107,7 @@
       <div class="hero__inner">
         <div class="hero__content">
           <div class="hero__badge anim-fade-in" data-delay="100">
-            25 plugins &middot; 55 agents &middot; 47 skills
+            23 plugins &middot; 42 agents &middot; 43 skills
           </div>
           <h1 class="hero__title anim-fade-up" id="hero-title" data-delay="200">
             A modular <span class="text-gradient">runtime and orchestration system</span><br>
@@ -130,7 +130,7 @@
               <span class="terminal__dot terminal__dot--green"></span>
               <span class="terminal__titlebar-text">zsh</span>
             </div>
-            <div class="terminal__body" id="terminal-body" role="img" aria-label="Animated demo showing the /next-task workflow automating task discovery, implementation, review, and shipping">
+            <div class="terminal__body" id="terminal-body" role="img" aria-label="Animated demo showing /gate-and-ship running the quality gates, then opening, checking and merging the PR">
               <!-- JS renders terminal content here -->
             </div>
             <span class="terminal__paused" id="terminal-paused">Paused</span>
@@ -156,15 +156,15 @@
     <section class="stats" id="stats" aria-label="Project statistics">
       <div class="stats__inner">
         <div class="stats__item">
-          <span class="stats__number" aria-live="polite" data-target="25">0</span>
+          <span class="stats__number" aria-live="polite" data-target="23">0</span>
           <span class="stats__label">Plugins</span>
         </div>
         <div class="stats__item">
-          <span class="stats__number" aria-live="polite" data-target="55">0</span>
+          <span class="stats__number" aria-live="polite" data-target="42">0</span>
           <span class="stats__label">Agents</span>
         </div>
         <div class="stats__item">
-          <span class="stats__number" aria-live="polite" data-target="47">0</span>
+          <span class="stats__number" aria-live="polite" data-target="43">0</span>
           <span class="stats__label">Skills</span>
         </div>
         <div class="stats__item">
@@ -182,51 +182,31 @@
 
         <div class="commands__tabs anim-fade-up" data-delay="200">
           <div class="tabs" role="tablist" aria-label="Command list">
-            <button class="tabs__tab tabs__tab--active" role="tab" aria-selected="true" aria-controls="tab-panel-0" id="tab-0" data-index="0">/next-task</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-1" id="tab-1" tabindex="-1" data-index="1">/agnix</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-2" id="tab-2" tabindex="-1" data-index="2">/ship</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-3" id="tab-3" tabindex="-1" data-index="3">/deslop</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-4" id="tab-4" tabindex="-1" data-index="4">/perf</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-5" id="tab-5" tabindex="-1" data-index="5">/drift-detect</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-6" id="tab-6" tabindex="-1" data-index="6">/audit-project</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-7" id="tab-7" tabindex="-1" data-index="7">/enhance</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-8" id="tab-8" tabindex="-1" data-index="8">/repo-intel</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-9" id="tab-9" tabindex="-1" data-index="9">/sync-docs</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-10" id="tab-10" tabindex="-1" data-index="10">/learn</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-11" id="tab-11" tabindex="-1" data-index="11">/consult</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-12" id="tab-12" tabindex="-1" data-index="12">/debate</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-13" id="tab-13" tabindex="-1" data-index="13">/prepare-delivery</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-14" id="tab-14" tabindex="-1" data-index="14">/gate-and-ship</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-15" id="tab-15" tabindex="-1" data-index="15">/release</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-16" id="tab-16" tabindex="-1" data-index="16">/skillers</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-17" id="tab-17" tabindex="-1" data-index="17">/onboard</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-18" id="tab-18" tabindex="-1" data-index="18">/can-i-help</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-19" id="tab-19" tabindex="-1" data-index="19">/banthis</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-20" id="tab-20" tabindex="-1" data-index="20">/skill-curator</button>
-            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-21" id="tab-21" tabindex="-1" data-index="21">/system-prompt-curator</button>
+            <button class="tabs__tab tabs__tab--active" role="tab" aria-selected="true" aria-controls="tab-panel-0" id="tab-0" data-index="0">/agnix</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-1" id="tab-1" tabindex="-1" data-index="1">/ship</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-2" id="tab-2" tabindex="-1" data-index="2">/deslop</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-3" id="tab-3" tabindex="-1" data-index="3">/perf</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-4" id="tab-4" tabindex="-1" data-index="4">/drift-detect</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-5" id="tab-5" tabindex="-1" data-index="5">/audit-project</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-6" id="tab-6" tabindex="-1" data-index="6">/enhance</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-7" id="tab-7" tabindex="-1" data-index="7">/repo-intel</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-8" id="tab-8" tabindex="-1" data-index="8">/sync-docs</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-9" id="tab-9" tabindex="-1" data-index="9">/learn</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-10" id="tab-10" tabindex="-1" data-index="10">/consult</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-11" id="tab-11" tabindex="-1" data-index="11">/debate</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-12" id="tab-12" tabindex="-1" data-index="12">/prepare-delivery</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-13" id="tab-13" tabindex="-1" data-index="13">/gate-and-ship</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-14" id="tab-14" tabindex="-1" data-index="14">/release</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-15" id="tab-15" tabindex="-1" data-index="15">/skillers</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-16" id="tab-16" tabindex="-1" data-index="16">/onboard</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-17" id="tab-17" tabindex="-1" data-index="17">/can-i-help</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-18" id="tab-18" tabindex="-1" data-index="18">/banthis</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-19" id="tab-19" tabindex="-1" data-index="19">/skill-curator</button>
+            <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-panel-20" id="tab-20" tabindex="-1" data-index="20">/system-prompt-curator</button>
           </div>
 
           <!-- Tab panels -->
           <div class="tabs__panel tabs__panel--active" role="tabpanel" id="tab-panel-0" aria-labelledby="tab-0">
-            <h3 class="tabs__panel-name">/next-task</h3>
-            <p class="tabs__panel-tagline">Task to production, fully automated</p>
-            <ul class="tabs__panel-features">
-              <li>12-phase pipeline: discovery through deployment</li>
-              <li>Multi-agent review loop (code, security, perf, tests)</li>
-              <li>Persistent state -- resume from any phase</li>
-              <li>GitHub Issues, GitLab, or local task files</li>
-            </ul>
-            <div class="code-block">
-              <button class="code-block__copy" aria-label="Copy code to clipboard" data-code="/next-task              # Start new workflow
-/next-task --resume    # Resume interrupted workflow">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
-              </button>
-              <pre><code><span class="code-prompt">$</span> /next-task              <span class="code-comment"># Start new workflow</span>
-<span class="code-prompt">$</span> /next-task --resume    <span class="code-comment"># Resume interrupted workflow</span></code></pre>
-            </div>
-          </div>
-
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-1" aria-labelledby="tab-1" hidden>
             <h3 class="tabs__panel-name">/agnix</h3>
             <p class="tabs__panel-tagline">Lint agent configs before they break</p>
             <ul class="tabs__panel-features">
@@ -245,7 +225,7 @@
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-2" aria-labelledby="tab-2" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-1" aria-labelledby="tab-1" hidden>
             <h3 class="tabs__panel-name">/ship</h3>
             <p class="tabs__panel-tagline">Branch to merged PR in one command</p>
             <ul class="tabs__panel-features">
@@ -264,7 +244,7 @@
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-3" aria-labelledby="tab-3" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-2" aria-labelledby="tab-2" hidden>
             <h3 class="tabs__panel-name">/deslop</h3>
             <p class="tabs__panel-tagline">Kill AI slop before it ships</p>
             <ul class="tabs__panel-features">
@@ -283,7 +263,7 @@
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-4" aria-labelledby="tab-4" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-3" aria-labelledby="tab-3" hidden>
             <h3 class="tabs__panel-name">/perf</h3>
             <p class="tabs__panel-tagline">Evidence-backed performance investigation</p>
             <ul class="tabs__panel-features">
@@ -302,7 +282,7 @@
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-5" aria-labelledby="tab-5" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-4" aria-labelledby="tab-4" hidden>
             <h3 class="tabs__panel-name">/drift-detect</h3>
             <p class="tabs__panel-tagline">Find what's documented but not built</p>
             <ul class="tabs__panel-features">
@@ -321,7 +301,7 @@
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-6" aria-labelledby="tab-6" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-5" aria-labelledby="tab-5" hidden>
             <h3 class="tabs__panel-name">/audit-project</h3>
             <p class="tabs__panel-tagline">Multi-agent code review that iterates until clean</p>
             <ul class="tabs__panel-features">
@@ -340,7 +320,7 @@
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-7" aria-labelledby="tab-7" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-6" aria-labelledby="tab-6" hidden>
             <h3 class="tabs__panel-name">/enhance</h3>
             <p class="tabs__panel-tagline">Analyze everything that shapes agent behavior</p>
             <ul class="tabs__panel-features">
@@ -359,7 +339,7 @@
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-8" aria-labelledby="tab-8" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-7" aria-labelledby="tab-7" hidden>
             <h3 class="tabs__panel-name">/repo-intel</h3>
             <p class="tabs__panel-tagline">Unified static analysis for AI agents</p>
             <ul class="tabs__panel-features">
@@ -378,7 +358,7 @@
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-9" aria-labelledby="tab-9" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-8" aria-labelledby="tab-8" hidden>
             <h3 class="tabs__panel-name">/sync-docs</h3>
             <p class="tabs__panel-tagline">Keep docs in sync with code</p>
             <ul class="tabs__panel-features">
@@ -397,7 +377,7 @@
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-10" aria-labelledby="tab-10" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-9" aria-labelledby="tab-9" hidden>
             <h3 class="tabs__panel-name">/learn</h3>
             <p class="tabs__panel-tagline">Research any topic, build a learning guide</p>
             <ul class="tabs__panel-features">
@@ -416,7 +396,7 @@
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-11" aria-labelledby="tab-11" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-10" aria-labelledby="tab-10" hidden>
             <h3 class="tabs__panel-name">/consult</h3>
             <p class="tabs__panel-tagline">Get a second opinion from another AI tool</p>
             <ul class="tabs__panel-features">
@@ -435,7 +415,7 @@
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-12" aria-labelledby="tab-12" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-11" aria-labelledby="tab-11" hidden>
             <h3 class="tabs__panel-name">/debate</h3>
             <p class="tabs__panel-tagline">Structured adversarial debate between AI tools</p>
             <ul class="tabs__panel-features">
@@ -454,13 +434,13 @@
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-13" aria-labelledby="tab-13" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-12" aria-labelledby="tab-12" hidden>
             <h3 class="tabs__panel-name">/prepare-delivery</h3>
             <p class="tabs__panel-tagline">Pre-ship quality gates</p>
             <ul class="tabs__panel-features">
               <li>Deslop, simplify, review loop, delivery validation, docs sync</li>
               <li>Conditional agnix + enhance for config changes</li>
-              <li>Works standalone or as part of /next-task</li>
+              <li>Works standalone or as part of /gate-and-ship</li>
               <li>Does not ship - use /gate-and-ship for full pipeline</li>
             </ul>
             <div class="code-block">
@@ -473,7 +453,7 @@
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-14" aria-labelledby="tab-14" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-13" aria-labelledby="tab-13" hidden>
             <h3 class="tabs__panel-name">/gate-and-ship</h3>
             <p class="tabs__panel-tagline">Quality gates then ship</p>
             <ul class="tabs__panel-features">
@@ -492,7 +472,7 @@
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-15" aria-labelledby="tab-15" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-14" aria-labelledby="tab-14" hidden>
             <h3 class="tabs__panel-name">/release</h3>
             <p class="tabs__panel-tagline">Versioned release with ecosystem detection</p>
             <ul class="tabs__panel-features">
@@ -511,7 +491,7 @@
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-16" aria-labelledby="tab-16" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-15" aria-labelledby="tab-15" hidden>
             <h3 class="tabs__panel-name">/skillers</h3>
             <p class="tabs__panel-tagline">Learn from your workflow patterns</p>
             <ul class="tabs__panel-features">
@@ -530,7 +510,7 @@
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-17" aria-labelledby="tab-17" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-16" aria-labelledby="tab-16" hidden>
             <h3 class="tabs__panel-name">/onboard</h3>
             <p class="tabs__panel-tagline">Codebase orientation for newcomers</p>
             <ul class="tabs__panel-features">
@@ -549,7 +529,7 @@
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-18" aria-labelledby="tab-18" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-17" aria-labelledby="tab-17" hidden>
             <h3 class="tabs__panel-name">/can-i-help</h3>
             <p class="tabs__panel-tagline">Find where to contribute</p>
             <ul class="tabs__panel-features">
@@ -568,7 +548,7 @@
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-19" aria-labelledby="tab-19" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-18" aria-labelledby="tab-18" hidden>
             <h3 class="tabs__panel-name">/banthis</h3>
             <p class="tabs__panel-tagline">Durable negative memory</p>
             <ul class="tabs__panel-features">
@@ -587,7 +567,7 @@ banthis list">
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-20" aria-labelledby="tab-20" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-19" aria-labelledby="tab-19" hidden>
             <h3 class="tabs__panel-name">/skill-curator</h3>
             <p class="tabs__panel-tagline">Design reliable SKILL.md files</p>
             <ul class="tabs__panel-features">
@@ -606,7 +586,7 @@ banthis list">
             </div>
           </div>
 
-          <div class="tabs__panel" role="tabpanel" id="tab-panel-21" aria-labelledby="tab-21" hidden>
+          <div class="tabs__panel" role="tabpanel" id="tab-panel-20" aria-labelledby="tab-20" hidden>
             <h3 class="tabs__panel-name">/system-prompt-curator</h3>
             <p class="tabs__panel-tagline">Design autonomous agent prompts</p>
             <ul class="tabs__panel-features">
@@ -702,24 +682,21 @@ banthis list">
     <!-- ===== AGENTS & SKILLS ===== -->
     <section class="agents-skills" id="agents-skills" aria-labelledby="as-title">
       <div class="agents-skills__inner">
-        <h2 class="agents-skills__title anim-fade-up" id="as-title">55 Agents. 47 Skills.</h2>
-        <p class="agents-skills__subtitle anim-fade-up" data-delay="100">Right model for the task. Opus reasons. Sonnet validates. Haiku executes. Inherit uses the caller's model.</p>
+        <h2 class="agents-skills__title anim-fade-up" id="as-title">42 Agents. 43 Skills.</h2>
+        <p class="agents-skills__subtitle anim-fade-up" data-delay="100">Right model for the task. Opus reasons. Sonnet validates. Haiku executes.</p>
 
         <!-- Agent tier tabs -->
         <div class="agents-skills__tabs anim-fade-up" data-delay="200">
           <div class="agent-tabs" role="tablist" aria-label="Agent tiers">
-            <button class="agent-tabs__tab agent-tabs__tab--active" role="tab" aria-selected="true" aria-controls="agent-tier-opus" id="agent-tab-opus" data-index="0">Opus <span class="agent-tabs__count">14</span></button>
-            <button class="agent-tabs__tab" role="tab" aria-selected="false" aria-controls="agent-tier-sonnet" id="agent-tab-sonnet" tabindex="-1" data-index="1">Sonnet <span class="agent-tabs__count">20</span></button>
-            <button class="agent-tabs__tab" role="tab" aria-selected="false" aria-controls="agent-tier-haiku" id="agent-tab-haiku" tabindex="-1" data-index="2">Haiku <span class="agent-tabs__count">6</span></button>
-            <button class="agent-tabs__tab" role="tab" aria-selected="false" aria-controls="agent-tier-inherit" id="agent-tab-inherit" tabindex="-1" data-index="3">Inherit <span class="agent-tabs__count">5</span></button>
-            <button class="agent-tabs__tab" role="tab" aria-selected="false" aria-controls="agent-tier-specialists" id="agent-tab-specialists" tabindex="-1" data-index="4">Specialists <span class="agent-tabs__count">10</span></button>
+            <button class="agent-tabs__tab agent-tabs__tab--active" role="tab" aria-selected="true" aria-controls="agent-tier-opus" id="agent-tab-opus" data-index="0">Opus <span class="agent-tabs__count">12</span></button>
+            <button class="agent-tabs__tab" role="tab" aria-selected="false" aria-controls="agent-tier-sonnet" id="agent-tab-sonnet" tabindex="-1" data-index="1">Sonnet <span class="agent-tabs__count">17</span></button>
+            <button class="agent-tabs__tab" role="tab" aria-selected="false" aria-controls="agent-tier-haiku" id="agent-tab-haiku" tabindex="-1" data-index="2">Haiku <span class="agent-tabs__count">3</span></button>
+            <button class="agent-tabs__tab" role="tab" aria-selected="false" aria-controls="agent-tier-specialists" id="agent-tab-specialists" tabindex="-1" data-index="3">Specialists <span class="agent-tabs__count">10</span></button>
           </div>
 
           <!-- Opus agents -->
           <div class="agent-tier tabs__panel tabs__panel--active" role="tabpanel" id="agent-tier-opus" aria-labelledby="agent-tab-opus">
             <div class="agent-grid">
-              <div class="agent-card"><span class="agent-card__name">planning-agent</span><span class="tier-badge tier-badge--opus">opus</span><p class="agent-card__desc">Step-by-step implementation design</p></div>
-              <div class="agent-card"><span class="agent-card__name">implementation-agent</span><span class="tier-badge tier-badge--opus">opus</span><p class="agent-card__desc">Autonomous code writing and modification</p></div>
               <div class="agent-card"><span class="agent-card__name">perf-orchestrator</span><span class="tier-badge tier-badge--opus">opus</span><p class="agent-card__desc">Performance investigation coordination</p></div>
               <div class="agent-card"><span class="agent-card__name">perf-analyzer</span><span class="tier-badge tier-badge--opus">opus</span><p class="agent-card__desc">Deep performance analysis and profiling</p></div>
               <div class="agent-card"><span class="agent-card__name">perf-theory-gatherer</span><span class="tier-badge tier-badge--opus">opus</span><p class="agent-card__desc">Performance hypothesis generation</p></div>
@@ -738,11 +715,8 @@ banthis list">
           <!-- Sonnet agents -->
           <div class="agent-tier tabs__panel" role="tabpanel" id="agent-tier-sonnet" aria-labelledby="agent-tab-sonnet" hidden>
             <div class="agent-grid">
-              <div class="agent-card"><span class="agent-card__name">task-discoverer</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Task source scanning and prioritization</p></div>
-              <div class="agent-card"><span class="agent-card__name">exploration-agent</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Deep codebase analysis and context gathering</p></div>
               <div class="agent-card"><span class="agent-card__name">prepare-delivery-agent</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Pre-ship quality gate orchestration</p></div>
               <div class="agent-card"><span class="agent-card__name">delivery-validator</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Pre-ship quality gate validation</p></div>
-              <div class="agent-card"><span class="agent-card__name">ci-fixer</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">CI failure diagnosis and auto-repair</p></div>
               <div class="agent-card"><span class="agent-card__name">test-coverage-checker</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Test coverage analysis and gap detection</p></div>
               <div class="agent-card"><span class="agent-card__name">deslop-agent</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">AI slop pattern detection and cleanup</p></div>
               <div class="agent-card"><span class="agent-card__name">cross-file-enhancer</span><span class="tier-badge tier-badge--sonnet">sonnet</span><p class="agent-card__desc">Cross-file semantic analysis</p></div>
@@ -764,23 +738,9 @@ banthis list">
           <!-- Haiku agents -->
           <div class="agent-tier tabs__panel" role="tabpanel" id="agent-tier-haiku" aria-labelledby="agent-tab-haiku" hidden>
             <div class="agent-grid">
-              <div class="agent-card"><span class="agent-card__name">worktree-manager</span><span class="tier-badge tier-badge--haiku">haiku</span><p class="agent-card__desc">Git worktree creation and cleanup</p></div>
-              <div class="agent-card"><span class="agent-card__name">ci-monitor</span><span class="tier-badge tier-badge--haiku">haiku</span><p class="agent-card__desc">CI pipeline status polling</p></div>
-              <div class="agent-card"><span class="agent-card__name">simple-fixer</span><span class="tier-badge tier-badge--haiku">haiku</span><p class="agent-card__desc">Mechanical code fixes and formatting</p></div>
               <div class="agent-card"><span class="agent-card__name">map-validator</span><span class="tier-badge tier-badge--haiku">haiku</span><p class="agent-card__desc">Repo map structural validation</p></div>
               <div class="agent-card"><span class="agent-card__name">repo-intel-summarizer</span><span class="tier-badge tier-badge--haiku">haiku</span><p class="agent-card__desc">Three-depth repository summary</p></div>
               <div class="agent-card"><span class="agent-card__name">repo-intel-weighter</span><span class="tier-badge tier-badge--haiku">haiku</span><p class="agent-card__desc">One-sentence descriptor per source file</p></div>
-            </div>
-          </div>
-
-          <!-- Inherit agents -->
-          <div class="agent-tier tabs__panel" role="tabpanel" id="agent-tier-inherit" aria-labelledby="agent-tab-inherit" hidden>
-            <div class="agent-grid">
-              <div class="agent-card"><span class="agent-card__name">tower-crane-orchestrator</span><span class="tier-badge tier-badge--inherit">inherit</span><p class="agent-card__desc">Plans work, dispatches workers, runs gates and merges</p></div>
-              <div class="agent-card"><span class="agent-card__name">tower-crane-worker</span><span class="tier-badge tier-badge--inherit">inherit</span><p class="agent-card__desc">Builds one task from its brief and opens the PR</p></div>
-              <div class="agent-card"><span class="agent-card__name">tower-crane-researcher</span><span class="tier-badge tier-badge--inherit">inherit</span><p class="agent-card__desc">Research-task worker with web access</p></div>
-              <div class="agent-card"><span class="agent-card__name">tower-crane-reviewer</span><span class="tier-badge tier-badge--inherit">inherit</span><p class="agent-card__desc">Clean-context review of a submitted task</p></div>
-              <div class="agent-card"><span class="agent-card__name">tower-crane-small</span><span class="tier-badge tier-badge--inherit">inherit</span><p class="agent-card__desc">One mechanical check, recorded with the CLI</p></div>
             </div>
           </div>
 
@@ -802,7 +762,7 @@ banthis list">
         </div>
 
         <!-- Skills grid -->
-        <h3 class="agents-skills__skills-title anim-fade-up" data-delay="300">47 Skills across 25 Plugins</h3>
+        <h3 class="agents-skills__skills-title anim-fade-up" data-delay="300">43 Skills across 23 Plugins</h3>
         <div class="skills-grid anim-fade-up" data-delay="350">
           <div class="skill-group">
             <span class="skill-group__label">prepare-delivery</span>
@@ -838,12 +798,6 @@ banthis list">
               <span class="skill-card">code-paths</span>
               <span class="skill-card">investigation-logger</span>
               <span class="skill-card">perf-analyzer</span>
-            </div>
-          </div>
-          <div class="skill-group">
-            <span class="skill-group__label">next-task</span>
-            <div class="skill-group__items">
-              <span class="skill-card">discover-tasks</span>
             </div>
           </div>
           <div class="skill-group">
@@ -883,14 +837,6 @@ banthis list">
               <span class="skill-card">glide-mq-migrate-bee</span>
             </div>
           </div>
-          <div class="skill-group">
-            <span class="skill-group__label">tower-crane</span>
-            <div class="skill-group__items">
-              <span class="skill-card">tower-crane</span>
-              <span class="skill-card">tower-crane-work</span>
-              <span class="skill-card">tower-crane-review</span>
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -911,12 +857,10 @@ banthis list">
             <p class="install__label">Recommended</p>
             <div class="code-block">
               <button class="code-block__copy" aria-label="Copy code to clipboard" data-code="/plugin marketplace add agent-sh/agentsys
-/plugin install next-task@agentsys
 /plugin install ship@agentsys">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
               </button>
               <pre><code><span class="code-prompt">$</span> /plugin marketplace add agent-sh/agentsys
-<span class="code-prompt">$</span> /plugin install next-task@agentsys
 <span class="code-prompt">$</span> /plugin install ship@agentsys</code></pre>
             </div>
           </div>

@@ -135,30 +135,6 @@ git commit -m "Add test file"
 - Removes old TODOs
 - Fixes up to 3 issues
 
-### Test `/next-task`
-
-Create a couple of issues:
-
-```bash
-gh issue create --title "Add user login" --body "Implement login functionality"
-gh issue create --title "Fix timeout bug" --body "Users reporting timeouts"
-```
-
-```text
-/next-task
-```
-
-**Expected**:
-- Fetches GitHub issues
-- Prioritizes tasks
-- Shows top candidates with evidence
-
-```text
-/next-task bug
-```
-
-**Expected**: Only bug-labeled issues
-
 ### Test `/audit-project`
 
 ```text
@@ -273,7 +249,6 @@ npm run detect
 - [ ] Platform detection works on your project
 - [ ] Tool verification shows correct tools
 - [ ] `/deslop` finds and fixes slop
-- [ ] `/next-task` lists prioritized tasks
 - [ ] `/audit-project` finds real issues
 - [ ] `/ship` creates PR and merges successfully
 - [ ] `/sync-docs` reports documentation issues
@@ -294,7 +269,6 @@ Command runtime varies based on:
 **Expected behavior:**
 - `/deslop`: Fast codebase scan
 - `/audit-project`: Thorough multi-agent analysis
-- `/next-task`: Full autonomous workflow with multiple phases
 - `/ship`: Includes CI wait time and deployment validation
 
 ---

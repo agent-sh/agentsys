@@ -34,7 +34,7 @@ body:
     attributes:
       label: Command
       description: Which command triggered the issue?
-      placeholder: "/next-task, /ship, /deslop, etc."
+      placeholder: "/ship, /deslop, /prepare-delivery, etc."
     validations:
       required: true
 

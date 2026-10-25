@@ -18,15 +18,15 @@ agentsys --tool codex
 
 ## Available Commands
 
-### `/deslop` - AI Slop Cleanup
+### `$deslop` - AI Slop Cleanup
 
 Remove debugging code, old TODOs, and other AI slop.
 
 ```bash
 codex
-> /deslop
-> /deslop apply
-> /deslop apply src/ 10
+> $deslop
+> $deslop apply
+> $deslop apply src/ 10
 ```
 
 **What it does:**
@@ -34,71 +34,6 @@ codex
 - Generates report or auto-applies fixes
 - Runs verification tests
 - Preserves functionality with minimal diffs
-
----
-
-### `/next-task` - Intelligent Task Prioritization
-
-Discover what to work on next with AI analysis.
-
-```bash
-codex
-> /next-task
-> /next-task bug
-> /next-task --include-blocked
-```
-
-**What it does:**
-- Analyzes GitHub Issues (required)
-- Validates tasks aren't already implemented
-- Scores by impact, urgency, effort
-- Provides top 5 recommendations with evidence
-
-**Requires:** GitHub CLI (`gh`)
-
----
-
-### `/audit-project` - Multi-Agent Code Review
-
-Comprehensive review with specialized AI agents.
-
-```bash
-codex
-> /audit-project
-> /audit-project --recent
-> /audit-project --domain security
-> /audit-project --resume
-```
-
-**What it does:**
-- Deploys 10 specialized agents
-- Adapts to your tech stack
-- Finds bugs, security issues, performance problems
-- Iterates until no open issues remain
-
----
-
-### `/ship` - Complete PR Workflow
-
-Ship from commit to production with validation.
-
-```bash
-codex
-> /ship
-> /ship --strategy rebase
-```
-
-**What it does:**
-1. Commits changes with AI message
-2. Creates PR with description
-3. Waits for CI to pass
-4. Runs quality reviews
-5. Merges to main
-6. Deploys to dev/prod
-7. Validates deployments
-8. Auto-rollback on failure
-
-**Requires:** Git, GitHub CLI (`gh`)
 
 ---
 
@@ -113,8 +48,7 @@ The installer:
 
 ```
 ~/.codex/skills/
-├── next-task/SKILL.md          # from commands/next-task.md
-├── ship/SKILL.md
+├── ship/SKILL.md               # from commands/ship.md
 ├── ...
 ├── drift-analysis/             # a plugin skill directory
 │   ├── SKILL.md
@@ -131,7 +65,7 @@ The installer:
 ### Clean up debugging code
 ```bash
 codex
-> /deslop apply
+> $deslop apply
 
 # Changeset 1/5: Remove console.log statements
 # - src/app.js: Removed 3 console.log calls
@@ -140,25 +74,13 @@ codex
 # Summary: 5 files changed, 23 lines deleted
 ```
 
-### Get next priority task
-```bash
-codex
-> /next-task
-
-# Top 5 Priority Tasks:
-#
-# 1. [High Impact] Fix login timeout on mobile
-#    Score: 9.2/10 (Impact: 10, Urgency: 9, Effort: 3)
-#    Status: not-started (no code found)
-```
-
 ### Ship a feature
 ```bash
 # Make your changes
 git add .
 
 codex
-> /ship
+> $ship
 
 # [OK] Commits with AI message
 # [OK] Creates PR with context

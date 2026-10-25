@@ -199,6 +199,37 @@ describe('validate-cross-platform-docs', () => {
   });
 
   describe('validateCommandPrefixes', () => {
+    test('flags each wrong-prefix invocation on its own line and skips paths', () => {
+      const codexReadme = [
+        '# Codex',
+        '',
+        '├── ship/SKILL.md               # from commands/ship.md',
+        'codex',
+        '> /ship',
+        'then',
+        '> /deslop apply'
+      ].join('\n');
+      jest.isolateModules(() => {
+        const realExists = fs.existsSync;
+        const realRead = fs.readFileSync;
+        const exists = jest.spyOn(fs, 'existsSync').mockImplementation(file =>
+          path.basename(file) === 'README.md' && file.includes(path.join('adapters', 'codex')) ? true : realExists(file));
+        const read = jest.spyOn(fs, 'readFileSync').mockImplementation((file, ...rest) =>
+          path.basename(file) === 'README.md' && String(file).includes(path.join('adapters', 'codex'))
+            ? codexReadme
+            : realRead(file, ...rest));
+        try {
+          const fresh = require('../scripts/validate-cross-platform-docs');
+          const codex = fresh.validateCommandPrefixes().filter(i => i.file === 'adapters/codex/README.md');
+          expect(codex).toHaveLength(1);
+          expect(codex[0].occurrences.map(o => [o.line, o.match])).toEqual([[5, '/ship'], [7, '/deslop']]);
+        } finally {
+          exists.mockRestore();
+          read.mockRestore();
+        }
+      });
+    });
+
     test('returns array', () => {
       const issues = validateCommandPrefixes();
       expect(Array.isArray(issues)).toBe(true);
@@ -227,11 +258,11 @@ describe('validate-cross-platform-docs', () => {
     test('canonical instructions are shared rather than platform-specific', () => {
       const reader = jest.spyOn(fs, 'readFileSync').mockImplementation(file =>
         path.basename(file) === 'AGENTS.md'
-          ? 'Use x.claude/state, x.opencode/state and x.codex/state. Run /next-task.'
+          ? 'Use x.claude/state, x.opencode/state and x.codex/state. Run /ship.'
           : '');
       try {
         expect(validateStateDirReferences()).toEqual([]);
-        expect(validateFeatureParity().featuresByPlatform.general.has('/next-task')).toBe(true);
+        expect(validateFeatureParity().featuresByPlatform.general.has('/ship')).toBe(true);
       } finally {
         reader.mockRestore();
       }

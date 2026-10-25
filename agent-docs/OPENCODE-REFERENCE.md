@@ -36,8 +36,7 @@ When user runs `agentsys` and selects OpenCode:
 ```
 ~/.agentsys/                    # Full package copy
 
-~/.config/opencode/commands/         # 10 commands (global)
-├── next-task.md
+~/.config/opencode/commands/         # 9 commands (global)
 ├── delivery-approval.md
 ├── ship.md
 ├── deslop.md
@@ -49,15 +48,12 @@ When user runs `agentsys` and selects OpenCode:
 └── perf.md
 
 ~/.config/opencode/agents/           # 29 agents (global)
-├── task-discoverer.md
-├── exploration-agent.md
-├── planning-agent.md
-├── implementation-agent.md
-├── prepare-delivery:delivery-validator.md
+├── deslop-agent.md
+├── delivery-validator.md
+├── test-coverage-checker.md
 └── ...
 
 ~/.config/opencode/skills/           # plugin skills (global), whole directories
-├── discover-tasks/SKILL.md
 ├── orchestrate-review/SKILL.md
 ├── deslop/
 │   ├── SKILL.md
@@ -463,17 +459,8 @@ workflow_status
 
 ```bash
 # Should list AgentSys commands
-/next-task
 /deslop
 /ship
-```
-
-### Verify State Directory
-
-```bash
-# After running workflow
-ls .opencode/
-# Should see: tasks.json, flow.json (in worktree)
 ```
 
 ---
@@ -545,7 +532,7 @@ OpenCode supports thinking/reasoning across **multiple providers** with differen
 **Via Plugin Hook (runtime):**
 ```typescript
 "chat.params": async (input, output) => {
-  if (input.agent === "planning-agent") {
+  if (input.agent === "delivery-validator") {
     output.options.thinking = { type: "enabled", budgetTokens: 16000 }
   }
 }
@@ -676,7 +663,7 @@ export const WorkflowPlugin: Plugin = async (ctx) => {
 
     "chat.params": async (input, output) => {
       // Use higher reasoning for complex agents
-      if (["planning-agent", "implementation-agent"].includes(input.agent)) {
+      if (["delivery-validator", "plan-synthesizer"].includes(input.agent)) {
         output.options.thinking = { type: "enabled", budgetTokens: 16000 }
       }
     }
@@ -889,25 +876,13 @@ Add to user's `opencode.json`:
 ```jsonc
 {
   "agent": {
-    // Simple agents - no extended thinking
-    "worktree-manager": {
-      "model": "anthropic/claude-haiku-4-5"
-    },
-    "simple-fixer": {
-      "model": "anthropic/claude-haiku-4-5"
-    },
-
     // Medium agents - standard thinking
-    "task-discoverer": {
+    "docs-updater": {
       "model": "anthropic/claude-sonnet-4",
       "options": { "thinking": { "type": "enabled", "budgetTokens": 8000 } }
     },
 
     // Complex agents - extended thinking
-    "planning-agent": {
-      "model": "anthropic/claude-sonnet-4",
-      "options": { "thinking": { "type": "enabled", "budgetTokens": 16000 } }
-    },
     "prepare-delivery:delivery-validator": {
       "model": "anthropic/claude-sonnet-4",
       "options": { "thinking": { "type": "enabled", "budgetTokens": 16000 } }
@@ -920,10 +895,9 @@ Add to user's `opencode.json`:
 
 | Agent Category | Model | Thinking Budget |
 |----------------|-------|-----------------|
-| **Execution** (worktree, simple-fixer) | Haiku | None |
-| **Discovery** (task-discoverer, ci-monitor) | Sonnet | 8k |
-| **Analysis** (exploration, deslop-agent) | Sonnet | 12k |
-| **Reasoning** (planning, review, delivery) | Sonnet | 16k |
+| **Discovery** (docs-updater) | Sonnet | 8k |
+| **Analysis** (deslop-agent, test-coverage-checker) | Sonnet | 12k |
+| **Reasoning** (review, delivery) | Sonnet | 16k |
 | **Synthesis** (plan-synthesizer, enhancement-orchestrator) | Opus | 16k+ |
 
 ---

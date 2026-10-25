@@ -94,7 +94,7 @@ Scroll order with rationale for each section. All sections are full-width, alter
 - **Single column on mobile:** Text above, terminal below. Stack with 48px gap.
 
 ### Left Column Content
-1. **Badge** (top, above title): Small pill showing version or "25 plugins . 55 agents . 47 skills"
+1. **Badge** (top, above title): Small pill showing version or "23 plugins . 42 agents . 43 skills"
    - Background: `rgba(99, 102, 241, 0.12)`, border: `1px solid rgba(99, 102, 241, 0.25)`, border-radius: 9999px
    - Font: 13px, font-weight 500, primary accent color
    - Padding: 4px 14px
@@ -104,7 +104,7 @@ Scroll order with rationale for each section. All sections are full-width, alter
    - Color: white
    - "entire dev workflow" portion highlighted with a subtle gradient text (primary-to-secondary accent via `background-clip: text`)
 
-3. **Subtitle:** "25 plugins, 55 agents, 47 skills. From task selection to merged PR. Works with Claude Code, OpenCode, Codex CLI, Cursor, and Kiro."
+3. **Subtitle:** "23 plugins, 42 agents, 43 skills. From finished branch to merged PR. Works with Claude Code, OpenCode, Codex CLI, Cursor, and Kiro."
    - Font: 18px on desktop, 16px on mobile, font-weight 400, line-height 1.6
    - Color: `rgba(255, 255, 255, 0.6)`
    - Max-width: 520px
@@ -142,37 +142,37 @@ See Section 5 for the terminal demo specification.
 
 ### Demo Sequence (~15 seconds total)
 
-The demo shows the core `/next-task` workflow in compressed form. Each "step" appears with a typing animation for commands and instant-render for output.
+The demo shows the `/gate-and-ship` pipeline in compressed form. Each "step" appears with a typing animation for commands and instant-render for output.
 
 **Step 1** (0.0s - 2.5s): User types command
 ```
-$ /next-task
+$ /gate-and-ship
 ```
 Typing speed: 80ms per character, blinking cursor `|` at 530ms interval.
 
-**Step 2** (2.5s - 4.5s): Task discovery output (appears line-by-line, 100ms between lines)
+**Step 2** (2.5s - 4.5s): Branch summary (appears line-by-line, 100ms between lines)
 ```
-[discovery] Found 3 tasks from GitHub Issues
-  #142  Add WebSocket support       priority: high
-  #138  Fix memory leak in parser   priority: high
-  #145  Update API documentation    priority: medium
+[branch] feature/websocket-support vs main
+  6 files changed, 847 additions, 23 deletions
+  tests: passing  build: passing
+  gates: deslop, coverage, simplify, review, validation, docs
 ```
-Colors: `[discovery]` in cyan (#22d3ee). Issue numbers in yellow (#fbbf24). Priority values: high in red (#f87171), medium in yellow (#fbbf24).
+Colors: `[branch]` in cyan (#22d3ee). "passing" in green (#4ade80). Labels in muted gray.
 
-**Step 3** (4.5s - 5.5s): Selection
+**Step 3** (4.5s - 5.5s): Gates start
 ```
-> Selected #142: Add WebSocket support
+> Running /prepare-delivery
 ```
 Color: `>` in green (#4ade80), rest in white.
 
-**Step 4** (5.5s - 8.5s): Phase progression (each line appears with 400ms delay)
+**Step 4** (5.5s - 8.5s): Gate progression (each line appears with 400ms delay)
 ```
-[explore]    Analyzing 847 files, 12 entry points...
-[plan]       3-phase implementation designed
-[implement]  Writing code across 6 files...
+[deslop]     3 debug logs removed, 1 TODO flagged
+[coverage]   Every changed function has a test
 [review]     4 agents reviewing... 2 issues found, fixing...
+[validate]   Requirements met, docs synced
 ```
-Phase labels: each in the primary accent color. Ellipses animate (cycling 1-3 dots).
+Gate labels: each in the primary accent color. Ellipses animate (cycling 1-3 dots).
 
 **Step 5** (8.5s - 11.0s): Ship phase
 ```
@@ -182,8 +182,8 @@ Color: entire line in green (#4ade80). The arrow `->` animates between states wi
 
 **Step 6** (11.0s - 13.0s): Summary
 ```
-Done. Task to merged PR in 12 minutes.
-  6 files changed, 847 additions, 23 deletions
+Done. Branch to merged PR in 9 minutes.
+  Every gate passed before the PR opened.
   All 4 reviewers approved. Zero manual intervention.
 ```
 "Done." in bold white. Stats in `rgba(255, 255, 255, 0.5)`. "Zero manual intervention." in the primary accent color, bold.
@@ -226,9 +226,9 @@ Done. Task to merged PR in 12 minutes.
 ### Stats (left to right)
 | Stat | Value | Label |
 |------|-------|-------|
-| 1 | 25 | Plugins |
-| 2 | 55 | Agents |
-| 3 | 47 | Skills |
+| 1 | 23 | Plugins |
+| 2 | 42 | Agents |
+| 3 | 43 | Skills |
 | 4 | 5 | Platforms |
 
 ### Styling
@@ -265,9 +265,9 @@ Done. Task to merged PR in 12 minutes.
   - On mobile: naturally scrollable, slight gradient fade on right edge to indicate scrollability (20px gradient from transparent to section background)
 
 ### Tab Order
-`/next-task`, `/ship`, `/deslop`, `/perf`, `/drift-detect`, `/audit-project`, `/enhance`, `/repo-intel`, `/sync-docs`, `/learn`, `/agnix`
+`/agnix`, `/ship`, `/deslop`, `/perf`, `/drift-detect`, `/audit-project`, `/enhance`, `/repo-intel`, `/sync-docs`, `/learn`
 
-(Most impactful first: the full workflow command, then the shipper, then individual tools)
+(Most impactful first: the config linter, then the shipper, then individual tools)
 
 ### Tab Content Panel
 For each command, show:
@@ -276,18 +276,18 @@ For each command, show:
 3. **Key features** as 3-4 bullet points, 14px, `rgba(255, 255, 255, 0.5)`, with accent-colored bullet markers
 4. **Usage example** in a mini code block (dark background `#0d1117`, 13px monospace, border-radius 8px, padding 16px)
 
-### Content for `/next-task` tab (as example, all others follow same structure):
-- **Name:** `/next-task`
-- **Description:** "Task to merged PR. Full automation."
+### Content for `/ship` tab (as example, all others follow same structure):
+- **Name:** `/ship`
+- **Description:** "Branch to merged PR."
 - **Features:**
-  - 12-phase pipeline: discovery through deployment
-  - Multi-agent review loop (code, security, perf, tests)
-  - Persistent state: resume from any phase
-  - Works with GitHub Issues, GitLab, or local task files
+  - Commit, push and open the PR
+  - Waits on CI and fixes failures
+  - Answers review comments, up to 5 rounds
+  - Merges when checks are green
 - **Usage:**
   ```
-  /next-task                # Start new workflow
-  /next-task --resume       # Resume interrupted workflow
+  /ship                     # Ship the current branch
+  /ship --dry-run           # Show what would happen
   ```
 
 ### Tab Switching
@@ -400,7 +400,6 @@ Tab styling matches Commands section tab bar but smaller scale:
 **Claude Code tab:**
 ```bash
 /plugin marketplace add agent-sh/agentsys
-/plugin install next-task@agentsys
 /plugin install ship@agentsys
 ```
 
@@ -614,7 +613,7 @@ This disables:
 - `<button>` for interactive elements (not `<div onclick>`)
 
 ### Screen Reader Considerations
-- Terminal animation has `aria-label="Animated demo showing the /next-task workflow"` and `role="img"` (since it's decorative, not interactive)
+- Terminal animation has `aria-label="Animated demo showing the /gate-and-ship workflow"` and `role="img"` (since it's decorative, not interactive)
 - Stats counters have `aria-live="polite"` so the final values are announced
 - Tab panels have `aria-labelledby` referencing their tab
 - Copy buttons have `aria-label="Copy code to clipboard"`
@@ -650,13 +649,13 @@ This disables:
 ### Head Content
 ```html
 <title>AgentSys - Agent Runtime &amp; Orchestration System</title>
-<meta name="description" content="A modular runtime and orchestration system for AI agents. 25 plugins, 55 agents, 47 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.">
+<meta name="description" content="A modular runtime and orchestration system for AI agents. 23 plugins, 42 agents, 43 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0a0a0f">
 
 <!-- Open Graph -->
 <meta property="og:title" content="AgentSys">
-<meta property="og:description" content="AI workflow automation. 25 plugins, 55 agents, 47 skills. Task to merged PR.">
+<meta property="og:description" content="AI workflow automation. 23 plugins, 42 agents, 43 skills. Branch to merged PR.">
 <meta property="og:image" content="https://agent-sh.github.io/agentsys/assets/og-image.png">
 <meta property="og:url" content="https://agent-sh.github.io/agentsys/">
 <meta property="og:type" content="website">
@@ -664,7 +663,7 @@ This disables:
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="AgentSys">
-<meta name="twitter:description" content="AI workflow automation. 25 plugins, 55 agents, 47 skills.">
+<meta name="twitter:description" content="AI workflow automation. 23 plugins, 42 agents, 43 skills.">
 <meta name="twitter:image" content="https://agent-sh.github.io/agentsys/assets/og-image.png">
 ```
 
