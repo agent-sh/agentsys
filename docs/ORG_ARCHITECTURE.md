@@ -35,6 +35,7 @@
 | [glidemq](https://github.com/agent-sh/glidemq) | Glide-MQ message queue skills | Active |
 | [prepare-delivery](https://github.com/agent-sh/prepare-delivery) | Pre-ship quality gates plugin | Active |
 | [gate-and-ship](https://github.com/agent-sh/gate-and-ship) | Quality gates then ship plugin | Active |
+| [foreman](https://github.com/agent-sh/foreman) | GitHub issues as a task queue for native agents | Active |
 | [mojo](https://github.com/agent-sh/mojo) | Mojo language skill plugin | Active |
 | [ada-spark](https://github.com/agent-sh/ada-spark) | Ada and SPARK language skill plugin | Active |
 

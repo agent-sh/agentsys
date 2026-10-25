@@ -29,7 +29,7 @@ In prose, write ` - ` (a single dash with spaces), not an em dash or a doubled d
 <!-- GEN:START:claude-architecture -->
 ```
 lib/          → Shared library (vendored to plugins)
-plugins/      → 23 plugins, 42 agents (32 file-based + 10 role-based), 43 skills
+plugins/      → 24 plugins, 42 agents (32 file-based + 10 role-based), 44 skills
 adapters/     → Platform adapters (opencode-plugin/, opencode/, codex/)
 checklists/   → Action checklists (9 files)
 bin/cli.js    → npm CLI installer
@@ -57,6 +57,7 @@ bin/cli.js    → npm CLI installer
 | skillers | 2 | 2 | Workflow pattern learning |
 | onboard | 1 | 1 | Codebase onboarding |
 | can-i-help | 1 | 1 | Contributor guidance |
+| foreman | 0 | 1 | GitHub issue queue for native agents |
 | zig-lsp | 0 | 0 |  |
 | mojo | 0 | 1 |  |
 | ada-spark | 0 | 1 |  |

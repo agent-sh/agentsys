@@ -121,3 +121,36 @@ test('every git-subdir marketplace plugin names a folder inside its repo', () =>
     expect([plugin.name, parts.includes('..'), parts.every(Boolean)]).toEqual([plugin.name, false, true]);
   }
 });
+
+// foreman replaces next-task and tower-crane (#434). Claude Code installs the
+// `sha`, so the pin must be a full 40-hex commit, not a tag or a short hash.
+const FOREMAN_COMMIT = 'f5f307e12cd35ed69932d3998c9150866d9c4ee0';
+
+test('foreman is offered and pinned to a full 40-hex sha', () => {
+  const foreman = pluginByName('foreman');
+  expect(foreman).toBeTruthy();
+  expect(foreman.version).toBe('0.1.0');
+  expect(foreman.category).toBe('productivity');
+  expect(foreman.homepage).toBe('https://github.com/agent-sh/foreman');
+  expect(foreman.source).toEqual({
+    source: 'url',
+    url: 'https://github.com/agent-sh/foreman.git',
+    commit: FOREMAN_COMMIT,
+    sha: FOREMAN_COMMIT,
+  });
+  expect(foreman.source.sha).toMatch(/^[0-9a-f]{40}$/);
+});
+
+test('foreman is listed in the docs, the site, the Codex metadata and the docs generator', () => {
+  const { STATIC_SKILLS, STATIC_PLUGIN_AGENT_COUNTS } = require('../scripts/generate-docs');
+  const read = (file) => fs.readFileSync(path.join(repoRoot, file), 'utf8');
+
+  expect(STATIC_SKILLS).toContainEqual({ plugin: 'foreman', name: 'foreman' });
+  expect(STATIC_PLUGIN_AGENT_COUNTS.foreman).toBe(0);
+  expect(siteContent.commands.map((command) => command.name)).toContain('/foreman');
+  expect(codexPlugin.interface.longDescription).toContain('/foreman');
+  for (const file of ['README.md', 'docs/ARCHITECTURE.md', 'docs/USAGE.md', 'docs/INSTALLATION.md', 'docs/CROSS_PLATFORM.md', 'site/index.html']) {
+    expect([file, read(file).includes('/foreman')]).toEqual([file, true]);
+  }
+  expect(fs.existsSync(path.join(repoRoot, 'docs/workflows/FOREMAN.md'))).toBe(true);
+});

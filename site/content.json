@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "agentsys",
-    "description": "A modular runtime and orchestration system for AI agents. 23 plugins, 42 agents, 43 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.",
+    "description": "A modular runtime and orchestration system for AI agents. 24 plugins, 42 agents, 44 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.",
     "url": "https://agent-sh.github.io/agentsys",
     "repo": "https://github.com/agent-sh/agentsys",
     "npm": "https://www.npmjs.com/package/agentsys",
@@ -23,7 +23,7 @@
   },
   "stats": [
     {
-      "value": "23",
+      "value": "24",
       "label": "Plugins",
       "suffix": ""
     },
@@ -33,7 +33,7 @@
       "suffix": ""
     },
     {
-      "value": "43",
+      "value": "44",
       "label": "Skills",
       "suffix": ""
     },
@@ -95,6 +95,13 @@
       "tagline": "Quality gates then ship",
       "description": "Quality gates then ship - chains /prepare-delivery then /ship",
       "example": "/gate-and-ship",
+      "category": "workflow"
+    },
+    {
+      "name": "/foreman",
+      "tagline": "GitHub issues as a task queue",
+      "description": "Works a repo's open issues as a queue for one session and its worktree subagents: pick the next ready issue, claim it, brief a worker, read Revuto's findings and land the PR at the exact head it checked, through the repo's own land command. GitHub labels and comments are the only state, read live.",
+      "example": "/foreman",
       "category": "workflow"
     },
     {

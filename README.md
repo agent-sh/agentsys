@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <b>23 plugins · 42 agents · 43 skills (across all repos) · 30k lines of lib code · tests on Linux and Windows · 5 platforms</b><br>
+  <b>24 plugins · 42 agents · 44 skills (across all repos) · 30k lines of lib code · tests on Linux and Windows · 5 platforms</b><br>
   <em>Plugins distributed as standalone repos under <a href="https://github.com/agent-sh">agent-sh</a> org - agentsys is the marketplace &amp; installer</em>
 </p>
 
@@ -54,7 +54,7 @@ AI models can write code. That's not the hard part anymore. The hard part is eve
 
 ## What This Is
 
-An agent orchestration system - 23 plugins, 42 agents (32 file-based + 10 role-based specialists in audit-project), and 43 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
+An agent orchestration system - 24 plugins, 42 agents (32 file-based + 10 role-based specialists in audit-project), and 44 skills that compose into structured pipelines for software development. Each plugin lives in its own standalone repo under the [agent-sh](https://github.com/agent-sh) org. agentsys is the marketplace and installer that ties them together.
 
 Each agent has a single responsibility, a specific model assignment, and defined inputs/outputs. Pipelines enforce phase gates so agents can't skip steps. State persists across sessions so work survives interruptions.
 
@@ -126,6 +126,7 @@ The investment shifts from model spend to pipeline design. Better prompts, riche
 |---------|--------------|
 | [`/prepare-delivery`](#prepare-delivery) | Pre-ship quality gates: deslop, review, validation, docs sync |
 | [`/gate-and-ship`](#gate-and-ship) | Quality gates then ship (/prepare-delivery + /ship) |
+| [`/foreman`](#foreman) | Work the GitHub issue queue with native subagents, from pick to land |
 | [`/banthis`](#banthis) | Durable negative memory: persist banned agent behaviors |
 | [`/agnix`](#agnix) | Lint agent configurations (457 rules) |
 | [`/ship`](#ship) | PR creation, CI monitoring, merge |
@@ -152,11 +153,11 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 
 ## Skills
 
-43 skills included across the plugins:
+44 skills included across the plugins:
 
 | Category | Skills |
 |----------|--------|
-| **Workflow** | `prepare-delivery`, `check-test-coverage`, `orchestrate-review`, `validate-delivery` |
+| **Workflow** | `prepare-delivery`, `check-test-coverage`, `orchestrate-review`, `validate-delivery`, `foreman` |
 | **Message Queues** | `glide-mq-migrate-bee`, `glide-mq-migrate-bullmq`, `glide-mq` |
 | **Enhancement** | `enhance-agent-prompts`, `enhance-claude-memory`, `enhance-cross-file`, `enhance-docs`, `enhance-hooks`, `enhance-orchestrator`, `enhance-plugins`, `enhance-prompts`, `enhance-skills`, `skill-curator`, `system-prompt-curator` |
 | **Performance** | `baseline`, `benchmark`, `code-paths`, `investigation-logger`, `perf-analyzer`, `profile`, `theory-gatherer`, `theory-tester` |
@@ -188,7 +189,7 @@ Skills are the reusable implementation units. Agents invoke skills; commands orc
 | [The Approach](#the-approach) | Why it's built this way |
 | [Benchmarks](#benchmarks) | Sonnet + agentsys vs raw Opus |
 | [Commands](#commands) | Overview of every command |
-| [Skills](#skills) | 43 skills across plugins |
+| [Skills](#skills) | 44 skills across plugins |
 | [Skill-Only Plugins](#skill-only-plugins) | glide-mq and other non-command plugins |
 | [Command Details](#command-details) | Deep dive into each command |
 | [How Commands Work Together](#how-commands-work-together) | Standalone vs integrated |
@@ -261,6 +262,36 @@ Does NOT create PRs or push - use `/ship` or `/gate-and-ship` after.
 ```
 
 Each piece runs independently - use `/prepare-delivery` alone to review before deciding to ship, or `/ship` alone if already validated.
+
+---
+
+### /foreman
+
+**Purpose:** Work a repo's GitHub issues as a task queue. One main session picks the next ready issue, claims it, and hands it to a worktree subagent. Revuto reviews the PR, and foreman lands it at the exact head it checked. It replaces next-task and tower-crane.
+
+There is no daemon and no state store. Labels, assignees and comments on GitHub are the state, and every command reads GitHub live, so several sessions can share one queue.
+
+**The loop:**
+
+1. **Capacity, pick, claim** - checks load, CPU pressure and memory, takes the next ready issue (urgent first, then oldest, open dependencies skipped) and claims it
+2. **Brief and spawn** - one worktree subagent per issue from its brief, in parallel up to `agents_max`
+3. **Review** - reads Revuto's findings; every real finding gets fixed, a wrong one gets a reply. When Revuto is capped or down, the session reviews the diff itself and records it
+4. **Land** - every check green at the head, no unaddressed finding, the repo's own land command, then a squash merge pinned to that head and the issue closed
+
+```bash
+/foreman                    # Run the queue until nothing is ready
+/foreman status             # Counts by label, claims and capacity
+/foreman stats              # Revuto caps, self-reviews, manual review requests
+/foreman 123                # Work issue #123 only, from claim to land
+```
+
+**Config:** optional `.foreman.json` in the repo root: label names, `agents_max`, load and memory holds, the check and land commands, required checks, Revuto round cap, forbidden words for posted comments.
+
+**Requires:** Node 22+, `gh` (logged in), `git` and `waitfor`. `run-long` needs systemd user units (Linux).
+
+**Skill:** foreman (no agents: workers are native worktree subagents)
+
+[Full workflow documentation →](./docs/workflows/FOREMAN.md) · [Repo →](https://github.com/agent-sh/foreman)
 
 ---
 
@@ -971,6 +1002,7 @@ The system prompt curator rewrites prompts around task-matched identity, phased 
 /prepare-delivery      # Run all quality gates (no ship)
 /ship                  # Just ship this branch
 /gate-and-ship         # Quality gates + ship in one command
+/foreman               # Work the issue queue, one worktree agent per issue
 /audit-project         # Just review the codebase
 ```
 
@@ -1147,6 +1179,9 @@ agentsys --development              # Dev mode (bypasses marketplace)
 **For /repo-intel:**
 - agent-analyzer (installed automatically via npm)
 
+**For /foreman:**
+- Node.js 22+, `gh` authenticated, and `waitfor` on `PATH`
+
 **For /agnix:**
 - [agnix CLI](https://github.com/agent-sh/agnix) installed (`npm install -g agnix`, `cargo install agnix-cli`, or `brew install agnix`)
 
@@ -1197,6 +1232,7 @@ The system is built on research, not guesswork.
 | Workflow | Link |
 |----------|------|
 | /ship Flow | [docs/workflows/SHIP.md](./docs/workflows/SHIP.md) |
+| /foreman Flow | [docs/workflows/FOREMAN.md](./docs/workflows/FOREMAN.md) |
 
 ### Reference
 
