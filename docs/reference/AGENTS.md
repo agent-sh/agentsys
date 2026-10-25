@@ -3,7 +3,7 @@
 Every agent in the AgentSys plugins at the commits pinned in `.claude-plugin/marketplace.json`. Each plugin repo's `agents/*.md` is the source of truth; this page summarizes it.
 
 <!-- GEN:START:agents-counts -->
-**TL;DR:** 55 agents across 25 plugins (18 have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5.5, Haiku 4.5) or inherits the caller's model, and does one thing. <!-- AGENT_COUNT_TOTAL: 55 -->
+**TL;DR:** 42 agents across 23 plugins (16 have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5.5, Haiku 4.5) or inherits the caller's model, and does one thing. <!-- AGENT_COUNT_TOTAL: 42 -->
 <!-- GEN:END:agents-counts -->
 
 ## Quick Navigation
@@ -13,7 +13,7 @@ Every agent in the AgentSys plugins at the commits pinned in `.claude-plugin/mar
 |--------|--------|---------|
 <!-- GEN:END:agents-nav -->
 
-Related: [/next-task Workflow](../workflows/NEXT-TASK.md) shows how the agents work together; [/ship Workflow](../workflows/SHIP.md) covers CI and merge.
+Related: [/ship Workflow](../workflows/SHIP.md) covers CI and merge.
 
 ## Overview
 
@@ -26,25 +26,12 @@ Related: [/next-task Workflow](../workflows/NEXT-TASK.md) shows how the agents w
 
 Family aliases resolve to the current model in that family, so agent files do not pin versions.
 
-- **File-based agents** (45): `agents/*.md` with frontmatter in each plugin repo. <!-- AGENT_COUNT_FILE_BASED: 45 -->
+- **File-based agents** (32): `agents/*.md` with frontmatter in each plugin repo. <!-- AGENT_COUNT_FILE_BASED: 32 -->
 - **Role-based agents** (10): audit-project review passes, spawned through Task with a pass-specific prompt. <!-- AGENT_COUNT_ROLE_BASED: 10 -->
 
 Plugins with no agents: gate-and-ship (commands only); banthis, skill-curator and system-prompt-curator (skill and command only); mojo and ada-spark (skills only); zig-lsp (LSP config only).
 
 Tool lists are abbreviated: `Bash(git, gh)` means `Bash(git:*), Bash(gh:*)`.
-
-## next-task Plugin Agents
-
-| Agent | Model | Tools | What it does |
-|-------|-------|-------|--------------|
-| task-discoverer | sonnet | Skill, Read, Grep, Bash(gh, glab, git) | Fetches, filters and scores tasks from the configured source and returns the top 5. |
-| worktree-manager | haiku | Bash(git), Read | Creates an isolated worktree and feature branch for the selected task. Does not claim the task (the orchestrator does) or remove worktrees. |
-| exploration-agent | sonnet | Read, Glob, Grep, Bash(git) | Finds the files to change, patterns to follow, dependencies and risks, and returns a report the planner uses without re-exploring. |
-| planning-agent | inherit | Read, Glob, Grep, Bash(git) | Turns the exploration report into a JSON implementation plan for the user to approve. |
-| implementation-agent | inherit | Read, Write, Edit, Glob, Grep, Bash(git, npm, node), LSP | Implements the approved plan with tests as local commits. Does not push, open a PR or run review agents: `/ship` owns the push. |
-| simple-fixer | haiku | Read, Edit, Bash(git) | Applies a precomputed list of mechanical edits (remove line, replace text, insert line) from deslop or sync-docs and commits them. |
-| ci-monitor | haiku | Bash(gh, git), Read, Task | Blocks on `gh pr checks --watch` with the whole wait bounded to 30 minutes, reports failing checks and review feedback, and hands fixes to ci-fixer for at most 5 rounds. Reports `passed`, `failed`, `timeout` or `no-checks`; does not reply to reviewers or merge. |
-| ci-fixer | sonnet | Bash(git, npm, gh run view), Read, Edit, Grep, Glob | Fixes one CI failure or one review comment that needs a code change, commits it and pushes the PR branch. |
 
 ## prepare-delivery Plugin Agents
 
@@ -138,11 +125,6 @@ Role-based: `/audit-project` spawns one subagent per pass with the pass's prompt
 | onboard | onboard-agent | sonnet | Read, Glob, Grep, Bash(git), AskUserQuestion | Gives a short, code-grounded tour of an unfamiliar codebase from collected data, then answers follow-up questions. |
 | can-i-help | can-i-help-agent | sonnet | Read, Glob, Grep, Bash(git, gh), AskUserQuestion | Matches a developer's interests to contribution targets: test gaps, stale docs, bugspots, cleanup candidates, open issues. |
 | agnix | agnix-agent | sonnet | Bash(agnix, cargo), Read, Glob, Grep | Runs the agnix CLI for `/agnix` (with `--fix` only when asked) and returns the diagnostics as an `AGNIX_RESULT` block. |
-| tower-crane | tower-crane-orchestrator | inherit | Bash, Read, Edit, Write, Grep, Glob, Skill, Agent, WebFetch, WebSearch | Runs a Tower Crane project on the orchestrator rung: plans, writes briefs, dispatches workers and reviewers, runs the gates and merges. No force push. |
-| tower-crane | tower-crane-worker | inherit | Bash, Read, Edit, Write, Grep, Glob, Skill | Builds one task from its brief in its worktree, verifies its acceptance, opens the PR and submits it with the tower-crane CLI. No web, no review or merge. |
-| tower-crane | tower-crane-researcher | inherit | Bash, Read, Edit, Write, Grep, Glob, Skill, WebSearch, WebFetch | The worker for research tasks: same scope, with web access. |
-| tower-crane | tower-crane-reviewer | inherit | Bash, Read, Grep, Glob, Skill | Reviews a submitted task with a clean context against its acceptance and gate reports, posts the review on the PR and records review evidence. Read-only on the code. |
-| tower-crane | tower-crane-small | inherit | Bash, Read, Grep, Glob | Runs one mechanical check, such as confirming lines the cleanup tool flagged, and records the result with the tower-crane CLI. Read-only on the code. |
 
 ## Navigation
 

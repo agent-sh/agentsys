@@ -38,8 +38,7 @@ When user runs `agentsys` and selects Codex:
 ~/.agentsys/           # Full package copy
 
 ~/.codex/skills/            # one skill per command, plus plugin skills
-├── next-task/SKILL.md      # from a command (commands/next-task.md)
-├── ship/SKILL.md
+├── ship/SKILL.md            # from a command (commands/ship.md)
 ├── deslop/SKILL.md
 ├── ...
 ├── drift-analysis/         # a plugin skill: the whole skill directory
@@ -49,7 +48,7 @@ When user runs `agentsys` and selects Codex:
 └── ...
 ```
 
-Skills are invoked with `$` prefix: `$next-task`, `$ship`, etc. A plugin skill named like a command (`deslop`, `consult`, ...) is not installed there: `$<name>` stays the command, and the skill stays in `~/.agentsys/plugins/<plugin>/skills/<name>/`.
+Skills are invoked with `$` prefix: `$ship`, `$deslop`, etc. A plugin skill named like a command (`deslop`, `consult`, ...) is not installed there: `$<name>` stays the command, and the skill stays in `~/.agentsys/plugins/<plugin>/skills/<name>/`.
 
 ---
 
@@ -213,7 +212,7 @@ description: Master workflow orchestrator  # No trigger phrases!
 $skill-name
 
 # Or reference in chat
-"Use $next-task to find my next task"
+"Use $ship to merge this branch"
 ```
 
 ### Apps Integration
@@ -477,17 +476,8 @@ workflow_status
 
 ```bash
 # Should list installed skills
-$next-task
 $deslop
 $ship
-```
-
-### Verify State Directory
-
-```bash
-# After running workflow
-ls .codex/
-# Should see: tasks.json, flow.json (in worktree)
 ```
 
 ---

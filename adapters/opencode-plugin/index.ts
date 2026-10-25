@@ -17,25 +17,15 @@ import { join } from "path"
 
 // Agent complexity tiers for thinking budget selection
 const AGENT_THINKING_CONFIG: Record<string, { budget: number; description: string }> = {
-  // Execution tier - no thinking needed (haiku-level tasks)
-  "worktree-manager": { budget: 0, description: "Simple git operations" },
-  "simple-fixer": { budget: 0, description: "Mechanical code fixes" },
-  "ci-monitor": { budget: 0, description: "Status checking" },
-
   // Discovery tier - light thinking (8k)
-  "task-discoverer": { budget: 8000, description: "Task analysis" },
   "docs-updater": { budget: 8000, description: "Documentation sync" },
 
   // Analysis tier - moderate thinking (12k)
-  "exploration-agent": { budget: 12000, description: "Codebase exploration" },
   "deslop-agent": { budget: 12000, description: "Slop detection" },
   "test-coverage-checker": { budget: 12000, description: "Coverage analysis" },
-  "ci-fixer": { budget: 12000, description: "CI problem solving" },
 
   // Reasoning tier - extended thinking (16k)
-  "planning-agent": { budget: 16000, description: "Implementation planning" },
   "delivery-validator": { budget: 16000, description: "Delivery validation" },
-  "implementation-agent": { budget: 16000, description: "Code implementation" },
 
   // Synthesis tier - maximum thinking (20k+)
   "plan-synthesizer": { budget: 20000, description: "Deep semantic analysis" },

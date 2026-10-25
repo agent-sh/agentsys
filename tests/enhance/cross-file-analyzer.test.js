@@ -71,9 +71,9 @@ describe('Cross-File Patterns', () => {
 
     it('should detect missing agent reference', () => {
       const result = pattern.check({
-        referencedAgent: 'next-task:nonexistent-agent',
+        referencedAgent: 'perf:nonexistent-agent',
         existingAgents: [
-          { plugin: 'next-task', name: 'exploration-agent' },
+          { plugin: 'perf', name: 'perf-orchestrator' },
           { plugin: 'enhance', name: 'plugin-enhancer' }
         ],
         sourceFile: 'workflow.md'
@@ -85,9 +85,9 @@ describe('Cross-File Patterns', () => {
 
     it('should not flag existing agent', () => {
       const result = pattern.check({
-        referencedAgent: 'next-task:exploration-agent',
+        referencedAgent: 'perf:perf-orchestrator',
         existingAgents: [
-          { plugin: 'next-task', name: 'exploration-agent' },
+          { plugin: 'perf', name: 'perf-orchestrator' },
           { plugin: 'enhance', name: 'plugin-enhancer' }
         ],
         sourceFile: 'workflow.md'
@@ -98,9 +98,9 @@ describe('Cross-File Patterns', () => {
 
     it('should handle short agent name without plugin prefix', () => {
       const result = pattern.check({
-        referencedAgent: 'exploration-agent',
+        referencedAgent: 'perf-orchestrator',
         existingAgents: [
-          { plugin: 'next-task', name: 'exploration-agent' }
+          { plugin: 'perf', name: 'perf-orchestrator' }
         ],
         sourceFile: 'workflow.md'
       });
@@ -508,12 +508,12 @@ Read({ file_path: "/correct" })
     it('should extract subagent_type references with double quotes', () => {
       const content = `
 Task({
-  subagent_type: "next-task:exploration-agent",
+  subagent_type: "perf:perf-orchestrator",
   prompt: "Explore"
 })
       `;
       const refs = crossFileAnalyzer.extractAgentReferences(content);
-      expect(refs).toContain('next-task:exploration-agent');
+      expect(refs).toContain('perf:perf-orchestrator');
     });
 
     it('should extract subagent_type references with single quotes', () => {

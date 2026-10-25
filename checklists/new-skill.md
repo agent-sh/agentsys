@@ -178,7 +178,7 @@ description: Analyze prompts for clarity and structure. Use when reviewing agent
 
 These issues were found across all plugins during comprehensive audit and **have been fixed**.
 
-### Directory/Name Mismatches (21 total - FIXED)
+### Directory/Name Mismatches (19 total - FIXED)
 
 **PERF plugin** - 8 directories renamed:
 - `analyzer` → `perf-analyzer`
@@ -201,18 +201,10 @@ These issues were found across all plugins during comprehensive audit and **have
 - `prompts` → `enhance-prompts`
 - `skills` → `enhance-skills`
 
-**NEXT-TASK plugin** - 2 directories renamed:
-- `delivery-validation` → `validate-delivery`
-- `task-discovery` → `discover-tasks`
-
 **PERF plugin** - 1 additional:
 - `perf-theory-generator` → `perf-theory-gatherer`
 
-### Agents Missing Skill Tool (7 total - FIXED)
-
-**next-task plugin** - Added Skill tool:
-- delivery-validator.md
-- task-discoverer.md
+### Agents Missing Skill Tool (5 total - FIXED)
 
 **perf plugin** - Added Skill tool:
 - perf-analyzer.md

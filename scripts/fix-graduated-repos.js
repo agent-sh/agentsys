@@ -23,9 +23,9 @@ const { execFileSync } = require('child_process');
 const GITHUB_ORG = 'agent-sh';
 const WORK_DIR = '/tmp/fix-repos';
 
-// 12 graduated plugins (agnix excluded — it stays in monorepo)
+// 11 graduated plugins (agnix excluded - it stays in monorepo)
 const PLUGINS = [
-  'next-task', 'ship', 'enhance', 'deslop', 'learn', 'consult',
+  'ship', 'enhance', 'deslop', 'learn', 'consult',
   'debate', 'drift-detect', 'repo-intel', 'sync-docs', 'audit-project',
   'perf'
 ];

@@ -48,10 +48,8 @@ const AUDIT_ROLE_AGENTS = [
 const CATEGORY_MAP = {
   'perf': 'Performance',
   'enhance': 'Enhancement',
-  'next-task': 'Workflow',
   'prepare-delivery': 'Workflow',
   'gate-and-ship': 'Workflow',
-  'tower-crane': 'Workflow',
   'deslop': 'Cleanup',
   'sync-docs': 'Cleanup',
   'drift-detect': 'Analysis',
@@ -75,7 +73,6 @@ const CATEGORY_MAP = {
 
 // Static skill definitions for cross-repo plugins (not discoverable locally)
 const STATIC_SKILLS = [
-  { plugin: 'next-task', name: 'discover-tasks' },
   { plugin: 'prepare-delivery', name: 'prepare-delivery' },
   { plugin: 'prepare-delivery', name: 'check-test-coverage' },
   { plugin: 'prepare-delivery', name: 'orchestrate-review' },
@@ -115,9 +112,6 @@ const STATIC_SKILLS = [
   { plugin: 'audit-project', name: 'audit-project' },
   { plugin: 'mojo', name: 'mojo' },
   { plugin: 'ada-spark', name: 'ada-spark' },
-  { plugin: 'tower-crane', name: 'tower-crane' },
-  { plugin: 'tower-crane', name: 'tower-crane-work' },
-  { plugin: 'tower-crane', name: 'tower-crane-review' },
   { plugin: 'glidemq', name: 'glide-mq' },
   { plugin: 'glidemq', name: 'glide-mq-migrate-bullmq' },
   { plugin: 'glidemq', name: 'glide-mq-migrate-bee' },
@@ -126,7 +120,6 @@ const STATIC_SKILLS = [
 
 // Purpose mapping for architecture table
 const PURPOSE_MAP = {
-  'next-task': 'Master workflow orchestration',
   'prepare-delivery': 'Pre-ship quality gates',
   'gate-and-ship': 'Quality gates then ship',
   'enhance': 'Code quality analyzers',
@@ -146,8 +139,7 @@ const PURPOSE_MAP = {
   'skill-curator': 'Skill authoring and review',
   'system-prompt-curator': 'System prompt curation',
   'onboard': 'Codebase onboarding',
-  'can-i-help': 'Contributor guidance',
-  'tower-crane': 'Delegated delivery: plan, workers, review, gates, merge'
+  'can-i-help': 'Contributor guidance'
 };
 
 // ---------------------------------------------------------------------------
@@ -194,7 +186,7 @@ function generateCommandsTable(commands) {
 
   // Curated display order (featured commands first, then alphabetical)
   const COMMAND_ORDER = [
-    'next-task', 'prepare-delivery', 'gate-and-ship',
+    'prepare-delivery', 'gate-and-ship',
     'banthis', 'agnix', 'ship', 'deslop', 'perf',
     'drift-detect', 'audit-project', 'enhance',
     'repo-intel', 'sync-docs', 'learn', 'consult',
@@ -205,7 +197,6 @@ function generateCommandsTable(commands) {
 
   // Command descriptions for the table (short, human-written summaries)
   const COMMAND_SUMMARIES = {
-    'next-task': 'Task workflow: discovery, implementation, PR, merge',
     'prepare-delivery': 'Pre-ship quality gates: deslop, review, validation, docs sync',
     'gate-and-ship': 'Quality gates then ship (/prepare-delivery + /ship)',
     'banthis': 'Durable negative memory: persist banned agent behaviors',
@@ -436,7 +427,6 @@ function generateAgentCounts(agents, plugins) {
 // Per-plugin file-based agent counts. Update this map when agents are added/removed
 // in a plugin repo - it's the canonical source for the STATIC_AGENT_COUNT fallback.
 const STATIC_PLUGIN_AGENT_COUNTS = {
-  'next-task': 8,
   'prepare-delivery': 3,
   'gate-and-ship': 0,
   'ship': 1,
@@ -457,7 +447,6 @@ const STATIC_PLUGIN_AGENT_COUNTS = {
   'skillers': 2,
   'onboard': 1,
   'can-i-help': 1,
-  'tower-crane': 5,
   'zig-lsp': 0,
   'mojo': 0,
   'ada-spark': 0

@@ -84,7 +84,7 @@ describe('getChangedFiles', () => {
 
 describe('detectRelevantChecklists', () => {
   test('command files trigger new-command and cross-platform', () => {
-    const files = ['plugins/next-task/commands/next-task.md'];
+    const files = ['plugins/ship/commands/ship.md'];
     const result = detectRelevantChecklists(files);
     expect(result.has('new-command')).toBe(true);
     expect(result.has('cross-platform')).toBe(true);
@@ -136,7 +136,7 @@ describe('detectRelevantChecklists', () => {
 
   test('multiple file types produce union of checklists', () => {
     const files = [
-      'plugins/next-task/commands/next-task.md',  // new-command + cross-platform
+      'plugins/ship/commands/ship.md',            // new-command + cross-platform
       'lib/config/index.js',                       // new-lib-module + cross-platform
       'package.json'                                // release
     ];

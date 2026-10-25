@@ -23,7 +23,7 @@ Add the marketplace and install plugins directly in Claude Code:
 
 ```bash
 /plugin marketplace add agent-sh/agentsys
-/plugin install next-task@agentsys
+/plugin install prepare-delivery@agentsys
 /plugin install ship@agentsys
 /plugin install deslop@agentsys
 /plugin install audit-project@agentsys
@@ -40,10 +40,10 @@ Add the marketplace and install plugins directly in Claude Code:
 **Scopes** (optional):
 ```bash
 # User scope (default) - available in all projects
-/plugin install next-task@agentsys
+/plugin install ship@agentsys
 
 # Project scope - shared with team
-/plugin install next-task@agentsys --scope project
+/plugin install ship@agentsys --scope project
 ```
 
 ---
@@ -138,8 +138,8 @@ agentsys --tool claude
 Plugins now live in standalone repos. To load a plugin locally, clone its repo:
 
 ```bash
-git clone https://github.com/agent-sh/next-task.git
-claude --plugin-dir ./next-task
+git clone https://github.com/agent-sh/ship.git
+claude --plugin-dir ./ship
 ```
 
 ### Quick Dev Install (Contributors)
@@ -172,7 +172,7 @@ Select your platform when prompted. The installer configures:
 | Codex CLI | `~/.codex/` | `.codex/` |
 | Kiro | `~/.kiro/` | `.kiro/` |
 
-> **Note:** Codex uses `$` prefix for skills (e.g., `$next-task` instead of `/next-task`).
+> **Note:** Codex uses `$` prefix for skills (e.g., `$ship` instead of `/ship`).
 
 ---
 
@@ -185,7 +185,6 @@ Select your platform when prompted. The installer configures:
 ```
 
 You should see commands:
-- `/next-task` - Master workflow orchestrator
 - `/ship` - Complete PR workflow
 - `/deslop` - AI slop cleanup
 - `/audit-project` - Multi-agent code review
@@ -203,7 +202,6 @@ You should see commands:
 - `/system-prompt-curator` - System prompt curation
 - `/onboard` - Codebase onboarding
 - `/can-i-help` - Contributor guidance
-- `/tower-crane-inbox`, `/tower-crane-spawn-ready`, `/tower-crane-merge-accepted`, `/tower-crane-rework-from-review`, `/tower-crane-release-dead`, `/tower-crane-watch` - Tower Crane delegated delivery (needs the `tower-crane` CLI)
 - `/release` - Versioned release with ecosystem detection
 - `/agnix` - Linter for AI agent configs
 - `/prepare-delivery` - Pre-ship validation checks
@@ -212,7 +210,7 @@ You should see commands:
 ### OpenCode / Codex
 
 Type the command name and it should be recognized:
-- `/next-task` (OpenCode) or `$next-task` (Codex)
+- `/ship` (OpenCode) or `$ship` (Codex)
 
 ### Local Repo Diagnostics (optional)
 
@@ -274,20 +272,20 @@ These tools are detected automatically if present:
 ### Update Plugins
 
 ```bash
-/plugin update next-task@agentsys
+/plugin update ship@agentsys
 ```
 
 ### Disable/Enable
 
 ```bash
-/plugin disable next-task@agentsys
-/plugin enable next-task@agentsys
+/plugin disable ship@agentsys
+/plugin enable ship@agentsys
 ```
 
 ### Uninstall
 
 ```bash
-/plugin uninstall next-task@agentsys
+/plugin uninstall ship@agentsys
 
 # Or remove marketplace entirely
 /plugin marketplace remove agentsys
@@ -370,7 +368,7 @@ gh auth login
 - Each skill directory is copied whole to `~/.kiro/skills/<name>/`, references and scripts included; paths that pointed at the plugin root point at `~/.agentsys/plugins/<plugin>/`
 - Agents converted to JSON in `~/.kiro/agents/`
 - Reads AGENTS.md and `.kiro/steering/*.md` for instructions
-- **Note**: Kiro's subagent spawning is experimental (max 4). Workflows with parallel Task() calls (e.g., next-task Phase 9 with 4-10 reviewers) automatically fall back to 2 sequential combined reviewers (`reviewer-quality-security`, `reviewer-perf-test`)
+- **Note**: Kiro's subagent spawning is experimental (max 4). Workflows with parallel Task() calls (e.g., the audit-project review with 4-10 reviewers) automatically fall back to 2 sequential combined reviewers (`reviewer-quality-security`, `reviewer-perf-test`)
 
 ### Skill directories on OpenCode, Codex, Cursor and Kiro
 - Each skill directory agentsys installs has a `.agentsys-skill` marker file. A reinstall replaces a marked directory, so a file you add inside one is removed.

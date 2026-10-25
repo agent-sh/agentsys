@@ -357,9 +357,9 @@ function resolveSourceUrl(source) {
  * Resolve plugin dependencies transitively.
  *
  * Circular dependencies are expected and handled: the `visiting` Set tracks
- * the current DFS path and short-circuits any back-edge (e.g. next-task ->
- * ship -> next-task), adding the already-visited node to `resolved` and
- * returning immediately so the traversal terminates without infinite recursion.
+ * the current DFS path and short-circuits any back-edge (e.g. a -> b -> a),
+ * adding the already-visited node to `resolved` and returning immediately so
+ * the traversal terminates without infinite recursion.
  *
  * @param {string[]} names - Plugin names to resolve
  * @param {Object} marketplace - Parsed marketplace.json
@@ -538,7 +538,7 @@ function ensurePluginManifest(pluginDir, name, version, description) {
  * (ensurePluginManifest).
  *
  * @param {string} name - Plugin name
- * @param {string} source - GitHub source URL (e.g. "github:agent-sh/agentsys-plugin-next-task")
+ * @param {string} source - GitHub source URL (e.g. "github:agent-sh/ship")
  * @param {string} version - Expected version string
  * @param {{commit?: string, ref?: string}} [pin] - Marketplace pins from resolvePluginSource
  * @param {{path?: string, description?: string}} [listing] - From the marketplace
@@ -1045,15 +1045,28 @@ async function updatePlugins() {
     return;
   }
 
+  // A cached plugin the marketplace no longer lists has no source to fetch
+  // (its repo may be gone). Skip it instead of failing the whole update.
+  const listed = new Set(marketplace.plugins.map(p => p.name));
+  const retired = installed.filter(name => !listed.has(name));
+  for (const name of retired) {
+    console.log(`[WARN] ${name} is no longer in the agentsys marketplace and was not updated. Remove it with: agentsys remove ${name}`);
+  }
+  const toUpdate = installed.filter(name => listed.has(name));
+  if (toUpdate.length === 0) {
+    console.log('No marketplace plugins to update.');
+    return;
+  }
+
   // Force re-fetch by removing version files
-  for (const name of installed) {
+  for (const name of toUpdate) {
     const versionFile = path.join(cacheDir, name, '.version');
     if (fs.existsSync(versionFile)) {
       fs.unlinkSync(versionFile);
     }
   }
 
-  await fetchExternalPlugins(installed, marketplace);
+  await fetchExternalPlugins(toUpdate, marketplace);
   console.log('\n[OK] Plugins updated.');
 }
 
@@ -1165,7 +1178,7 @@ function checkCoreCompat(pluginEntry) {
 
 /**
  * Parse "plugin:component" install target format.
- * @param {string} arg - e.g. "next-task:ci-fixer" or "next-task" or "next-task@1.0.0"
+ * @param {string} arg - e.g. "prepare-delivery:delivery-validator" or "ship" or "ship@1.3.0"
  * @returns {{ plugin: string, component: string|null, version: string|null }}
  */
 function parseInstallTarget(arg) {
@@ -1504,18 +1517,24 @@ async function installPlugin(nameWithVersion, args) {
 
 function removePlugin(name) {
   const installed = loadInstalledJson();
+  const cacheDir = getPluginCacheDir();
+  // The full installer caches plugins without recording them in installed.json,
+  // so a cached copy alone also counts as installed. The name check keeps the
+  // cache path inside the cache directory.
+  const pluginCacheDir = /^[a-z0-9][a-z0-9-]*$/.test(name) ? path.join(cacheDir, name) : null;
+  const cachedOnly = !installed.plugins[name] && pluginCacheDir !== null && fs.existsSync(pluginCacheDir);
 
-  if (!installed.plugins[name]) {
+  if (!installed.plugins[name] && !cachedOnly) {
     console.error(`[ERROR] Plugin ${name} is not installed.`);
     process.exit(1);
   }
 
-  const platforms = installed.plugins[name].platforms || [];
+  // A cache-only copy has no platform record: try the Claude Code uninstall
+  // (a no-op where it is not installed) and print every cleanup note.
+  const platforms = cachedOnly ? ['claude', 'opencode', 'codex'] : (installed.plugins[name].platforms || []);
 
   // Remove from cache
-  const cacheDir = getPluginCacheDir();
-  const pluginCacheDir = path.join(cacheDir, name);
-  if (fs.existsSync(pluginCacheDir)) {
+  if (pluginCacheDir && fs.existsSync(pluginCacheDir)) {
     fs.rmSync(pluginCacheDir, { recursive: true, force: true });
     console.log(`  Removed from cache: ${name}`);
   }
@@ -1621,7 +1640,7 @@ function installForClaude() {
     console.log('   Install it first: https://claude.ai/code\n');
     console.log('   Then run in Claude Code:');
     console.log('   /plugin marketplace add agent-sh/agentsys');
-    console.log('   /plugin install next-task@agentsys\n');
+    console.log('   /plugin install ship@agentsys\n');
     return false;
   }
 
@@ -1672,7 +1691,7 @@ function installForClaude() {
   } catch (err) {
     console.log('[ERROR] Auto-install failed. Manual installation:');
     console.log('   /plugin marketplace add agent-sh/agentsys');
-    console.log('   /plugin install next-task@agentsys');
+    console.log('   /plugin install ship@agentsys');
     return false;
   }
 }
@@ -2021,7 +2040,7 @@ function installForCodex(installDir, options = {}) {
   console.log('\n[OK] Codex CLI installation complete!');
   console.log(`   Config: ${configDir}`);
   console.log(`   Skills: ${skillsDir}`);
-  console.log('   Access via: $next-task, $ship, $deslop, etc.\n');
+  console.log('   Access via: $ship, $deslop, $perf, etc.\n');
   return true;
 }
 
@@ -2540,8 +2559,8 @@ Usage:
   agentsys install <plugin>@<version>    Install a specific version
 
 Examples:
-  agentsys install next-task             Install next-task + dependencies (deslop, ship, sync-docs)
-  agentsys install next-task:ci-fixer    Install just the ci-fixer agent
+  agentsys install ship                  Install the ship plugin (all its components)
+  agentsys install prepare-delivery:delivery-validator  Install just the delivery-validator agent
   agentsys install deslop:deslop         Install just the deslop skill
   agentsys install enhance:enhance-docs  Install just the enhance-docs skill
   agentsys install perf@1.2.0            Install perf at version 1.2.0
@@ -2551,7 +2570,7 @@ Options:
   --tools <list>    Install for multiple platforms (comma-separated)
 
 Notes:
-  - Dependencies are resolved automatically (e.g., deslop requires next-task)
+  - Dependencies are resolved automatically
   - The full plugin is cached locally; granular install only affects what gets
     copied to platform directories (OpenCode, Codex)
   - Claude Code always installs whole plugins (platform limitation)
@@ -2592,14 +2611,14 @@ Usage:
   agentsys search <plugin>:    List all components (agents, skills, commands) of a plugin
 
 Examples:
-  agentsys search              Show all 13 plugins
+  agentsys search              Show all plugins
   agentsys search perf         Find plugins matching "perf"
-  agentsys search next-task:   Show next-task's 10 agents, 3 skills, 2 commands
-  agentsys search :ci-fixer    Search all plugins for "ci-fixer"
+  agentsys search perf:        Show perf's agents, skills and commands
+  agentsys search :delivery-validator  Search all plugins for "delivery-validator"
 
 Output:
   NAME          VERSION  DESCRIPTION
-  next-task     1.0.0    Master workflow orchestrator
+  ship          1.3.0    Complete PR workflow
   deslop        1.0.0    Clean AI slop from code
 `,
     remove: `
@@ -2669,8 +2688,8 @@ Non-Interactive Examples:
   agentsys --tool opencode            # Install for OpenCode only
   agentsys --tools "claude,opencode"  # Install for both
   agentsys --tools claude,opencode,codex,cursor,kiro  # Install for all
-  agentsys --only next-task           # Install next-task + its dependencies
-  agentsys --only "next-task,perf"    # Install specific plugins + deps
+  agentsys --only ship                # Install ship + its dependencies
+  agentsys --only "ship,perf"         # Install specific plugins + deps
 
 Development Mode:
   agentsys --development      # Install plugins directly to ~/.claude/plugins

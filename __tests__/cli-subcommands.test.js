@@ -23,7 +23,9 @@ const {
   resolveComponent,
   buildFilterFromComponent,
   resolvePluginSource,
-  parseGitHubSource
+  parseGitHubSource,
+  updatePlugins,
+  removePlugin
 } = require('../bin/cli.js');
 
 describe('CLI subcommand parsing', () => {
@@ -42,22 +44,22 @@ describe('CLI subcommand parsing', () => {
     console.error = originalError;
   });
 
-  test('parses "install next-task"', () => {
-    const result = parseArgs(['install', 'next-task']);
+  test('parses "install prepare-delivery"', () => {
+    const result = parseArgs(['install', 'prepare-delivery']);
     expect(result.subcommand).toBe('install');
-    expect(result.subcommandArg).toBe('next-task');
+    expect(result.subcommandArg).toBe('prepare-delivery');
   });
 
-  test('parses "install next-task@1.2.0"', () => {
-    const result = parseArgs(['install', 'next-task@1.2.0']);
+  test('parses "install prepare-delivery@1.2.0"', () => {
+    const result = parseArgs(['install', 'prepare-delivery@1.2.0']);
     expect(result.subcommand).toBe('install');
-    expect(result.subcommandArg).toBe('next-task@1.2.0');
+    expect(result.subcommandArg).toBe('prepare-delivery@1.2.0');
   });
 
-  test('parses "install next-task --tool claude"', () => {
-    const result = parseArgs(['install', 'next-task', '--tool', 'claude']);
+  test('parses "install prepare-delivery --tool claude"', () => {
+    const result = parseArgs(['install', 'prepare-delivery', '--tool', 'claude']);
     expect(result.subcommand).toBe('install');
-    expect(result.subcommandArg).toBe('next-task');
+    expect(result.subcommandArg).toBe('prepare-delivery');
     expect(result.tool).toBe('claude');
   });
 
@@ -106,7 +108,7 @@ describe('searchPlugins', () => {
   test('lists all plugins when no term given', () => {
     searchPlugins(undefined);
     const output = logOutput.join('\n');
-    expect(output).toContain('next-task');
+    expect(output).toContain('prepare-delivery');
     expect(output).toContain('deslop');
     // Count derived from marketplace.json so this test stays stable as
     // the marketplace grows. Asserts the suffix and uses the same
@@ -258,24 +260,24 @@ describe('installed.json operations', () => {
 
 describe('parseInstallTarget', () => {
   test('parses plain plugin name', () => {
-    const result = parseInstallTarget('next-task');
-    expect(result).toEqual({ plugin: 'next-task', component: null, version: null });
+    const result = parseInstallTarget('prepare-delivery');
+    expect(result).toEqual({ plugin: 'prepare-delivery', component: null, version: null });
   });
 
   test('parses plugin:component', () => {
-    const result = parseInstallTarget('next-task:ci-fixer');
-    expect(result).toEqual({ plugin: 'next-task', component: 'ci-fixer', version: null });
+    const result = parseInstallTarget('prepare-delivery:delivery-validator');
+    expect(result).toEqual({ plugin: 'prepare-delivery', component: 'delivery-validator', version: null });
   });
 
   test('parses plugin@version', () => {
-    const result = parseInstallTarget('next-task@1.2.0');
-    expect(result).toEqual({ plugin: 'next-task', component: null, version: '1.2.0' });
+    const result = parseInstallTarget('prepare-delivery@1.2.0');
+    expect(result).toEqual({ plugin: 'prepare-delivery', component: null, version: '1.2.0' });
   });
 
   test('parses plugin:component with version on plugin', () => {
-    const result = parseInstallTarget('next-task:ci-fixer');
-    expect(result.plugin).toBe('next-task');
-    expect(result.component).toBe('ci-fixer');
+    const result = parseInstallTarget('prepare-delivery:delivery-validator');
+    expect(result.plugin).toBe('prepare-delivery');
+    expect(result.component).toBe('delivery-validator');
   });
 
   test('returns nulls for empty input', () => {
@@ -285,8 +287,8 @@ describe('parseInstallTarget', () => {
   });
 
   test('handles colon at end (no component)', () => {
-    const result = parseInstallTarget('next-task:');
-    expect(result).toEqual({ plugin: 'next-task', component: null, version: null });
+    const result = parseInstallTarget('prepare-delivery:');
+    expect(result).toEqual({ plugin: 'prepare-delivery', component: null, version: null });
   });
 });
 
@@ -303,13 +305,13 @@ describe('loadComponents', () => {
 
   test('loads from components.json when present', () => {
     fs.writeFileSync(path.join(tmpDir, 'components.json'), JSON.stringify({
-      agents: [{ name: 'ci-fixer', file: 'agents/ci-fixer.md' }],
-      skills: [{ name: 'discover-tasks', dir: 'skills/discover-tasks' }],
-      commands: [{ name: 'next-task', file: 'commands/next-task.md' }]
+      agents: [{ name: 'delivery-validator', file: 'agents/delivery-validator.md' }],
+      skills: [{ name: 'validate-delivery', dir: 'skills/validate-delivery' }],
+      commands: [{ name: 'prepare-delivery', file: 'commands/prepare-delivery.md' }]
     }));
     const result = loadComponents(tmpDir);
     expect(result.agents).toHaveLength(1);
-    expect(result.agents[0].name).toBe('ci-fixer');
+    expect(result.agents[0].name).toBe('delivery-validator');
     expect(result.skills).toHaveLength(1);
     expect(result.commands).toHaveLength(1);
   });
@@ -337,24 +339,24 @@ describe('loadComponents', () => {
 
 describe('resolveComponent', () => {
   const components = {
-    agents: [{ name: 'ci-fixer', file: 'agents/ci-fixer.md' }],
-    skills: [{ name: 'discover-tasks', dir: 'skills/discover-tasks' }],
-    commands: [{ name: 'next-task', file: 'commands/next-task.md' }]
+    agents: [{ name: 'delivery-validator', file: 'agents/delivery-validator.md' }],
+    skills: [{ name: 'validate-delivery', dir: 'skills/validate-delivery' }],
+    commands: [{ name: 'prepare-delivery', file: 'commands/prepare-delivery.md' }]
   };
 
   test('resolves agent', () => {
-    const result = resolveComponent(components, 'ci-fixer');
-    expect(result).toEqual({ type: 'agent', name: 'ci-fixer', file: 'agents/ci-fixer.md' });
+    const result = resolveComponent(components, 'delivery-validator');
+    expect(result).toEqual({ type: 'agent', name: 'delivery-validator', file: 'agents/delivery-validator.md' });
   });
 
   test('resolves skill', () => {
-    const result = resolveComponent(components, 'discover-tasks');
-    expect(result).toEqual({ type: 'skill', name: 'discover-tasks', dir: 'skills/discover-tasks' });
+    const result = resolveComponent(components, 'validate-delivery');
+    expect(result).toEqual({ type: 'skill', name: 'validate-delivery', dir: 'skills/validate-delivery' });
   });
 
   test('resolves command', () => {
-    const result = resolveComponent(components, 'next-task');
-    expect(result).toEqual({ type: 'command', name: 'next-task', file: 'commands/next-task.md' });
+    const result = resolveComponent(components, 'prepare-delivery');
+    expect(result).toEqual({ type: 'command', name: 'prepare-delivery', file: 'commands/prepare-delivery.md' });
   });
 
   test('returns null for unknown component', () => {
@@ -363,24 +365,24 @@ describe('resolveComponent', () => {
 
   test('returns null for null inputs', () => {
     expect(resolveComponent(components, null)).toBeNull();
-    expect(resolveComponent(null, 'ci-fixer')).toBeNull();
+    expect(resolveComponent(null, 'delivery-validator')).toBeNull();
   });
 });
 
 describe('buildFilterFromComponent', () => {
   test('builds agent filter', () => {
-    const filter = buildFilterFromComponent({ type: 'agent', name: 'ci-fixer' });
-    expect(filter).toEqual({ agents: ['ci-fixer'], skills: [], commands: [] });
+    const filter = buildFilterFromComponent({ type: 'agent', name: 'delivery-validator' });
+    expect(filter).toEqual({ agents: ['delivery-validator'], skills: [], commands: [] });
   });
 
   test('builds skill filter', () => {
-    const filter = buildFilterFromComponent({ type: 'skill', name: 'discover-tasks' });
-    expect(filter).toEqual({ agents: [], skills: ['discover-tasks'], commands: [] });
+    const filter = buildFilterFromComponent({ type: 'skill', name: 'validate-delivery' });
+    expect(filter).toEqual({ agents: [], skills: ['validate-delivery'], commands: [] });
   });
 
   test('builds command filter', () => {
-    const filter = buildFilterFromComponent({ type: 'command', name: 'next-task' });
-    expect(filter).toEqual({ agents: [], skills: [], commands: ['next-task'] });
+    const filter = buildFilterFromComponent({ type: 'command', name: 'prepare-delivery' });
+    expect(filter).toEqual({ agents: [], skills: [], commands: ['prepare-delivery'] });
   });
 });
 
@@ -400,24 +402,24 @@ describe('granular install recording', () => {
   });
 
   test('recordInstall with scope full (default)', () => {
-    recordInstall('next-task', '1.0.0', ['claude']);
+    recordInstall('prepare-delivery', '1.0.0', ['claude']);
     const data = loadInstalledJson();
-    expect(data.plugins['next-task'].scope).toBe('full');
-    expect(data.plugins['next-task'].agents).toBeUndefined();
+    expect(data.plugins['prepare-delivery'].scope).toBe('full');
+    expect(data.plugins['prepare-delivery'].agents).toBeUndefined();
   });
 
   test('recordInstall with scope partial', () => {
-    recordInstall('next-task', '1.0.0', ['opencode'], {
+    recordInstall('prepare-delivery', '1.0.0', ['opencode'], {
       scope: 'partial',
-      agents: ['ci-fixer'],
+      agents: ['delivery-validator'],
       skills: [],
       commands: []
     });
     const data = loadInstalledJson();
-    expect(data.plugins['next-task'].scope).toBe('partial');
-    expect(data.plugins['next-task'].agents).toEqual(['ci-fixer']);
-    expect(data.plugins['next-task'].skills).toEqual([]);
-    expect(data.plugins['next-task'].commands).toEqual([]);
+    expect(data.plugins['prepare-delivery'].scope).toBe('partial');
+    expect(data.plugins['prepare-delivery'].agents).toEqual(['delivery-validator']);
+    expect(data.plugins['prepare-delivery'].skills).toEqual([]);
+    expect(data.plugins['prepare-delivery'].commands).toEqual([]);
   });
 });
 
@@ -430,7 +432,7 @@ describe('loadMarketplace', () => {
     // These are unlikely to ever be removed - if any of them is, the
     // change deserves an explicit, visible test update.
     const names = marketplace.plugins.map(p => p.name);
-    for (const required of ['next-task', 'ship', 'agnix']) {
+    for (const required of ['prepare-delivery', 'ship', 'agnix']) {
       expect(names).toContain(required);
     }
   });
@@ -531,5 +533,76 @@ describe('parseGitHubSource', () => {
       ref: 'main',
       explicitRef: true
     });
+  });
+});
+
+describe('plugins the marketplace no longer lists', () => {
+  let tmpDir;
+  let origHome;
+  let origPath;
+  let logOutput;
+
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agentsys-retired-test-'));
+    origHome = process.env.HOME;
+    origPath = process.env.PATH;
+    process.env.HOME = tmpDir;
+    // No real `claude` may run from these tests
+    process.env.PATH = '';
+    logOutput = [];
+    jest.spyOn(console, 'log').mockImplementation((...args) => logOutput.push(args.join(' ')));
+    jest.spyOn(console, 'error').mockImplementation((...args) => logOutput.push(args.join(' ')));
+    jest.spyOn(process, 'exit').mockImplementation((code) => { throw new Error(`process.exit(${code})`); });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    process.env.HOME = origHome;
+    process.env.PATH = origPath;
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  function cachePlugin(name) {
+    const dir = path.join(tmpDir, '.agentsys', 'plugins', name);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, '.version'), '1.0.0');
+    return dir;
+  }
+
+  test('next-task and tower-crane are not offered', () => {
+    const names = loadMarketplace().plugins.map(p => p.name);
+    expect(names).not.toContain('next-task');
+    expect(names).not.toContain('tower-crane');
+  });
+
+  test('update skips a cached plugin that left the marketplace instead of exiting', async () => {
+    const dir = cachePlugin('next-task');
+    await expect(updatePlugins()).resolves.toBeUndefined();
+    const output = logOutput.join('\n');
+    expect(output).toContain('[WARN] next-task is no longer in the agentsys marketplace');
+    expect(output).toContain('agentsys remove next-task');
+    expect(output).toContain('No marketplace plugins to update.');
+    // Left in place for the user to remove; its version marker is untouched
+    expect(fs.existsSync(path.join(dir, '.version'))).toBe(true);
+  });
+
+  test('remove deletes a cached plugin that installed.json never recorded', () => {
+    const dir = cachePlugin('tower-crane');
+    expect(loadInstalledJson().plugins).toEqual({});
+    removePlugin('tower-crane');
+    expect(fs.existsSync(dir)).toBe(false);
+    expect(logOutput.join('\n')).toContain('[OK] Removed tower-crane.');
+  });
+
+  test('remove still rejects a plugin that is neither recorded nor cached', () => {
+    expect(() => removePlugin('next-task')).toThrow('process.exit(1)');
+    expect(logOutput.join('\n')).toContain('[ERROR] Plugin next-task is not installed.');
+  });
+
+  test('remove never resolves a path outside the cache', () => {
+    const outside = path.join(tmpDir, '.agentsys', 'keep');
+    fs.mkdirSync(outside, { recursive: true });
+    expect(() => removePlugin('../keep')).toThrow('process.exit(1)');
+    expect(fs.existsSync(outside)).toBe(true);
   });
 });

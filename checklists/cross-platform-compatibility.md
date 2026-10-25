@@ -212,8 +212,7 @@ AskUserQuestion({
 
 **Files requiring label truncation:**
 - `lib/sources/policy-questions.js` - Cached source labels
-- `plugins/next-task/agents/task-discoverer.md` - Task selection
-- `plugins/next-task/commands/next-task.md` - Existing task question
+- Any plugin command or agent that builds `AskUserQuestion` options from dynamic titles
 
 ### Question Format Differences
 

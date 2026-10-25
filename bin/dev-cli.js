@@ -335,7 +335,7 @@ const COMMANDS = {
     }
   },
   'test-transform': {
-    description: 'Test OpenCode transform on next-task command',
+    description: 'Test OpenCode transform on the ship command',
     handler: () => {
       const { main } = require(path.join(ROOT_DIR, 'scripts', 'test-transform.js'));
       return main();
