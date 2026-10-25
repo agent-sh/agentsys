@@ -21,6 +21,7 @@ If you discover a security vulnerability:
 **Commands that modify your repository:**
 - `/ship` - Commits, pushes, creates and merges PRs
 - `/gate-and-ship` - Runs quality gates, then commits, pushes and merges like `/ship`
+- `/foreman` - Claims issues, opens PRs, posts comments, runs the repo's land command and squash-merges PRs
 - `/deslop --apply` - Modifies source files
 
 Always review changes with `git status` and `git diff` before running commands that commit or push.

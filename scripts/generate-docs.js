@@ -50,6 +50,7 @@ const CATEGORY_MAP = {
   'enhance': 'Enhancement',
   'prepare-delivery': 'Workflow',
   'gate-and-ship': 'Workflow',
+  'foreman': 'Workflow',
   'deslop': 'Cleanup',
   'sync-docs': 'Cleanup',
   'drift-detect': 'Analysis',
@@ -77,6 +78,7 @@ const STATIC_SKILLS = [
   { plugin: 'prepare-delivery', name: 'check-test-coverage' },
   { plugin: 'prepare-delivery', name: 'orchestrate-review' },
   { plugin: 'prepare-delivery', name: 'validate-delivery' },
+  { plugin: 'foreman', name: 'foreman' },
   { plugin: 'enhance', name: 'enhance-orchestrator' },
   { plugin: 'enhance', name: 'enhance-plugins' },
   { plugin: 'enhance', name: 'enhance-agent-prompts' },
@@ -139,7 +141,8 @@ const PURPOSE_MAP = {
   'skill-curator': 'Skill authoring and review',
   'system-prompt-curator': 'System prompt curation',
   'onboard': 'Codebase onboarding',
-  'can-i-help': 'Contributor guidance'
+  'can-i-help': 'Contributor guidance',
+  'foreman': 'GitHub issue queue for native agents'
 };
 
 // ---------------------------------------------------------------------------
@@ -192,7 +195,7 @@ function generateCommandsTable(commands) {
     'repo-intel', 'sync-docs', 'learn', 'consult',
     'debate', 'release', 'skillers',
     'skill-curator', 'system-prompt-curator',
-    'onboard', 'can-i-help'
+    'onboard', 'can-i-help', 'foreman'
   ];
 
   // Command descriptions for the table (short, human-written summaries)
@@ -217,7 +220,8 @@ function generateCommandsTable(commands) {
     'skill-curator': 'Create and improve reliable SKILL.md files',
     'system-prompt-curator': 'Create and improve autonomous agent system prompts',
     'onboard': 'Codebase orientation for newcomers',
-    'can-i-help': 'Match contributor skills to project needs'
+    'can-i-help': 'Match contributor skills to project needs',
+    'foreman': 'Work the GitHub issue queue with native subagents, from pick to land'
   };
 
   // Build lookup of discovered commands
@@ -447,6 +451,7 @@ const STATIC_PLUGIN_AGENT_COUNTS = {
   'skillers': 2,
   'onboard': 1,
   'can-i-help': 1,
+  'foreman': 0,
   'zig-lsp': 0,
   'mojo': 0,
   'ada-spark': 0

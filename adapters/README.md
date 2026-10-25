@@ -118,6 +118,7 @@ Installers automatically handle these substitutions.
 | `/deslop` | Yes | Yes | Yes | Pure bash, 100% compatible |
 | `/audit-project` | Yes | Partial | Partial | Multi-agent may differ |
 | `/ship` | Yes | Partial | Partial | CI/CD works, agents may vary |
+| `/foreman` | Yes | Partial | Partial | The CLI runs everywhere; the loop spawns Claude Code worktree subagents |
 
 ---
 

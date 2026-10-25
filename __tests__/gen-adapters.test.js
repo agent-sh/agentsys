@@ -104,6 +104,17 @@ describe('adapter-transforms', () => {
       expect(result).toContain('@agent-name');
     });
 
+    // next-task and its agents left the marketplace in #434; a command that
+    // mentions subagents (foreman's does) must not be told to call them.
+    test('OpenCode agent note names no agent from a removed plugin', () => {
+      const input = '---\ndescription: test\n---\nSpawn one worktree subagent per issue';
+      const result = transforms.transformBodyForOpenCode(input, REPO_ROOT);
+      expect(result).toContain('OpenCode Note');
+      for (const removed of ['task-discoverer', 'exploration-agent', 'planning-agent', 'implementation-agent']) {
+        expect([removed, result.includes(removed)]).toEqual([removed, false]);
+      }
+    });
+
     test('does not inject OpenCode note when no agent references', () => {
       const input = '---\ndescription: test\n---\nJust plain content here';
       const result = transforms.transformBodyForOpenCode(input, REPO_ROOT);

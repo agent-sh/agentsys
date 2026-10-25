@@ -25,6 +25,7 @@ Add the marketplace and install plugins directly in Claude Code:
 /plugin marketplace add agent-sh/agentsys
 /plugin install prepare-delivery@agentsys
 /plugin install ship@agentsys
+/plugin install foreman@agentsys
 /plugin install deslop@agentsys
 /plugin install audit-project@agentsys
 /plugin install drift-detect@agentsys
@@ -206,6 +207,7 @@ You should see commands:
 - `/agnix` - Linter for AI agent configs
 - `/prepare-delivery` - Pre-ship validation checks
 - `/gate-and-ship` - Gated shipping workflow
+- `/foreman` - GitHub issue queue for native agents (needs Node 22+, `gh` and `waitfor`)
 
 ### OpenCode / Codex
 
@@ -252,6 +254,10 @@ npm run verify   # Tool availability + versions
   # Verify
   gh auth status
   ```
+
+### Required for /foreman
+
+- **Node.js 22+**, an authenticated `gh`, and `waitfor` on `PATH`. `run-long` needs systemd user units (Linux). A repo can add a `.foreman.json` in its root; every key has a default.
 
 ### Optional (Auto-Detected)
 

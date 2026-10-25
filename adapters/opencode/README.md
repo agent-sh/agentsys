@@ -81,6 +81,25 @@ opencode
 
 ---
 
+### `/foreman` - GitHub Issue Queue
+
+Work a repo's open issues as a task queue.
+
+```bash
+opencode
+> /foreman status
+> /foreman stats
+```
+
+**What it does:**
+- `status` and `stats` read the queue, claims, capacity and Revuto rounds live from GitHub
+- The CLI (`node ~/.agentsys/plugins/foreman/scripts/foreman.js`) runs `pick`, `claim`, `brief`, `findings` and `land` on OpenCode too
+- The full loop spawns Claude Code worktree subagents, so it runs end to end only in Claude Code
+
+**Requires:** Node.js 22+, Git, GitHub CLI (`gh`), `waitfor`
+
+---
+
 
 ## OpenCode-Specific Features
 

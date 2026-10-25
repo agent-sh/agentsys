@@ -73,9 +73,9 @@ agentsys/
     ├── KNOWLEDGE-LIBRARY.md      # Index
     └── *-REFERENCE.md            # Research documents
 
-NOTE: plugins/ has been removed. All 23 plugins are now standalone repos
+NOTE: plugins/ has been removed. All 24 plugins are now standalone repos
 under the agent-sh org. The installer fetches them from GitHub at install time.
-Plugin repos: agent-sh/{prepare-delivery,gate-and-ship,ship,deslop,
+Plugin repos: agent-sh/{prepare-delivery,gate-and-ship,ship,foreman,deslop,
               audit-project,enhance,perf,drift-detect,sync-docs,repo-intel,
               banthis,learn,consult,debate,agnix,skillers,
               skill-curator,system-prompt-curator,onboard,can-i-help,
@@ -125,6 +125,7 @@ The package provides these capabilities through commands, agents, and skills:
 |------------|---------|-------------|
 | Pre-ship quality gates | `/prepare-delivery` | Deslop, review, validation, docs sync |
 | Quality gates + ship | `/gate-and-ship` | /prepare-delivery + /ship combined |
+| Issue queue | `/foreman` | GitHub issues as a task queue: pick, claim, worktree worker, Revuto findings, land |
 | PR workflow | `/ship` | Commit, push, CI monitor, merge |
 | Versioned release | `/release` | Release with automatic ecosystem detection |
 | Code quality | `/deslop` | AI slop detection and cleanup |
@@ -165,7 +166,7 @@ agentsys  # Select option 1
 
 **Location:** `~/.claude/plugins/agentsys/`
 
-**Commands:** `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/perf`, `/sync-docs`, `/banthis`, `/agnix`, `/learn`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`
+**Commands:** `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/foreman`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/perf`, `/sync-docs`, `/banthis`, `/agnix`, `/learn`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`
 
 ### OpenCode
 
@@ -179,7 +180,7 @@ agentsys  # Select option 2
 - Skills: `~/.config/opencode/skills/<name>/` (each skill directory copied whole)
 - Native plugin: `~/.config/opencode/plugins/agentsys.ts`
 
-**Commands:** `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/perf`, `/sync-docs`, `/banthis`, `/agnix`, `/learn`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`
+**Commands:** `/prepare-delivery`, `/gate-and-ship`, `/ship`, `/foreman`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/perf`, `/sync-docs`, `/banthis`, `/agnix`, `/learn`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`
 
 **Native Plugin Features:**
 - Auto-thinking selection per agent
@@ -196,7 +197,7 @@ agentsys  # Select option 3
 - Config: `~/.codex/config.toml`
 - Skills: `~/.codex/skills/`
 
-**Skills:** `$prepare-delivery`, `$gate-and-ship`, `$ship`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$perf`, `$sync-docs`, `$banthis`, `$agnix`, `$learn`, `$consult`, `$debate`, `$skillers`, `$skill-curator`, `$system-prompt-curator`, `$onboard`, `$can-i-help`
+**Skills:** `$prepare-delivery`, `$gate-and-ship`, `$ship`, `$foreman`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$perf`, `$sync-docs`, `$banthis`, `$agnix`, `$learn`, `$consult`, `$debate`, `$skillers`, `$skill-curator`, `$system-prompt-curator`, `$onboard`, `$can-i-help`
 
 **Plugin skills:** each plugin skill directory is copied whole to `~/.codex/skills/<name>/`, for example `orchestrate-review` (review pass definitions used by /prepare-delivery and /audit-project), `enhance-docs` or `perf-profiler`. A plugin skill named like a command (`deslop`, `consult`, ...) is not installed there: `$<name>` stays the command, and the skill stays in `~/.agentsys/plugins/<plugin>/skills/<name>/`.
 
@@ -218,6 +219,7 @@ description: Complete PR workflow from commit to production
 | `/prepare-delivery` | [OK] Full | [OK] Full | [OK] Full | Pre-ship quality gates |
 | `/gate-and-ship` | [OK] Full | [OK] Full | [OK] Full | /prepare-delivery + /ship |
 | `/ship` | [OK] Full | [OK] Full | [OK] Full | Requires `gh` CLI |
+| `/foreman` | [OK] Full | [WARN] Partial | [WARN] Partial | The CLI runs everywhere; the loop spawns Claude Code worktree subagents |
 | `/release` | [OK] Full | [OK] Full | [OK] Full | Versioned release |
 | `/deslop` | [OK] Full | [OK] Full | [OK] Full | Uses pipeline.js |
 | `/audit-project` | [OK] Full | [OK] Full | [OK] Full | Multi-agent review |

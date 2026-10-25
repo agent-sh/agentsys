@@ -714,6 +714,14 @@
           { title: 'Match skills', desc: 'Asks about your experience and interests. Matches your skills to areas where you can make the most impact.' },
           { title: 'Suggest tasks', desc: 'Presents ranked list of good-first tasks, documentation fixes, test gaps, and contribution opportunities.' }
         ]
+      },
+      21: {
+        subtitle: 'Issues in. Landed PRs out.',
+        steps: [
+          { title: 'Pick and claim', desc: 'Checks host capacity, picks the next ready issue (urgent first, then oldest) and claims it on GitHub.' },
+          { title: 'Brief a worker', desc: 'Spawns one worktree subagent per issue from its brief. Revuto reviews each PR; every real finding gets fixed.' },
+          { title: 'Land', desc: 'Runs the repo land command and squash-merges at the exact head it checked. GitHub labels and comments are the only state.' }
+        ]
       }
     };
 

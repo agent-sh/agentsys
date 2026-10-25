@@ -86,6 +86,7 @@ claude --plugin-dir ./ship
 - `/prepare-delivery` - Pre-ship quality gates
 - `/gate-and-ship` - Quality gates then ship
 - `/ship` - Complete PR workflow
+- `/foreman` - GitHub issue queue for native agents (worktree subagents need Claude Code)
 - `/release` - Versioned release with ecosystem detection
 - `/deslop` - AI slop cleanup
 - `/audit-project` - Multi-agent code review
@@ -172,7 +173,7 @@ agentsys --tool opencode --no-strip
 ```
 
 This installs:
-- Slash commands (`/prepare-delivery`, `/gate-and-ship`, `/ship`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/sync-docs`, `/perf`, `/banthis`, `/learn`, `/agnix`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`)
+- Slash commands (`/prepare-delivery`, `/gate-and-ship`, `/ship`, `/foreman`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/sync-docs`, `/perf`, `/banthis`, `/learn`, `/agnix`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`)
 - **Native OpenCode plugin** with advanced features:
 
 ### Native Plugin Features
@@ -252,7 +253,7 @@ agentsys  # Select option 3 for Codex CLI
 agentsys --tool codex
 ```
 
-This installs skills to `~/.codex/skills/` (`$prepare-delivery`, `$gate-and-ship`, `$ship`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$sync-docs`, `$perf`, `$banthis`, `$learn`, `$agnix`, `$consult`, `$debate`, `$skillers`, `$skill-curator`, `$system-prompt-curator`, `$onboard`, `$can-i-help`).
+This installs skills to `~/.codex/skills/` (`$prepare-delivery`, `$gate-and-ship`, `$ship`, `$foreman`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$sync-docs`, `$perf`, `$banthis`, `$learn`, `$agnix`, `$consult`, `$debate`, `$skillers`, `$skill-curator`, `$system-prompt-curator`, `$onboard`, `$can-i-help`).
 
 Plugin skills are installed next to them, each skill directory copied whole (`references/`, `scripts/`), with paths that pointed at the plugin root pointing at `~/.agentsys/plugins/<plugin>/`. A plugin skill named like a command (`deslop`, `consult`, ...) is not installed there: `$<name>` stays the command.
 

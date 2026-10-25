@@ -13,6 +13,7 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 | Install and start using | [INSTALLATION.md](./INSTALLATION.md) |
 | See examples and workflows | [USAGE.md](./USAGE.md) |
 | Understand how /ship works | [workflows/SHIP.md](./workflows/SHIP.md) |
+| Work an issue queue with /foreman | [workflows/FOREMAN.md](./workflows/FOREMAN.md) |
 | Run /perf investigations | [perf-requirements.md](./perf-requirements.md) |
 | Use with OpenCode or Codex | [CROSS_PLATFORM.md](./CROSS_PLATFORM.md) |
 | See all slop patterns | [reference/SLOP-PATTERNS.md](./reference/SLOP-PATTERNS.md) |
@@ -35,6 +36,7 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 | Document | Description |
 |----------|-------------|
 | [workflows/SHIP.md](./workflows/SHIP.md) | Complete /ship flow: CI monitoring, review handling, merge, deploy. |
+| [workflows/FOREMAN.md](./workflows/FOREMAN.md) | /foreman loop: capacity, pick, claim, worktree worker, Revuto findings, land. |
 | [perf-requirements.md](./perf-requirements.md) | /perf rules and required phases. |
 | [perf-research-methodology.md](./perf-research-methodology.md) | /perf process details, benchmarking method. |
 
@@ -81,6 +83,7 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 | `/agnix` | Linter for AI agent configs |
 | `/prepare-delivery` | Pre-ship validation checks |
 | `/gate-and-ship` | Gated shipping workflow |
+| `/foreman` | GitHub issues as a task queue for native agents |
 
 ### Internal Skills
 

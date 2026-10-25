@@ -44,6 +44,7 @@ You shouldn't have to repeat the same requests every session. These commands han
 | `/agnix` | Linter for AI agent configs | Rule validation (457 rules) |
 | `/prepare-delivery` | Pre-ship validation checks | Tests, build, lint verification |
 | `/gate-and-ship` | Gated shipping workflow | Validation gate then ship |
+| `/foreman` | GitHub issues as a task queue for native agents | Pick, claim, worktree worker, Revuto findings, land |
 
 ---
 

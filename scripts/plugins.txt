@@ -8,6 +8,7 @@ debate
 deslop
 drift-detect
 enhance
+foreman
 gate-and-ship
 learn
 mojo
