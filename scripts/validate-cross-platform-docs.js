@@ -109,7 +109,7 @@ function validateCommandPrefixes() {
       const wrongPrefix = platform === 'codex' ? '/' : '$';
       // A command name after a path segment (`commands/ship.md`) is a path,
       // not an invocation, so the prefix must not follow a word, `.`, `/` or `-`.
-      const escapedPrefix = wrongPrefix.replace(/[$/]/g, '\\$&');
+      const escapedPrefix = wrongPrefix.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
       const commandPattern = new RegExp(`(?<![\\w./-])${escapedPrefix}(ship|deslop|enhance|audit-project|drift-detect|repo-intel|perf|sync-docs)(?![\\w-])`, 'g');
 
       const matches = [...content.matchAll(commandPattern)];
