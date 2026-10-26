@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **foreman 0.1.4** - `land` leaves merge commits out of the squash body and scans the final subject and body for forbidden words before it merges. The pin moves to v0.1.4 (2b8a828).
 - **foreman 0.1.3** - `run-long` records the exit code beside the log and `run-long --status` reads it, so a failed long run no longer reports success. The pin moves to v0.1.3 (07ec7f1).
 - **foreman 0.1.2** - `pick` counts a PR linked by branch only when it comes from the same repository, so a fork's `foreman/N` no longer hides an issue. The pin moves to v0.1.2 (a9da8b8).
 - **foreman 0.1.1** - `adopt` claims issues already in progress from another queue; `pick` skips ready issues with an open PR; `claim` uses the issue's `Branch:` line and refuses over unpushed local work; the skill can no longer be model-invoked. The pin moves to v0.1.1 (bab1e3c).
