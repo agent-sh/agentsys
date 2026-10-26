@@ -123,7 +123,7 @@ test('nothing checks or syncs lib/ against agent-core', () => {
   expect(COMMANDS).not.toHaveProperty('test-transform');
   expect(fs.existsSync(path.join(repoRoot, 'scripts', 'test-transform.js'))).toBe(false);
   // docs/ORG_ARCHITECTURE.md keeps the retired sync track as history.
-  const live = hits(/agent-core/).filter(h => !h.startsWith(path.join('docs', 'ORG_ARCHITECTURE.md') + ':'));
+  const live = hits(/agent-core/).filter(h => !h.startsWith('docs/ORG_ARCHITECTURE.md:'));
   expect(live).toEqual([]);
   expect(hits(/agent-core/).length).toBeGreaterThan(0);
   for (const rel of ['lib/binary/index.js', 'lib/binary/version.js', 'lib/agentsys.js', 'lib/repo-intel/installer.js', 'lib/repo-map/installer.js', 'jest.config.js']) {
