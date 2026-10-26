@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **foreman 0.1.5** - `comment_allowed` phrases match across line breaks, so a wrapped allowed phrase no longer trips the scan. The pin moves to v0.1.5 (01a4964).
 - **foreman 0.1.4** - `land` leaves merge commits out of the squash body and scans the final subject and body for forbidden words before it merges. The pin moves to v0.1.4 (2b8a828).
 - **foreman 0.1.3** - `run-long` records the exit code beside the log and `run-long --status` reads it, so a failed long run no longer reports success. The pin moves to v0.1.3 (07ec7f1).
 - **foreman 0.1.2** - `pick` counts a PR linked by branch only when it comes from the same repository, so a fork's `foreman/N` no longer hides an issue. The pin moves to v0.1.2 (a9da8b8).

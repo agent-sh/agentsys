@@ -27,11 +27,11 @@
       "source": {
         "source": "url",
         "url": "https://github.com/agent-sh/foreman.git",
-        "commit": "2b8a82881503e6fe20747d3d924cf493b976e67a",
-        "sha": "2b8a82881503e6fe20747d3d924cf493b976e67a"
+        "commit": "01a4964590072a747658741c26a3d306129b236d",
+        "sha": "01a4964590072a747658741c26a3d306129b236d"
       },
       "description": "GitHub issues as a task queue for native agents: pick, claim, worktree workers, Revuto findings, land through the repo's own land command",
-      "version": "0.1.4",
+      "version": "0.1.5",
       "category": "productivity",
       "homepage": "https://github.com/agent-sh/foreman"
     },
