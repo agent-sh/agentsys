@@ -8,8 +8,8 @@ This directory contains adapters for using agentsys commands with different AI c
 The primary target. Install via marketplace:
 ```bash
 claude plugin marketplace add agent-sh/agentsys
-# Install specific plugins (e.g., prepare-delivery, deslop, enhance)
-claude plugin install prepare-delivery@agentsys
+# Install specific plugins (e.g., foreman, deslop, learn)
+claude plugin install foreman@agentsys
 claude plugin install deslop@agentsys
 ```
 
@@ -30,7 +30,7 @@ agentsys --tool codex
 ```bash
 codex
 > /deslop
-> /enhance
+> /learn
 ```
 
 **Documentation**: [adapters/codex/README.md](./codex/README.md)
@@ -50,7 +50,7 @@ agentsys --tool opencode
 ```bash
 opencode
 > /deslop
-> /prepare-delivery
+> /foreman
 ```
 
 **Documentation**: [adapters/opencode/README.md](./opencode/README.md)
@@ -116,7 +116,7 @@ Installers automatically handle these substitutions.
 | Command | Claude Code | Codex CLI | OpenCode | Notes |
 |---------|-------------|-----------|----------|-------|
 | `/deslop` | Yes | Yes | Yes | Pure bash, 100% compatible |
-| `/audit-project` | Yes | Partial | Partial | Multi-agent may differ |
+| `/learn` | Yes | Yes | Yes | Needs web search and fetch |
 | `/foreman` | Yes | Partial | Partial | The CLI runs everywhere; the loop spawns Claude Code worktree subagents |
 
 ---

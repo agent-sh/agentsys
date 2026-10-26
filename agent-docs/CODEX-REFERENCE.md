@@ -38,17 +38,16 @@ When user runs `agentsys` and selects Codex:
 ~/.agentsys/           # Full package copy
 
 ~/.codex/skills/            # one skill per command, plus plugin skills
-├── perf/SKILL.md            # from a command (commands/perf.md)
+├── learn/SKILL.md           # from a command (commands/learn.md)
 ├── deslop/SKILL.md
 ├── ...
-├── drift-analysis/         # a plugin skill: the whole skill directory
-│   ├── SKILL.md
-│   └── references/
-├── enhance-docs/SKILL.md
+├── skillers-compact/       # a plugin skill: the whole skill directory
+│   └── SKILL.md
+├── recommend/SKILL.md
 └── ...
 ```
 
-Skills are invoked with `$` prefix: `$perf`, `$deslop`, etc. A plugin skill named like a command (`deslop`, `consult`, ...) is not installed there: `$<name>` stays the command, and the skill stays in `~/.agentsys/plugins/<plugin>/skills/<name>/`.
+Skills are invoked with `$` prefix: `$learn`, `$deslop`, etc. A plugin skill named like a command (`deslop`, `learn`, ...) is not installed there: `$<name>` stays the command, and the skill stays in `~/.agentsys/plugins/<plugin>/skills/<name>/`.
 
 ---
 
@@ -212,7 +211,7 @@ description: Master workflow orchestrator  # No trigger phrases!
 $skill-name
 
 # Or reference in chat
-"Use $prepare-delivery to check this branch"
+"Use $deslop to check this branch"
 ```
 
 ### Apps Integration
@@ -477,7 +476,7 @@ workflow_status
 ```bash
 # Should list installed skills
 $deslop
-$perf
+$learn
 ```
 
 ---

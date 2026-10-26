@@ -135,46 +135,25 @@ git commit -m "Add test file"
 - Removes old TODOs
 - Fixes up to 3 issues
 
-### Test `/audit-project`
+### Test `/agnix`
 
 ```text
-/audit-project
+/agnix
 ```
 
 **Expected**:
-- Detects project type and framework
-- Runs review agents
+- Finds the agent configs in the project
 - Reports issues with file:line references and severity
 
-### Test `/sync-docs`
+### Test `/foreman`
 
 ```text
-/sync-docs
+/foreman status
 ```
 
 **Expected**:
-- Scans documentation
-- Reports any outdated references
-
-### Test `/prepare-delivery`
-
-```text
-/prepare-delivery --verbose
-```
-
-**Expected**:
-- Runs tests/build/lint checks where applicable
-- Reports pass/fail summary
-
-### Test `/drift-detect`
-
-```text
-/drift-detect
-```
-
-**Expected**:
-- Runs issue/doc/code scans
-- Produces a summary of drift and gaps
+- Prints counts by label, claims and capacity from one `gh` call
+- Changes nothing on GitHub
 
 ---
 
@@ -210,10 +189,8 @@ npm run detect
 - [ ] Platform detection works on your project
 - [ ] Tool verification shows correct tools
 - [ ] `/deslop` finds and fixes slop
-- [ ] `/audit-project` finds real issues
-- [ ] `/sync-docs` reports documentation issues
-- [ ] `/prepare-delivery` runs validation checks
-- [ ] `/drift-detect` produces a drift report
+- [ ] `/agnix` reports agent config issues
+- [ ] `/foreman status` reads the queue without changing it
 
 ---
 
@@ -226,7 +203,7 @@ Command runtime varies based on:
 
 **Expected behavior:**
 - `/deslop`: Fast codebase scan
-- `/audit-project`: Thorough multi-agent analysis
+- `/agnix`: Fast config lint
 
 ---
 

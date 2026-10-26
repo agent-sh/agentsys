@@ -44,8 +44,8 @@ Location follows the pattern: `plugins/{plugin-name}/skills/{skill-name}/SKILL.m
 
 **Directory name = skill name** (this is the critical rule):
 ```
-plugins/enhance/skills/prompts/SKILL.md        # WRONG - name mismatch
-plugins/enhance/skills/enhance-prompts/SKILL.md  # CORRECT
+plugins/skillers/skills/compact/SKILL.md           # WRONG - name mismatch
+plugins/skillers/skills/skillers-compact/SKILL.md  # CORRECT
 ```
 
 ## 2. Create SKILL.md File
@@ -108,8 +108,8 @@ The installer (`bin/cli.js`) handles:
 ## 5. Run Quality Validation
 
 ```bash
-# Run /enhance on the new skill
-/enhance plugins/{plugin}/skills/{skill-name}
+# Lint the new skill with agnix
+npx agnix plugins/{plugin}/skills/{skill-name}/SKILL.md
 
 # Validate skill name matches directory
 ls -la plugins/{plugin}/skills/{skill-name}/
@@ -128,7 +128,7 @@ Before committing:
 - [ ] `name` field: lowercase, hyphens, max 64 chars
 - [ ] `description` field: explains WHAT and WHEN
 - [ ] If agent-invoked: agent has `Skill` in tools list
-- [ ] `/enhance` passes with no HIGH issues
+- [ ] `npx agnix` reports no errors
 
 ## Common Mistakes
 
@@ -136,15 +136,15 @@ Before committing:
 
 ```
 # WRONG
-skills/prompts/SKILL.md
+skills/compact/SKILL.md
 ---
-name: enhance-prompts  # Doesn't match directory!
+name: skillers-compact  # Doesn't match directory!
 ---
 
 # CORRECT
-skills/enhance-prompts/SKILL.md
+skills/skillers-compact/SKILL.md
 ---
-name: enhance-prompts  # Matches directory
+name: skillers-compact  # Matches directory
 ---
 ```
 
@@ -155,13 +155,13 @@ name: enhance-prompts  # Matches directory
 ---
 tools: Read, Glob, Grep
 ---
-MUST invoke the enhance-prompts skill.
+MUST invoke the skillers-compact skill.
 
 # CORRECT
 ---
 tools: Skill, Read, Glob, Grep
 ---
-MUST invoke the enhance-prompts skill.
+MUST invoke the skillers-compact skill.
 ```
 
 ### 3. Vague Description
@@ -173,45 +173,6 @@ description: Analyzes prompts
 # CORRECT - explains when to use
 description: Analyze prompts for clarity and structure. Use when reviewing agent prompts, command files, or general instructions.
 ```
-
-## Audit Findings (2025-02-04)
-
-These issues were found across all plugins during comprehensive audit and **have been fixed**.
-
-### Directory/Name Mismatches (19 total - FIXED)
-
-**PERF plugin** - 8 directories renamed:
-- `analyzer` → `perf-analyzer`
-- `baseline` → `perf-baseline-manager`
-- `benchmark` → `perf-benchmarker`
-- `code-paths` → `perf-code-paths`
-- `investigation-logger` → `perf-investigation-logger`
-- `profile` → `perf-profiler`
-- `theory` → `perf-theory-gatherer`
-- `theory-tester` → `perf-theory-tester`
-
-**ENHANCE plugin** - 10 directories renamed:
-- `agent-prompts` → `enhance-agent-prompts`
-- `claude-memory` → `enhance-claude-memory`
-- `cross-file` → `enhance-cross-file`
-- `docs` → `enhance-docs`
-- `hooks` → `enhance-hooks`
-- `orchestrator` → `enhance-orchestrator`
-- `plugins` → `enhance-plugins`
-- `prompts` → `enhance-prompts`
-- `skills` → `enhance-skills`
-
-**PERF plugin** - 1 additional:
-- `perf-theory-generator` → `perf-theory-gatherer`
-
-### Agents Missing Skill Tool (5 total - FIXED)
-
-**perf plugin** - Added Skill tool:
-- perf-analyzer.md
-- perf-code-paths.md
-- perf-investigation-logger.md
-- perf-theory-gatherer.md
-- perf-theory-tester.md
 
 ## Automated Tests
 

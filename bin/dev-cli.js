@@ -269,7 +269,7 @@ const COMMANDS = {
       console.log(`agentsys v${VERSION}`);
       console.log(`Branch: ${branch}`);
       console.log(`Plugins: ${counts.plugins}`);
-      console.log(`Agents:  ${counts.totalAgents} (${counts.fileBasedAgents} file-based + ${counts.roleBasedAgents} role-based)`);
+      console.log(`Agents:  ${counts.totalAgents}`);
       console.log(`Skills:  ${counts.skills}`);
       return 0;
     }

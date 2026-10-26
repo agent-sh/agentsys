@@ -19,13 +19,13 @@ Action-specific checklists to ensure consistency across the codebase.
 | [new-skill.md](./new-skill.md) | Adding a new skill (Agent Skills Open Standard) |
 | [new-lib-module.md](./new-lib-module.md) | Adding a new library module |
 | [update-opencode-plugin.md](./update-opencode-plugin.md) | Updating native OpenCode plugin |
-| [repo-intel.md](./repo-intel.md) | `lib/repo-intel/` and `lib/repo-map/` library changes |
+| [repo-intel.md](./repo-intel.md) | `lib/repo-intel/` library changes |
 
 ## Every Checklist Includes
 
 All checklists now include these common steps:
 - Cross-platform compatibility verification
-- Quality validation (`/enhance`, `npm test`)
+- Quality validation (`npx agnix <path>`, `npm test`)
 - Platform-specific requirements (OpenCode labels, Codex triggers)
 
 ## Knowledge Base References

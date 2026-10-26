@@ -25,7 +25,6 @@ Index of reference documents for AI agent development, prompt engineering, and p
 
 | Topic | File | Key Content |
 |-------|------|-------------|
-| **Workflow Agents** | [workflow.md](workflow.md) | Pre-ship gates, agent tool restrictions |
 | **Release Process** | [release.md](release.md) | Version bumping, GitHub Actions, npm publishing |
 
 ## Topic Ownership

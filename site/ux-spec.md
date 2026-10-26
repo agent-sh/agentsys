@@ -94,7 +94,7 @@ Scroll order with rationale for each section. All sections are full-width, alter
 - **Single column on mobile:** Text above, terminal below. Stack with 48px gap.
 
 ### Left Column Content
-1. **Badge** (top, above title): Small pill showing version or "21 plugins . 38 agents . 42 skills"
+1. **Badge** (top, above title): Small pill showing version or "11 plugins . 5 agents . 14 skills"
    - Background: `rgba(99, 102, 241, 0.12)`, border: `1px solid rgba(99, 102, 241, 0.25)`, border-radius: 9999px
    - Font: 13px, font-weight 500, primary accent color
    - Padding: 4px 14px
@@ -142,51 +142,48 @@ See Section 5 for the terminal demo specification.
 
 ### Demo Sequence (~15 seconds total)
 
-The demo shows the `/prepare-delivery` quality gates in compressed form. Each "step" appears with a typing animation for commands and instant-render for output. The demo ends with the branch ready to push: `/prepare-delivery` never pushes or opens the PR.
+The demo shows `/foreman` working one issue from pick to land in compressed form. Each "step" appears with a typing animation for commands and instant-render for output.
 
 **Step 1** (0.0s - 2.5s): User types command
 ```
-$ /prepare-delivery
+$ /foreman
 ```
 Typing speed: 80ms per character, blinking cursor `|` at 530ms interval.
 
-**Step 2** (2.5s - 4.5s): Branch summary (appears line-by-line, 100ms between lines)
+**Step 2** (2.5s - 4.5s): Capacity and pick (appears line-by-line, 100ms between lines)
 ```
-[branch] feature/websocket-support vs main
-  6 files changed, 847 additions, 23 deletions
-  gates: deslop, simplify, agnix, enhance, review, validation, docs
+[capacity] load 3.1, memory 41G free - room for 2 agents
+[pick]     #142 Add websocket reconnect (urgent, oldest ready)
 ```
-Colors: `[branch]` in cyan (#22d3ee). Labels in muted gray.
+Colors: `[capacity]` and `[pick]` in cyan (#22d3ee). Notes in muted gray.
 
-**Step 3** (4.5s - 5.5s): Gates start
+**Step 3** (4.5s - 5.5s): Claim
 ```
-> Running the quality gates
+> Claimed #142, briefing a worktree worker
 ```
 Color: `>` in green (#4ade80), rest in white.
 
-**Step 4** (5.5s - 8.5s): Gate progression (each line appears with 400ms delay)
+**Step 4** (5.5s - 8.5s): Worker, PR and review (each line appears with 400ms delay)
 ```
-[deslop]     3 debug logs removed, 1 TODO flagged
-[simplify]   2 helpers inlined
-[agnix]      Agent configs clean
-[review]     4 agents reviewing... 2 issues found, fixing...
-[validate]   Tests and build pass, requirements met
-[docs]       CHANGELOG and README synced
+[worker]     foreman/142: 6 files changed, tests pass
+[pr]         #318 opened, issue moved to review
+[findings]   Revuto: 2 findings, both fixed
+[checks]     All checks green at a41c9e2
 ```
-Gate labels: each in the primary accent color. Ellipses animate (cycling 1-3 dots).
+Labels: each in the primary accent color.
 
-**Step 5** (8.5s - 11.0s): Ready
+**Step 5** (8.5s - 11.0s): Land
 ```
-[ready]      Branch ready to push. Nothing pushed.
+[land]       Squash-merged at a41c9e2, #142 closed
 ```
-Color: `[ready]` in green (#4ade80), rest in white.
+Color: `[land]` in green (#4ade80), rest in white.
 
 **Step 6** (11.0s - 13.0s): Summary
 ```
-Done. Every gate passed in 6 minutes.
-  All 4 reviewers approved. Zero manual intervention.
+Done. Next ready issue in the queue.
+  GitHub labels are the only state. Zero manual intervention.
 ```
-"Done." in bold white. Stats in `rgba(255, 255, 255, 0.5)`. "Zero manual intervention." in the primary accent color, bold.
+"Done." in bold white. Notes in `rgba(255, 255, 255, 0.5)`. "Zero manual intervention." in the primary accent color, bold.
 
 **Step 7** (13.0s - 15.0s): Pause, then loop. 2 second pause, then clear terminal and restart from Step 1. Loop is infinite.
 
@@ -226,9 +223,9 @@ Done. Every gate passed in 6 minutes.
 ### Stats (left to right)
 | Stat | Value | Label |
 |------|-------|-------|
-| 1 | 24 | Plugins |
-| 2 | 42 | Agents |
-| 3 | 44 | Skills |
+| 1 | 11 | Plugins |
+| 2 | 5 | Agents |
+| 3 | 14 | Skills |
 | 4 | 5 | Platforms |
 
 ### Styling
@@ -251,7 +248,7 @@ Done. Every gate passed in 6 minutes.
 ## 8. Commands Showcase (`#commands`)
 
 ### Layout
-- **Section heading:** "18 Commands. One Toolkit."
+- **Section heading:** "8 Commands. One Toolkit."
   - Font: 36px desktop, 28px mobile, font-weight 700, white, text-align center
 - **Subheading:** "Each works standalone. Together, they automate everything."
   - Font: 16px, `rgba(255, 255, 255, 0.5)`, text-align center, margin-bottom 48px
@@ -265,9 +262,9 @@ Done. Every gate passed in 6 minutes.
   - On mobile: naturally scrollable, slight gradient fade on right edge to indicate scrollability (20px gradient from transparent to section background)
 
 ### Tab Order
-`/agnix`, `/deslop`, `/perf`, `/drift-detect`, `/audit-project`, `/enhance`, `/sync-docs`, `/learn`, `/consult`, `/debate`, `/prepare-delivery`, `/skillers`, `/onboard`, `/can-i-help`, `/banthis`, `/skill-curator`, `/system-prompt-curator`, `/foreman`
+`/foreman`, `/deslop`, `/agnix`, `/learn`, `/skillers`, `/banthis`, `/skill-curator`, `/system-prompt-curator`
 
-(Most impactful first: the config linter, then individual tools)
+(Most impactful first: the issue queue, then individual tools)
 
 ### Tab Content Panel
 For each command, show:
@@ -358,8 +355,8 @@ Between cards 1-2 and 2-3: a horizontal dashed line (`border-top: 2px dashed rgb
 
 | # | Title | Description | Icon hint |
 |---|-------|-------------|-----------|
-| 1 | "Code does code work. AI does AI work." | "Static analysis, regex, and AST for detection. LLMs only for synthesis and judgment. 77% fewer tokens than multi-agent approaches." | Split circle (code/brain) |
-| 2 | "One agent, one job, done well" | "40 specialized agents, each with a narrow scope and clear success criteria. No agent tries to do everything." | Target/crosshair |
+| 1 | "Code does code work. AI does AI work." | "Static analysis, regex, and AST for detection. LLMs only for synthesis and judgment." | Split circle (code/brain) |
+| 2 | "One agent, one job, done well" | "5 specialized agents, each with a narrow scope and clear success criteria. No agent tries to do everything." | Target/crosshair |
 | 3 | "Pipeline with gates" | "Each step must pass before the next begins. Can't push before review. Can't merge before CI. Hooks enforce it -- agents cannot skip phases." | Pipeline/funnel |
 | 4 | "Validate plan and results, not every step" | "Approve the plan. See the results. The middle is automated. One approval unlocks autonomous execution." | Shield/check |
 
@@ -372,7 +369,7 @@ Same card styling as How It Works section, but arranged in 2x2 grid:
 - **Icon:** 24px inline SVG, primary accent color, opacity 0.8
 - **Title:** 18px, font-weight 600, white, margin-top 16px
 - **Description:** 14px, line-height 1.6, `rgba(255, 255, 255, 0.5)`, margin-top 8px
-- **Highlight numbers** (like "77%", "40") in the primary accent color, font-weight 600
+- **Highlight numbers** (like "5") in the primary accent color, font-weight 600
 
 ### Entry Animation
 - Cards stagger: 0s, 0.1s, 0.2s, 0.3s delay
@@ -400,7 +397,7 @@ Tab styling matches Commands section tab bar but smaller scale:
 **Claude Code tab:**
 ```bash
 /plugin marketplace add agent-sh/agentsys
-/plugin install prepare-delivery@agentsys
+/plugin install foreman@agentsys
 ```
 
 **npm tab:**
@@ -613,7 +610,7 @@ This disables:
 - `<button>` for interactive elements (not `<div onclick>`)
 
 ### Screen Reader Considerations
-- Terminal animation has `aria-label="Animated demo showing the /prepare-delivery quality gates"` and `role="img"` (since it's decorative, not interactive)
+- Terminal animation has `aria-label="Animated demo showing /foreman working the next ready issue from pick to land"` and `role="img"` (since it's decorative, not interactive)
 - Stats counters have `aria-live="polite"` so the final values are announced
 - Tab panels have `aria-labelledby` referencing their tab
 - Copy buttons have `aria-label="Copy code to clipboard"`
@@ -649,13 +646,13 @@ This disables:
 ### Head Content
 ```html
 <title>AgentSys - Agent Runtime &amp; Orchestration System</title>
-<meta name="description" content="A modular runtime and orchestration system for AI agents. 21 plugins, 38 agents, 42 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.">
+<meta name="description" content="A modular runtime and orchestration system for AI agents. 11 plugins, 5 agents, 14 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0a0a0f">
 
 <!-- Open Graph -->
 <meta property="og:title" content="AgentSys">
-<meta property="og:description" content="AI workflow automation. 21 plugins, 38 agents, 42 skills.">
+<meta property="og:description" content="AI workflow automation. 11 plugins, 5 agents, 14 skills.">
 <meta property="og:image" content="https://agent-sh.github.io/agentsys/assets/og-image.png">
 <meta property="og:url" content="https://agent-sh.github.io/agentsys/">
 <meta property="og:type" content="website">
@@ -663,7 +660,7 @@ This disables:
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="AgentSys">
-<meta name="twitter:description" content="AI workflow automation. 21 plugins, 38 agents, 42 skills.">
+<meta name="twitter:description" content="AI workflow automation. 11 plugins, 5 agents, 14 skills.">
 <meta name="twitter:image" content="https://agent-sh.github.io/agentsys/assets/og-image.png">
 ```
 

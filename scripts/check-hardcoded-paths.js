@@ -49,9 +49,7 @@ const EXCLUDE_PATTERNS = [
   /\.git\//,
   /node_modules\//,
   /__tests__\//,
-  /\.json$/,
-  // Enhance skills document platform differences - OK to have hardcoded paths in docs
-  /plugins\/enhance\/skills\/.*\/SKILL\.md$/
+  /\.json$/
 ];
 
 // Lines that are OK to have hardcoded paths (documentation examples)

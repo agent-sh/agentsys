@@ -1,25 +1,23 @@
 {
   "name": "agentsys",
-  "description": "Modular runtime and orchestration system for AI agents - professional-grade slash commands for workflow automation, code review, task queues, and delivery",
+  "description": "Modular runtime and orchestration system for AI agents - professional-grade slash commands for workflow automation, task queues, slop cleanup, and agent configuration",
   "skills": "./adapters/codex/skills",
   "interface": {
     "displayName": "agentsys",
-    "shortDescription": "AI agent orchestration with 44 skills and 42 agents",
-    "longDescription": "Professional-grade slash commands for AI-powered development workflows. Includes /foreman (GitHub issues as a task queue for native agents), /prepare-delivery (pre-ship quality gates), /banthis (negative behavior memory), /skill-curator and /system-prompt-curator (agent configuration curation), /audit-project (multi-agent code review), /deslop (AI slop cleanup), /perf (performance investigation), /enhance (config analysis), /consult (cross-tool AI consultation), and more.",
+    "shortDescription": "AI agent orchestration with 14 skills and 5 agents",
+    "longDescription": "Professional-grade slash commands for AI-powered development workflows. Includes /foreman (GitHub issues as a task queue for native agents), /deslop (AI slop cleanup), /banthis (negative behavior memory), /skill-curator and /system-prompt-curator (agent configuration curation), /agnix (agent config linting), /learn (topic research), /skillers (workflow pattern learning), and more.",
     "developerName": "Avi Fenesh",
     "category": "developer-tools",
     "capabilities": [
       "task-management",
-      "code-review",
-      "performance",
       "documentation",
       "memory"
     ],
     "websiteUrl": "https://agent-sh.github.io/agent-sh.dev/",
     "defaultPrompt": [
       "Work the next ready issue in this repo's queue",
-      "Run the quality gates on this branch",
-      "Review this codebase"
+      "Clean up AI slop in this branch",
+      "Lint the agent configs in this repo"
     ]
   }
 }

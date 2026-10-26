@@ -30,17 +30,8 @@ When adding new agents, add to `AGENT_THINKING_CONFIG`:
 
 ```typescript
 const AGENT_THINKING_CONFIG: Record<string, { budget: number; description: string }> = {
-  // Discovery tier (8k)
-  "docs-updater": { budget: 8000, description: "Documentation sync" },
-
   // Analysis tier (12k)
   "deslop-agent": { budget: 12000, description: "Slop detection" },
-
-  // Reasoning tier (16k)
-  "delivery-validator": { budget: 16000, description: "Delivery validation" },
-
-  // Synthesis tier (20k+)
-  "plan-synthesizer": { budget: 20000, description: "Deep semantic analysis" },
 }
 ```
 

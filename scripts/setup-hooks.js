@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Setup git hooks for development
- * - pre-push: Runs preflight checks, /enhance reminder, release validation
+ * - pre-push: Runs preflight checks, agnix on changed agent configs, release validation
  */
 
 const fs = require('fs');
@@ -13,7 +13,7 @@ const prePushPath = path.join(hookDir, 'pre-push');
 const prePushHook = `#!/bin/sh
 # Pre-push validations:
 # 1. Run preflight checks (validators + gap checks)
-# 2. Warn if agents/skills/hooks/prompts modified (run /enhance)
+# 2. Lint modified agents/skills/hooks/prompts with agnix
 # 3. Block version tag pushes until release preflight passes
 # See: AGENTS.md Critical Rule #7, checklists/release.md
 
@@ -36,43 +36,30 @@ if ! node "\$REPO_ROOT/scripts/preflight.js"; then
 fi
 echo ""
 
-# Step 2: Check for modified agents/skills/hooks/prompts (/enhance reminder)
-echo "[2/3] Checking for enhanced content modifications..."
-modified_files=\$(git diff --name-only origin/\$(git remote show origin | grep "HEAD branch" | cut -d' ' -f5)..HEAD 2>/dev/null || git diff --name-only HEAD~1..HEAD)
+# Step 2: Lint modified agents/skills/hooks/prompts with agnix
+echo "[2/3] Linting modified agent configs with agnix..."
+modified_files=\$(git diff --name-only --diff-filter=d origin/\$(git remote show origin | grep "HEAD branch" | cut -d' ' -f5)..HEAD 2>/dev/null || git diff --name-only --diff-filter=d HEAD~1..HEAD)
+config_files=\$(echo "\$modified_files" | grep -E "(agents/.*\\.md|skills/.*/SKILL\\.md|hooks/.*\\.md|prompts/.*\\.md)\$" || true)
 
-agents_modified=\$(echo "\$modified_files" | grep -E "agents/.*\\.md\$" || true)
-skills_modified=\$(echo "\$modified_files" | grep -E "skills/.*/SKILL\\.md\$" || true)
-hooks_modified=\$(echo "\$modified_files" | grep -E "hooks/.*\\.md\$" || true)
-prompts_modified=\$(echo "\$modified_files" | grep -E "prompts/.*\\.md\$" || true)
-
-if [ -n "\$agents_modified" ] || [ -n "\$skills_modified" ] || [ -n "\$hooks_modified" ] || [ -n "\$prompts_modified" ]; then
+if [ -n "\$config_files" ]; then
+  echo "AGENTS.md Critical Rule #7: agnix lints new or changed agents, skills, hooks and prompts."
+  echo "\$config_files"
   echo ""
-  echo "AGENTS.md Critical Rule #7 requires running /enhance"
-  echo "on modified agents, skills, hooks, or prompts."
-  echo ""
-  echo "Modified files:"
-  echo "\$agents_modified\$skills_modified\$hooks_modified\$prompts_modified"
-  echo ""
-  # Check for env var first (for non-interactive/CI contexts)
-  if [ "\$ENHANCE_CONFIRMED" = "1" ]; then
-    echo "[OK] /enhance confirmed via ENHANCE_CONFIRMED=1"
-  elif [ -t 0 ]; then
-    # Interactive mode - prompt user
-    read -p "Have you run /enhance on these files? (y/N) " response
-    if [ "\$response" != "y" ] && [ "\$response" != "Y" ]; then
-      echo "[BLOCKED] Run /enhance first"
-      echo "   Skip: ENHANCE_CONFIRMED=1 git push"
-      exit 1
-    fi
-    echo "[OK] /enhance confirmed"
+  if command -v agnix >/dev/null 2>&1; then
+    AGNIX="agnix"
   else
-    # Non-interactive, no env var - block
-    echo "[BLOCKED] Run /enhance first"
-    echo "   For non-interactive: ENHANCE_CONFIRMED=1 git push"
+    AGNIX="npx --yes agnix"
+  fi
+  # shellcheck disable=SC2086
+  if ! (cd "\$REPO_ROOT" && \$AGNIX \$config_files); then
+    echo ""
+    echo "[ERROR] BLOCKED: agnix reported errors in the files above"
+    echo "   Fix them and push again (install agnix: npm install -g agnix)"
     exit 1
   fi
+  echo "[OK] agnix found no errors"
 else
-  echo "[OK] No enhanced content modified"
+  echo "[OK] No agent configs modified"
 fi
 echo ""
 

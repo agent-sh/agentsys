@@ -10,8 +10,7 @@ exclude = [
     # Lib copies in plugins (source is lib/, avoid duplicate warnings)
     "plugins/*/lib/**",
 ]
-target = "ClaudeCode"
-tools = []
+tools = ["claude-code"]
 locale = "en"
 
 [rules]
@@ -32,22 +31,12 @@ frontmatter_validation = true
 xml_balance = true
 import_references = true
 disabled_rules = [
-    "AGM-003",     # docs/reference/AGENTS.md is a comprehensive reference doc
-    "AGM-005",     # Cursor platform examples are reference content in AGENTS.md
-    "AGM-006",     # Intentional - root AGENTS.md (instructions) + docs/reference/AGENTS.md (reference)
-    "AS-012",      # enhance-hooks is a comprehensive hook reference (needs >500 lines)
     "CC-AG-009",   # False positive - Skill, AskUserQuestion, LSP are valid Claude Code tools
     "CC-HK-008",   # Hook script path resolution differs on Windows (forward slash prefix)
-    "CC-MEM-005",  # "Be concise" is ecosystem-wide boilerplate
-    "CC-MEM-006",  # Negative instructions (NEVER/Do not) are ecosystem standard critical rules
-    "CC-MEM-009",  # Intentional - AGENTS.md uses structured sections, size is necessary
-    "CC-SK-009",   # enhance-skills contains example injections for teaching purposes
-    "CC-SK-012",   # Intentional - argument-hint present for UI display
     "CC-SK-017",   # Intentional - version is a client-specific frontmatter field
     "CDX-AG-002",  # False positive - "tokens" in ecosystem boilerplate is not a secret
     "CDX-AG-005",  # Codex agent instruction format - AGENTS.md uses agentsys conventions
-    "PE-001",      # Reference docs have structured layout; middle placement is intentional
-    "PE-005",      # Same as CC-MEM-005 for prompt engineering rules
+    "PE-005",      # "Be concise" is ecosystem-wide boilerplate
     "XML-001",     # False positive - <login-url> is a placeholder in examples
     "XP-003",      # Intentional - we document all 3 platform paths (.claude/, .opencode/, .codex/)
 ]

@@ -34,7 +34,7 @@ body:
     attributes:
       label: Command
       description: Which command triggered the issue?
-      placeholder: "/deslop, /prepare-delivery, /foreman, etc."
+      placeholder: "/deslop, /foreman, /learn, etc."
     validations:
       required: true
 

@@ -67,9 +67,9 @@ The installer:
 
 ```
 ~/.codex/skills/
-├── perf/SKILL.md               # from commands/perf.md
+├── learn/SKILL.md              # from commands/learn.md
 ├── ...
-├── drift-analysis/             # a plugin skill directory
+├── skillers-compact/           # a plugin skill directory
 │   ├── SKILL.md
 │   └── references/
 └── ...
@@ -93,13 +93,13 @@ codex
 # Summary: 5 files changed, 23 lines deleted
 ```
 
-### Check a branch before you push
+### Research a topic
 ```bash
 codex
-> $prepare-delivery
+> $learn react hooks --depth=deep
 
-# Runs deslop, review, delivery validation and docs sync locally.
-# It never pushes or opens a PR; push and open the PR with your own flow.
+# Gathers and scores sources, then writes a learning guide
+# under agent-knowledge/ with a RAG index.
 ```
 
 ---

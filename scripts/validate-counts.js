@@ -42,14 +42,9 @@ const DOC_FILES = [
 function getActualCounts() {
   const result = discovery.discoverAll(REPO_ROOT);
 
-  // Role-based agents are defined inline (audit-project has 10)
-  const roleBasedAgentCount = 10;
-
   return {
     plugins: result.plugins.length,
-    fileBasedAgents: result.agents.length,
-    roleBasedAgents: roleBasedAgentCount,
-    totalAgents: result.agents.length + roleBasedAgentCount,
+    totalAgents: result.agents.length,
     skills: result.skills.length
   };
 }
@@ -74,20 +69,11 @@ function extractCountsFromDocs() {
       counts.plugins = parseInt(pluginMatches[1], 10);
     }
 
-    // Extract agent count - handle both total and file-based counts
-    // Pattern: "39 agents (29 file-based + 10 role-based)" or "39 total"
-    const totalAgentMatch = content.match(/(\d+)\s+(?:total|agents)\s*[:\(]?\s*(\d+)?\s*file-based\s*\+\s*(\d+)\s*role-based/i);
-    if (totalAgentMatch) {
-      counts.agents = parseInt(totalAgentMatch[1], 10); // Total count
-      counts.fileBasedAgents = totalAgentMatch[2] ? parseInt(totalAgentMatch[2], 10) : null;
-      counts.roleBasedAgents = parseInt(totalAgentMatch[3], 10);
-    } else {
-      // Look for top-level agent count (not plugin-specific)
-      // Match patterns like "9 plugins · 39 agents" or "39 agents across"
-      const topLevelMatch = content.match(/(?:·|,)\s*(\d+)\s+agents|(\d+)\s+agents\s+across/i);
-      if (topLevelMatch) {
-        counts.agents = parseInt(topLevelMatch[1] || topLevelMatch[2], 10);
-      }
+    // Look for top-level agent count (not plugin-specific)
+    // Match patterns like "9 plugins · 39 agents" or "39 agents across"
+    const topLevelMatch = content.match(/(?:·|,)\s*(\d+)\s+agents|(\d+)\s+agents\s+across/i);
+    if (topLevelMatch) {
+      counts.agents = parseInt(topLevelMatch[1] || topLevelMatch[2], 10);
     }
 
     // Extract skill count
@@ -192,7 +178,7 @@ function runValidation() {
     return {
       status: instructionPolicy.valid ? 'ok' : 'issues-found',
       message: 'plugins/ not present (extracted to standalone repos)',
-      actualCounts: { plugins: 0, fileBasedAgents: 0, roleBasedAgents: 0, totalAgents: 0, skills: 0 },
+      actualCounts: { plugins: 0, totalAgents: 0, skills: 0 },
       docCounts: {},
       versionCheck: { mainVersion: null, aligned: true },
       instructionPolicy,
@@ -230,23 +216,16 @@ function runValidation() {
       });
     }
 
-    if (counts.agents !== undefined) {
-      const isValid = counts.agents === actualCounts.totalAgents ||
-                      counts.agents === actualCounts.fileBasedAgents ||
-                      (counts.fileBasedAgents === actualCounts.fileBasedAgents &&
-                       counts.roleBasedAgents === actualCounts.roleBasedAgents);
-
-      if (!isValid) {
-        issues.push({
-          type: 'count-mismatch',
-          severity: 'high',
-          file,
-          metric: 'agents',
-          expected: `${actualCounts.totalAgents} (${actualCounts.fileBasedAgents} file-based + ${actualCounts.roleBasedAgents} role-based)`,
-          actual: counts.agents,
-          autoFix: false
-        });
-      }
+    if (counts.agents !== undefined && counts.agents !== actualCounts.totalAgents) {
+      issues.push({
+        type: 'count-mismatch',
+        severity: 'high',
+        file,
+        metric: 'agents',
+        expected: actualCounts.totalAgents,
+        actual: counts.agents,
+        autoFix: false
+      });
     }
 
     if (counts.skills !== undefined && counts.skills !== actualCounts.skills) {
@@ -326,7 +305,7 @@ if (require.main === module) {
 
   console.log('## Actual Counts (from filesystem)\n');
   console.log(`  Plugins: ${result.actualCounts.plugins}`);
-  console.log(`  Agents:  ${result.actualCounts.totalAgents} (${result.actualCounts.fileBasedAgents} file-based + ${result.actualCounts.roleBasedAgents} role-based)`);
+  console.log(`  Agents:  ${result.actualCounts.totalAgents}`);
   console.log(`  Skills:  ${result.actualCounts.skills}`);
   console.log('');
 

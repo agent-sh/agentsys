@@ -46,10 +46,10 @@ describe('platform adapter installers', () => {
       '---\nname: test-agent\ndescription: Test agent\ntools: Read, Write\n---\nReview the repository.\n'
     );
     // A sibling plugin: versioned-cache globs are rewritten only for plugin names.
-    fs.mkdirSync(path.join(installDir, 'plugins', 'consult', '.claude-plugin'), { recursive: true });
+    fs.mkdirSync(path.join(installDir, 'plugins', 'learn', '.claude-plugin'), { recursive: true });
     fs.writeFileSync(
-      path.join(installDir, 'plugins', 'consult', '.claude-plugin', 'plugin.json'),
-      JSON.stringify({ name: 'consult', version: '2.0.0' })
+      path.join(installDir, 'plugins', 'learn', '.claude-plugin', 'plugin.json'),
+      JSON.stringify({ name: 'learn', version: '2.0.0' })
     );
 
     discovery.invalidateCache();
@@ -82,11 +82,12 @@ describe('platform adapter installers', () => {
       'transformCommandForCursor',
       'transformSkillForKiro',
       'transformCommandForKiro',
-      'transformAgentForKiro',
-      'generateCombinedReviewerAgent'
+      'transformAgentForKiro'
     ]) {
       expect(transforms[name]).toEqual(expect.any(Function));
     }
+    // The combined Kiro reviewers served the audit-project and prepare-delivery review loops.
+    expect(transforms.generateCombinedReviewerAgent).toBeUndefined();
   });
 
   test('installs Cursor commands and skills into an isolated home', () => {
@@ -163,7 +164,7 @@ describe('platform adapter installers', () => {
         path.join(skillDir, 'references', 'guide.md'),
         '`<plugin>` is the plugin root, two directories up from the skill. Run ${CLAUDE_PLUGIN_ROOT}/scripts/run.js.\n' +
         'Back: [skill](../SKILL.md), [shared](../../../references/shared.md).\n' +
-        'Runner: Glob `**/consult/*/acp/run.js`. Sources: Glob `**/src/*/index.ts`.\n'
+        'Runner: Glob `**/learn/*/acp/run.js`. Sources: Glob `**/src/*/index.ts`.\n'
       );
       const binary = Buffer.from([0x23, 0x21, 0x00, 0xff]);
       fs.writeFileSync(path.join(skillDir, 'scripts', 'helper.bin'), binary);
@@ -192,7 +193,7 @@ describe('platform adapter installers', () => {
       expect(guide).toContain(`Run ${pluginRoot(installPath)}/scripts/run.js.`);
       expect(guide).toContain('[skill](../SKILL.md)');
       expect(guide).toContain(`[shared](${installPath}/references/shared.md)`);
-      expect(guide).toContain('`**/consult/**/acp/run.js`');
+      expect(guide).toContain('`**/learn/**/acp/run.js`');
       // Only plugin names get the any-depth glob.
       expect(guide).toContain('`**/src/*/index.ts`');
       // The install path (it contains "agentsys") is not an agent reference,
@@ -519,13 +520,13 @@ describe('platform adapter installers', () => {
       'tools: Read',
       '---',
       'Read `${CLAUDE_PLUGIN_ROOT}/skills/test-skill/SKILL.md`. If it appears unexpanded, Glob for `**/test-plugin/*/skills/test-skill/SKILL.md`.',
-      'Find the consult runner with Glob `**/consult/*/acp/run.js`.',
+      'Find the learn runner with Glob `**/learn/*/acp/run.js`.',
       ''
     ].join('\n'));
     fs.writeFileSync(
       path.join(pluginDir, 'commands', 'test-command.md'),
       '---\ndescription: Test command\n---\n' +
-      'Find the runner with `ls ${CLAUDE_PLUGIN_ROOT}/../../consult/*/acp/run.js` (or Glob `**/consult/*/acp/run.js`).\n'
+      'Find the runner with `ls ${CLAUDE_PLUGIN_ROOT}/../../learn/*/acp/run.js` (or Glob `**/learn/*/acp/run.js`).\n'
     );
 
     installForKiro(installDir);
@@ -538,9 +539,9 @@ describe('platform adapter installers', () => {
 
     expect(agent.prompt).toContain(`Read \`${installPath}/skills/test-skill/SKILL.md\``);
     expect(agent.prompt).toContain('`**/test-plugin/**/skills/test-skill/SKILL.md`');
-    expect(agent.prompt).toContain('`**/consult/**/acp/run.js`');
-    expect(prompt).toContain(`\`ls ${path.join(installDir, 'plugins')}/consult/acp/run.js\``);
-    expect(prompt).toContain('`**/consult/**/acp/run.js`');
+    expect(agent.prompt).toContain('`**/learn/**/acp/run.js`');
+    expect(prompt).toContain(`\`ls ${path.join(installDir, 'plugins')}/learn/acp/run.js\``);
+    expect(prompt).toContain('`**/learn/**/acp/run.js`');
     expect(prompt).not.toContain('/*/');
   });
 
@@ -549,7 +550,7 @@ describe('platform adapter installers', () => {
     fs.writeFileSync(
       path.join(pluginDir, 'commands', 'test-command.md'),
       '---\ndescription: Test command\n---\n' +
-      'Find the runner with `ls ${CLAUDE_PLUGIN_ROOT}/../../consult/*/acp/run.js` (or Glob `**/consult/*/acp/run.js`).\n' +
+      'Find the runner with `ls ${CLAUDE_PLUGIN_ROOT}/../../learn/*/acp/run.js` (or Glob `**/learn/*/acp/run.js`).\n' +
       'Entry points: Glob `**/src/*/index.ts`.\n'
     );
     fs.writeFileSync(path.join(pluginDir, 'agents', 'test-agent.md'), [
@@ -570,8 +571,8 @@ describe('platform adapter installers', () => {
     const codex = fs.readFileSync(path.join(tempDir, '.codex', 'skills', 'test-command', 'SKILL.md'), 'utf8');
     const cursor = fs.readFileSync(path.join(tempDir, '.cursor', 'commands', 'test-command.md'), 'utf8');
     for (const command of [codex, cursor]) {
-      expect(command).toContain(`\`ls ${pluginsDir}/consult/acp/run.js\``);
-      expect(command).toContain('`**/consult/**/acp/run.js`');
+      expect(command).toContain(`\`ls ${pluginsDir}/learn/acp/run.js\``);
+      expect(command).toContain('`**/learn/**/acp/run.js`');
       expect(command).toContain('`**/src/*/index.ts`');
     }
 
@@ -579,7 +580,7 @@ describe('platform adapter installers', () => {
     const opencodeDir = path.join(tempDir, '.config', 'opencode');
     const command = fs.readFileSync(path.join(opencodeDir, 'commands', 'test-command.md'), 'utf8');
     const agent = fs.readFileSync(path.join(opencodeDir, 'agents', 'test-agent.md'), 'utf8');
-    expect(command).toContain('`**/consult/**/acp/run.js`');
+    expect(command).toContain('`**/learn/**/acp/run.js`');
     expect(command).toContain('`**/src/*/index.ts`');
     expect(agent).toContain('`**/test-plugin/**/skills/test-skill/SKILL.md`');
   });

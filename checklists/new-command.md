@@ -121,8 +121,8 @@ const stateDir = '.claude';
 ## 7. Run Quality Validation
 
 ```bash
-# Run /enhance on the new command
-/enhance plugins/{plugin-name}/commands/new-command.md
+# Lint the new command with agnix
+npx agnix plugins/{plugin-name}/commands/new-command.md
 
 # Run tests
 npm test

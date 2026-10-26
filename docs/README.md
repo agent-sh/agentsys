@@ -13,7 +13,6 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 | Install and start using | [INSTALLATION.md](./INSTALLATION.md) |
 | See examples and workflows | [USAGE.md](./USAGE.md) |
 | Work an issue queue with /foreman | [workflows/FOREMAN.md](./workflows/FOREMAN.md) |
-| Run /perf investigations | [perf-requirements.md](./perf-requirements.md) |
 | Use with OpenCode or Codex | [CROSS_PLATFORM.md](./CROSS_PLATFORM.md) |
 | See all slop patterns | [reference/SLOP-PATTERNS.md](./reference/SLOP-PATTERNS.md) |
 | See all agents | [reference/AGENTS.md](./reference/AGENTS.md) |
@@ -35,14 +34,12 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 | Document | Description |
 |----------|-------------|
 | [workflows/FOREMAN.md](./workflows/FOREMAN.md) | /foreman loop: capacity, pick, claim, worktree worker, Revuto findings, land. |
-| [perf-requirements.md](./perf-requirements.md) | /perf rules and required phases. |
-| [perf-research-methodology.md](./perf-research-methodology.md) | /perf process details, benchmarking method. |
 
 ### Reference
 
 | Document | Description |
 |----------|-------------|
-| [reference/AGENTS.md](./reference/AGENTS.md) | All 38 agents: purpose, model, tools, restrictions. <!-- AGENT_COUNT_TOTAL: 38 --> |
+| [reference/AGENTS.md](./reference/AGENTS.md) | All 5 agents: purpose, model, tools, restrictions. <!-- AGENT_COUNT_TOTAL: 5 --> |
 | [reference/SLOP-PATTERNS.md](./reference/SLOP-PATTERNS.md) | All detection patterns by language, severity, auto-fix. |
 
 ### Platform & Architecture
@@ -61,34 +58,20 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 | Command | Purpose |
 |---------|---------|
 | `/deslop` | 3-phase slop detection and cleanup |
-| `/audit-project` | Multi-agent code review |
-| `/drift-detect` | Compare docs to actual code |
-| `/perf` | Performance investigation workflow |
-| `/enhance` | Analyze prompts, plugins, agents, docs, hooks, skills |
-| `/sync-docs` | Sync docs with code changes |
 | `/banthis` | Durable negative behavior memory |
 | `/learn` | Research topics online, create learning guides |
-| `/consult` | Cross-tool AI consultation |
-| `/debate` | Structured multi-round debate between AI tools |
 | `/skillers` | Workflow pattern learning and automation suggestions |
 | `/skill-curator` | Create and improve reliable SKILL.md files |
 | `/system-prompt-curator` | Create and improve autonomous agent system prompts |
-| `/onboard` | Codebase onboarding - project orientation |
-| `/can-i-help` | Contributor guidance - match skills to project needs |
 | `/agnix` | Linter for AI agent configs |
-| `/prepare-delivery` | Pre-ship validation checks; never pushes or opens a PR |
 | `/foreman` | GitHub issues as a task queue for native agents |
-
-### Internal Skills
-
-- `orchestrate-review` - Defines review passes and signal thresholds for the review loop
 
 ### State Files
 
 | File | Location | Purpose |
 |------|----------|---------|
 | `flow.json` | `{state-dir}/` (worktree) | Which phase you're in |
-| `repo-intel.json` | `{state-dir}/` | Cached agent-analyzer map (git history, AST symbols) read by onboard, can-i-help, drift-detect and sync-docs |
+| `repo-intel.json` | `{state-dir}/` | Cached agent-analyzer map (git history, AST symbols) read by deslop |
 
 State directories by platform:
 - Claude Code: `.claude/`

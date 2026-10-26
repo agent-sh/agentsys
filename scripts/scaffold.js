@@ -397,7 +397,7 @@ function capitalize(name) {
 
 /**
  * Entry point for CLI usage.
- * @param {string[]} args - e.g. ['plugin', 'my-name'] or ['agent', 'my-agent', '--plugin', 'enhance']
+ * @param {string[]} args - e.g. ['plugin', 'my-name'] or ['agent', 'my-agent', '--plugin', 'deslop']
  * @returns {number} Exit code 0 or 1
  */
 function main(args) {
@@ -413,9 +413,9 @@ function main(args) {
     console.log('');
     console.log('Examples:');
     console.log('  agentsys-dev new plugin my-plugin');
-    console.log('  agentsys-dev new agent my-agent --plugin enhance');
-    console.log('  agentsys-dev new skill my-skill --plugin enhance');
-    console.log('  agentsys-dev new command my-cmd --plugin enhance');
+    console.log('  agentsys-dev new agent my-agent --plugin deslop');
+    console.log('  agentsys-dev new skill my-skill --plugin deslop');
+    console.log('  agentsys-dev new command my-cmd --plugin deslop');
     return 1;
   }
 
@@ -477,7 +477,7 @@ function main(args) {
     console.log('  1. Edit the command file with real instructions');
     console.log('  2. See checklists/new-command.md for command requirements');
   }
-  console.log('  - Run /enhance on new files to improve quality');
+  console.log('  - Run agnix (npx agnix <path>) on new files to lint them');
 
   return 0;
 }

@@ -38,7 +38,7 @@ const CHECKLIST_PATTERNS = {
   'new-skill': ['plugins/*/skills/'],
   'new-lib-module': ['lib/'],
   'release': ['package.json'],
-  'repo-intel': ['lib/repo-intel/', 'lib/repo-map/', 'lib/collectors/'],
+  'repo-intel': ['lib/repo-intel/'],
   'opencode-plugin': ['adapters/opencode-plugin/'],
   'cross-platform': [] // triggered when any plugin/ or lib/ file changes
 };
@@ -47,16 +47,16 @@ const CHECKLIST_PATTERNS = {
 // Shown as reminders after automated checks complete.
 const MANUAL_CHECKS = {
   'new-command': [
-    'Run /enhance on the new command',
+    'Run agnix (npx agnix <path>) on the new command',
     'Test cross-platform: Claude Code, OpenCode, Codex CLI'
   ],
   'new-agent': [
-    'Run /enhance on the new agent',
+    'Run agnix (npx agnix <path>) on the new agent',
     'Test agent invocation end-to-end',
     'Verify agent count in README.md and docs/reference/AGENTS.md'
   ],
   'new-skill': [
-    'Run /enhance on the new skill',
+    'Run agnix (npx agnix <path>) on the new skill',
     'Verify skill directory name matches skill name in SKILL.md'
   ],
   'new-lib-module': [

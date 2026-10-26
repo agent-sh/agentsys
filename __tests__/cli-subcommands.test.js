@@ -44,22 +44,22 @@ describe('CLI subcommand parsing', () => {
     console.error = originalError;
   });
 
-  test('parses "install prepare-delivery"', () => {
-    const result = parseArgs(['install', 'prepare-delivery']);
+  test('parses "install skillers"', () => {
+    const result = parseArgs(['install', 'skillers']);
     expect(result.subcommand).toBe('install');
-    expect(result.subcommandArg).toBe('prepare-delivery');
+    expect(result.subcommandArg).toBe('skillers');
   });
 
-  test('parses "install prepare-delivery@1.2.0"', () => {
-    const result = parseArgs(['install', 'prepare-delivery@1.2.0']);
+  test('parses "install skillers@1.2.0"', () => {
+    const result = parseArgs(['install', 'skillers@1.2.0']);
     expect(result.subcommand).toBe('install');
-    expect(result.subcommandArg).toBe('prepare-delivery@1.2.0');
+    expect(result.subcommandArg).toBe('skillers@1.2.0');
   });
 
-  test('parses "install prepare-delivery --tool claude"', () => {
-    const result = parseArgs(['install', 'prepare-delivery', '--tool', 'claude']);
+  test('parses "install skillers --tool claude"', () => {
+    const result = parseArgs(['install', 'skillers', '--tool', 'claude']);
     expect(result.subcommand).toBe('install');
-    expect(result.subcommandArg).toBe('prepare-delivery');
+    expect(result.subcommandArg).toBe('skillers');
     expect(result.tool).toBe('claude');
   });
 
@@ -75,10 +75,10 @@ describe('CLI subcommand parsing', () => {
     expect(result.subcommandArg).toBeNull();
   });
 
-  test('parses "search perf"', () => {
-    const result = parseArgs(['search', 'perf']);
+  test('parses "search learn"', () => {
+    const result = parseArgs(['search', 'learn']);
     expect(result.subcommand).toBe('search');
-    expect(result.subcommandArg).toBe('perf');
+    expect(result.subcommandArg).toBe('learn');
   });
 
   test('parses "list" subcommand', () => {
@@ -108,7 +108,7 @@ describe('searchPlugins', () => {
   test('lists all plugins when no term given', () => {
     searchPlugins(undefined);
     const output = logOutput.join('\n');
-    expect(output).toContain('prepare-delivery');
+    expect(output).toContain('skillers');
     expect(output).toContain('deslop');
     // Count derived from marketplace.json so this test stays stable as
     // the marketplace grows. Asserts the suffix and uses the same
@@ -118,13 +118,13 @@ describe('searchPlugins', () => {
   });
 
   test('filters by name', () => {
-    searchPlugins('perf');
+    searchPlugins('learn');
     const output = logOutput.join('\n');
-    expect(output).toContain('perf');
+    expect(output).toContain('learn');
     // Count derived from marketplace.json using the same name-or-description
     // match the production code uses, so this stays stable as the marketplace
-    // grows or descriptions evolve (e.g. "performance" also contains "perf").
-    const lower = 'perf';
+    // grows or descriptions evolve (a description can contain the term too).
+    const lower = 'learn';
     const expectedCount = loadMarketplace().plugins.filter(p =>
       p.name.toLowerCase().includes(lower) ||
       (p.description && p.description.toLowerCase().includes(lower))
@@ -209,9 +209,9 @@ describe('installed.json operations', () => {
 
   test('multiple plugins in installed.json', () => {
     recordInstall('deslop', '1.0.0', ['claude']);
-    recordInstall('perf', '1.0.0', ['opencode']);
+    recordInstall('learn', '1.0.0', ['opencode']);
     const data = loadInstalledJson();
-    expect(Object.keys(data.plugins)).toEqual(['deslop', 'perf']);
+    expect(Object.keys(data.plugins)).toEqual(['deslop', 'learn']);
   });
 
   test('a plugin Claude Code never registered is not recorded against claude', () => {
@@ -220,10 +220,10 @@ describe('installed.json operations', () => {
     // failed Claude install would make both report something that never landed.
     const failures = new Map([['deslop', 'EINVAL']]);
     recordInstall('deslop', '1.0.0', recordedPlatforms(['claude', 'opencode'], failures, 'deslop'));
-    recordInstall('perf', '1.0.0', recordedPlatforms(['claude', 'opencode'], failures, 'perf'));
+    recordInstall('learn', '1.0.0', recordedPlatforms(['claude', 'opencode'], failures, 'learn'));
     const data = loadInstalledJson();
     expect(data.plugins.deslop.platforms).toEqual(['opencode']);
-    expect(data.plugins.perf.platforms).toEqual(['claude', 'opencode']);
+    expect(data.plugins.learn.platforms).toEqual(['claude', 'opencode']);
   });
 
   test('claude-only install that failed records no platforms at all', () => {
@@ -260,24 +260,24 @@ describe('installed.json operations', () => {
 
 describe('parseInstallTarget', () => {
   test('parses plain plugin name', () => {
-    const result = parseInstallTarget('prepare-delivery');
-    expect(result).toEqual({ plugin: 'prepare-delivery', component: null, version: null });
+    const result = parseInstallTarget('skillers');
+    expect(result).toEqual({ plugin: 'skillers', component: null, version: null });
   });
 
   test('parses plugin:component', () => {
-    const result = parseInstallTarget('prepare-delivery:delivery-validator');
-    expect(result).toEqual({ plugin: 'prepare-delivery', component: 'delivery-validator', version: null });
+    const result = parseInstallTarget('skillers:skillers-compactor');
+    expect(result).toEqual({ plugin: 'skillers', component: 'skillers-compactor', version: null });
   });
 
   test('parses plugin@version', () => {
-    const result = parseInstallTarget('prepare-delivery@1.2.0');
-    expect(result).toEqual({ plugin: 'prepare-delivery', component: null, version: '1.2.0' });
+    const result = parseInstallTarget('skillers@1.2.0');
+    expect(result).toEqual({ plugin: 'skillers', component: null, version: '1.2.0' });
   });
 
   test('parses plugin:component with version on plugin', () => {
-    const result = parseInstallTarget('prepare-delivery:delivery-validator');
-    expect(result.plugin).toBe('prepare-delivery');
-    expect(result.component).toBe('delivery-validator');
+    const result = parseInstallTarget('skillers:skillers-compactor');
+    expect(result.plugin).toBe('skillers');
+    expect(result.component).toBe('skillers-compactor');
   });
 
   test('returns nulls for empty input', () => {
@@ -287,8 +287,8 @@ describe('parseInstallTarget', () => {
   });
 
   test('handles colon at end (no component)', () => {
-    const result = parseInstallTarget('prepare-delivery:');
-    expect(result).toEqual({ plugin: 'prepare-delivery', component: null, version: null });
+    const result = parseInstallTarget('skillers:');
+    expect(result).toEqual({ plugin: 'skillers', component: null, version: null });
   });
 });
 
@@ -305,13 +305,13 @@ describe('loadComponents', () => {
 
   test('loads from components.json when present', () => {
     fs.writeFileSync(path.join(tmpDir, 'components.json'), JSON.stringify({
-      agents: [{ name: 'delivery-validator', file: 'agents/delivery-validator.md' }],
-      skills: [{ name: 'validate-delivery', dir: 'skills/validate-delivery' }],
-      commands: [{ name: 'prepare-delivery', file: 'commands/prepare-delivery.md' }]
+      agents: [{ name: 'skillers-compactor', file: 'agents/skillers-compactor.md' }],
+      skills: [{ name: 'skillers-compact', dir: 'skills/skillers-compact' }],
+      commands: [{ name: 'skillers', file: 'commands/skillers.md' }]
     }));
     const result = loadComponents(tmpDir);
     expect(result.agents).toHaveLength(1);
-    expect(result.agents[0].name).toBe('delivery-validator');
+    expect(result.agents[0].name).toBe('skillers-compactor');
     expect(result.skills).toHaveLength(1);
     expect(result.commands).toHaveLength(1);
   });
@@ -339,24 +339,24 @@ describe('loadComponents', () => {
 
 describe('resolveComponent', () => {
   const components = {
-    agents: [{ name: 'delivery-validator', file: 'agents/delivery-validator.md' }],
-    skills: [{ name: 'validate-delivery', dir: 'skills/validate-delivery' }],
-    commands: [{ name: 'prepare-delivery', file: 'commands/prepare-delivery.md' }]
+    agents: [{ name: 'skillers-compactor', file: 'agents/skillers-compactor.md' }],
+    skills: [{ name: 'skillers-compact', dir: 'skills/skillers-compact' }],
+    commands: [{ name: 'skillers', file: 'commands/skillers.md' }]
   };
 
   test('resolves agent', () => {
-    const result = resolveComponent(components, 'delivery-validator');
-    expect(result).toEqual({ type: 'agent', name: 'delivery-validator', file: 'agents/delivery-validator.md' });
+    const result = resolveComponent(components, 'skillers-compactor');
+    expect(result).toEqual({ type: 'agent', name: 'skillers-compactor', file: 'agents/skillers-compactor.md' });
   });
 
   test('resolves skill', () => {
-    const result = resolveComponent(components, 'validate-delivery');
-    expect(result).toEqual({ type: 'skill', name: 'validate-delivery', dir: 'skills/validate-delivery' });
+    const result = resolveComponent(components, 'skillers-compact');
+    expect(result).toEqual({ type: 'skill', name: 'skillers-compact', dir: 'skills/skillers-compact' });
   });
 
   test('resolves command', () => {
-    const result = resolveComponent(components, 'prepare-delivery');
-    expect(result).toEqual({ type: 'command', name: 'prepare-delivery', file: 'commands/prepare-delivery.md' });
+    const result = resolveComponent(components, 'skillers');
+    expect(result).toEqual({ type: 'command', name: 'skillers', file: 'commands/skillers.md' });
   });
 
   test('returns null for unknown component', () => {
@@ -365,24 +365,24 @@ describe('resolveComponent', () => {
 
   test('returns null for null inputs', () => {
     expect(resolveComponent(components, null)).toBeNull();
-    expect(resolveComponent(null, 'delivery-validator')).toBeNull();
+    expect(resolveComponent(null, 'skillers-compactor')).toBeNull();
   });
 });
 
 describe('buildFilterFromComponent', () => {
   test('builds agent filter', () => {
-    const filter = buildFilterFromComponent({ type: 'agent', name: 'delivery-validator' });
-    expect(filter).toEqual({ agents: ['delivery-validator'], skills: [], commands: [] });
+    const filter = buildFilterFromComponent({ type: 'agent', name: 'skillers-compactor' });
+    expect(filter).toEqual({ agents: ['skillers-compactor'], skills: [], commands: [] });
   });
 
   test('builds skill filter', () => {
-    const filter = buildFilterFromComponent({ type: 'skill', name: 'validate-delivery' });
-    expect(filter).toEqual({ agents: [], skills: ['validate-delivery'], commands: [] });
+    const filter = buildFilterFromComponent({ type: 'skill', name: 'skillers-compact' });
+    expect(filter).toEqual({ agents: [], skills: ['skillers-compact'], commands: [] });
   });
 
   test('builds command filter', () => {
-    const filter = buildFilterFromComponent({ type: 'command', name: 'prepare-delivery' });
-    expect(filter).toEqual({ agents: [], skills: [], commands: ['prepare-delivery'] });
+    const filter = buildFilterFromComponent({ type: 'command', name: 'skillers' });
+    expect(filter).toEqual({ agents: [], skills: [], commands: ['skillers'] });
   });
 });
 
@@ -402,24 +402,24 @@ describe('granular install recording', () => {
   });
 
   test('recordInstall with scope full (default)', () => {
-    recordInstall('prepare-delivery', '1.0.0', ['claude']);
+    recordInstall('skillers', '1.0.0', ['claude']);
     const data = loadInstalledJson();
-    expect(data.plugins['prepare-delivery'].scope).toBe('full');
-    expect(data.plugins['prepare-delivery'].agents).toBeUndefined();
+    expect(data.plugins['skillers'].scope).toBe('full');
+    expect(data.plugins['skillers'].agents).toBeUndefined();
   });
 
   test('recordInstall with scope partial', () => {
-    recordInstall('prepare-delivery', '1.0.0', ['opencode'], {
+    recordInstall('skillers', '1.0.0', ['opencode'], {
       scope: 'partial',
-      agents: ['delivery-validator'],
+      agents: ['skillers-compactor'],
       skills: [],
       commands: []
     });
     const data = loadInstalledJson();
-    expect(data.plugins['prepare-delivery'].scope).toBe('partial');
-    expect(data.plugins['prepare-delivery'].agents).toEqual(['delivery-validator']);
-    expect(data.plugins['prepare-delivery'].skills).toEqual([]);
-    expect(data.plugins['prepare-delivery'].commands).toEqual([]);
+    expect(data.plugins['skillers'].scope).toBe('partial');
+    expect(data.plugins['skillers'].agents).toEqual(['skillers-compactor']);
+    expect(data.plugins['skillers'].skills).toEqual([]);
+    expect(data.plugins['skillers'].commands).toEqual([]);
   });
 });
 
@@ -432,7 +432,7 @@ describe('loadMarketplace', () => {
     // These are unlikely to ever be removed - if any of them is, the
     // change deserves an explicit, visible test update.
     const names = marketplace.plugins.map(p => p.name);
-    for (const required of ['prepare-delivery', 'deslop', 'agnix']) {
+    for (const required of ['foreman', 'deslop', 'agnix']) {
       expect(names).toContain(required);
     }
   });

@@ -406,31 +406,28 @@
 
     // The demo sequence
     var sequence = [
-      { type: 'type', text: '$ /prepare-delivery', delay: 0 },
+      { type: 'type', text: '$ /foreman', delay: 0 },
       { type: 'wait', delay: 600 },
       { type: 'lines', lines: [
-        { html: '<span class="t-cyan">[branch]</span> feature/websocket-support <span class="t-muted">vs</span> main', delay: 100 },
-        { html: '  <span class="t-muted">6 files changed, 847 additions, 23 deletions</span>', delay: 100 },
-        { html: '  <span class="t-muted">gates:</span> deslop, simplify, agnix, enhance, review, validation, docs', delay: 100 }
+        { html: '<span class="t-cyan">[capacity]</span> load 3.1, memory 41G free <span class="t-muted">-</span> room for 2 agents', delay: 100 },
+        { html: '<span class="t-cyan">[pick]</span>     #142 Add websocket reconnect <span class="t-muted">(urgent, oldest ready)</span>', delay: 100 }
       ]},
       { type: 'wait', delay: 500 },
-      { type: 'line', html: '<span class="t-green">&gt;</span> <span class="t-white">Running the quality gates</span>', delay: 0 },
+      { type: 'line', html: '<span class="t-green">&gt;</span> <span class="t-white">Claimed #142, briefing a worktree worker</span>', delay: 0 },
       { type: 'wait', delay: 600 },
       { type: 'lines', lines: [
-        { html: '<span class="t-purple">[deslop]</span>     3 debug logs removed, 1 TODO flagged', delay: 400 },
-        { html: '<span class="t-purple">[simplify]</span>   2 helpers inlined', delay: 400 },
-        { html: '<span class="t-purple">[agnix]</span>      Agent configs clean', delay: 400 },
-        { html: '<span class="t-purple">[review]</span>     4 agents reviewing... 2 issues found, fixing...', delay: 400 },
-        { html: '<span class="t-purple">[validate]</span>   Tests and build pass, requirements met', delay: 400 },
-        { html: '<span class="t-purple">[docs]</span>       CHANGELOG and README synced', delay: 400 }
+        { html: '<span class="t-purple">[worker]</span>     foreman/142: 6 files changed, tests pass', delay: 400 },
+        { html: '<span class="t-purple">[pr]</span>         #318 opened, issue moved to review', delay: 400 },
+        { html: '<span class="t-purple">[findings]</span>   Revuto: 2 findings, both fixed', delay: 400 },
+        { html: '<span class="t-purple">[checks]</span>     All checks green at a41c9e2', delay: 400 }
       ]},
       { type: 'wait', delay: 600 },
-      { type: 'line', html: '<span class="t-green">[ready]</span>      Branch ready to push. Nothing pushed.', delay: 0 },
+      { type: 'line', html: '<span class="t-green">[land]</span>       Squash-merged at a41c9e2, #142 closed', delay: 0 },
       { type: 'wait', delay: 800 },
       { type: 'line', html: '', delay: 0 },
-      { type: 'line', html: '<span class="t-white t-bold">Done.</span> Every gate passed in 6 minutes.', delay: 0 },
+      { type: 'line', html: '<span class="t-white t-bold">Done.</span> Next ready issue in the queue.', delay: 0 },
       { type: 'lines', lines: [
-        { html: '  <span class="t-muted">All 4 reviewers approved.</span> <span class="t-purple t-bold">Zero manual intervention.</span>', delay: 100 }
+        { html: '  <span class="t-muted">GitHub labels are the only state.</span> <span class="t-purple t-bold">Zero manual intervention.</span>', delay: 100 }
       ]},
       { type: 'wait', delay: 3000 }
     ];
@@ -544,18 +541,17 @@
     // Static display for reduced motion
     if (prefersReduced) {
       body.innerHTML = [
-        '<div class="terminal__line"><span class="t-muted">$ </span><span class="t-white">/prepare-delivery</span></div>',
-        '<div class="terminal__line"><span class="t-cyan">[branch]</span> feature/websocket-support <span class="t-muted">vs</span> main</div>',
-        '<div class="terminal__line">  <span class="t-muted">gates:</span> deslop, simplify, agnix, enhance, review, validation, docs</div>',
-        '<div class="terminal__line"><span class="t-green">&gt;</span> <span class="t-white">Running the quality gates</span></div>',
-        '<div class="terminal__line"><span class="t-purple">[deslop]</span>     3 debug logs removed, 1 TODO flagged</div>',
-        '<div class="terminal__line"><span class="t-purple">[review]</span>     4 agents reviewing... 2 issues found, fixing...</div>',
-        '<div class="terminal__line"><span class="t-purple">[validate]</span>   Tests and build pass, requirements met</div>',
-        '<div class="terminal__line"><span class="t-purple">[docs]</span>       CHANGELOG and README synced</div>',
-        '<div class="terminal__line"><span class="t-green">[ready]</span>      Branch ready to push. Nothing pushed.</div>',
+        '<div class="terminal__line"><span class="t-muted">$ </span><span class="t-white">/foreman</span></div>',
+        '<div class="terminal__line"><span class="t-cyan">[pick]</span>     #142 Add websocket reconnect <span class="t-muted">(urgent, oldest ready)</span></div>',
+        '<div class="terminal__line"><span class="t-green">&gt;</span> <span class="t-white">Claimed #142, briefing a worktree worker</span></div>',
+        '<div class="terminal__line"><span class="t-purple">[worker]</span>     foreman/142: 6 files changed, tests pass</div>',
+        '<div class="terminal__line"><span class="t-purple">[pr]</span>         #318 opened, issue moved to review</div>',
+        '<div class="terminal__line"><span class="t-purple">[findings]</span>   Revuto: 2 findings, both fixed</div>',
+        '<div class="terminal__line"><span class="t-purple">[checks]</span>     All checks green at a41c9e2</div>',
+        '<div class="terminal__line"><span class="t-green">[land]</span>       Squash-merged at a41c9e2, #142 closed</div>',
         '<div class="terminal__line"></div>',
-        '<div class="terminal__line"><span class="t-white t-bold">Done.</span> Every gate passed in 6 minutes.</div>',
-        '<div class="terminal__line">  <span class="t-muted">All 4 reviewers approved.</span> <span class="t-purple t-bold">Zero manual intervention.</span></div>'
+        '<div class="terminal__line"><span class="t-white t-bold">Done.</span> Next ready issue in the queue.</div>',
+        '<div class="terminal__line">  <span class="t-muted">GitHub labels are the only state.</span> <span class="t-purple t-bold">Zero manual intervention.</span></div>'
       ].join('');
       return;
     }
@@ -571,11 +567,11 @@
   function initDynamicHowItWorks() {
     var howItWorksData = {
       0: {
-        subtitle: '457 rules. 10+ AI tools. One command.',
+        subtitle: 'Issues in. Landed PRs out.',
         steps: [
-          { title: 'Discover configs', desc: 'Finds all agent configuration files: Skills, Hooks, MCP, Memory, and Plugins across your project.' },
-          { title: 'Run 457 rules', desc: 'Validates against 457 rules across 10+ AI tools including Claude Code, Cursor, Copilot, Codex, and more.' },
-          { title: 'Fix and report', desc: '102 rules are auto-fixable with --fix flag. Outputs SARIF for GitHub Code Scanning integration.' }
+          { title: 'Pick and claim', desc: 'Checks host capacity, picks the next ready issue (urgent first, then oldest) and claims it on GitHub.' },
+          { title: 'Brief a worker', desc: 'Spawns one worktree subagent per issue from its brief. Revuto reviews each PR; every real finding gets fixed.' },
+          { title: 'Land', desc: 'Runs the repo land command and squash-merges at the exact head it checked. GitHub labels and comments are the only state.' }
         ]
       },
       1: {
@@ -587,46 +583,14 @@
         ]
       },
       2: {
-        subtitle: 'Measure first. Optimize with evidence.',
+        subtitle: '457 rules. 10+ AI tools. One command.',
         steps: [
-          { title: 'Establish baseline', desc: 'Records current performance metrics with sequential benchmarks and minimum 60-second run durations.' },
-          { title: 'Test hypotheses', desc: 'Generates theories from git history, then runs controlled experiments one change at a time.' },
-          { title: 'Deliver evidence', desc: 'Produces evidence-backed recommendations with profiling data, hotspot analysis, and comparisons.' }
+          { title: 'Discover configs', desc: 'Finds all agent configuration files: Skills, Hooks, MCP, Memory, and Plugins across your project.' },
+          { title: 'Run 457 rules', desc: 'Validates against 457 rules across 10+ AI tools including Claude Code, Cursor, Copilot, Codex, and more.' },
+          { title: 'Fix and report', desc: '102 rules are auto-fixable with --fix flag. Outputs SARIF for GitHub Code Scanning integration.' }
         ]
       },
       3: {
-        subtitle: 'JavaScript collects. Opus analyzes.',
-        steps: [
-          { title: 'Collect data', desc: 'JavaScript collectors scan GitHub state, documentation, and codebase without using any LLM tokens.' },
-          { title: 'Semantic analysis', desc: 'A single Opus call performs deep semantic matching between plans and actual implementation.' },
-          { title: 'Prioritized report', desc: 'Outputs a prioritized list of gaps, drift, and stale items with reconstruction recommendations.' }
-        ]
-      },
-      4: {
-        subtitle: 'Specialized agents. Iterative improvement.',
-        steps: [
-          { title: 'Select agents', desc: 'Detects your project type and selects from 10 specialist agents: security, performance, architecture, and more.' },
-          { title: 'Parallel review', desc: 'All selected agents review relevant files simultaneously, producing certainty-graded findings.' },
-          { title: 'Iterate to clean', desc: 'Fixes issues, re-reviews, and repeats until zero open findings remain across all agents.' }
-        ]
-      },
-      5: {
-        subtitle: 'Seven analyzers. One unified report.',
-        steps: [
-          { title: 'Detect content', desc: 'Finds all prompts, agents, plugins, docs, hooks, and skills in your project automatically.' },
-          { title: 'Run analyzers', desc: 'Seven specialized analyzers run in parallel, each checking for best practices in its domain.' },
-          { title: 'Report and fix', desc: 'Certainty-graded report with auto-fix for HIGH issues. Auto-learns false positives over time.' }
-        ]
-      },
-      6: {
-        subtitle: 'Code changed. Docs follow.',
-        steps: [
-          { title: 'Diff changes', desc: 'Compares your branch against main to find all files that changed since the last documentation update.' },
-          { title: 'Find stale docs', desc: 'Searches documentation for references to changed files, outdated versions, and missing CHANGELOG entries.' },
-          { title: 'Auto-fix safely', desc: 'Updates version numbers, CHANGELOG entries, and other deterministic fixes. Flags ambiguous issues for review.' }
-        ]
-      },
-      7: {
         subtitle: 'Web to knowledge base. Reusable.',
         steps: [
           { title: 'Search the web', desc: 'Progressive query architecture gathers 10-40 online sources using broad-to-focused funnel approach.' },
@@ -634,60 +598,12 @@
           { title: 'Create guide', desc: 'Synthesizes a structured learning guide with RAG-optimized index saved for future agent lookups.' }
         ]
       },
-      8: {
-        subtitle: 'Ask another AI. Get a second opinion.',
-        steps: [
-          { title: 'Detect tools', desc: 'Finds which AI CLI tools are installed on your system. Picks the right model and flags for your effort level.' },
-          { title: 'Run consultation', desc: 'Spawns the tool via ACP (JSON-RPC 2.0 over stdio) or CLI with safe-mode defaults and a 240s timeout.' },
-          { title: 'Return response', desc: 'Parses output, redacts secrets (Shannon entropy > 4.0), and returns the response. Supports session continuations.' }
-        ]
-      },
-      9: {
-        subtitle: 'Two AIs argue. You get the truth.',
-        steps: [
-          { title: 'Set up debate', desc: 'Parses natural language to identify proposer, challenger, topic, rounds, and effort level.' },
-          { title: 'Run rounds', desc: 'Proposer builds a case with evidence. Challenger responds with counterpoints. Each round refines the arguments.' },
-          { title: 'Deliver verdict', desc: 'The orchestrator synthesizes all rounds and picks a winner with reasoning and actionable takeaways.' }
-        ]
-      },
-      10: {
-        subtitle: 'Five quality gates. Zero shortcuts.',
-        steps: [
-          { title: 'Clean and lint', desc: 'Deslop + simplify + test-coverage run in parallel. Then agnix and /enhance lint any changed agent configs.' },
-          { title: 'Review and validate', desc: '4 core reviewers iterate until clean (max 5 rounds). Then delivery-validator checks tests, build, and requirements.' },
-          { title: 'Sync docs', desc: 'Documentation synced with code changes. The branch is ready to push. /prepare-delivery never pushes or opens the PR.' }
-        ]
-      },
-      11: {
+      4: {
         subtitle: 'Transcripts in. Automation suggestions out.',
         steps: [
           { title: 'Read transcripts', desc: 'Reads saved sessions from Claude Code, Codex, and OpenCode. No hooks, no per-turn overhead.' },
           { title: 'Cluster patterns', desc: 'Extracts observations, groups by theme, weights by frequency. Identifies repetitive workflows.' },
           { title: 'Suggest automation', desc: 'Recommends skills, hooks, and agents that would automate the patterns found. Checks existing ecosystem first.' }
-        ]
-      },
-      12: {
-        subtitle: 'Automated data collection. Interactive tour.',
-        steps: [
-          { title: 'Collect project data', desc: 'Scans package.json, git history, directory structure, key files, and conventions automatically.' },
-          { title: 'Generate overview', desc: 'Synthesizes a structured project summary: architecture, patterns, key files, and entry points.' },
-          { title: 'Interactive Q&A', desc: 'Answers questions about the codebase interactively. Identifies key files, conventions, and gotchas.' }
-        ]
-      },
-      13: {
-        subtitle: 'Match skills to project needs.',
-        steps: [
-          { title: 'Analyze project', desc: 'Reads git history and code analysis to find test gaps, stale docs, open issues, bugspots, and areas with low bus factor.' },
-          { title: 'Match skills', desc: 'Asks about your experience and interests. Matches your skills to areas where you can make the most impact.' },
-          { title: 'Suggest tasks', desc: 'Presents ranked list of good-first tasks, documentation fixes, test gaps, and contribution opportunities.' }
-        ]
-      },
-      17: {
-        subtitle: 'Issues in. Landed PRs out.',
-        steps: [
-          { title: 'Pick and claim', desc: 'Checks host capacity, picks the next ready issue (urgent first, then oldest) and claims it on GitHub.' },
-          { title: 'Brief a worker', desc: 'Spawns one worktree subagent per issue from its brief. Revuto reviews each PR; every real finding gets fixed.' },
-          { title: 'Land', desc: 'Runs the repo land command and squash-merges at the exact head it checked. GitHub labels and comments are the only state.' }
         ]
       }
     };

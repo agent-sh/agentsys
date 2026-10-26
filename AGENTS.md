@@ -14,8 +14,8 @@ Marketplace, installer and shared library for the agent-sh plugins. Works on Cla
    - Release: `checklists/release.md`
    - New command, agent, skill or lib module: `checklists/new-command.md`, `checklists/new-agent.md`, `checklists/new-skill.md`, `checklists/new-lib-module.md`
    - OpenCode plugin update: `checklists/update-opencode-plugin.md`
-   - `lib/repo-intel`, `lib/repo-map` or `lib/collectors` changes: `checklists/repo-intel.md`
-7. Work is done when every item of that checklist is done. That includes running `/enhance` on new or changed commands, agents, skills, hooks or prompts, checking OpenCode and Codex compatibility, and updating the `bin/cli.js` mappings for a new command or agent. The pre-push hook asks for the `/enhance` confirmation (`ENHANCE_CONFIRMED=1` in non-interactive runs).
+   - `lib/repo-intel` changes: `checklists/repo-intel.md`
+7. Work is done when every item of that checklist is done. That includes linting new or changed commands, agents, skills, hooks or prompts with agnix (`npx agnix <path>`), checking OpenCode and Codex compatibility, and updating the `bin/cli.js` mappings for a new command or agent. The pre-push hook runs agnix on the changed agent configs and blocks the push on an error.
 8. Status output uses the plain-text markers `[OK]`, `[ERROR]`, `[WARN]`, `[CRITICAL]` and markdown, with no emojis or ASCII-art boxes: they cost tokens and parse worse.
 9. gh and git on Windows: escape `$` as `\$` in GraphQL queries, avoid `!=` in jq (use `== "A" or == "B"`), and prefer double quotes with escaped inner quotes over single quotes. `gh pr checks` reports `state` (`SUCCESS`, `FAILURE`, `PENDING`), not `conclusion`. The Windows shell treats `$` and `!` differently and these fail silently.
 10. Run the pre-commit and pre-push hooks; when one blocks, fix the reported cause and retry.
@@ -29,7 +29,7 @@ In prose, write ` - ` (a single dash with spaces), not an em dash or a doubled d
 <!-- GEN:START:claude-architecture -->
 ```
 lib/          → Shared library (vendored to plugins)
-plugins/      → 21 plugins, 38 agents (28 file-based + 10 role-based), 42 skills
+plugins/      → 11 plugins, 5 agents, 14 skills
 adapters/     → Platform adapters (opencode-plugin/, opencode/, codex/)
 checklists/   → Action checklists (9 files)
 bin/cli.js    → npm CLI installer
@@ -37,24 +37,14 @@ bin/cli.js    → npm CLI installer
 
 | Plugin | Agents | Skills | Purpose |
 |--------|--------|--------|---------|
-| prepare-delivery | 3 | 4 | Pre-ship quality gates |
+| foreman | 0 | 1 | GitHub issue queue for native agents |
 | deslop | 1 | 1 | AI slop cleanup |
-| audit-project | 10 | 1 | Multi-agent code review |
-| drift-detect | 1 | 1 | Plan drift detection |
-| enhance | 8 | 9 | Code quality analyzers |
-| sync-docs | 1 | 1 | Documentation sync |
 | banthis | 0 | 1 | Durable negative behavior memory |
-| perf | 6 | 8 | Performance investigation |
 | learn | 1 | 1 | Topic research and learning guides |
 | agnix | 1 | 1 | Agent config linting |
-| consult | 1 | 1 | Cross-tool AI consultation |
-| debate | 1 | 1 | Multi-perspective debate analysis |
 | skill-curator | 0 | 1 | Skill authoring and review |
 | system-prompt-curator | 0 | 1 | System prompt curation |
 | skillers | 2 | 2 | Workflow pattern learning |
-| onboard | 1 | 1 | Codebase onboarding |
-| can-i-help | 1 | 1 | Contributor guidance |
-| foreman | 0 | 1 | GitHub issue queue for native agents |
 | zig-lsp | 0 | 0 |  |
 | mojo | 0 | 1 |  |
 | ada-spark | 0 | 1 |  |
@@ -90,7 +80,6 @@ Model families: opus (Claude Opus 5.5) for judgment where errors compound, sonne
 | File | Location | Purpose |
 |------|----------|---------|
 | `flow.json` | `{stateDir}/` (worktree) | Workflow progress |
-| `suppressions.json` | `~/.<claude\|opencode\|codex>/enhance/` | Auto-learned suppressions |
 
 `stateDir` is `.claude/`, `.opencode/`, `.codex/`, `.cursor/` or `.kiro/` by platform.
 

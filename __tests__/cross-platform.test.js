@@ -32,7 +32,6 @@ const {
   getStateDir,
   detectPlatform,
   getPluginRoot,
-  getSuppressionPath,
 
   // Tool schema
   TOOL_SCHEMA_GUIDELINES,
@@ -173,20 +172,20 @@ describe('cross-platform', () => {
 
     it('should return PLUGIN_ROOT regardless of pluginName when env var is set', () => {
       process.env.PLUGIN_ROOT = '/custom/root';
-      expect(getPluginRoot('enhance')).toBe('/custom/root');
       expect(getPluginRoot('deslop')).toBe('/custom/root');
+      expect(getPluginRoot('learn')).toBe('/custom/root');
     });
 
     it('should search plugin cache directories when PLUGIN_ROOT not set', () => {
       delete process.env.PLUGIN_ROOT;
       const home = os.homedir();
-      const searchPath = path.join(home, '.claude', 'plugins', 'cache', 'agentsys', 'enhance');
+      const searchPath = path.join(home, '.claude', 'plugins', 'cache', 'agentsys', 'deslop');
 
       fs.existsSync.mockReturnValue(true);
       fs.readdirSync.mockReturnValue(['1.0.0', '2.0.0', '1.5.0']);
       fs.statSync.mockReturnValue({ isDirectory: () => true });
 
-      const result = getPluginRoot('enhance');
+      const result = getPluginRoot('deslop');
 
       expect(fs.existsSync).toHaveBeenCalledWith(searchPath);
       expect(result).toBe(path.join(searchPath, '2.0.0'));
@@ -200,7 +199,7 @@ describe('cross-platform', () => {
       fs.readdirSync.mockReturnValue(['0.9.0', '1.2.3', '1.10.0', '1.9.9']);
       fs.statSync.mockReturnValue({ isDirectory: () => true });
 
-      const result = getPluginRoot('enhance');
+      const result = getPluginRoot('deslop');
 
       // Sorted by semver, '1.10.0' is latest (greater than 1.9.9)
       expect(result).toContain('1.10.0');
@@ -211,7 +210,7 @@ describe('cross-platform', () => {
 
       fs.existsSync.mockReturnValue(false);
 
-      const result = getPluginRoot('enhance');
+      const result = getPluginRoot('deslop');
 
       expect(result).toBeNull();
     });
@@ -222,7 +221,7 @@ describe('cross-platform', () => {
       fs.existsSync.mockReturnValue(true);
       fs.readdirSync.mockReturnValue([]);
 
-      const result = getPluginRoot('enhance');
+      const result = getPluginRoot('deslop');
 
       expect(result).toBeNull();
     });
@@ -237,64 +236,35 @@ describe('cross-platform', () => {
         isDirectory: () => !p.endsWith('README.md')
       }));
 
-      const result = getPluginRoot('enhance');
+      const result = getPluginRoot('deslop');
 
       expect(result).toContain('2.0.0');
     });
 
-    it('should use default plugin name "enhance" when not provided', () => {
+    it('should return null without a plugin name when PLUGIN_ROOT is not set', () => {
       delete process.env.PLUGIN_ROOT;
-      const home = os.homedir();
 
-      fs.existsSync.mockReturnValue(false);
+      fs.existsSync.mockReturnValue(true);
 
-      getPluginRoot();
-
-      const expectedPath = path.join(home, '.claude', 'plugins', 'cache', 'agentsys', 'enhance');
-      expect(fs.existsSync).toHaveBeenCalledWith(expectedPath);
+      expect(getPluginRoot()).toBeNull();
+      expect(fs.existsSync).not.toHaveBeenCalled();
     });
 
     it('should search secondary path when primary not found', () => {
       delete process.env.PLUGIN_ROOT;
       const home = os.homedir();
-      const primaryPath = path.join(home, '.claude', 'plugins', 'cache', 'agentsys', 'enhance');
-      const secondaryPath = path.join(home, '.claude', 'plugins', 'agentsys', 'enhance');
+      const primaryPath = path.join(home, '.claude', 'plugins', 'cache', 'agentsys', 'deslop');
+      const secondaryPath = path.join(home, '.claude', 'plugins', 'agentsys', 'deslop');
 
       fs.existsSync.mockImplementation((p) => p === secondaryPath);
       fs.readdirSync.mockReturnValue(['1.0.0']);
       fs.statSync.mockReturnValue({ isDirectory: () => true });
 
-      const result = getPluginRoot('enhance');
+      const result = getPluginRoot('deslop');
 
       expect(fs.existsSync).toHaveBeenCalledWith(primaryPath);
       expect(fs.existsSync).toHaveBeenCalledWith(secondaryPath);
       expect(result).toBe(path.join(secondaryPath, '1.0.0'));
-    });
-  });
-
-  describe('getSuppressionPath', () => {
-    it('should return correct path for Claude Code', () => {
-      delete process.env.AI_STATE_DIR;
-      const home = os.homedir();
-      const expected = path.join(home, '.claude', 'enhance', 'suppressions.json');
-
-      expect(getSuppressionPath()).toBe(expected);
-    });
-
-    it('should return correct path for OpenCode', () => {
-      process.env.AI_STATE_DIR = '.opencode';
-      const home = os.homedir();
-      const expected = path.join(home, '.opencode', 'enhance', 'suppressions.json');
-
-      expect(getSuppressionPath()).toBe(expected);
-    });
-
-    it('should return correct path for Codex CLI', () => {
-      process.env.AI_STATE_DIR = '.codex';
-      const home = os.homedir();
-      const expected = path.join(home, '.codex', 'enhance', 'suppressions.json');
-
-      expect(getSuppressionPath()).toBe(expected);
     });
   });
 
@@ -833,11 +803,6 @@ describe('cross-platform', () => {
       it('should return correct instruction files', () => {
         expect(getInstructionFiles()).toEqual(['AGENTS.md', 'CLAUDE.md']);
       });
-
-      it('should return correct suppression path', () => {
-        const home = os.homedir();
-        expect(getSuppressionPath()).toBe(path.join(home, '.opencode', 'enhance', 'suppressions.json'));
-      });
     });
 
     describe('Codex CLI environment', () => {
@@ -852,11 +817,6 @@ describe('cross-platform', () => {
 
       it('should return correct instruction files', () => {
         expect(getInstructionFiles()).toEqual(['AGENTS.md', 'AGENTS.override.md']);
-      });
-
-      it('should return correct suppression path', () => {
-        const home = os.homedir();
-        expect(getSuppressionPath()).toBe(path.join(home, '.codex', 'enhance', 'suppressions.json'));
       });
     });
 

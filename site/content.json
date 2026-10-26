@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "agentsys",
-    "description": "A modular runtime and orchestration system for AI agents. 21 plugins, 38 agents, 42 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.",
+    "description": "A modular runtime and orchestration system for AI agents. 11 plugins, 5 agents, 14 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.",
     "url": "https://agent-sh.github.io/agentsys",
     "repo": "https://github.com/agent-sh/agentsys",
     "npm": "https://www.npmjs.com/package/agentsys",
@@ -23,22 +23,22 @@
   },
   "stats": [
     {
-      "value": "21",
+      "value": "11",
       "label": "Plugins",
       "suffix": ""
     },
     {
-      "value": "38",
+      "value": "5",
       "label": "Agents",
       "suffix": ""
     },
     {
-      "value": "42",
+      "value": "14",
       "label": "Skills",
       "suffix": ""
     },
     {
-      "value": "30k",
+      "value": "13k",
       "label": "Lines of Lib Code",
       "suffix": ""
     },
@@ -63,7 +63,7 @@
   },
   "approach": {
     "title": "Code does code work. AI does AI work.",
-    "description": "Detection uses regex, AST analysis, and static analysis - fast, deterministic, no tokens wasted. Judgment uses LLM calls for synthesis, planning, and review - where reasoning matters. Result: 77% fewer tokens for drift-detect vs multi-agent approaches.",
+    "description": "Detection uses regex, AST analysis, and static analysis - fast, deterministic, no tokens wasted. Judgment uses LLM calls for synthesis, planning, and review - where reasoning matters.",
     "certainty_levels": [
       {
         "level": "HIGH",
@@ -83,13 +83,6 @@
     ]
   },
   "commands": [
-    {
-      "name": "/prepare-delivery",
-      "tagline": "Pre-ship quality gates",
-      "description": "Pre-ship quality gates: deslop, simplify, review loop, delivery validation, docs sync",
-      "example": "/prepare-delivery",
-      "category": "workflow"
-    },
     {
       "name": "/foreman",
       "tagline": "GitHub issues as a task queue",
@@ -119,60 +112,11 @@
       "category": "analysis"
     },
     {
-      "name": "/perf",
-      "tagline": "Evidence-backed performance investigation",
-      "description": "10-phase methodology with baselines, breaking point analysis, hypothesis generation, profiling, and controlled experiments. Based on recorded real investigation sessions.",
-      "example": "/perf",
-      "category": "analysis"
-    },
-    {
-      "name": "/drift-detect",
-      "tagline": "Find what's documented but not built",
-      "description": "AST-based plan vs code analysis. JavaScript collectors gather data fast, one Opus call does semantic matching. Tested on 1,000+ repositories. 77% token reduction vs multi-agent approaches.",
-      "example": "/drift-detect",
-      "category": "analysis"
-    },
-    {
-      "name": "/audit-project",
-      "tagline": "Multi-agent code review that iterates until clean",
-      "description": "Up to 10 specialized agents (security, performance, architecture, database, API, frontend, backend, DevOps) run based on your project. Iterates until zero open issues remain.",
-      "example": "/audit-project",
-      "category": "analysis"
-    },
-    {
-      "name": "/enhance",
-      "tagline": "Analyze everything that shapes agent behavior",
-      "description": "Eight parallel analyzers check your prompts, agents, plugins, docs, hooks, and skills. Certainty-graded findings with auto-fix support. Auto-learns false positives over time.",
-      "example": "/enhance",
-      "category": "analysis"
-    },
-    {
-      "name": "/sync-docs",
-      "tagline": "Keep docs in sync with code",
-      "description": "Finds outdated references, stale examples, missing CHANGELOG entries, and version mismatches. Auto-fixes safe issues like version numbers and CHANGELOG entries.",
-      "example": "/sync-docs apply",
-      "category": "maintenance"
-    },
-    {
       "name": "/learn",
       "tagline": "Research any topic, build a learning guide",
       "description": "Progressive discovery gathers 10-40 online sources, scores them by quality, and synthesizes a structured guide with RAG index. Creates reusable knowledge in agent-knowledge/.",
       "example": "/learn react hooks --depth=deep",
       "category": "learning"
-    },
-    {
-      "name": "/consult",
-      "tagline": "Get a second opinion from another AI tool",
-      "description": "Cross-tool AI consultation via ACP (Agent Client Protocol). Ask Gemini, Codex, Claude, OpenCode, Copilot, or Kiro for a second opinion. Supports ACP and CLI transports, session continuations, context injection, and user-extensible provider registry.",
-      "example": "/consult \"Is this the right approach?\" --tool=gemini --effort=high",
-      "category": "analysis"
-    },
-    {
-      "name": "/debate",
-      "tagline": "Structured adversarial debate between AI tools",
-      "description": "Multi-round structured debates between any two AI tools as proposer and challenger. Evidence-backed arguments, mandatory counterpoints, and a verdict from the orchestrator. Supports ACP transport for Kiro participation.",
-      "example": "/debate claude vs kiro about microservices vs monolith",
-      "category": "analysis"
     },
     {
       "name": "/skillers",
@@ -194,26 +138,12 @@
       "description": "Create and improve system prompts with task-matched identity, phased workflows, explicit tools, evidence-based completion criteria, and error recovery examples.",
       "example": "/system-prompt-curator \"GitHub issue resolver\"",
       "category": "maintenance"
-    },
-    {
-      "name": "/onboard",
-      "tagline": "Oriented in any codebase in 3 minutes",
-      "description": "Pure JS collector pre-structures project data (68ms median, 74% token savings vs manual), then Opus synthesizes a guided tour. Validated on 100 repos across 8 languages. Supports 12 manifest types and monorepo detection.",
-      "example": "/onboard",
-      "category": "learning"
-    },
-    {
-      "name": "/can-i-help",
-      "tagline": "Match contributor skills to project needs",
-      "description": "Collects 5 contributor signals (good-first areas, test gaps, doc drift, bugspots, open issues), asks about developer background, then recommends specific areas with concrete first steps.",
-      "example": "/can-i-help",
-      "category": "learning"
     }
   ],
   "philosophy": [
     {
       "title": "One agent, one job, done extremely well",
-      "description": "Same principle as good code: single responsibility. The deslop-agent cleans. The delivery-validator checks requirements. Specialized agents with narrow scope and clear success criteria."
+      "description": "Same principle as good code: single responsibility. The deslop-agent cleans. The learn-agent researches. Specialized agents with narrow scope and clear success criteria."
     },
     {
       "title": "Pipeline with gates, not a monolith",
@@ -229,11 +159,11 @@
     },
     {
       "title": "Validate plan and results, not every step",
-      "description": "Approve the plan. See the results. The middle is automated. Gates run cleanup, review, validation, and docs sync without a prompt at each step."
+      "description": "Approve the plan. See the results. The middle is automated. /foreman picks the issue, briefs the worker, reads the review and lands the PR without a prompt at each step."
     },
     {
       "title": "Composable, not monolithic",
-      "description": "Every command works standalone. /deslop cleans code without /prepare-delivery. /prepare-delivery runs the gates without pushing. Pieces compose together, but each piece is useful on its own."
+      "description": "Every command works standalone. /deslop cleans code without /foreman. /foreman works the issue queue without any other plugin. Pieces compose together, but each piece is useful on its own."
     }
   ],
   "installation": {
@@ -246,7 +176,7 @@
       ],
       "commands": [
         "/plugin marketplace add agent-sh/agentsys",
-        "/plugin install prepare-delivery@agentsys"
+        "/plugin install foreman@agentsys"
       ]
     },
     "npm": {
@@ -291,25 +221,12 @@
     }
   },
   "agents": {
-    "total": 38,
-    "file_based": 28,
-    "role_based": 10,
+    "total": 5,
     "by_model": [
       {
         "model": "Opus",
         "use_case": "Complex reasoning, analysis",
         "agents": [
-          "perf-orchestrator",
-          "perf-analyzer",
-          "perf-theory-gatherer",
-          "perf-theory-tester",
-          "agent-enhancer",
-          "claudemd-enhancer",
-          "docs-enhancer",
-          "hooks-enhancer",
-          "prompt-enhancer",
-          "skills-enhancer",
-          "debate-orchestrator",
           "skillers-recommender"
         ]
       },
@@ -317,22 +234,10 @@
         "model": "Sonnet",
         "use_case": "Validation, pattern matching",
         "agents": [
-          "prepare-delivery-agent",
-          "delivery-validator",
-          "test-coverage-checker",
           "deslop-agent",
-          "cross-file-enhancer",
-          "plugin-enhancer",
-          "perf-code-paths",
-          "perf-investigation-logger",
-          "plan-synthesizer",
           "learn-agent",
-          "sync-docs-agent",
           "agnix-agent",
-          "consult-agent",
-          "skillers-compactor",
-          "onboard-agent",
-          "can-i-help-agent"
+          "skillers-compactor"
         ]
       }
     ]
@@ -416,9 +321,7 @@
   ],
   "research": {
     "knowledge_base": "8,000 lines of curated documentation from Anthropic, OpenAI, Google, and Microsoft",
-    "testing": "Test suite runs on Linux and Windows",
-    "drift_detect_repos": "1,000+ repositories validated",
-    "token_reduction": "77% fewer tokens for drift-detect vs multi-agent approaches"
+    "testing": "Test suite runs on Linux and Windows"
   },
   "footer": {
     "license": "MIT",
