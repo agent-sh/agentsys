@@ -432,7 +432,7 @@ describe('loadMarketplace', () => {
     // These are unlikely to ever be removed - if any of them is, the
     // change deserves an explicit, visible test update.
     const names = marketplace.plugins.map(p => p.name);
-    for (const required of ['prepare-delivery', 'ship', 'agnix']) {
+    for (const required of ['prepare-delivery', 'deslop', 'agnix']) {
       expect(names).toContain(required);
     }
   });
@@ -449,29 +449,29 @@ describe('loadMarketplace', () => {
 
 describe('resolvePluginSource', () => {
   test('supports legacy string URL sources', () => {
-    expect(resolvePluginSource('https://github.com/agent-sh/ship.git')).toEqual({
+    expect(resolvePluginSource('https://github.com/agent-sh/deslop.git')).toEqual({
       type: 'remote',
-      value: 'https://github.com/agent-sh/ship.git'
+      value: 'https://github.com/agent-sh/deslop.git'
     });
   });
 
   test('supports structured URL source objects', () => {
     expect(resolvePluginSource({
       source: 'url',
-      url: 'https://github.com/agent-sh/ship.git'
+      url: 'https://github.com/agent-sh/deslop.git'
     })).toEqual({
       type: 'remote',
-      value: 'https://github.com/agent-sh/ship.git'
+      value: 'https://github.com/agent-sh/deslop.git'
     });
   });
 
   test('classifies local path sources as local', () => {
     expect(resolvePluginSource({
       source: 'path',
-      path: './plugins/ship'
+      path: './plugins/deslop'
     })).toEqual({
       type: 'local',
-      value: './plugins/ship'
+      value: './plugins/deslop'
     });
   });
 
@@ -481,12 +481,12 @@ describe('resolvePluginSource', () => {
   test('takes the commit pin from sha, the key Claude Code installs', () => {
     expect(resolvePluginSource({
       source: 'url',
-      url: 'https://github.com/agent-sh/ship.git',
+      url: 'https://github.com/agent-sh/deslop.git',
       ref: 'v1.0.0',
       sha: SHA_A
     })).toEqual({
       type: 'remote',
-      value: 'https://github.com/agent-sh/ship.git',
+      value: 'https://github.com/agent-sh/deslop.git',
       commit: SHA_A,
       ref: 'v1.0.0'
     });
@@ -495,7 +495,7 @@ describe('resolvePluginSource', () => {
   test('prefers sha over commit when they differ', () => {
     expect(resolvePluginSource({
       source: 'url',
-      url: 'https://github.com/agent-sh/ship.git',
+      url: 'https://github.com/agent-sh/deslop.git',
       commit: SHA_B,
       sha: SHA_A
     })).toMatchObject({ commit: SHA_A });
@@ -504,12 +504,12 @@ describe('resolvePluginSource', () => {
   test('falls back to commit when there is no sha', () => {
     expect(resolvePluginSource({
       source: 'url',
-      url: 'https://github.com/agent-sh/ship.git',
+      url: 'https://github.com/agent-sh/deslop.git',
       commit: SHA_B
     })).toMatchObject({ commit: SHA_B });
     expect(resolvePluginSource({
       source: 'url',
-      url: 'https://github.com/agent-sh/ship.git',
+      url: 'https://github.com/agent-sh/deslop.git',
       commit: SHA_B,
       sha: '  '
     })).toMatchObject({ commit: SHA_B });
@@ -518,18 +518,18 @@ describe('resolvePluginSource', () => {
 
 describe('parseGitHubSource', () => {
   test('normalizes .git suffix in https URLs', () => {
-    expect(parseGitHubSource('https://github.com/agent-sh/ship.git', '1.0.0')).toEqual({
+    expect(parseGitHubSource('https://github.com/agent-sh/deslop.git', '1.0.0')).toEqual({
       owner: 'agent-sh',
-      repo: 'ship',
+      repo: 'deslop',
       ref: 'v1.0.0',
       explicitRef: false
     });
   });
 
   test('preserves explicit refs', () => {
-    expect(parseGitHubSource('https://github.com/agent-sh/ship.git#main', '1.0.0')).toEqual({
+    expect(parseGitHubSource('https://github.com/agent-sh/deslop.git#main', '1.0.0')).toEqual({
       owner: 'agent-sh',
-      repo: 'ship',
+      repo: 'deslop',
       ref: 'main',
       explicitRef: true
     });

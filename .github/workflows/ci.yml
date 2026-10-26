@@ -44,6 +44,9 @@ jobs:
       - name: Validate adapter freshness
         run: node scripts/gen-adapters.js --check
 
+      - name: Validate plugin list freshness
+        run: node scripts/generate-plugin-list.js --check
+
   agnix:
     # SHA pin to agent-sh/.github main. Update by running:
     #   gh api repos/agent-sh/.github/commits/main --jq .sha

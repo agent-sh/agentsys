@@ -49,12 +49,10 @@ const CATEGORY_MAP = {
   'perf': 'Performance',
   'enhance': 'Enhancement',
   'prepare-delivery': 'Workflow',
-  'gate-and-ship': 'Workflow',
   'foreman': 'Workflow',
   'deslop': 'Cleanup',
   'sync-docs': 'Cleanup',
   'drift-detect': 'Analysis',
-  'repo-intel': 'Analysis',
   'banthis': 'Memory',
   'learn': 'AI Collaboration',
   'agnix': 'Linting',
@@ -63,7 +61,6 @@ const CATEGORY_MAP = {
   'skillers': 'AI Collaboration',
   'skill-curator': 'Enhancement',
   'system-prompt-curator': 'Enhancement',
-  'ship': 'Release',
   'onboard': 'Onboarding',
   'can-i-help': 'Onboarding',
   'audit-project': 'Code Review',
@@ -99,12 +96,10 @@ const STATIC_SKILLS = [
   { plugin: 'deslop', name: 'deslop' },
   { plugin: 'sync-docs', name: 'sync-docs' },
   { plugin: 'drift-detect', name: 'drift-analysis' },
-  { plugin: 'repo-intel', name: 'repo-intel' },
   { plugin: 'banthis', name: 'banthis' },
   { plugin: 'consult', name: 'consult' },
   { plugin: 'debate', name: 'debate' },
   { plugin: 'learn', name: 'learn' },
-  { plugin: 'ship', name: 'release' },
   { plugin: 'skill-curator', name: 'skill-curator' },
   { plugin: 'system-prompt-curator', name: 'system-prompt-curator' },
   { plugin: 'skillers', name: 'skillers-compact' },
@@ -123,14 +118,11 @@ const STATIC_SKILLS = [
 // Purpose mapping for architecture table
 const PURPOSE_MAP = {
   'prepare-delivery': 'Pre-ship quality gates',
-  'gate-and-ship': 'Quality gates then ship',
   'enhance': 'Code quality analyzers',
-  'ship': 'PR creation and deployment',
   'perf': 'Performance investigation',
   'audit-project': 'Multi-agent code review',
   'deslop': 'AI slop cleanup',
   'drift-detect': 'Plan drift detection',
-  'repo-intel': 'Unified static analysis',
   'sync-docs': 'Documentation sync',
   'banthis': 'Durable negative behavior memory',
   'learn': 'Topic research and learning guides',
@@ -189,11 +181,11 @@ function generateCommandsTable(commands) {
 
   // Curated display order (featured commands first, then alphabetical)
   const COMMAND_ORDER = [
-    'prepare-delivery', 'gate-and-ship',
-    'banthis', 'agnix', 'ship', 'deslop', 'perf',
+    'prepare-delivery',
+    'banthis', 'agnix', 'deslop', 'perf',
     'drift-detect', 'audit-project', 'enhance',
-    'repo-intel', 'sync-docs', 'learn', 'consult',
-    'debate', 'release', 'skillers',
+    'sync-docs', 'learn', 'consult',
+    'debate', 'skillers',
     'skill-curator', 'system-prompt-curator',
     'onboard', 'can-i-help', 'foreman'
   ];
@@ -201,21 +193,17 @@ function generateCommandsTable(commands) {
   // Command descriptions for the table (short, human-written summaries)
   const COMMAND_SUMMARIES = {
     'prepare-delivery': 'Pre-ship quality gates: deslop, review, validation, docs sync',
-    'gate-and-ship': 'Quality gates then ship (/prepare-delivery + /ship)',
     'banthis': 'Durable negative memory: persist banned agent behaviors',
     'agnix': 'Lint agent configurations (457 rules)',
-    'ship': 'PR creation, CI monitoring, merge',
     'deslop': 'Clean AI slop patterns',
     'perf': 'Performance investigation with baselines and profiling',
     'drift-detect': 'Compare plan vs implementation',
     'audit-project': 'Multi-agent iterative code review',
     'enhance': 'Plugin, agent, and prompt analyzers',
-    'repo-intel': 'Unified static analysis - git history, AST symbols, project metadata',
     'sync-docs': 'Sync documentation with code changes',
     'learn': 'Research topics, create learning guides',
     'consult': 'Cross-tool AI consultation',
     'debate': 'Structured debate between AI tools',
-    'release': 'Versioned release with ecosystem detection',
     'skillers': 'Workflow pattern learning and automation',
     'skill-curator': 'Create and improve reliable SKILL.md files',
     'system-prompt-curator': 'Create and improve autonomous agent system prompts',
@@ -279,7 +267,7 @@ function generateSkillsTable(skills) {
   const categoryOrder = [
     'Workflow', 'Message Queues', 'Enhancement', 'Performance', 'Cleanup',
     'Code Review', 'AI Collaboration', 'Onboarding',
-    'Web', 'Release', 'Analysis', 'Memory', 'Linting', 'Languages', 'Other'
+    'Analysis', 'Memory', 'Linting', 'Languages', 'Other'
   ];
 
   const lines = [
@@ -432,14 +420,11 @@ function generateAgentCounts(agents, plugins) {
 // in a plugin repo - it's the canonical source for the STATIC_AGENT_COUNT fallback.
 const STATIC_PLUGIN_AGENT_COUNTS = {
   'prepare-delivery': 3,
-  'gate-and-ship': 0,
-  'ship': 1,
   'deslop': 1,
   'audit-project': 0,
   'drift-detect': 1,
   'enhance': 8,
   'sync-docs': 1,
-  'repo-intel': 3,
   'banthis': 0,
   'perf': 6,
   'learn': 1,

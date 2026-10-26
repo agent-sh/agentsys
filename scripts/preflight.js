@@ -22,7 +22,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto');
 const { execSync } = require('child_process');
 
 const ROOT_DIR = path.join(__dirname, '..');
@@ -39,7 +38,7 @@ const CHECKLIST_PATTERNS = {
   'new-skill': ['plugins/*/skills/'],
   'new-lib-module': ['lib/'],
   'release': ['package.json'],
-  'repo-intel': ['plugins/repo-intel/', 'lib/repo-map/'],
+  'repo-intel': ['lib/repo-intel/', 'lib/repo-map/', 'lib/collectors/'],
   'opencode-plugin': ['adapters/opencode-plugin/'],
   'cross-platform': [] // triggered when any plugin/ or lib/ file changes
 };
@@ -571,147 +570,6 @@ function checkLibIndexExports() {
 }
 
 /**
- * e) Compare MD5 hashes of files in lib/ with their copies in
- *    each plugin's lib/ directory. Flag any mismatches indicating
- *    lib is out of sync.
- */
-function checkLibPluginSync(changedFiles, options) {
-  // Only run if lib/ or plugins/*/lib/ files changed (or --all)
-  if (!options.all && !options.release) {
-    const libChanged = changedFiles.some(f =>
-      (f.startsWith('lib/') && !f.includes('node_modules')) ||
-      /^plugins\/[^/]+\/lib\//.test(f)
-    );
-    if (!libChanged) {
-      return {
-        name: 'gap:lib-plugin-sync',
-        status: 'skip',
-        message: 'No lib/ changes detected'
-      };
-    }
-  }
-
-  const libDir = path.join(ROOT_DIR, 'lib');
-  const pluginsDir = path.join(ROOT_DIR, 'plugins');
-  const mismatches = [];
-
-  // Post-extraction: plugins/ no longer exists, sync handled by agent-core
-  if (!fs.existsSync(pluginsDir)) {
-    return {
-      name: 'gap:lib-plugin-sync',
-      status: 'pass',
-      message: 'Plugins extracted to standalone repos (agent-core handles sync)'
-    };
-  }
-
-  if (!fs.existsSync(libDir)) {
-    return {
-      name: 'gap:lib-plugin-sync',
-      status: 'error',
-      message: 'lib/ directory not found'
-    };
-  }
-
-  // Build file info map for all files in lib/ (path -> {mtime, size})
-  const libFiles = {};
-
-  function collectFilesRecursive(dir, relativeTo) {
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      if (EXCLUDED_DIRS.includes(entry.name)) continue;
-      const fullPath = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        collectFilesRecursive(fullPath, relativeTo);
-      } else if (entry.isFile()) {
-        const relPath = path.relative(relativeTo, fullPath);
-        const stat = fs.statSync(fullPath);
-        libFiles[relPath] = { fullPath, mtime: stat.mtimeMs, size: stat.size };
-      }
-    }
-  }
-
-  collectFilesRecursive(libDir, libDir);
-
-  // Exclude package.json - only belongs to lib/ root, not synced to plugins
-  delete libFiles['package.json'];
-
-  // Compare with each plugin's lib/ directory using mtime+size first, hash only on mismatch
-  const plugins = fs.readdirSync(pluginsDir).filter(f => {
-    const stat = fs.statSync(path.join(pluginsDir, f));
-    return stat.isDirectory();
-  });
-
-  for (const plugin of plugins) {
-    const pluginLibDir = path.join(pluginsDir, plugin, 'lib');
-    if (!fs.existsSync(pluginLibDir)) continue;
-
-    for (const [relPath, libInfo] of Object.entries(libFiles)) {
-      const pluginFilePath = path.join(pluginLibDir, relPath);
-      if (!fs.existsSync(pluginFilePath)) {
-        mismatches.push(`${plugin}/lib/${relPath}: missing (exists in lib/)`);
-        continue;
-      }
-
-      const pluginStat = fs.statSync(pluginFilePath);
-
-      // Quick check: if size matches and mtime is identical, skip hash
-      if (pluginStat.size === libInfo.size && pluginStat.mtimeMs === libInfo.mtime) {
-        continue;
-      }
-
-      // Size mismatch is a definite mismatch
-      if (pluginStat.size !== libInfo.size) {
-        mismatches.push(`${plugin}/lib/${relPath}: size mismatch`);
-        continue;
-      }
-
-      // Same size but different mtime: compare by hash
-      const libContent = fs.readFileSync(libInfo.fullPath);
-      const pluginContent = fs.readFileSync(pluginFilePath);
-      const libHash = crypto.createHash('md5').update(libContent).digest('hex');
-      const pluginHash = crypto.createHash('md5').update(pluginContent).digest('hex');
-      if (pluginHash !== libHash) {
-        mismatches.push(`${plugin}/lib/${relPath}: content mismatch`);
-      }
-    }
-
-    // Reverse check: detect stale files in plugin lib/ that don't exist in lib/
-    function checkStaleFiles(dir, relativeTo) {
-      if (!fs.existsSync(dir)) return;
-      const entries = fs.readdirSync(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        if (EXCLUDED_DIRS.includes(entry.name)) continue;
-        const fullPath = path.join(dir, entry.name);
-        if (entry.isDirectory()) {
-          checkStaleFiles(fullPath, relativeTo);
-        } else if (entry.isFile()) {
-          const relPath = path.relative(relativeTo, fullPath);
-          if (!libFiles[relPath]) {
-            mismatches.push(`${plugin}/lib/${relPath}: stale (not in lib/)`);
-          }
-        }
-      }
-    }
-    checkStaleFiles(pluginLibDir, pluginLibDir);
-  }
-
-  if (mismatches.length === 0) {
-    return {
-      name: 'gap:lib-plugin-sync',
-      status: 'pass',
-      message: 'lib/ and plugins/*/lib/ are in sync'
-    };
-  }
-
-  return {
-    name: 'gap:lib-plugin-sync',
-    status: 'fail',
-    message: `${mismatches.length} file(s) out of sync between lib/ and plugins/*/lib/`,
-    details: mismatches.slice(0, 20) // Cap detail output
-  };
-}
-
-/**
  * f) For changed files matching lib/{name}/, check if __tests__/ has a
  *    corresponding test file. Only applies to new lib modules.
  */
@@ -771,18 +629,6 @@ function checkTestFileExistence(changedFiles) {
     status: 'warn',
     message: `${missing.length} new lib module(s) missing test files`,
     details: missing
-  };
-}
-
-/**
- * g) Lib sync check - no longer needed since agent-core handles sync.
- *    Kept as a pass-through for backward compatibility with check runners.
- */
-function checkLibStagedTogether() {
-  return {
-    name: 'gap:lib-staged-together',
-    status: 'pass',
-    message: 'lib/ sync handled by agent-core (no local check needed)'
   };
 }
 
@@ -882,6 +728,38 @@ function checkAdapterFreshness() {
   }
 }
 
+/**
+ * k) Check that scripts/plugins.txt matches .claude-plugin/marketplace.json.
+ *    Uses generate-plugin-list.js checkFreshness().
+ */
+function checkPluginListFreshness() {
+  try {
+    const { checkFreshness } = require(path.join(ROOT_DIR, 'scripts', 'generate-plugin-list.js'));
+    const result = checkFreshness();
+
+    if (result.status === 'fresh') {
+      return {
+        name: 'gap:plugin-list-freshness',
+        status: 'pass',
+        message: result.message
+      };
+    }
+
+    return {
+      name: 'gap:plugin-list-freshness',
+      status: 'fail',
+      message: result.message,
+      details: result.staleFiles.map(f => `${f}: plugin list out of date`)
+    };
+  } catch (err) {
+    return {
+      name: 'gap:plugin-list-freshness',
+      status: 'error',
+      message: `Failed to check plugin list freshness: ${err.message}`
+    };
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Gap check orchestrator
 // ---------------------------------------------------------------------------
@@ -917,21 +795,9 @@ function runGapChecks(relevantChecklists, changedFiles, options) {
     results.push(checkLibIndexExports());
   }
 
-  // lib/plugin sync: relevant to new-lib-module, cross-platform, release
-  if (runAll || relevantChecklists.has('new-lib-module') ||
-      relevantChecklists.has('cross-platform') || relevantChecklists.has('release')) {
-    results.push(checkLibPluginSync(changedFiles, options));
-  }
-
   // test file existence: relevant to new-lib-module
   if (runAll || relevantChecklists.has('new-lib-module')) {
     results.push(checkTestFileExistence(changedFiles));
-  }
-
-  // lib staged together: always useful when lib is touched
-  if (runAll || relevantChecklists.has('new-lib-module') ||
-      relevantChecklists.has('cross-platform')) {
-    results.push(checkLibStagedTogether());
   }
 
   // docs freshness: relevant to new-agent, new-skill, new-command, release
@@ -962,6 +828,13 @@ function runGapChecks(relevantChecklists, changedFiles, options) {
       relevantChecklists.has('new-skill') || relevantChecklists.has('release') ||
       hasAdapterChanges) {
     results.push(checkAdapterFreshness());
+  }
+
+  // plugin list freshness: relevant to release, or when the marketplace or the list changes
+  const hasPluginListChanges = changedFiles.some(f =>
+    f === '.claude-plugin/marketplace.json' || f === 'scripts/plugins.txt');
+  if (runAll || relevantChecklists.has('release') || hasPluginListChanges) {
+    results.push(checkPluginListFreshness());
   }
 
   return results;
@@ -1223,11 +1096,10 @@ module.exports = {
   checkAskUserQuestionLabels,
   checkCodexTriggerPhrases,
   checkLibIndexExports,
-  checkLibPluginSync,
   checkTestFileExistence,
-  checkLibStagedTogether,
   checkDocsFreshness,
   checkAdapterFreshness,
+  checkPluginListFreshness,
   CHECKLIST_PATTERNS,
   VALIDATORS,
   MANUAL_CHECKS

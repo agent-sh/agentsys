@@ -66,7 +66,6 @@ const WORKFLOW_BLOCKED_ACTIONS: Record<string, string[]> = {
   "implementation": ["git push", "gh pr create"],
   "review": ["git push", "gh pr create", "gh pr merge"],
   "delivery-validation": ["git push", "gh pr create", "gh pr merge"],
-  "shipping": [], // /ship handles these
 }
 
 // Get state directory based on platform
@@ -176,8 +175,7 @@ export const AgentSysPlugin: Plugin = async (ctx) => {
      * Workflow enforcement via permission hooks
      *
      * Blocks certain actions during workflow phases to enforce:
-     * - No git push until /ship
-     * - No PR creation until /ship
+     * - No git push or PR creation before delivery validation passes
      * - No merging until validation complete
      */
     "permission.ask": async (input, output) => {
@@ -197,7 +195,7 @@ export const AgentSysPlugin: Plugin = async (ctx) => {
 
           // Log why it was blocked (for debugging)
           console.error(`[agentsys] Blocked "${blocked}" during ${state.phase} phase`)
-          console.error(`[agentsys] Use /ship to properly push and create PR`)
+          console.error(`[agentsys] Push and open the PR after the workflow finishes`)
           return
         }
       }

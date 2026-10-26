@@ -36,14 +36,12 @@ When user runs `agentsys` and selects OpenCode:
 ```
 ~/.agentsys/                    # Full package copy
 
-~/.config/opencode/commands/         # 9 commands (global)
+~/.config/opencode/commands/         # 7 commands (global)
 ├── delivery-approval.md
-├── ship.md
 ├── deslop.md
 ├── enhance.md
 ├── audit-project.md
 ├── drift-detect.md
-├── repo-intel.md
 ├── sync-docs.md
 └── perf.md
 
@@ -66,7 +64,7 @@ When user runs `agentsys` and selects OpenCode:
 
 **Native Plugin Features:**
 - Auto-thinking selection (adjusts budget per agent)
-- Workflow enforcement (blocks git push until /ship)
+- Workflow enforcement (blocks git push and PR creation during an active workflow phase)
 - Session compaction with state preservation
 - Provider-agnostic thinking config
 
@@ -460,7 +458,7 @@ workflow_status
 ```bash
 # Should list AgentSys commands
 /deslop
-/ship
+/perf
 ```
 
 ---
@@ -735,7 +733,7 @@ When user selects "always" for a permission:
 "permission.ask": async (input, output) => {
   const workflowPatterns = {
     "git push": "deny",      // Block during review
-    "gh pr create": "deny",  // Only /ship creates PRs
+    "gh pr create": "deny",  // Block PR creation during review
     "npm publish": "deny"    // Block publishing
   }
 

@@ -57,30 +57,6 @@ opencode
 
 ---
 
-### `/ship` - Complete PR Workflow
-
-Ship from commit to production with validation.
-
-```bash
-opencode
-> /ship
-> /ship --strategy rebase
-```
-
-**What it does:**
-1. Commits changes with AI message
-2. Creates PR with description
-3. Waits for CI to pass
-4. Runs quality reviews
-5. Merges to main
-6. Deploys to dev/prod
-7. Validates deployments
-8. Auto-rollback on failure
-
-**Requires:** Git, GitHub CLI (`gh`)
-
----
-
 ### `/foreman` - GitHub Issue Queue
 
 Work a repo's open issues as a task queue.
@@ -152,7 +128,6 @@ The installer:
 ~/.config/opencode/commands/
 ├── deslop.md
 ├── audit-project.md
-├── ship.md
 ├── lib/
 │   ├── platform/
 │   │   ├── detect-platform.js
@@ -190,13 +165,13 @@ opencode
 # [OK] Fixed race condition in api.py:123
 ```
 
-### Ship with diff review
+### Gate a branch after a diff review
 ```bash
 opencode
 > !git diff
-> /ship --strategy rebase
+> /prepare-delivery
 
-# (reviews the diff you just displayed, then ships)
+# (reviews the diff you just displayed, then runs the pre-ship gates; never pushes)
 ```
 
 ---

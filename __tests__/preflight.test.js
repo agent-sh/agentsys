@@ -1,8 +1,8 @@
 /**
  * Tests for scripts/preflight.js - unified change-aware checklist enforcement
  *
- * Note: Functions like getChangedFiles, checkChangelogModified, and
- * checkLibStagedTogether use a locally-bound execSync captured at module load.
+ * Note: Functions like getChangedFiles and checkChangelogModified use a
+ * locally-bound execSync captured at module load.
  * We cannot mock it post-import, so those are tested against real git state.
  */
 
@@ -18,9 +18,7 @@ const {
   checkAskUserQuestionLabels,
   checkCodexTriggerPhrases,
   checkLibIndexExports,
-  checkLibPluginSync,
   checkTestFileExistence,
-  checkLibStagedTogether,
   runExistingValidators,
   runGapChecks,
   CHECKLIST_PATTERNS,
@@ -84,7 +82,7 @@ describe('getChangedFiles', () => {
 
 describe('detectRelevantChecklists', () => {
   test('command files trigger new-command and cross-platform', () => {
-    const files = ['plugins/ship/commands/ship.md'];
+    const files = ['plugins/deslop/commands/deslop.md'];
     const result = detectRelevantChecklists(files);
     expect(result.has('new-command')).toBe(true);
     expect(result.has('cross-platform')).toBe(true);
@@ -117,8 +115,8 @@ describe('detectRelevantChecklists', () => {
     expect(result.has('release')).toBe(true);
   });
 
-  test('repo-intel plugin files trigger repo-intel', () => {
-    const files = ['plugins/repo-intel/skills/repo-intel/SKILL.md'];
+  test('lib/repo-intel files trigger repo-intel', () => {
+    const files = ['lib/repo-intel/queries.js'];
     const result = detectRelevantChecklists(files);
     expect(result.has('repo-intel')).toBe(true);
   });
@@ -136,7 +134,7 @@ describe('detectRelevantChecklists', () => {
 
   test('multiple file types produce union of checklists', () => {
     const files = [
-      'plugins/ship/commands/ship.md',            // new-command + cross-platform
+      'plugins/deslop/commands/deslop.md',            // new-command + cross-platform
       'lib/config/index.js',                       // new-lib-module + cross-platform
       'package.json'                                // release
     ];
@@ -204,25 +202,6 @@ describe('checkLibIndexExports', () => {
   });
 });
 
-describe('checkLibPluginSync', () => {
-  test('integration: passes on current clean tree with --all', () => {
-    const result = checkLibPluginSync([], { all: true });
-    expect(result.status).toBe('pass');
-  });
-
-  test('skips when no lib changes detected and not --all', () => {
-    const result = checkLibPluginSync(['README.md'], {});
-    expect(result.status).toBe('skip');
-    expect(result.message).toContain('No lib/ changes');
-  });
-
-  test('runs check when lib/ file is in changed files', () => {
-    const result = checkLibPluginSync(['lib/config/index.js'], {});
-    // Should actually run (not skip)
-    expect(result.status).not.toBe('skip');
-  });
-});
-
 describe('checkAskUserQuestionLabels', () => {
   test('integration: passes on current codebase', () => {
     const result = checkAskUserQuestionLabels();
@@ -262,18 +241,6 @@ describe('checkTestFileExistence', () => {
   test('returns result with correct check name', () => {
     const result = checkTestFileExistence([]);
     expect(result.name).toBe('gap:test-file-existence');
-  });
-});
-
-describe('checkLibStagedTogether', () => {
-  test('returns result with correct check name', () => {
-    const result = checkLibStagedTogether();
-    expect(result.name).toBe('gap:lib-staged-together');
-  });
-
-  test('returns a valid status', () => {
-    const result = checkLibStagedTogether();
-    expect(['pass', 'skip', 'warn']).toContain(result.status);
   });
 });
 
@@ -348,9 +315,7 @@ describe('runGapChecks', () => {
     expect(names).toContain('gap:label-length');
     expect(names).toContain('gap:codex-trigger-phrases');
     expect(names).toContain('gap:lib-index-exports');
-    expect(names).toContain('gap:lib-plugin-sync');
     expect(names).toContain('gap:test-file-existence');
-    expect(names).toContain('gap:lib-staged-together');
   });
 });
 

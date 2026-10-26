@@ -19,7 +19,7 @@ Action-specific checklists to ensure consistency across the codebase.
 | [new-skill.md](./new-skill.md) | Adding a new skill (Agent Skills Open Standard) |
 | [new-lib-module.md](./new-lib-module.md) | Adding a new library module |
 | [update-opencode-plugin.md](./update-opencode-plugin.md) | Updating native OpenCode plugin |
-| [repo-map.md](./repo-map.md) | Repo-intel plugin changes |
+| [repo-intel.md](./repo-intel.md) | `lib/repo-intel/` and `lib/repo-map/` library changes |
 
 ## Every Checklist Includes
 
@@ -50,4 +50,4 @@ Quick reference for which files need updating:
 | **New Command** | plugin commands/, plugin.json, ARCHITECTURE.md, bin/cli.js |
 | **New Agent** | plugin agents/, the command that spawns it, docs/reference/AGENTS.md |
 | **New Skill** | plugin skills/{skill-name}/SKILL.md, agent tools if agent-invoked |
-| **New Lib Module** | lib/, lib/index.js, sync to plugins/, tests |
+| **New Lib Module** | lib/, lib/index.js, tests |

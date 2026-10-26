@@ -334,13 +334,6 @@ const COMMANDS = {
       }
     }
   },
-  'test-transform': {
-    description: 'Test OpenCode transform on the ship command',
-    handler: () => {
-      const { main } = require(path.join(ROOT_DIR, 'scripts', 'test-transform.js'));
-      return main();
-    }
-  },
   'gen-docs': {
     description: 'Auto-generate documentation sections from plugin source',
     usage: 'gen-docs [--check] [--dry-run]',
@@ -370,6 +363,14 @@ const COMMANDS = {
       const result = main(args);
       if (typeof result === 'number') return result;
       return 0;
+    }
+  },
+  'gen-plugin-list': {
+    description: 'Generate scripts/plugins.txt from the marketplace',
+    usage: 'gen-plugin-list [--check]',
+    handler: (args) => {
+      const { main } = require(path.join(ROOT_DIR, 'scripts', 'generate-plugin-list.js'));
+      return main(args);
     }
   },
   'new': {
@@ -468,7 +469,6 @@ setup-hooks             Install git hooks
   status                  Show project health overview
   test                    Run test suite
   migrate-opencode        Migrate commands for OpenCode
-  test-transform          Test OpenCode transform
   gen-docs                Auto-generate doc sections from source
     --check               Validate freshness (exit 1 if stale)
     --dry-run             Show changes without writing
@@ -478,6 +478,8 @@ setup-hooks             Install git hooks
   gen-adapters            Generate platform adapter files from source
     --check               Validate freshness (exit 1 if stale)
     --dry-run             Show changes without writing
+  gen-plugin-list         Generate scripts/plugins.txt from the marketplace
+    --check               Validate freshness (exit 1 if stale)
 
 Scaffolding:
   new plugin <name>       Scaffold a new plugin

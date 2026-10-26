@@ -14,7 +14,6 @@ const {
   setActiveTask,
   clearActiveTask,
   claimTask,
-  releaseTask,
   hasActiveTask,
   readFlow,
   writeFlow,
@@ -155,20 +154,6 @@ describe('workflow-state', () => {
       claimTask({ id: '2', source: 'gh-issues', title: 'B', branch: 'c', worktreePath: '/tmp/y', claimedBy: 'w' }, testDir);
       const v2 = readTasks(testDir)._version;
       expect(v2).toBeGreaterThan(v1);
-    });
-
-    test('releaseTask removes entry from tasks[]', () => {
-      claimTask({ id: '42', source: 'gh-issues', title: 'Fix bug', branch: 'feat/42', worktreePath: '/tmp/wt', claimedBy: 'wf-1' }, testDir);
-      expect(readTasks(testDir).tasks).toHaveLength(1);
-
-      const ok = releaseTask('42', testDir);
-      expect(ok).toBe(true);
-      expect(readTasks(testDir).tasks).toHaveLength(0);
-    });
-
-    test('releaseTask is idempotent — returns true when task not found', () => {
-      const ok = releaseTask('nonexistent', testDir);
-      expect(ok).toBe(true);
     });
 
     test('claimTask rejects missing id', () => {

@@ -24,12 +24,10 @@ Add the marketplace and install plugins directly in Claude Code:
 ```bash
 /plugin marketplace add agent-sh/agentsys
 /plugin install prepare-delivery@agentsys
-/plugin install ship@agentsys
 /plugin install foreman@agentsys
 /plugin install deslop@agentsys
 /plugin install audit-project@agentsys
 /plugin install drift-detect@agentsys
-/plugin install repo-intel@agentsys
 /plugin install enhance@agentsys
 /plugin install perf@agentsys
 /plugin install sync-docs@agentsys
@@ -41,10 +39,10 @@ Add the marketplace and install plugins directly in Claude Code:
 **Scopes** (optional):
 ```bash
 # User scope (default) - available in all projects
-/plugin install ship@agentsys
+/plugin install deslop@agentsys
 
 # Project scope - shared with team
-/plugin install ship@agentsys --scope project
+/plugin install deslop@agentsys --scope project
 ```
 
 ---
@@ -139,8 +137,8 @@ agentsys --tool claude
 Plugins now live in standalone repos. To load a plugin locally, clone its repo:
 
 ```bash
-git clone https://github.com/agent-sh/ship.git
-claude --plugin-dir ./ship
+git clone https://github.com/agent-sh/deslop.git
+claude --plugin-dir ./deslop
 ```
 
 ### Quick Dev Install (Contributors)
@@ -173,7 +171,7 @@ Select your platform when prompted. The installer configures:
 | Codex CLI | `~/.codex/` | `.codex/` |
 | Kiro | `~/.kiro/` | `.kiro/` |
 
-> **Note:** Codex uses `$` prefix for skills (e.g., `$ship` instead of `/ship`).
+> **Note:** Codex uses `$` prefix for skills (e.g., `$deslop` instead of `/deslop`).
 
 ---
 
@@ -186,11 +184,9 @@ Select your platform when prompted. The installer configures:
 ```
 
 You should see commands:
-- `/ship` - Complete PR workflow
 - `/deslop` - AI slop cleanup
 - `/audit-project` - Multi-agent code review
 - `/drift-detect` - Plan drift detection
-- `/repo-intel` - Unified static analysis
 - `/enhance` - Enhancement analyzer suite
 - `/perf` - Performance investigation workflow
 - `/sync-docs` - Documentation sync
@@ -203,16 +199,14 @@ You should see commands:
 - `/system-prompt-curator` - System prompt curation
 - `/onboard` - Codebase onboarding
 - `/can-i-help` - Contributor guidance
-- `/release` - Versioned release with ecosystem detection
 - `/agnix` - Linter for AI agent configs
-- `/prepare-delivery` - Pre-ship validation checks
-- `/gate-and-ship` - Gated shipping workflow
+- `/prepare-delivery` - Pre-ship validation checks (never pushes or opens a PR)
 - `/foreman` - GitHub issue queue for native agents (needs Node 22+, `gh` and `waitfor`)
 
 ### OpenCode / Codex
 
 Type the command name and it should be recognized:
-- `/ship` (OpenCode) or `$ship` (Codex)
+- `/deslop` (OpenCode) or `$deslop` (Codex)
 
 ### Local Repo Diagnostics (optional)
 
@@ -238,7 +232,7 @@ npm run verify   # Tool availability + versions
 
 ### Recommended (Repo Intel)
 
-- **agent-analyzer** - Used by `/repo-intel` for static analysis. Installed automatically via npm.
+- **agent-analyzer** - Builds the repo-intel map (git history, AST symbols) that onboard, can-i-help, drift-detect and sync-docs read. Downloaded automatically on first use.
 
 ### Required for GitHub Workflows
 
@@ -278,20 +272,20 @@ These tools are detected automatically if present:
 ### Update Plugins
 
 ```bash
-/plugin update ship@agentsys
+/plugin update deslop@agentsys
 ```
 
 ### Disable/Enable
 
 ```bash
-/plugin disable ship@agentsys
-/plugin enable ship@agentsys
+/plugin disable deslop@agentsys
+/plugin enable deslop@agentsys
 ```
 
 ### Uninstall
 
 ```bash
-/plugin uninstall ship@agentsys
+/plugin uninstall deslop@agentsys
 
 # Or remove marketplace entirely
 /plugin marketplace remove agentsys
@@ -340,7 +334,7 @@ Try adding the full GitHub URL:
 
 ### "GitHub CLI not found"
 
-Required for `/ship` and GitHub-based workflows:
+Required for `/foreman` and GitHub-based workflows:
 ```bash
 brew install gh  # macOS
 winget install GitHub.cli  # Windows

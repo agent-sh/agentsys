@@ -25,7 +25,7 @@ If adding a NEW standalone plugin repo to the marketplace:
 - [ ] Plugin has `.claude-plugin/plugin.json` with version and description
 - [ ] `.claude-plugin/marketplace.json` in agentsys → Add entry with source URL, requires, core
 - [ ] `docs/INSTALLATION.md` → Add to plugin list
-- [ ] Add repo to agent-core sync matrix (if plugin uses lib/)
+- [ ] If the plugin uses lib/, it vendors its own copy (nothing syncs lib/ to plugin repos)
 
 ## Documentation Updates
 

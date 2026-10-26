@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "agentsys",
-    "description": "A modular runtime and orchestration system for AI agents. 24 plugins, 42 agents, 44 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.",
+    "description": "A modular runtime and orchestration system for AI agents. 21 plugins, 38 agents, 42 skills - structured pipelines for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.",
     "url": "https://agent-sh.github.io/agentsys",
     "repo": "https://github.com/agent-sh/agentsys",
     "npm": "https://www.npmjs.com/package/agentsys",
@@ -11,7 +11,7 @@
   },
   "hero": {
     "title": "A modular runtime and orchestration system for AI agents",
-    "subtitle": "AI models can write code. That's not the hard part anymore. The hard part is everything around it - branch management, code review, artifact cleanup, CI, deployment. AgentSys is the runtime that orchestrates agents to handle all of it.",
+    "subtitle": "AI models can write code. That's not the hard part anymore. The hard part is everything around it - branch management, code review, artifact cleanup, CI. AgentSys is the runtime that orchestrates agents to handle all of it.",
     "cta_primary": {
       "text": "Get Started",
       "url": "#installation"
@@ -23,17 +23,17 @@
   },
   "stats": [
     {
-      "value": "24",
+      "value": "21",
       "label": "Plugins",
       "suffix": ""
     },
     {
-      "value": "42",
+      "value": "38",
       "label": "Agents",
       "suffix": ""
     },
     {
-      "value": "44",
+      "value": "42",
       "label": "Skills",
       "suffix": ""
     },
@@ -91,13 +91,6 @@
       "category": "workflow"
     },
     {
-      "name": "/gate-and-ship",
-      "tagline": "Quality gates then ship",
-      "description": "Quality gates then ship - chains /prepare-delivery then /ship",
-      "example": "/gate-and-ship",
-      "category": "workflow"
-    },
-    {
       "name": "/foreman",
       "tagline": "GitHub issues as a task queue",
       "description": "Works a repo's open issues as a queue for one session and its worktree subagents: pick the next ready issue, claim it, brief a worker, read Revuto's findings and land the PR at the exact head it checked, through the repo's own land command. GitHub labels and comments are the only state, read live.",
@@ -117,13 +110,6 @@
       "description": "457 validation rules for Skills, Memory, Hooks, MCP, and Plugins across 10+ AI tools including Claude Code, Cursor, GitHub Copilot, Codex CLI, OpenCode, Gemini CLI, Cline, Windsurf, Roo Code, and Amp. SARIF output for GitHub Code Scanning.",
       "example": "/agnix --fix",
       "category": "linting"
-    },
-    {
-      "name": "/ship",
-      "tagline": "Branch to merged PR in one command",
-      "description": "Commits, pushes, creates PR, monitors CI, waits for auto-reviewers, addresses every comment, merges, deploys, and cleans up. Platform auto-detection for GitHub Actions, Railway, Vercel, and more.",
-      "example": "/ship",
-      "category": "workflow"
     },
     {
       "name": "/deslop",
@@ -161,13 +147,6 @@
       "category": "analysis"
     },
     {
-      "name": "/repo-intel",
-      "tagline": "Unified static analysis for AI agents",
-      "description": "Git history intelligence, AST symbol mapping, and project metadata in one plugin. 20 query types backed by a Rust binary. 9 plugins consume the data automatically.",
-      "example": "/repo-intel init",
-      "category": "analysis"
-    },
-    {
       "name": "/sync-docs",
       "tagline": "Keep docs in sync with code",
       "description": "Finds outdated references, stale examples, missing CHANGELOG entries, and version mismatches. Auto-fixes safe issues like version numbers and CHANGELOG entries.",
@@ -194,13 +173,6 @@
       "description": "Multi-round structured debates between any two AI tools as proposer and challenger. Evidence-backed arguments, mandatory counterpoints, and a verdict from the orchestrator. Supports ACP transport for Kiro participation.",
       "example": "/debate claude vs kiro about microservices vs monolith",
       "category": "analysis"
-    },
-    {
-      "name": "/release",
-      "tagline": "Versioned release with ecosystem detection",
-      "description": "Discovers how your repo releases before executing. Checks for semantic-release, release-it, goreleaser, changesets, cargo-release, then falls back to generic tag-and-publish. Supports 12+ ecosystems.",
-      "example": "/release minor",
-      "category": "workflow"
     },
     {
       "name": "/skillers",
@@ -253,15 +225,15 @@
     },
     {
       "title": "Right model for the task",
-      "description": "Opus for complex reasoning and analysis. Sonnet for pattern matching and validation. Haiku for mechanical execution. Quality compounds - early phases deserve the best model."
+      "description": "Opus for complex reasoning and analysis. Sonnet for pattern matching and validation. Quality compounds - early phases deserve the best model."
     },
     {
       "title": "Validate plan and results, not every step",
-      "description": "Approve the plan. See the results. The middle is automated. Gates run cleanup, review, validation, and shipping without a prompt at each step."
+      "description": "Approve the plan. See the results. The middle is automated. Gates run cleanup, review, validation, and docs sync without a prompt at each step."
     },
     {
       "title": "Composable, not monolithic",
-      "description": "Every command works standalone. /deslop cleans code without /prepare-delivery. /ship merges PRs without the full workflow. Pieces compose together, but each piece is useful on its own."
+      "description": "Every command works standalone. /deslop cleans code without /prepare-delivery. /prepare-delivery runs the gates without pushing. Pieces compose together, but each piece is useful on its own."
     }
   ],
   "installation": {
@@ -274,7 +246,7 @@
       ],
       "commands": [
         "/plugin marketplace add agent-sh/agentsys",
-        "/plugin install ship@agentsys"
+        "/plugin install prepare-delivery@agentsys"
       ]
     },
     "npm": {
@@ -318,71 +290,9 @@
       }
     }
   },
-  "workflow_steps": [
-    {
-      "step": 1,
-      "name": "Policy Selection",
-      "description": "Choose task source, priority filter, and stopping point"
-    },
-    {
-      "step": 2,
-      "name": "Task Discovery",
-      "description": "Shows top 5 prioritized tasks - you pick one"
-    },
-    {
-      "step": 3,
-      "name": "Worktree Setup",
-      "description": "Creates isolated branch and working directory"
-    },
-    {
-      "step": 4,
-      "name": "Exploration",
-      "description": "Deep codebase analysis to understand context"
-    },
-    {
-      "step": 5,
-      "name": "Planning",
-      "description": "Designs step-by-step implementation approach"
-    },
-    {
-      "step": 6,
-      "name": "User Approval",
-      "description": "You review and approve the plan (last human interaction)"
-    },
-    {
-      "step": 7,
-      "name": "Implementation",
-      "description": "Executes the plan autonomously"
-    },
-    {
-      "step": 8,
-      "name": "Pre-Review",
-      "description": "Runs deslop-agent and test coverage checker"
-    },
-    {
-      "step": 9,
-      "name": "Review Loop",
-      "description": "Multi-agent review iterates until clean"
-    },
-    {
-      "step": 10,
-      "name": "Delivery Validation",
-      "description": "Verifies tests pass, build works, requirements met"
-    },
-    {
-      "step": 11,
-      "name": "Docs Update",
-      "description": "Updates CHANGELOG and related documentation"
-    },
-    {
-      "step": 12,
-      "name": "Ship",
-      "description": "Creates PR, monitors CI, addresses comments, merges"
-    }
-  ],
   "agents": {
-    "total": 42,
-    "file_based": 32,
+    "total": 38,
+    "file_based": 28,
     "role_based": 10,
     "by_model": [
       {
@@ -421,18 +331,8 @@
           "agnix-agent",
           "consult-agent",
           "skillers-compactor",
-          "release-agent",
           "onboard-agent",
           "can-i-help-agent"
-        ]
-      },
-      {
-        "model": "Haiku",
-        "use_case": "Mechanical execution",
-        "agents": [
-          "map-validator",
-          "repo-intel-summarizer",
-          "repo-intel-weighter"
         ]
       }
     ]
@@ -492,7 +392,7 @@
       },
       {
         "name": "agent-analyzer",
-        "description": "For /repo-intel static analysis (installed automatically)"
+        "description": "Git history and code analysis used by several plugins (installed automatically)"
       }
     ],
     "optional": [
@@ -513,20 +413,6 @@
     "Rust",
     "Go",
     "Java"
-  ],
-  "supported_ci": [
-    "GitHub Actions",
-    "GitLab CI",
-    "CircleCI",
-    "Jenkins",
-    "Travis CI"
-  ],
-  "supported_deploy": [
-    "Railway",
-    "Vercel",
-    "Netlify",
-    "Fly.io",
-    "Render"
   ],
   "research": {
     "knowledge_base": "8,000 lines of curated documentation from Anthropic, OpenAI, Google, and Microsoft",

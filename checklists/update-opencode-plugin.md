@@ -55,7 +55,6 @@ const WORKFLOW_BLOCKED_ACTIONS: Record<string, string[]> = {
   "implementation": ["git push", "gh pr create"],
   "review": ["git push", "gh pr create", "gh pr merge"],
   "delivery-validation": ["git push", "gh pr create", "gh pr merge"],
-  "shipping": [],
 }
 ```
 

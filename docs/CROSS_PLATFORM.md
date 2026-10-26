@@ -27,7 +27,7 @@ Build tools once, run everywhere. The core workflows are the same regardless of 
 | Cursor | Skills + commands | N/A | [OK] Supported |
 | Kiro | Steering + skills + agents | N/A | [OK] Supported |
 
-> **Note:** Codex CLI uses `$` prefix for skills (e.g., `$ship`, `$deslop`) instead of `/` slash commands.
+> **Note:** Codex CLI uses `$` prefix for skills (e.g., `$perf`, `$deslop`) instead of `/` slash commands.
 
 ## Common Architecture
 
@@ -54,7 +54,7 @@ For OpenCode and Codex CLI, the installer adapts the platform argument handling 
 
 # Install plugins
 /plugin install prepare-delivery@agentsys
-/plugin install ship@agentsys
+/plugin install deslop@agentsys
 ```
 
 ### Option 2: npm Global Install
@@ -78,20 +78,16 @@ agentsys --development
 ### Option 4: Plugin Directory (Local Development)
 
 ```bash
-git clone https://github.com/agent-sh/ship.git
-claude --plugin-dir ./ship
+git clone https://github.com/agent-sh/deslop.git
+claude --plugin-dir ./deslop
 ```
 
 ### Available Commands
-- `/prepare-delivery` - Pre-ship quality gates
-- `/gate-and-ship` - Quality gates then ship
-- `/ship` - Complete PR workflow
+- `/prepare-delivery` - Pre-ship quality gates (never pushes or opens a PR)
 - `/foreman` - GitHub issue queue for native agents (worktree subagents need Claude Code)
-- `/release` - Versioned release with ecosystem detection
 - `/deslop` - AI slop cleanup
 - `/audit-project` - Multi-agent code review
 - `/drift-detect` - Plan drift detection
-- `/repo-intel` - Unified static analysis
 - `/enhance` - Enhancement analyzer suite
 - `/sync-docs` - Documentation sync
 - `/perf` - Performance investigation
@@ -106,7 +102,7 @@ claude --plugin-dir ./ship
 - `/onboard` - Codebase onboarding
 - `/can-i-help` - Contributor guidance
 
-### Available Agents (42 total: 32 file-based agents + 10 role-based)
+### Available Agents (38 total: 28 file-based agents + 10 role-based)
 
 **Key agents shown below:**
 
@@ -148,12 +144,6 @@ Conditional: architecture-reviewer, database-specialist, api-designer, frontend-
 
 *Data collection uses JavaScript collectors (77% token reduction vs multi-agent)*
 
-**repo-intel: Unified Static Analysis (1 agent)**
-
-| Agent | Model | Purpose |
-|-------|-------|---------|
-| map-validator | haiku | Validate repo-intel output |
-
 ## OpenCode Integration
 
 ### Option 1: npm Global Install (Recommended)
@@ -173,7 +163,7 @@ agentsys --tool opencode --no-strip
 ```
 
 This installs:
-- Slash commands (`/prepare-delivery`, `/gate-and-ship`, `/ship`, `/foreman`, `/release`, `/deslop`, `/audit-project`, `/drift-detect`, `/repo-intel`, `/enhance`, `/sync-docs`, `/perf`, `/banthis`, `/learn`, `/agnix`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`)
+- Slash commands (`/prepare-delivery`, `/foreman`, `/deslop`, `/audit-project`, `/drift-detect`, `/enhance`, `/sync-docs`, `/perf`, `/banthis`, `/learn`, `/agnix`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`)
 - **Native OpenCode plugin** with advanced features:
 
 ### Native Plugin Features
@@ -183,7 +173,7 @@ The native plugin (`~/.config/opencode/plugins/agentsys.ts`) provides deep integ
 | Feature | Description |
 |---------|-------------|
 | **Auto-thinking selection** | Adjusts thinking budget per agent complexity (0-20k tokens) |
-| **Workflow enforcement** | Blocks `git push`/`gh pr create` until `/ship` |
+| **Workflow enforcement** | Blocks `git push`/`gh pr create` during an active workflow phase |
 | **Session compaction** | Preserves workflow state when context overflows |
 | **Activity tracking** | Updates `flow.json` on significant tool executions |
 
@@ -236,12 +226,12 @@ You check that the current branch is ready to ship.
 When invoked, you should:
 1. Run /prepare-delivery on the branch
 2. Report the gates that failed with their fixes
-3. Hand a clean branch to /ship
+3. Say when the branch is clean, so you can push it and open the PR
 ```
 
 ## Codex CLI Integration
 
-> **Note:** Codex uses `$` prefix for skills instead of `/` slash commands (e.g., `$ship`, `$deslop`).
+> **Note:** Codex uses `$` prefix for skills instead of `/` slash commands (e.g., `$perf`, `$deslop`).
 
 ### Option 1: npm Global Install (Recommended)
 
@@ -253,7 +243,7 @@ agentsys  # Select option 3 for Codex CLI
 agentsys --tool codex
 ```
 
-This installs skills to `~/.codex/skills/` (`$prepare-delivery`, `$gate-and-ship`, `$ship`, `$foreman`, `$release`, `$deslop`, `$audit-project`, `$drift-detect`, `$repo-intel`, `$enhance`, `$sync-docs`, `$perf`, `$banthis`, `$learn`, `$agnix`, `$consult`, `$debate`, `$skillers`, `$skill-curator`, `$system-prompt-curator`, `$onboard`, `$can-i-help`).
+This installs skills to `~/.codex/skills/` (`$prepare-delivery`, `$foreman`, `$deslop`, `$audit-project`, `$drift-detect`, `$enhance`, `$sync-docs`, `$perf`, `$banthis`, `$learn`, `$agnix`, `$consult`, `$debate`, `$skillers`, `$skill-curator`, `$system-prompt-curator`, `$onboard`, `$can-i-help`).
 
 Plugin skills are installed next to them, each skill directory copied whole (`references/`, `scripts/`), with paths that pointed at the plugin root pointing at `~/.agentsys/plugins/<plugin>/`. A plugin skill named like a command (`deslop`, `consult`, ...) is not installed there: `$<name>` stays the command.
 
@@ -269,7 +259,7 @@ description: Review the current branch before shipping
 
 # Review Workflow
 
-Run `$deslop` on the changed files, then `$ship` when the review is clean.
+Run `$deslop` on the changed files, then `$prepare-delivery` when the review is clean.
 ```
 
 ## Shared Libraries
@@ -323,19 +313,19 @@ The plugin auto-detects the platform and uses the appropriate directory. Overrid
 - Works with any model provider (Claude, OpenAI, Google, local)
 - State directory: `.opencode/`
 - Slash commands in `~/.config/opencode/commands/`
-- Agents in `~/.config/opencode/agents/` (29 agents at the pinned plugin commits)
-- Skills in `~/.config/opencode/skills/<name>/` (37 skills at the pinned plugin commits, each skill directory copied whole)
+- Agents in `~/.config/opencode/agents/` (25 agents at the pinned plugin commits)
+- Skills in `~/.config/opencode/skills/<name>/` (35 skills at the pinned plugin commits, each skill directory copied whole)
 - Native plugin in `~/.config/opencode/plugins/agentsys.ts`
 - **Native plugin features:**
   - Auto-thinking selection (adjusts budget per agent)
-  - Workflow enforcement (blocks git push until /ship)
+  - Workflow enforcement (blocks git push and PR creation during an active workflow phase)
   - Session compaction with state preservation
   - Provider-agnostic thinking config (Anthropic, OpenAI, Google)
 
 ### Codex CLI
 - OpenAI-native with GPT-5-Codex
 - State directory: `.codex/`
-- Skills in `~/.codex/skills/` (invoked with `$` prefix, e.g., `$ship`): one per command, plus each plugin skill directory copied whole unless a command has its name
+- Skills in `~/.codex/skills/` (invoked with `$` prefix, e.g., `$deslop`): one per command, plus each plugin skill directory copied whole unless a command has its name
 
 ### Cursor
 - Global installation in `~/.cursor/`

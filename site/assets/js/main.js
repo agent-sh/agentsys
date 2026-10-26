@@ -406,30 +406,30 @@
 
     // The demo sequence
     var sequence = [
-      { type: 'type', text: '$ /gate-and-ship', delay: 0 },
+      { type: 'type', text: '$ /prepare-delivery', delay: 0 },
       { type: 'wait', delay: 600 },
       { type: 'lines', lines: [
         { html: '<span class="t-cyan">[branch]</span> feature/websocket-support <span class="t-muted">vs</span> main', delay: 100 },
         { html: '  <span class="t-muted">6 files changed, 847 additions, 23 deletions</span>', delay: 100 },
-        { html: '  <span class="t-muted">tests:</span> <span class="t-green">passing</span>  <span class="t-muted">build:</span> <span class="t-green">passing</span>', delay: 100 },
-        { html: '  <span class="t-muted">gates:</span> deslop, coverage, simplify, review, validation, docs', delay: 100 }
+        { html: '  <span class="t-muted">gates:</span> deslop, simplify, agnix, enhance, review, validation, docs', delay: 100 }
       ]},
       { type: 'wait', delay: 500 },
-      { type: 'line', html: '<span class="t-green">&gt;</span> <span class="t-white">Running /prepare-delivery</span>', delay: 0 },
+      { type: 'line', html: '<span class="t-green">&gt;</span> <span class="t-white">Running the quality gates</span>', delay: 0 },
       { type: 'wait', delay: 600 },
       { type: 'lines', lines: [
         { html: '<span class="t-purple">[deslop]</span>     3 debug logs removed, 1 TODO flagged', delay: 400 },
-        { html: '<span class="t-purple">[coverage]</span>   Every changed function has a test', delay: 400 },
+        { html: '<span class="t-purple">[simplify]</span>   2 helpers inlined', delay: 400 },
+        { html: '<span class="t-purple">[agnix]</span>      Agent configs clean', delay: 400 },
         { html: '<span class="t-purple">[review]</span>     4 agents reviewing... 2 issues found, fixing...', delay: 400 },
-        { html: '<span class="t-purple">[validate]</span>   Requirements met, docs synced', delay: 400 }
+        { html: '<span class="t-purple">[validate]</span>   Tests and build pass, requirements met', delay: 400 },
+        { html: '<span class="t-purple">[docs]</span>       CHANGELOG and README synced', delay: 400 }
       ]},
       { type: 'wait', delay: 600 },
-      { type: 'line', html: '<span class="t-green">[ship]</span>       PR #143 created <span class="t-green">-&gt;</span> CI passing <span class="t-green">-&gt;</span> merged', delay: 0 },
+      { type: 'line', html: '<span class="t-green">[ready]</span>      Branch ready to push. Nothing pushed.', delay: 0 },
       { type: 'wait', delay: 800 },
       { type: 'line', html: '', delay: 0 },
-      { type: 'line', html: '<span class="t-white t-bold">Done.</span> Branch to merged PR in 9 minutes.', delay: 0 },
+      { type: 'line', html: '<span class="t-white t-bold">Done.</span> Every gate passed in 6 minutes.', delay: 0 },
       { type: 'lines', lines: [
-        { html: '  <span class="t-muted">Every gate passed before the PR opened.</span>', delay: 100 },
         { html: '  <span class="t-muted">All 4 reviewers approved.</span> <span class="t-purple t-bold">Zero manual intervention.</span>', delay: 100 }
       ]},
       { type: 'wait', delay: 3000 }
@@ -544,18 +544,17 @@
     // Static display for reduced motion
     if (prefersReduced) {
       body.innerHTML = [
-        '<div class="terminal__line"><span class="t-muted">$ </span><span class="t-white">/gate-and-ship</span></div>',
+        '<div class="terminal__line"><span class="t-muted">$ </span><span class="t-white">/prepare-delivery</span></div>',
         '<div class="terminal__line"><span class="t-cyan">[branch]</span> feature/websocket-support <span class="t-muted">vs</span> main</div>',
-        '<div class="terminal__line">  <span class="t-muted">gates:</span> deslop, coverage, simplify, review, validation, docs</div>',
-        '<div class="terminal__line"><span class="t-green">&gt;</span> <span class="t-white">Running /prepare-delivery</span></div>',
+        '<div class="terminal__line">  <span class="t-muted">gates:</span> deslop, simplify, agnix, enhance, review, validation, docs</div>',
+        '<div class="terminal__line"><span class="t-green">&gt;</span> <span class="t-white">Running the quality gates</span></div>',
         '<div class="terminal__line"><span class="t-purple">[deslop]</span>     3 debug logs removed, 1 TODO flagged</div>',
-        '<div class="terminal__line"><span class="t-purple">[coverage]</span>   Every changed function has a test</div>',
         '<div class="terminal__line"><span class="t-purple">[review]</span>     4 agents reviewing... 2 issues found, fixing...</div>',
-        '<div class="terminal__line"><span class="t-purple">[validate]</span>   Requirements met, docs synced</div>',
-        '<div class="terminal__line"><span class="t-green">[ship]</span>       PR #143 created <span class="t-green">-&gt;</span> CI passing <span class="t-green">-&gt;</span> merged</div>',
+        '<div class="terminal__line"><span class="t-purple">[validate]</span>   Tests and build pass, requirements met</div>',
+        '<div class="terminal__line"><span class="t-purple">[docs]</span>       CHANGELOG and README synced</div>',
+        '<div class="terminal__line"><span class="t-green">[ready]</span>      Branch ready to push. Nothing pushed.</div>',
         '<div class="terminal__line"></div>',
-        '<div class="terminal__line"><span class="t-white t-bold">Done.</span> Branch to merged PR in 9 minutes.</div>',
-        '<div class="terminal__line">  <span class="t-muted">Every gate passed before the PR opened.</span></div>',
+        '<div class="terminal__line"><span class="t-white t-bold">Done.</span> Every gate passed in 6 minutes.</div>',
         '<div class="terminal__line">  <span class="t-muted">All 4 reviewers approved.</span> <span class="t-purple t-bold">Zero manual intervention.</span></div>'
       ].join('');
       return;
@@ -580,14 +579,6 @@
         ]
       },
       1: {
-        subtitle: 'Branch to production in one command.',
-        steps: [
-          { title: 'Commit and push', desc: 'Stages changes, creates a commit with a clear message, and pushes to your branch automatically.' },
-          { title: 'Monitor CI', desc: 'Waits for CI to pass, collects comments from 4 auto-reviewers, and fixes every issue found.' },
-          { title: 'Merge and deploy', desc: 'Merges the PR, triggers deployment, validates production, and cleans up the branch.' }
-        ]
-      },
-      2: {
         subtitle: 'Three-phase detection. Certainty-graded cleanup.',
         steps: [
           { title: 'Scan for slop', desc: 'Runs regex patterns, multi-pass analyzers, and optional CLI tools across your codebase.' },
@@ -595,7 +586,7 @@
           { title: 'Apply fixes', desc: 'Auto-fixes HIGH certainty issues like debug statements, placeholder text, and verbose comments.' }
         ]
       },
-      3: {
+      2: {
         subtitle: 'Measure first. Optimize with evidence.',
         steps: [
           { title: 'Establish baseline', desc: 'Records current performance metrics with sequential benchmarks and minimum 60-second run durations.' },
@@ -603,7 +594,7 @@
           { title: 'Deliver evidence', desc: 'Produces evidence-backed recommendations with profiling data, hotspot analysis, and comparisons.' }
         ]
       },
-      4: {
+      3: {
         subtitle: 'JavaScript collects. Opus analyzes.',
         steps: [
           { title: 'Collect data', desc: 'JavaScript collectors scan GitHub state, documentation, and codebase without using any LLM tokens.' },
@@ -611,7 +602,7 @@
           { title: 'Prioritized report', desc: 'Outputs a prioritized list of gaps, drift, and stale items with reconstruction recommendations.' }
         ]
       },
-      5: {
+      4: {
         subtitle: 'Specialized agents. Iterative improvement.',
         steps: [
           { title: 'Select agents', desc: 'Detects your project type and selects from 10 specialist agents: security, performance, architecture, and more.' },
@@ -619,7 +610,7 @@
           { title: 'Iterate to clean', desc: 'Fixes issues, re-reviews, and repeats until zero open findings remain across all agents.' }
         ]
       },
-      6: {
+      5: {
         subtitle: 'Seven analyzers. One unified report.',
         steps: [
           { title: 'Detect content', desc: 'Finds all prompts, agents, plugins, docs, hooks, and skills in your project automatically.' },
@@ -627,15 +618,7 @@
           { title: 'Report and fix', desc: 'Certainty-graded report with auto-fix for HIGH issues. Auto-learns false positives over time.' }
         ]
       },
-      7: {
-        subtitle: 'Unified analysis. Cached. 24 query types.',
-        steps: [
-          { title: 'Analyze repo', desc: 'Rust binary scans git history, file structure, and code patterns. Extracts hotspots, coupling, ownership, and conventions.' },
-          { title: 'Build cached map', desc: 'Creates repo-intel.json with symbols, imports, exports, and metadata in the platform state directory.' },
-          { title: 'Query on demand', desc: '24 query types: hotspots, bugspots, test-gaps, bus-factor, diff-risk, conventions, stale-docs, and more.' }
-        ]
-      },
-      8: {
+      6: {
         subtitle: 'Code changed. Docs follow.',
         steps: [
           { title: 'Diff changes', desc: 'Compares your branch against main to find all files that changed since the last documentation update.' },
@@ -643,7 +626,7 @@
           { title: 'Auto-fix safely', desc: 'Updates version numbers, CHANGELOG entries, and other deterministic fixes. Flags ambiguous issues for review.' }
         ]
       },
-      9: {
+      7: {
         subtitle: 'Web to knowledge base. Reusable.',
         steps: [
           { title: 'Search the web', desc: 'Progressive query architecture gathers 10-40 online sources using broad-to-focused funnel approach.' },
@@ -651,7 +634,7 @@
           { title: 'Create guide', desc: 'Synthesizes a structured learning guide with RAG-optimized index saved for future agent lookups.' }
         ]
       },
-      10: {
+      8: {
         subtitle: 'Ask another AI. Get a second opinion.',
         steps: [
           { title: 'Detect tools', desc: 'Finds which AI CLI tools are installed on your system. Picks the right model and flags for your effort level.' },
@@ -659,7 +642,7 @@
           { title: 'Return response', desc: 'Parses output, redacts secrets (Shannon entropy > 4.0), and returns the response. Supports session continuations.' }
         ]
       },
-      11: {
+      9: {
         subtitle: 'Two AIs argue. You get the truth.',
         steps: [
           { title: 'Set up debate', desc: 'Parses natural language to identify proposer, challenger, topic, rounds, and effort level.' },
@@ -667,31 +650,15 @@
           { title: 'Deliver verdict', desc: 'The orchestrator synthesizes all rounds and picks a winner with reasoning and actionable takeaways.' }
         ]
       },
-      12: {
+      10: {
         subtitle: 'Five quality gates. Zero shortcuts.',
         steps: [
           { title: 'Clean and lint', desc: 'Deslop + simplify + test-coverage run in parallel. Then agnix and /enhance lint any changed agent configs.' },
           { title: 'Review and validate', desc: '4 core reviewers iterate until clean (max 5 rounds). Then delivery-validator checks tests, build, and requirements.' },
-          { title: 'Sync docs and ship', desc: 'Documentation synced with code changes. Ready for /ship or /gate-and-ship to create the PR.' }
+          { title: 'Sync docs', desc: 'Documentation synced with code changes. The branch is ready to push. /prepare-delivery never pushes or opens the PR.' }
         ]
       },
-      13: {
-        subtitle: 'Quality gates then ship. One command.',
-        steps: [
-          { title: 'Run /prepare-delivery', desc: 'All five quality gates: deslop, config lint, review loop, delivery validation, and docs sync.' },
-          { title: 'Run /ship', desc: 'Commit, push, create PR, wait for auto-reviewers, address comments, monitor CI, merge.' },
-          { title: 'Done', desc: 'From code-complete to merged PR. If gates fail, ship does not run. Each piece also runs independently.' }
-        ]
-      },
-      14: {
-        subtitle: 'Detect ecosystem. Tag. Publish.',
-        steps: [
-          { title: 'Discover release method', desc: 'Finds your release tool: semantic-release, release-it, goreleaser, cargo-release, or manual npm/cargo/go publish.' },
-          { title: 'Pre-release checks', desc: 'Runs tests, verifies build, checks repo-intel health (bus factor, AI ratio, bugspots). Bumps version.' },
-          { title: 'Tag and publish', desc: 'Creates git tag, publishes to registry (npm, crates.io, PyPI, etc.), creates GitHub release with notes.' }
-        ]
-      },
-      15: {
+      11: {
         subtitle: 'Transcripts in. Automation suggestions out.',
         steps: [
           { title: 'Read transcripts', desc: 'Reads saved sessions from Claude Code, Codex, and OpenCode. No hooks, no per-turn overhead.' },
@@ -699,7 +666,7 @@
           { title: 'Suggest automation', desc: 'Recommends skills, hooks, and agents that would automate the patterns found. Checks existing ecosystem first.' }
         ]
       },
-      16: {
+      12: {
         subtitle: 'Automated data collection. Interactive tour.',
         steps: [
           { title: 'Collect project data', desc: 'Scans package.json, git history, directory structure, key files, and conventions automatically.' },
@@ -707,15 +674,15 @@
           { title: 'Interactive Q&A', desc: 'Answers questions about the codebase interactively. Identifies key files, conventions, and gotchas.' }
         ]
       },
-      17: {
+      13: {
         subtitle: 'Match skills to project needs.',
         steps: [
-          { title: 'Analyze project', desc: 'Uses repo-intel to find test gaps, stale docs, open issues, bugspots, and areas with low bus factor.' },
+          { title: 'Analyze project', desc: 'Reads git history and code analysis to find test gaps, stale docs, open issues, bugspots, and areas with low bus factor.' },
           { title: 'Match skills', desc: 'Asks about your experience and interests. Matches your skills to areas where you can make the most impact.' },
           { title: 'Suggest tasks', desc: 'Presents ranked list of good-first tasks, documentation fixes, test gaps, and contribution opportunities.' }
         ]
       },
-      21: {
+      17: {
         subtitle: 'Issues in. Landed PRs out.',
         steps: [
           { title: 'Pick and claim', desc: 'Checks host capacity, picks the next ready issue (urgent first, then oldest) and claims it on GitHub.' },

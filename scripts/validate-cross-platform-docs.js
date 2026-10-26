@@ -64,12 +64,10 @@ const STATE_DIRS = {
 
 // Features that must work on all platforms
 const REQUIRED_FEATURES = [
-  '/ship',
   '/deslop',
   '/enhance',
   '/audit-project',
   '/drift-detect',
-  '/repo-intel',
   '/perf',
   '/sync-docs'
 ];
@@ -107,10 +105,10 @@ function validateCommandPrefixes() {
 
       // Check for wrong prefix usage
       const wrongPrefix = platform === 'codex' ? '/' : '$';
-      // A command name after a path segment (`commands/ship.md`) is a path,
+      // A command name after a path segment (`commands/deslop.md`) is a path,
       // not an invocation, so the prefix must not follow a word, `.`, `/` or `-`.
       const escapedPrefix = wrongPrefix.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
-      const commandPattern = new RegExp(`(?<![\\w./-])${escapedPrefix}(ship|deslop|enhance|audit-project|drift-detect|repo-intel|perf|sync-docs)(?![\\w-])`, 'g');
+      const commandPattern = new RegExp(`(?<![\\w./-])${escapedPrefix}(deslop|enhance|audit-project|drift-detect|perf|sync-docs)(?![\\w-])`, 'g');
 
       const matches = [...content.matchAll(commandPattern)];
       if (matches.length > 0) {
