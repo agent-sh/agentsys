@@ -548,7 +548,10 @@ describe('plugins resolved the way Claude Code reads the marketplace', () => {
   const skill = (name, text) => `---\nname: ${name}\ndescription: Use when ${text}\n---\n\n${text}\n`;
   const entry = (name) => loadMarketplace().plugins.find(p => p.name === name);
 
-  test.each(['can-i-help', 'onboard'])('%s, which has no plugin.json at its pin, installs its command, agent and skill', async (name) => {
+  test('a plugin with no plugin.json at its pin installs its command, agent and skill', async () => {
+    // zig-lsp ships no .claude-plugin/plugin.json at its pin; the repo
+    // content here is a stand-in so every install target is exercised.
+    const name = 'zig-lsp';
     const { repo, commit } = marketplaceRepo(name);
     fakeGitHub({
       [repo]: {
@@ -633,15 +636,13 @@ describe('plugins resolved the way Claude Code reads the marketplace', () => {
       .toEqual({ name: 'agnix', version: entry('agnix').version });
   });
 
-  test('agnix names its plugin/ folder; onboard and can-i-help are their repo root', () => {
+  test('agnix names its plugin/ folder; zig-lsp is its repo root', () => {
     const agnix = entry('agnix').source;
     expect(resolvePluginSource(agnix)).toEqual({
       type: 'remote', value: 'https://github.com/agent-sh/agnix.git', path: 'plugin', commit: agnix.sha
     });
-    for (const name of ['onboard', 'can-i-help']) {
-      const source = resolvePluginSource(entry(name).source);
-      expect([name, source.type, source.path]).toEqual([name, 'remote', undefined]);
-    }
+    const source = resolvePluginSource(entry('zig-lsp').source);
+    expect([source.type, source.path]).toEqual(['remote', undefined]);
   });
 
   test('a git-subdir source keeps its folder, and owner/repo is a GitHub repo', () => {
@@ -774,17 +775,17 @@ describe('plugins resolved the way Claude Code reads the marketplace', () => {
   });
 
   test('a cache without plugin.json from an earlier version gets one without a refetch', async () => {
-    const { repo, commit } = marketplaceRepo('can-i-help');
+    const { repo, commit } = marketplaceRepo('zig-lsp');
     const requests = fakeGitHub({ [repo]: { refs: { pinned: commit }, manifest: false } });
-    const source = resolvePluginSource(entry('can-i-help').source);
-    await fetchPlugin('can-i-help', source.value, '0.2.0', { commit }, { description: 'Contributor guidance' });
-    const manifest = path.join(getPluginCacheDir(), 'can-i-help', '.claude-plugin', 'plugin.json');
+    const source = resolvePluginSource(entry('zig-lsp').source);
+    await fetchPlugin('zig-lsp', source.value, '0.1.0', { commit }, { description: 'Zig language server' });
+    const manifest = path.join(getPluginCacheDir(), 'zig-lsp', '.claude-plugin', 'plugin.json');
     fs.rmSync(manifest);
 
-    await fetchPlugin('can-i-help', source.value, '0.2.0', { commit }, { description: 'Contributor guidance' });
+    await fetchPlugin('zig-lsp', source.value, '0.1.0', { commit }, { description: 'Zig language server' });
     expect(requests).toHaveLength(1);
     expect(JSON.parse(fs.readFileSync(manifest, 'utf8')))
-      .toEqual({ name: 'can-i-help', version: '0.2.0', description: 'Contributor guidance' });
+      .toEqual({ name: 'zig-lsp', version: '0.1.0', description: 'Zig language server' });
   });
 
   test('a plugin.json the plugin ships is kept as it is', async () => {

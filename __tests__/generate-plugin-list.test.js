@@ -48,9 +48,9 @@ describe('generate-plugin-list', () => {
   test('lists every marketplace plugin once, sorted, one per line', () => {
     const { renderPluginList } = require(scriptPath);
     const marketplace = {
-      plugins: [{ name: 'perf' }, { name: 'ada-spark' }, { name: 'deslop' }],
+      plugins: [{ name: 'skillers' }, { name: 'ada-spark' }, { name: 'deslop' }],
     };
-    expect(renderPluginList(marketplace)).toBe('ada-spark\ndeslop\nperf\n');
+    expect(renderPluginList(marketplace)).toBe('ada-spark\ndeslop\nskillers\n');
   });
 
   test('--check passes on a fresh file and changes nothing', () => {

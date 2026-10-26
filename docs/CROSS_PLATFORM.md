@@ -27,7 +27,7 @@ Build tools once, run everywhere. The core workflows are the same regardless of 
 | Cursor | Skills + commands | N/A | [OK] Supported |
 | Kiro | Steering + skills + agents | N/A | [OK] Supported |
 
-> **Note:** Codex CLI uses `$` prefix for skills (e.g., `$perf`, `$deslop`) instead of `/` slash commands.
+> **Note:** Codex CLI uses `$` prefix for skills (e.g., `$learn`, `$deslop`) instead of `/` slash commands.
 
 ## Common Architecture
 
@@ -53,7 +53,7 @@ For OpenCode and Codex CLI, the installer adapts the platform argument handling 
 /plugin marketplace add agent-sh/agentsys
 
 # Install plugins
-/plugin install prepare-delivery@agentsys
+/plugin install foreman@agentsys
 /plugin install deslop@agentsys
 ```
 
@@ -83,66 +83,24 @@ claude --plugin-dir ./deslop
 ```
 
 ### Available Commands
-- `/prepare-delivery` - Pre-ship quality gates (never pushes or opens a PR)
 - `/foreman` - GitHub issue queue for native agents (worktree subagents need Claude Code)
 - `/deslop` - AI slop cleanup
-- `/audit-project` - Multi-agent code review
-- `/drift-detect` - Plan drift detection
-- `/enhance` - Enhancement analyzer suite
-- `/sync-docs` - Documentation sync
-- `/perf` - Performance investigation
 - `/banthis` - Durable negative behavior memory
 - `/learn` - Research topics and create learning guides
 - `/agnix` - Lint agent configuration files
-- `/consult` - Cross-tool AI consultation
-- `/debate` - Structured AI debate
 - `/skillers` - Workflow pattern learning
 - `/skill-curator` - Skill authoring and review
 - `/system-prompt-curator` - System prompt curation
-- `/onboard` - Codebase onboarding
-- `/can-i-help` - Contributor guidance
 
-### Available Agents (38 total: 28 file-based agents + 10 role-based)
+### Available Agents (5 total)
 
-**Key agents shown below:**
-
-**enhance: Quality Analyzers (9 agents)**
-
-| Agent | Model | Purpose |
-|-------|-------|---------|
-| plugin-enhancer | sonnet | Analyze plugin structures |
-| agent-enhancer | opus | Review agent prompts |
-| docs-enhancer | opus | Documentation quality |
-| claudemd-enhancer | opus | Project memory optimization |
-| prompt-enhancer | opus | General prompt quality |
-| hooks-enhancer | sonnet | Hook frontmatter and safety |
-| skills-enhancer | sonnet | SKILL.md structure and triggers |
-| cross-file-enhancer | sonnet | Cross-file consistency |
-
-**perf: Performance Investigation (6 agents)**
-
-| Agent | Model | Purpose |
-|-------|-------|---------|
-| perf-orchestrator | opus | Coordinate perf investigation |
-| perf-theory-gatherer | opus | Generate hypotheses |
-| perf-theory-tester | opus | Validate hypotheses |
-| perf-code-paths | sonnet | Map hot paths |
-| perf-investigation-logger | sonnet | Log evidence |
-| perf-analyzer | opus | Synthesize findings |
-
-**audit-project: Code Review (10 role-based agents)**
-
-Always active: code-quality-reviewer, security-expert, performance-engineer, test-quality-guardian
-
-Conditional: architecture-reviewer, database-specialist, api-designer, frontend-specialist, backend-specialist, devops-reviewer
-
-**drift-detect: Drift Detection (1 agent)**
-
-| Agent | Model | Purpose |
-|-------|-------|---------|
-| plan-synthesizer | opus | Deep semantic analysis |
-
-*Data collection uses JavaScript collectors (77% token reduction vs multi-agent)*
+| Agent | Plugin | Model | Purpose |
+|-------|--------|-------|---------|
+| deslop-agent | deslop | sonnet | AI slop detection and cleanup |
+| learn-agent | learn | sonnet | Web research and learning guides |
+| agnix-agent | agnix | sonnet | Agent config linting |
+| skillers-compactor | skillers | sonnet | Transcript compaction into knowledge themes |
+| skillers-recommender | skillers | opus | Automation suggestions from those themes |
 
 ## OpenCode Integration
 
@@ -163,7 +121,7 @@ agentsys --tool opencode --no-strip
 ```
 
 This installs:
-- Slash commands (`/prepare-delivery`, `/foreman`, `/deslop`, `/audit-project`, `/drift-detect`, `/enhance`, `/sync-docs`, `/perf`, `/banthis`, `/learn`, `/agnix`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`)
+- Slash commands (`/foreman`, `/deslop`, `/banthis`, `/learn`, `/agnix`, `/skillers`, `/skill-curator`, `/system-prompt-curator`)
 - **Native OpenCode plugin** with advanced features:
 
 ### Native Plugin Features
@@ -181,10 +139,7 @@ The native plugin (`~/.config/opencode/plugins/agentsys.ts`) provides deep integ
 
 | Tier | Budget | Agents |
 |------|--------|--------|
-| Discovery | 8k | docs-updater |
-| Analysis | 12k | deslop-agent, test-coverage-checker |
-| Reasoning | 16k | delivery-validator, the enhance analyzers |
-| Synthesis | 20k | plan-synthesizer, enhancement-orchestrator |
+| Analysis | 12k | deslop-agent |
 
 **Provider-Specific Thinking:**
 
@@ -224,14 +179,14 @@ tools:
 You check that the current branch is ready to ship.
 
 When invoked, you should:
-1. Run /prepare-delivery on the branch
-2. Report the gates that failed with their fixes
+1. Run /deslop on the changed files and /agnix on any changed agent config
+2. Report what failed with its fix
 3. Say when the branch is clean, so you can push it and open the PR
 ```
 
 ## Codex CLI Integration
 
-> **Note:** Codex uses `$` prefix for skills instead of `/` slash commands (e.g., `$perf`, `$deslop`).
+> **Note:** Codex uses `$` prefix for skills instead of `/` slash commands (e.g., `$learn`, `$deslop`).
 
 ### Option 1: npm Global Install (Recommended)
 
@@ -243,9 +198,9 @@ agentsys  # Select option 3 for Codex CLI
 agentsys --tool codex
 ```
 
-This installs skills to `~/.codex/skills/` (`$prepare-delivery`, `$foreman`, `$deslop`, `$audit-project`, `$drift-detect`, `$enhance`, `$sync-docs`, `$perf`, `$banthis`, `$learn`, `$agnix`, `$consult`, `$debate`, `$skillers`, `$skill-curator`, `$system-prompt-curator`, `$onboard`, `$can-i-help`).
+This installs skills to `~/.codex/skills/` (`$foreman`, `$deslop`, `$banthis`, `$learn`, `$agnix`, `$skillers`, `$skill-curator`, `$system-prompt-curator`).
 
-Plugin skills are installed next to them, each skill directory copied whole (`references/`, `scripts/`), with paths that pointed at the plugin root pointing at `~/.agentsys/plugins/<plugin>/`. A plugin skill named like a command (`deslop`, `consult`, ...) is not installed there: `$<name>` stays the command.
+Plugin skills are installed next to them, each skill directory copied whole (`references/`, `scripts/`), with paths that pointed at the plugin root pointing at `~/.agentsys/plugins/<plugin>/`. A plugin skill named like a command (`deslop`, `learn`, ...) is not installed there: `$<name>` stays the command.
 
 ### Option 2: Custom Skills
 
@@ -259,7 +214,7 @@ description: Review the current branch before shipping
 
 # Review Workflow
 
-Run `$deslop` on the changed files, then `$prepare-delivery` when the review is clean.
+Run `$deslop` on the changed files, then `$agnix` on any agent config you changed.
 ```
 
 ## Shared Libraries
@@ -270,13 +225,12 @@ All integrations use the same core libraries:
 lib/
 ├── config/                    # Configuration management
 ├── cross-platform/            # Platform detection, utilities
-├── enhance/                   # Quality analyzer logic
 ├── patterns/                  # 3-phase slop detection pipeline
 │   ├── pipeline.js            # Orchestrates phases
 │   ├── slop-patterns.js       # Regex patterns (HIGH certainty)
 │   └── slop-analyzers.js      # Multi-pass analyzers (MEDIUM)
 ├── platform/                  # Project type detection
-├── drift-detect/             # Drift detection collectors
+├── repo-intel/                # agent-analyzer map: init, update, queries
 ├── schemas/                   # JSON schemas for validation
 ├── sources/                   # Task source discovery
 ├── state/                     # Workflow state management
@@ -313,8 +267,8 @@ The plugin auto-detects the platform and uses the appropriate directory. Overrid
 - Works with any model provider (Claude, OpenAI, Google, local)
 - State directory: `.opencode/`
 - Slash commands in `~/.config/opencode/commands/`
-- Agents in `~/.config/opencode/agents/` (25 agents at the pinned plugin commits)
-- Skills in `~/.config/opencode/skills/<name>/` (35 skills at the pinned plugin commits, each skill directory copied whole)
+- Agents in `~/.config/opencode/agents/` (5 agents at the pinned plugin commits)
+- Skills in `~/.config/opencode/skills/<name>/` (11 skills at the pinned plugin commits, each skill directory copied whole)
 - Native plugin in `~/.config/opencode/plugins/agentsys.ts`
 - **Native plugin features:**
   - Auto-thinking selection (adjusts budget per agent)
@@ -339,7 +293,7 @@ The plugin auto-detects the platform and uses the appropriate directory. Overrid
 - Skills in `~/.kiro/skills/<name>/` (the whole skill directory), agents converted to JSON in `~/.kiro/agents/`
 - Reads AGENTS.md and `.kiro/steering/*.md` for instructions
 - **Subagent spawning**: Experimental (max 4 agents). Primary agent invokes subagents by name from `~/.kiro/agents/*.json`. Sequential only - no parallel spawning publicly available yet.
-- **Parallel Task() adaptation**: Workflows that spawn 4+ parallel reviewers (audit-project Phase 2, the prepare-delivery review loop) are adapted with a try-4-then-fallback-to-2 pattern. Two combined reviewer agents (`reviewer-quality-security`, `reviewer-perf-test`) merge review passes for the sequential fallback.
+- **Parallel Task() adaptation**: A `Promise.all` block of Task() calls becomes one "Delegate to the `<agent>` subagent" line per call.
 - **No team/swarm pattern**: TeamCreate, SendMessage not supported. All orchestration is single-primary with sequential subagent delegation.
 
 ### Subagent Capabilities by Platform
@@ -349,8 +303,6 @@ The plugin auto-detects the platform and uses the appropriate directory. Overrid
 | Sub-agent spawning | Task() tool | By name from ~/.kiro/agents/*.json | @agent syntax | N/A | N/A |
 | Parallel agents | Yes (multiple Task) | Experimental (max 4) | No | N/A | N/A |
 | Agent teams | TeamCreate + SendMessage | Not supported | Not supported | N/A | N/A |
-| Combined reviewers | Not needed (parallel) | reviewer-quality-security, reviewer-perf-test | Not needed (sequential) | N/A | N/A |
-| ACP transport | Via acp/run.js | Native (kiro-cli acp) | Via acp/run.js | Via adapter | Via adapter |
 
 ## Migration Guide
 

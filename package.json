@@ -66,8 +66,7 @@
     "cli",
     "pr-automation",
     "productivity",
-    "static-analysis",
-    "drift-detect"
+    "static-analysis"
   ],
   "author": {
     "name": "Avi Fenesh",

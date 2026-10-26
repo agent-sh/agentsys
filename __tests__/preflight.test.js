@@ -89,7 +89,7 @@ describe('detectRelevantChecklists', () => {
   });
 
   test('agent files trigger new-agent and cross-platform', () => {
-    const files = ['plugins/enhance/agents/my-agent.md'];
+    const files = ['plugins/deslop/agents/my-agent.md'];
     const result = detectRelevantChecklists(files);
     expect(result.has('new-agent')).toBe(true);
     expect(result.has('cross-platform')).toBe(true);
@@ -121,10 +121,9 @@ describe('detectRelevantChecklists', () => {
     expect(result.has('repo-intel')).toBe(true);
   });
 
-  test('lib/repo-map files trigger repo-intel', () => {
-    const files = ['lib/repo-map/index.js'];
-    const result = detectRelevantChecklists(files);
-    expect(result.has('repo-intel')).toBe(true);
+  test('lib/repo-map and lib/collectors are gone and map to no checklist of their own', () => {
+    const result = detectRelevantChecklists(['lib/repo-map/index.js', 'lib/collectors/index.js']);
+    expect(result.has('repo-intel')).toBe(false);
   });
 
   test('empty array triggers no checklists', () => {

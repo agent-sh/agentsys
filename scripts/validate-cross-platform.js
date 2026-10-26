@@ -15,19 +15,9 @@ const path = require('path');
 
 const ROOT_DIR = path.join(__dirname, '..');
 const PLUGINS_DIR = path.join(ROOT_DIR, 'plugins');
-const LIB_DIR = path.join(ROOT_DIR, 'lib', 'enhance');
-
-// Try to load the agent analyzer
-let agentAnalyzer;
-try {
-  agentAnalyzer = require(path.join(LIB_DIR, 'agent-analyzer'));
-} catch (e) {
-  console.error('Error loading agent-analyzer:', e.message);
-  process.exit(1);
-}
 
 /**
- * Cross-platform patterns for non-agent files (commands, skills, etc.)
+ * Cross-platform patterns for agents, commands, skills and hooks
  */
 const crossPlatformPatterns = {
   hardcoded_claude_dir: {
@@ -112,25 +102,6 @@ function scanDirectory(dir, category) {
 }
 
 /**
- * Analyze agents using the enhanced agent analyzer
- */
-function analyzeAgents(agentsDir) {
-  if (!fs.existsSync(agentsDir)) return [];
-
-  const results = agentAnalyzer.analyzeAllAgents(agentsDir, { verbose: false });
-
-  // Filter to only cross-platform issues
-  return results
-    .filter(r => r.crossPlatformIssues && r.crossPlatformIssues.length > 0)
-    .map(r => ({
-      file: r.agentName + '.md',
-      path: r.agentPath,
-      category: 'agent',
-      issues: r.crossPlatformIssues
-    }));
-}
-
-/**
  * Main validation function
  */
 function validate(options = {}) {
@@ -157,7 +128,7 @@ function validate(options = {}) {
 
     // Scan agents
     const agentsDir = path.join(pluginPath, 'agents');
-    const agentIssues = analyzeAgents(agentsDir);
+    const agentIssues = scanDirectory(agentsDir, 'agent');
     if (agentIssues.length > 0) {
       console.log(`  agents/: ${agentIssues.length} file(s) with issues`);
       allIssues.push(...agentIssues.map(i => ({ ...i, plugin })));

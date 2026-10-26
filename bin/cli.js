@@ -489,8 +489,7 @@ function pluginSubdir(name, subdir) {
  * marketplace entry.
  *
  * Claude Code installs such a plugin from the entry and loads commands/,
- * agents/ and skills/ from the plugin root (can-i-help and onboard at their
- * pins). Discovery for
+ * agents/ and skills/ from the plugin root (zig-lsp at its pin). Discovery for
  * OpenCode, Codex, Cursor and Kiro lists only directories with a plugin.json,
  * so without one they got nothing from the plugin. A shipped plugin.json is
  * left as it is; a `.claude-plugin` or `plugin.json` that is a symlink is an
@@ -1178,7 +1177,7 @@ function checkCoreCompat(pluginEntry) {
 
 /**
  * Parse "plugin:component" install target format.
- * @param {string} arg - e.g. "prepare-delivery:delivery-validator" or "deslop" or "deslop@1.3.0"
+ * @param {string} arg - e.g. "skillers:skillers-compactor" or "deslop" or "deslop@1.3.0"
  * @returns {{ plugin: string, component: string|null, version: string|null }}
  */
 function parseInstallTarget(arg) {
@@ -2040,7 +2039,7 @@ function installForCodex(installDir, options = {}) {
   console.log('\n[OK] Codex CLI installation complete!');
   console.log(`   Config: ${configDir}`);
   console.log(`   Skills: ${skillsDir}`);
-  console.log('   Access via: $deslop, $perf, $prepare-delivery, etc.\n');
+  console.log('   Access via: $foreman, $deslop, $learn, etc.\n');
   return true;
 }
 
@@ -2493,36 +2492,10 @@ function installForKiro(installDir, options = {}) {
     }
   }
 
-  // Generate combined reviewer agents for Kiro's 4-agent experimental limit.
-  // These are fallback agents that merge 2 review passes into 1 agent session.
-  const combinedReviewers = [
-    {
-      name: 'reviewer-quality-security',
-      description: 'Combined code quality and security reviewer for Kiro',
-      roles: [
-        { name: 'Code Quality', focus: 'Error handling, maintainability, naming, duplication, dead code, logging quality' },
-        { name: 'Security', focus: 'Auth vulnerabilities, input validation, injection risks, secrets exposure, OWASP top 10' },
-      ]
-    },
-    {
-      name: 'reviewer-perf-test',
-      description: 'Combined performance and test coverage reviewer for Kiro',
-      roles: [
-        { name: 'Performance', focus: 'Hot paths, algorithmic complexity, unnecessary allocations, N+1 queries, caching opportunities' },
-        { name: 'Test Coverage', focus: 'Missing tests, edge cases, assertion quality, test isolation, mock correctness' },
-      ]
-    },
-  ];
-  for (const cr of combinedReviewers) {
-    const json = transforms.generateCombinedReviewerAgent(cr.roles, cr.name, cr.description);
-    fs.writeFileSync(path.join(agentsDir, `${cr.name}.json`), json);
-    agentCount++;
-  }
-
   console.log(`\n[OK] Kiro installation complete!`);
   console.log(`   Skills: ${skillCount} installed to ${skillsDir}`);
   console.log(`   Prompts: ${promptCount} installed to ${promptsDir} (invoke with @name in kiro-cli)`);
-  console.log(`   Agents: ${agentCount} installed to ${agentsDir} (includes 2 combined reviewers)`);
+  console.log(`   Agents: ${agentCount} installed to ${agentsDir}`);
   console.log(`   Global install: ${kiroHome}\n`);
   return true;
 }
@@ -2560,10 +2533,10 @@ Usage:
 
 Examples:
   agentsys install deslop                Install the deslop plugin (all its components)
-  agentsys install prepare-delivery:delivery-validator  Install just the delivery-validator agent
+  agentsys install skillers:skillers-compactor  Install just the skillers-compactor agent
   agentsys install deslop:deslop         Install just the deslop skill
-  agentsys install enhance:enhance-docs  Install just the enhance-docs skill
-  agentsys install perf@1.2.0            Install perf at version 1.2.0
+  agentsys install skillers:recommend    Install just the recommend skill
+  agentsys install learn@1.2.0           Install learn at version 1.2.0
 
 Options:
   --tool <name>     Install for a specific platform (claude, opencode, codex, cursor, kiro)
@@ -2612,14 +2585,14 @@ Usage:
 
 Examples:
   agentsys search              Show all plugins
-  agentsys search perf         Find plugins matching "perf"
-  agentsys search perf:        Show perf's agents, skills and commands
-  agentsys search :delivery-validator  Search all plugins for "delivery-validator"
+  agentsys search learn        Find plugins matching "learn"
+  agentsys search skillers:    Show skillers' agents, skills and commands
+  agentsys search :skillers-compactor  Search all plugins for "skillers-compactor"
 
 Output:
   NAME          VERSION  DESCRIPTION
   deslop        1.3.0    Clean AI slop from code
-  perf          1.2.0    Performance investigation
+  learn         1.2.0    Research topics and create learning guides
 `,
     remove: `
 agentsys remove — Remove an installed plugin
@@ -2689,7 +2662,7 @@ Non-Interactive Examples:
   agentsys --tools "claude,opencode"  # Install for both
   agentsys --tools claude,opencode,codex,cursor,kiro  # Install for all
   agentsys --only deslop              # Install deslop + its dependencies
-  agentsys --only "deslop,perf"       # Install specific plugins + deps
+  agentsys --only "deslop,learn"      # Install specific plugins + deps
 
 Development Mode:
   agentsys --development      # Install plugins directly to ~/.claude/plugins

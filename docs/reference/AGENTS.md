@@ -3,7 +3,7 @@
 Every agent in the AgentSys plugins at the commits pinned in `.claude-plugin/marketplace.json`. Each plugin repo's `agents/*.md` is the source of truth; this page summarizes it.
 
 <!-- GEN:START:agents-counts -->
-**TL;DR:** 38 agents across 21 plugins (14 have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5.5, Haiku 4.5) or inherits the caller's model, and does one thing. <!-- AGENT_COUNT_TOTAL: 38 -->
+**TL;DR:** 5 agents across 11 plugins (4 have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5.5, Haiku 4.5) or inherits the caller's model, and does one thing. <!-- AGENT_COUNT_TOTAL: 5 -->
 <!-- GEN:END:agents-counts -->
 
 ## Quick Navigation
@@ -24,20 +24,11 @@ Every agent in the AgentSys plugins at the commits pinned in `.claude-plugin/mar
 
 Family aliases resolve to the current model in that family, so agent files do not pin versions.
 
-- **File-based agents** (28): `agents/*.md` with frontmatter in each plugin repo. <!-- AGENT_COUNT_FILE_BASED: 28 -->
-- **Role-based agents** (10): audit-project review passes, spawned through Task with a pass-specific prompt. <!-- AGENT_COUNT_ROLE_BASED: 10 -->
+Every agent is an `agents/*.md` file with frontmatter in its plugin repo.
 
 Plugins with no agents: foreman (command and skill; its workers are native worktree subagents); banthis, skill-curator and system-prompt-curator (skill and command only); mojo and ada-spark (skills only); zig-lsp (LSP config only).
 
 Tool lists are abbreviated: `Bash(git, gh)` means `Bash(git:*), Bash(gh:*)`.
-
-## prepare-delivery Plugin Agents
-
-| Agent | Model | Tools | What it does |
-|-------|-------|-------|--------------|
-| prepare-delivery-agent | inherit | Bash(git, npm, node, agnix), Skill, Task, Read, Edit, Write, Glob, Grep, AskUserQuestion | Runs the pre-ship gates (deslop, config lint, review loop, delivery validation, docs sync) and returns a `PREPARE_DELIVERY_RESULT` block. Local only; never pushes. |
-| test-coverage-checker | sonnet | Bash(git, node), Skill, Read, Grep, Glob | Checks that changed code has tests that exercise it, not just a test file with a matching name. Advisory and read-only. |
-| delivery-validator | sonnet | Skill, Bash(git, npm, node, cargo, go, pytest, make), Read, Grep, Glob | Decides whether a reviewed branch is ready to ship: tests, build, requirements and review status. Returns approval or fix instructions. |
 
 ## deslop Plugin Agents
 
@@ -45,69 +36,13 @@ Tool lists are abbreviated: `Bash(git, gh)` means `Bash(git:*), Bash(gh:*)`.
 |-------|-------|-------|--------------|
 | deslop-agent | sonnet | Bash(git, node), Skill, Read, Glob, Grep | Scans for AI slop with the deslop skill and returns certainty-ranked findings plus safe fixes as a `DESLOP_RESULT` block. Read-only; the caller applies fixes. |
 
-## enhance Plugin Agents
-
-All eight load their matching `enhance-*` skill, which holds the analyzer command and the checks. Tools: Skill, Read, Glob, Grep, Bash(node), plus Edit and Bash(git) where noted.
-
-| Agent | Model | Extra tools | What it analyzes |
-|-------|-------|-------------|------------------|
-| plugin-enhancer | sonnet | Edit, Bash(git) | Plugin manifests, MCP tool schemas, plugin security patterns |
-| agent-enhancer | inherit | Edit, Bash(git) | Agent definitions: frontmatter, tools, model choice, prompt quality |
-| claudemd-enhancer | inherit | Edit, Bash(git) | CLAUDE.md and AGENTS.md: broken references, bloat, instructions that no longer help |
-| docs-enhancer | sonnet | Edit, Bash(git) | Documentation: broken links, structure, retrieval readiness |
-| prompt-enhancer | inherit | Edit, Bash(git) | Prompt files: clarity, dated patterns, output contracts |
-| hooks-enhancer | sonnet | Edit | Hook configs and scripts: safety, exit codes, timeouts |
-| skills-enhancer | inherit | Edit | SKILL.md files: trigger quality, invocation control, tool scope, size |
-| cross-file-enhancer | sonnet | Bash(git) | Consistency across agents, skills and commands: undeclared tools, missing agent references, duplicated or contradictory rules |
-
-## drift-detect Plugin Agents
-
-| Agent | Model | Tools | What it does |
-|-------|-------|-------|--------------|
-| plan-synthesizer | sonnet | Read, Write, Glob, Grep | Compares the data from `scripts/collect.js` (issues, docs, code, analyzer facts) with the code and writes a Reality Check Report of drift, gaps and a prioritized plan. |
-
-## perf Plugin Agents
-
-| Agent | Model | Tools | What it does |
-|-------|-------|-------|--------------|
-| perf-orchestrator | inherit | Read, Write, Edit, Skill, Bash(git, node and the build and test runners) | Runs a whole `/perf` investigation as a subagent: phases, measurements, delegation to the perf skills, the investigation log. |
-| perf-theory-gatherer | inherit | Skill, Read, Grep, Glob, Bash(git, node and the build and test runners) | Proposes up to 5 evidence-backed hypotheses from git history and the measurements so far. |
-| perf-theory-tester | inherit | Skill, Read, Write, Edit, Bash(git, node and the build and test runners) | Tests one hypothesis: one change, repeated sequential benchmark runs, then revert to the clean baseline. |
-| perf-code-paths | sonnet | Skill, Read, Grep, Glob | Maps the code paths, entry points and likely hot files for a scenario before profiling. |
-| perf-investigation-logger | haiku | Skill, Read, Edit | Appends a structured log entry with exact user quotes, evidence pointers and decisions. |
-| perf-analyzer | inherit | Skill, Read | Turns the investigation into evidence-backed recommendations and a continue-or-stop call. |
-
-The build and test runners are npm, pnpm, yarn, cargo, go, pytest, python, mvn and gradle.
-
-## audit-project Plugin Agents
-
-Role-based: `/audit-project` spawns one subagent per pass with the pass's prompt from `commands/audit-project-agents.md` (a `general-purpose` agent in Claude Code), or runs the passes in sequence without Task. `--domain <name>` runs one pass.
-
-| Pass | Reviewer | Runs when | Focus |
-|------|----------|-----------|-------|
-| code-quality | code-quality-reviewer | always | Bugs and logic errors, error handling, maintainability, duplication, conventions |
-| security | security-expert | always | Authn and authz, input validation and output encoding, injection, secrets and unsafe config |
-| performance | performance-engineer | always | N+1 queries, blocking calls in async paths, hot-path waste, leaks |
-| test-coverage | test-quality-guardian | always (skipped with no test runner) | Untested code, missing edge cases, weak assertions, mock fit |
-| architecture | architecture-reviewer | more than 50 files, or 3+ repo-intel slop targets | Ownership, dependency direction, cross-layer coupling |
-| database | database-specialist | database detected | Query cost, missing indexes, transactions, migration safety |
-| api | api-designer | API detected | Contracts, status codes and errors, rate limits, pagination, versioning |
-| frontend | frontend-specialist | frontend detected | Component boundaries, state management, accessibility, render cost |
-| backend | backend-specialist | backend detected | Service boundaries, domain correctness, concurrency and idempotency, background jobs |
-| devops | devops-reviewer | CI/CD detected | Pipeline safety, secrets handling, build and test steps, deploy config |
-
 ## Other Plugin Agents
 
 | Plugin | Agent | Model | Tools | What it does |
 |--------|-------|-------|-------|--------------|
-| sync-docs | sync-docs-agent | sonnet | Bash(git, node), Read, Glob, Grep | Compares docs with the code and returns confirmed doc issues plus exact fixes as a `SYNC_DOCS_RESULT` block. Read-only. |
 | learn | learn-agent | sonnet | WebSearch, WebFetch, Skill, Read, Write, Glob, Grep | Researches a topic and writes a cited learning guide with a RAG index under `agent-knowledge/`. |
-| consult | consult-agent | sonnet | Bash(the AI CLIs, node, npx, git, timeout), Read, Write | Runs a pre-resolved consultation with another AI CLI (Gemini, Codex, Claude, OpenCode, Copilot, Kiro), including parallel instances with a synthesis. |
-| debate | debate-orchestrator | inherit | Bash(the AI CLIs, node, npx, git, timeout), Read, Write, Glob | Runs and judges a structured debate between two AI CLIs: proposer and challenger rounds and a verdict that picks a side. |
 | skillers | skillers-compactor | sonnet | Read, Write, Glob, Bash(node), Skill | Turns a redacted digest of recent sessions into themed observations and merges them into weighted knowledge files. |
 | skillers | skillers-recommender | opus | Read, Glob, Grep, Bash(node), Skill | Ranks at most five hooks, skills and agents worth creating from the knowledge, checked against what is installed. |
-| onboard | onboard-agent | sonnet | Read, Glob, Grep, Bash(git), AskUserQuestion | Gives a short, code-grounded tour of an unfamiliar codebase from collected data, then answers follow-up questions. |
-| can-i-help | can-i-help-agent | sonnet | Read, Glob, Grep, Bash(git, gh), AskUserQuestion | Matches a developer's interests to contribution targets: test gaps, stale docs, bugspots, cleanup candidates, open issues. |
 | agnix | agnix-agent | sonnet | Bash(agnix, cargo), Read, Glob, Grep | Runs the agnix CLI for `/agnix` (with `--fix` only when asked) and returns the diagnostics as an `AGNIX_RESULT` block. |
 
 ## Navigation

@@ -119,17 +119,14 @@ describe('generate-docs', () => {
       const skills = discovery.discoverSkills(REPO_ROOT);
       const table = genDocs.generateArchitectureTable(plugins, agents, skills);
       const expectedPlugins = plugins.length > 0 ? plugins.length : genDocs.STATIC_PLUGIN_COUNT;
-      const expectedFileBasedAgents = agents.length > 0
-        ? agents.length
-        : genDocs.STATIC_FILE_BASED_AGENT_COUNT;
       const expectedTotalAgents = agents.length > 0
-        ? agents.length + genDocs.ROLE_BASED_AGENT_COUNT
+        ? agents.length
         : genDocs.STATIC_AGENT_COUNT;
       const expectedSkills = skills.length > 0 ? skills.length : STATIC_SKILLS.length;
 
       expect(table).toContain(`${expectedPlugins} plugins`);
       expect(table).toContain(`${expectedTotalAgents} agents`);
-      expect(table).toContain(`${expectedFileBasedAgents} file-based`);
+      expect(table).not.toMatch(/file-based|role-based/);
       expect(table).toContain(`${expectedSkills} skills`);
     });
 
@@ -163,7 +160,7 @@ describe('generate-docs', () => {
       expect(table).toContain('| Plugin | Agents | Jump to |');
     });
 
-    test('includes anchor links for all file-based agents', () => {
+    test('includes anchor links for all agents', () => {
       const agents = discovery.discoverAgents(REPO_ROOT);
       const plugins = discovery.discoverPlugins(REPO_ROOT);
       const table = genDocs.generateAgentNavTable(agents, plugins);
@@ -180,7 +177,7 @@ describe('generate-docs', () => {
     // instead of just the locally-discoverable agents.
     function expectedTotalAgents(agents) {
       return agents.length > 0
-        ? agents.length + genDocs.ROLE_BASED_AGENT_COUNT
+        ? agents.length
         : genDocs.STATIC_AGENT_COUNT;
     }
 
@@ -205,7 +202,7 @@ describe('generate-docs', () => {
       // With no plugins, 0 have agents
       const pluginsWithAgents = plugins.filter(p =>
         agents.some(a => a.plugin === p)
-      ).length + (plugins.includes('audit-project') ? 1 : 0);
+      ).length;
       if (pluginsWithAgents > 0) {
         expect(counts).toContain(`${pluginsWithAgents} have agents`);
       }
@@ -292,10 +289,10 @@ describe('generate-docs', () => {
       const result = genDocs.updateSiteContent(plugins, agents, skills);
       expect(result).not.toBeNull();
       // Static fallbacks are used when local discovery finds 0 (external plugins)
-      const effectiveAgents = agents.length > 0 ? agents.length + genDocs.ROLE_BASED_AGENT_COUNT : genDocs.STATIC_AGENT_COUNT;
+      const effectiveAgents = agents.length > 0 ? agents.length : genDocs.STATIC_AGENT_COUNT;
       expect(result.agents.total).toBe(effectiveAgents);
-      expect(result.agents.file_based).toBe(effectiveAgents - genDocs.ROLE_BASED_AGENT_COUNT);
-      expect(result.agents.role_based).toBe(genDocs.ROLE_BASED_AGENT_COUNT);
+      expect(result.agents).not.toHaveProperty('file_based');
+      expect(result.agents).not.toHaveProperty('role_based');
     });
 
     test('stats array reflects discovered counts', () => {
@@ -310,7 +307,7 @@ describe('generate-docs', () => {
 
       // Static fallbacks are used when local discovery finds 0 (external plugins)
       const effectivePlugins = plugins.length > 0 ? plugins.length : genDocs.STATIC_PLUGIN_COUNT;
-      const effectiveAgents = agents.length > 0 ? agents.length + genDocs.ROLE_BASED_AGENT_COUNT : genDocs.STATIC_AGENT_COUNT;
+      const effectiveAgents = agents.length > 0 ? agents.length : genDocs.STATIC_AGENT_COUNT;
       const effectiveSkills = skills.length > 0 ? skills.length : genDocs.STATIC_SKILLS.length;
       expect(pluginStat.value).toBe(String(effectivePlugins));
       expect(agentStat.value).toBe(String(effectiveAgents));

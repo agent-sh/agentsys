@@ -65,7 +65,7 @@ Files updated (via npm version + stamp-version.js):
     // Version is validated by VERSION_PATTERN above (safe for shell use).
     // On Windows, execFileSync does not resolve npm via PATHEXT - and the
     // npm.cmd shim it needs cannot be spawned directly either, so route it
-    // through the same planner the CLI and the perf runners use.
+    // through the same planner the CLI uses.
     const npmCommand = resolveExecutableForPlatform('npm');
     const plan = planShimSpawn(npmCommand, ['version', newVersion, '--no-git-tag-version']);
     execFileSync(plan.file, plan.args, shimSpawnOptions(plan, {

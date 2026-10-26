@@ -36,23 +36,21 @@ When user runs `agentsys` and selects OpenCode:
 ```
 ~/.agentsys/                    # Full package copy
 
-~/.config/opencode/commands/         # 7 commands (global)
-├── delivery-approval.md
+~/.config/opencode/commands/         # 8 commands (global)
+├── foreman.md
 ├── deslop.md
-├── enhance.md
-├── audit-project.md
-├── drift-detect.md
-├── sync-docs.md
-└── perf.md
+├── learn.md
+├── agnix.md
+└── ...
 
-~/.config/opencode/agents/           # 29 agents (global)
+~/.config/opencode/agents/           # 5 agents (global)
 ├── deslop-agent.md
-├── delivery-validator.md
-├── test-coverage-checker.md
+├── learn-agent.md
+├── agnix-agent.md
 └── ...
 
 ~/.config/opencode/skills/           # plugin skills (global), whole directories
-├── orchestrate-review/SKILL.md
+├── skillers-compact/SKILL.md
 ├── deslop/
 │   ├── SKILL.md
 │   └── references/
@@ -458,7 +456,7 @@ workflow_status
 ```bash
 # Should list AgentSys commands
 /deslop
-/perf
+/learn
 ```
 
 ---
@@ -530,7 +528,7 @@ OpenCode supports thinking/reasoning across **multiple providers** with differen
 **Via Plugin Hook (runtime):**
 ```typescript
 "chat.params": async (input, output) => {
-  if (input.agent === "delivery-validator") {
+  if (input.agent === "skillers-recommender") {
     output.options.thinking = { type: "enabled", budgetTokens: 16000 }
   }
 }
@@ -661,7 +659,7 @@ export const WorkflowPlugin: Plugin = async (ctx) => {
 
     "chat.params": async (input, output) => {
       // Use higher reasoning for complex agents
-      if (["delivery-validator", "plan-synthesizer"].includes(input.agent)) {
+      if (["skillers-recommender", "learn-agent"].includes(input.agent)) {
         output.options.thinking = { type: "enabled", budgetTokens: 16000 }
       }
     }
@@ -875,13 +873,13 @@ Add to user's `opencode.json`:
 {
   "agent": {
     // Medium agents - standard thinking
-    "docs-updater": {
+    "agnix-agent": {
       "model": "anthropic/claude-sonnet-4",
       "options": { "thinking": { "type": "enabled", "budgetTokens": 8000 } }
     },
 
     // Complex agents - extended thinking
-    "prepare-delivery:delivery-validator": {
+    "skillers-recommender": {
       "model": "anthropic/claude-sonnet-4",
       "options": { "thinking": { "type": "enabled", "budgetTokens": 16000 } }
     }
@@ -893,10 +891,10 @@ Add to user's `opencode.json`:
 
 | Agent Category | Model | Thinking Budget |
 |----------------|-------|-----------------|
-| **Discovery** (docs-updater) | Sonnet | 8k |
-| **Analysis** (deslop-agent, test-coverage-checker) | Sonnet | 12k |
-| **Reasoning** (review, delivery) | Sonnet | 16k |
-| **Synthesis** (plan-synthesizer, enhancement-orchestrator) | Opus | 16k+ |
+| **Discovery** (agnix-agent) | Sonnet | 8k |
+| **Analysis** (deslop-agent, skillers-compactor) | Sonnet | 12k |
+| **Reasoning** (learn-agent) | Sonnet | 16k |
+| **Synthesis** (skillers-recommender) | Opus | 16k+ |
 
 ---
 

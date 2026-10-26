@@ -23,17 +23,10 @@ Add the marketplace and install plugins directly in Claude Code:
 
 ```bash
 /plugin marketplace add agent-sh/agentsys
-/plugin install prepare-delivery@agentsys
 /plugin install foreman@agentsys
 /plugin install deslop@agentsys
-/plugin install audit-project@agentsys
-/plugin install drift-detect@agentsys
-/plugin install enhance@agentsys
-/plugin install perf@agentsys
-/plugin install sync-docs@agentsys
 /plugin install learn@agentsys
-/plugin install consult@agentsys
-/plugin install debate@agentsys
+/plugin install agnix@agentsys
 ```
 
 **Scopes** (optional):
@@ -98,7 +91,7 @@ agentsys --tools claude,opencode,codex
 
 The installer downloads each plugin into `~/.agentsys/plugins/<name>/` at the commit pinned in `.claude-plugin/marketplace.json`, the same commit Claude Code installs. The pin is the entry's `sha`, the key Claude Code reads, or its `commit` when it has no `sha`; every entry carries both with the same value. A pin is a full 40-character SHA. Each plugin directory records the fetched commit in `.commit`. A download is extracted beside the cache and moved into `plugins/` only when it is complete and from the pinned commit, so a failed download leaves no plugin directory. A full `agentsys` run starts from an empty `~/.agentsys` and downloads every plugin again; `agentsys install <plugin>` reuses a cached plugin whose `.commit` matches the pin. `agentsys install <plugin>@<version>` for a version other than the marketplace one is not pinned: it tries the `v<version>` tag, then `<version>`, `main` and `master`. Set `GITHUB_TOKEN` if GitHub rate-limits the downloads.
 
-The plugin directory holds what Claude Code installs for the marketplace entry: the repo root, or for a `git-subdir` source the folder its `path` names (agnix: `plugin/`, which holds its `/agnix` command, agnix-agent and skill), and records that folder in `.path`. A plugin that ships no `.claude-plugin/plugin.json` there (can-i-help and onboard at their pins) gets one made from its marketplace entry, so OpenCode, Codex, Cursor and Kiro install its commands, agents and skills.
+The plugin directory holds what Claude Code installs for the marketplace entry: the repo root, or for a `git-subdir` source the folder its `path` names (agnix: `plugin/`, which holds its `/agnix` command, agnix-agent and skill), and records that folder in `.path`. A plugin that ships no `.claude-plugin/plugin.json` there (zig-lsp at its pin) gets one made from its marketplace entry, so OpenCode, Codex, Cursor and Kiro install its commands, agents and skills.
 
 ### Model Stripping
 
@@ -185,22 +178,12 @@ Select your platform when prompted. The installer configures:
 
 You should see commands:
 - `/deslop` - AI slop cleanup
-- `/audit-project` - Multi-agent code review
-- `/drift-detect` - Plan drift detection
-- `/enhance` - Enhancement analyzer suite
-- `/perf` - Performance investigation workflow
-- `/sync-docs` - Documentation sync
 - `/banthis` - Durable negative behavior memory
 - `/learn` - Topic research and learning guides
-- `/consult` - Cross-tool AI consultation
-- `/debate` - Structured AI dialectic with verdict
 - `/skillers` - Workflow pattern learning and automation suggestions
 - `/skill-curator` - Skill authoring and review
 - `/system-prompt-curator` - System prompt curation
-- `/onboard` - Codebase onboarding
-- `/can-i-help` - Contributor guidance
 - `/agnix` - Linter for AI agent configs
-- `/prepare-delivery` - Pre-ship validation checks (never pushes or opens a PR)
 - `/foreman` - GitHub issue queue for native agents (needs Node 22+, `gh` and `waitfor`)
 
 ### OpenCode / Codex
@@ -232,7 +215,7 @@ npm run verify   # Tool availability + versions
 
 ### Recommended (Repo Intel)
 
-- **agent-analyzer** - Builds the repo-intel map (git history, AST symbols) that onboard, can-i-help, drift-detect and sync-docs read. Downloaded automatically on first use.
+- **agent-analyzer** - Builds the repo-intel map (git history, AST symbols) that deslop reads. Downloaded automatically on first use.
 
 ### Required for GitHub Workflows
 
@@ -368,7 +351,7 @@ gh auth login
 - Each skill directory is copied whole to `~/.kiro/skills/<name>/`, references and scripts included; paths that pointed at the plugin root point at `~/.agentsys/plugins/<plugin>/`
 - Agents converted to JSON in `~/.kiro/agents/`
 - Reads AGENTS.md and `.kiro/steering/*.md` for instructions
-- **Note**: Kiro's subagent spawning is experimental (max 4). Workflows with parallel Task() calls (e.g., the audit-project review with 4-10 reviewers) automatically fall back to 2 sequential combined reviewers (`reviewer-quality-security`, `reviewer-perf-test`)
+- **Note**: Kiro's subagent spawning is experimental (max 4). A `Promise.all` block of Task() calls becomes one delegation line per subagent
 
 ### Skill directories on OpenCode, Codex, Cursor and Kiro
 - Each skill directory agentsys installs has a `.agentsys-skill` marker file. A reinstall replaces a marked directory, so a file you add inside one is removed.

@@ -24,9 +24,7 @@ const GITHUB_ORG = 'agent-sh';
 const TODAY = new Date().toISOString().slice(0, 10);
 
 const PLUGINS = [
-  'enhance', 'deslop', 'learn', 'consult',
-  'debate', 'drift-detect', 'sync-docs', 'audit-project',
-  'perf', 'agnix'
+  'deslop', 'learn', 'agnix'
 ];
 
 // ---------------------------------------------------------------------------

@@ -40,7 +40,7 @@ Platform details (config formats, frontmatter, env vars, label limits) are in `c
 | `npm run validate` | plugins, cross-platform, consistency, paths, counts, platform-docs, agent-skill-compliance |
 | `npm test` | Jest suite |
 | `npm run gen-docs:check`, `node scripts/expand-templates.js --check`, `node scripts/gen-adapters.js --check` | Generated content is fresh (CI runs all three) |
-| `npx agentsys-dev preflight [--all\|--release]` | Change-aware checklist checks. The pre-push hook runs it, asks for the `/enhance` confirmation, and runs `--release` when a `v*` tag is pushed. |
+| `npx agentsys-dev preflight [--all\|--release]` | Change-aware checklist checks. The pre-push hook runs it, runs agnix on changed agent configs, and runs `--release` when a `v*` tag is pushed. |
 | `node bin/dev-cli.js validate opencode-install` | A real OpenCode install (not part of `validate`) |
 | `npm pack --dry-run` | The package builds |
 

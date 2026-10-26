@@ -53,8 +53,7 @@ describe('@agentsys/lib workspace', () => {
       const lib = require('@agentsys/lib');
       const expectedKeys = [
         'platform', 'patterns', 'state', 'utils', 'config',
-        'sources', 'xplat', 'enhance', 'repoMap', 'perf',
-        'collectors', 'discovery'
+        'sources', 'xplat', 'repoIntel', 'discovery', 'binary'
       ];
 
       for (const key of expectedKeys) {
@@ -68,10 +67,10 @@ describe('@agentsys/lib workspace', () => {
       expect(crossPlatform.PLATFORMS).toBeDefined();
     });
 
-    it('should resolve nested subpath require(@agentsys/lib/enhance/agent-patterns)', () => {
-      const agentPatterns = require('@agentsys/lib/enhance/agent-patterns');
-      expect(agentPatterns).toBeDefined();
-      expect(agentPatterns.agentPatterns).toBeDefined();
+    it('should resolve nested subpath require(@agentsys/lib/patterns/slop-patterns)', () => {
+      const slopPatterns = require('@agentsys/lib/patterns/slop-patterns');
+      expect(slopPatterns).toBeDefined();
+      expect(slopPatterns.slopPatterns).toBeDefined();
     });
 
     it('should resolve require(@agentsys/lib/sources/custom-handler)', () => {
@@ -80,10 +79,10 @@ describe('@agentsys/lib workspace', () => {
       expect(customHandler.SOURCE_TYPES).toBeDefined();
     });
 
-    it('should resolve require(@agentsys/lib/collectors)', () => {
-      const collectors = require('@agentsys/lib/collectors');
-      expect(collectors).toBeDefined();
-      expect(typeof collectors.collect).toBe('function');
+    it('should resolve require(@agentsys/lib/repo-intel)', () => {
+      const repoIntel = require('@agentsys/lib/repo-intel');
+      expect(repoIntel).toBeDefined();
+      expect(typeof repoIntel.init).toBe('function');
     });
   });
 

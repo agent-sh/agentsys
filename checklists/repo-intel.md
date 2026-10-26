@@ -1,6 +1,6 @@
 # Repo Intel Library Checklist
 
-Use this checklist when changing `lib/repo-intel/`, `lib/repo-map/` or the collectors that read their data (`lib/collectors/`). These wrap the `agent-analyzer` binary; onboard, can-i-help, drift-detect, sync-docs and audit-project consume the data from their own vendored `lib/` copies.
+Use this checklist when changing `lib/repo-intel/`. It wraps the `agent-analyzer` binary; deslop's v1.3.0 detector reads its slop queries and test gaps from its own vendored `lib/` copy.
 
 ## Functional
 
@@ -13,12 +13,11 @@ Use this checklist when changing `lib/repo-intel/`, `lib/repo-map/` or the colle
 
 ## Consumers
 
-- [ ] `lib/collectors/` (git, analyzer-queries, docs-patterns) still read the fields they use
 - [ ] A consumer without a map falls back cleanly instead of failing
 
 ## Docs + Tests
 
 - [ ] `docs/ARCHITECTURE.md` updated if the module layout changed
-- [ ] `__tests__/repo-intel-queries.test.js`, `__tests__/repo-map*.test.js` and `__tests__/docs-patterns.test.js` cover the change
+- [ ] `__tests__/repo-intel-queries.test.js` covers the change
 - [ ] `npm test` passes
 - [ ] Plugin repos that vendor `lib/` copy the change themselves; nothing syncs it for them

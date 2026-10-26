@@ -46,12 +46,11 @@ agentsys/
 │   ├── cross-platform/           # Platform utilities
 │   │   ├── index.js              # Platform detection, MCP helpers
 │   │   └── RESEARCH.md           # Research documentation
-│   ├── enhance/                  # Quality analyzers (agent, plugin, docs, hooks, skills)
-│   ├── perf/                     # Performance investigation workflow
 │   ├── patterns/                 # Code analysis
 │   │   ├── pipeline.js           # 3-phase slop detection
 │   │   ├── slop-patterns.js      # Pattern definitions
 │   │   └── slop-analyzers.js     # Multi-pass analyzers
+│   ├── repo-intel/               # agent-analyzer map: init, update, queries
 │   ├── state/                    # Workflow state
 │   └── sources/                  # Task source discovery
 ├── bin/                          # CLI installer
@@ -73,13 +72,10 @@ agentsys/
     ├── KNOWLEDGE-LIBRARY.md      # Index
     └── *-REFERENCE.md            # Research documents
 
-NOTE: plugins/ has been removed. All 21 plugins are now standalone repos
+NOTE: plugins/ has been removed. All 11 plugins are now standalone repos
 under the agent-sh org. The installer fetches them from GitHub at install time.
-Plugin repos: agent-sh/{prepare-delivery,foreman,deslop,
-              audit-project,enhance,perf,drift-detect,sync-docs,
-              banthis,learn,consult,debate,agnix,skillers,
-              skill-curator,system-prompt-curator,onboard,can-i-help,
-              zig-lsp,mojo,ada-spark}
+Plugin repos: agent-sh/{foreman,deslop,banthis,learn,agnix,skillers,
+              skill-curator,system-prompt-curator,zig-lsp,mojo,ada-spark}
 ```
 
 ### Cross-Platform Library (`lib/cross-platform/`)
@@ -123,24 +119,14 @@ The package provides these capabilities through commands, agents, and skills:
 
 | Capability | Command | Description |
 |------------|---------|-------------|
-| Pre-ship quality gates | `/prepare-delivery` | Deslop, review, validation, docs sync |
 | Issue queue | `/foreman` | GitHub issues as a task queue: pick, claim, worktree worker, Revuto findings, land |
 | Code quality | `/deslop` | AI slop detection and cleanup |
-| Enhancement | `/enhance` | Analyze plugins, agents, docs, prompts |
-| Performance | `/perf` | Performance investigation workflow |
-| Documentation | `/sync-docs` | Sync docs with code changes |
-| Drift detection | `/drift-detect` | Plan vs implementation analysis |
-| Code review | `/audit-project` | Multi-agent code review |
 | Negative memory | `/banthis` | Persist banned agent behaviors |
 | Config linting | `/agnix` | Lint agent configurations (457 rules) |
 | Research | `/learn` | Research topics, create learning guides |
-| AI consultation | `/consult` | Cross-tool AI consultation |
-| AI debate | `/debate` | Structured debate between AI tools |
 | Workflow learning | `/skillers` | Workflow pattern learning and automation |
 | Skill curation | `/skill-curator` | Create and improve SKILL.md files |
 | Prompt curation | `/system-prompt-curator` | Create and improve autonomous agent prompts |
-| Onboarding | `/onboard` | Codebase orientation for newcomers |
-| Contributor guidance | `/can-i-help` | Match contributor skills to project needs |
 
 **Slop detection** uses the full 3-phase pipeline:
 - Phase 1: Regex patterns (HIGH certainty)
@@ -154,7 +140,7 @@ The package provides these capabilities through commands, agents, and skills:
 ```bash
 # Via marketplace (recommended)
 /plugin marketplace add agent-sh/agentsys
-/plugin install prepare-delivery@agentsys
+/plugin install foreman@agentsys
 
 # Via CLI installer
 agentsys  # Select option 1
@@ -162,7 +148,7 @@ agentsys  # Select option 1
 
 **Location:** `~/.claude/plugins/agentsys/`
 
-**Commands:** `/prepare-delivery`, `/foreman`, `/deslop`, `/audit-project`, `/drift-detect`, `/enhance`, `/perf`, `/sync-docs`, `/banthis`, `/agnix`, `/learn`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`
+**Commands:** `/foreman`, `/deslop`, `/banthis`, `/agnix`, `/learn`, `/skillers`, `/skill-curator`, `/system-prompt-curator`
 
 ### OpenCode
 
@@ -176,7 +162,7 @@ agentsys  # Select option 2
 - Skills: `~/.config/opencode/skills/<name>/` (each skill directory copied whole)
 - Native plugin: `~/.config/opencode/plugins/agentsys.ts`
 
-**Commands:** `/prepare-delivery`, `/foreman`, `/deslop`, `/audit-project`, `/drift-detect`, `/enhance`, `/perf`, `/sync-docs`, `/banthis`, `/agnix`, `/learn`, `/consult`, `/debate`, `/skillers`, `/skill-curator`, `/system-prompt-curator`, `/onboard`, `/can-i-help`
+**Commands:** `/foreman`, `/deslop`, `/banthis`, `/agnix`, `/learn`, `/skillers`, `/skill-curator`, `/system-prompt-curator`
 
 **Native Plugin Features:**
 - Auto-thinking selection per agent
@@ -193,17 +179,17 @@ agentsys  # Select option 3
 - Config: `~/.codex/config.toml`
 - Skills: `~/.codex/skills/`
 
-**Skills:** `$prepare-delivery`, `$foreman`, `$deslop`, `$audit-project`, `$drift-detect`, `$enhance`, `$perf`, `$sync-docs`, `$banthis`, `$agnix`, `$learn`, `$consult`, `$debate`, `$skillers`, `$skill-curator`, `$system-prompt-curator`, `$onboard`, `$can-i-help`
+**Skills:** `$foreman`, `$deslop`, `$banthis`, `$agnix`, `$learn`, `$skillers`, `$skill-curator`, `$system-prompt-curator`
 
-**Plugin skills:** each plugin skill directory is copied whole to `~/.codex/skills/<name>/`, for example `orchestrate-review` (review pass definitions used by /prepare-delivery and /audit-project), `enhance-docs` or `perf-profiler`. A plugin skill named like a command (`deslop`, `consult`, ...) is not installed there: `$<name>` stays the command, and the skill stays in `~/.agentsys/plugins/<plugin>/skills/<name>/`.
+**Plugin skills:** each plugin skill directory is copied whole to `~/.codex/skills/<name>/`, for example `recommend` and `skillers-compact` from skillers, or `mojo`. A plugin skill named like a command (`deslop`, `learn`, ...) is not installed there: `$<name>` stays the command, and the skill stays in `~/.agentsys/plugins/<plugin>/skills/<name>/`.
 
 Note: Codex uses `$` prefix instead of `/`.
 
 **SKILL.md Format:**
 ```yaml
 ---
-name: perf
-description: Performance investigation with baselines and profiling
+name: learn
+description: Research a topic online and write a learning guide
 ---
 [skill content]
 ```
@@ -212,24 +198,14 @@ description: Performance investigation with baselines and profiling
 
 | Command | Claude Code | OpenCode | Codex CLI | Notes |
 |---------|-------------|----------|-----------|-------|
-| `/prepare-delivery` | [OK] Full | [OK] Full | [OK] Full | Pre-ship quality gates |
 | `/foreman` | [OK] Full | [WARN] Partial | [WARN] Partial | The CLI runs everywhere; the loop spawns Claude Code worktree subagents |
 | `/deslop` | [OK] Full | [OK] Full | [OK] Full | Uses pipeline.js |
-| `/audit-project` | [OK] Full | [OK] Full | [OK] Full | Multi-agent review |
-| `/drift-detect` | [OK] Full | [OK] Full | [OK] Full | JS collectors + Opus |
-| `/enhance` | [OK] Full | [OK] Full | [OK] Full | Orchestrates all enhancers |
-| `/perf` | [OK] Full | [OK] Full | [OK] Full | Performance investigations |
-| `/sync-docs` | [OK] Full | [OK] Full | [OK] Full | Documentation sync |
 | `/banthis` | [OK] Full | [OK] Full | [OK] Full | Negative behavior memory; includes CLI |
 | `/agnix` | [OK] Full | [OK] Full | [OK] Full | Requires `agnix` CLI |
 | `/learn` | [OK] Full | [OK] Full | [OK] Full | Research and learning |
-| `/consult` | [OK] Full | [OK] Full | [OK] Full | Cross-tool consultation |
-| `/debate` | [OK] Full | [OK] Full | [OK] Full | Multi-round AI debate |
 | `/skillers` | [OK] Full | [OK] Full | [OK] Full | Workflow pattern learning |
 | `/skill-curator` | [OK] Full | [OK] Full | [OK] Full | Skill authoring and review |
 | `/system-prompt-curator` | [OK] Full | [OK] Full | [OK] Full | Agent prompt curation |
-| `/onboard` | [OK] Full | [OK] Full | [OK] Full | Codebase orientation |
-| `/can-i-help` | [OK] Full | [OK] Full | [OK] Full | Contributor guidance |
 
 ## Knowledge Base
 

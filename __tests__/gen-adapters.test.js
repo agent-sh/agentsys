@@ -35,7 +35,7 @@ describe('adapter-transforms', () => {
     });
 
     test('strips plugin prefixes from agent references', () => {
-      const input = '`perf:perf-orchestrator` and perf:perf-analyzer';
+      const input = '`skillers:skillers-compactor` and skillers:skillers-recommender';
       const result = transforms.transformBodyForOpenCode(input, REPO_ROOT);
       // When plugins/ dir exists, prefixes are stripped using discovered plugin names.
       // When plugins are extracted to standalone repos, the regex has no plugin names
@@ -44,12 +44,12 @@ describe('adapter-transforms', () => {
       const pluginsDir = path.join(REPO_ROOT, 'plugins');
       const hasPlugins = fs.existsSync(pluginsDir) && fs.readdirSync(pluginsDir).some(f => fs.statSync(path.join(pluginsDir, f)).isDirectory());
       if (hasPlugins) {
-        expect(result).toContain('`perf-orchestrator`');
-        expect(result).toContain('perf-analyzer');
-        expect(result).not.toContain('perf:');
+        expect(result).toContain('`skillers-compactor`');
+        expect(result).toContain('skillers-recommender');
+        expect(result).not.toContain('skillers:');
       } else {
         // No plugins discovered - prefixes not stripped
-        expect(result).toContain('perf:perf-orchestrator');
+        expect(result).toContain('skillers:skillers-compactor');
       }
     });
 
@@ -60,9 +60,9 @@ describe('adapter-transforms', () => {
     });
 
     test('transforms JS code blocks with Task calls', () => {
-      const input = '```javascript\nawait Task({ subagent_type: "perf:perf-orchestrator" })\n```';
+      const input = '```javascript\nawait Task({ subagent_type: "skillers:skillers-compactor" })\n```';
       const result = transforms.transformBodyForOpenCode(input, REPO_ROOT);
-      expect(result).toContain('@perf-orchestrator');
+      expect(result).toContain('@skillers-compactor');
       expect(result).not.toContain('```javascript');
     });
 
@@ -73,10 +73,10 @@ describe('adapter-transforms', () => {
     });
 
     test('transforms multiple Task() calls in one code block', () => {
-      const input = '```javascript\nawait Task({ subagent_type: "perf:perf-orchestrator" });\nawait Task({ subagent_type: "perf:perf-analyzer" });\n```';
+      const input = '```javascript\nawait Task({ subagent_type: "skillers:skillers-compactor" });\nawait Task({ subagent_type: "skillers:skillers-recommender" });\n```';
       const result = transforms.transformBodyForOpenCode(input, REPO_ROOT);
-      expect(result).toContain('@perf-orchestrator');
-      expect(result).toContain('@perf-analyzer');
+      expect(result).toContain('@skillers-compactor');
+      expect(result).toContain('@skillers-recommender');
     });
 
     test('extracts startPhase calls from code blocks', () => {
@@ -250,7 +250,7 @@ describe('adapter-transforms', () => {
 
     beforeEach(() => {
       root = fs.mkdtempSync(path.join(os.tmpdir(), 'agentsys-globs-'));
-      for (const name of ['consult', 'deslop']) {
+      for (const name of ['learn', 'deslop']) {
         fs.mkdirSync(path.join(root, 'plugins', name, '.claude-plugin'), { recursive: true });
         fs.writeFileSync(path.join(root, 'plugins', name, '.claude-plugin', 'plugin.json'), '{}');
       }
@@ -261,13 +261,13 @@ describe('adapter-transforms', () => {
     });
 
     test('get any depth only for plugin names', () => {
-      const content = 'Glob `**/consult/*/acp/run.js`, `**/deslop/*/scripts/detect.js`, `**/src/*/index.ts` and `**/notaplugin/*/x.md`.';
+      const content = 'Glob `**/learn/*/acp/run.js`, `**/deslop/*/scripts/detect.js`, `**/src/*/index.ts` and `**/notaplugin/*/x.md`.';
       const pluginInstallPath = path.join(root, 'plugins', 'deslop');
       const kiro = transforms.transformSkillForKiro(content, { pluginInstallPath });
       const opencode = transforms.transformBodyForOpenCode(content, root);
 
       for (const result of [kiro, opencode]) {
-        expect(result).toContain('`**/consult/**/acp/run.js`');
+        expect(result).toContain('`**/learn/**/acp/run.js`');
         expect(result).toContain('`**/deslop/**/scripts/detect.js`');
         expect(result).toContain('`**/src/*/index.ts`');
         expect(result).toContain('`**/notaplugin/*/x.md`');

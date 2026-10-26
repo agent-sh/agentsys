@@ -126,7 +126,7 @@ test('nothing checks or syncs lib/ against agent-core', () => {
   const live = hits(/agent-core/).filter(h => !h.startsWith('docs/ORG_ARCHITECTURE.md:'));
   expect(live).toEqual([]);
   expect(hits(/agent-core/).length).toBeGreaterThan(0);
-  for (const rel of ['lib/binary/index.js', 'lib/binary/version.js', 'lib/agentsys.js', 'lib/repo-intel/installer.js', 'lib/repo-map/installer.js', 'jest.config.js']) {
+  for (const rel of ['lib/binary/index.js', 'lib/binary/version.js', 'lib/agentsys.js', 'lib/repo-intel/installer.js', 'jest.config.js']) {
     expect(read(rel)).not.toMatch(/agent-core/);
   }
 });

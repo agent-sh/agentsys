@@ -9,14 +9,15 @@ function content() {
     ],
     agents: {
       total: 2,
-      file_based: 1,
-      role_based: 1,
-      by_model: [{ model: 'Opus', agents: ['planning-agent'] }]
+      by_model: [
+        { model: 'Opus', agents: ['skillers-recommender'] },
+        { model: 'Sonnet', agents: ['deslop-agent'] }
+      ]
     }
   };
 }
 
-function page({ agents = 2, skills = 1, plugins = 1, opusCount = 1, specialistCount = 1 } = {}) {
+function page({ agents = 2, skills = 1, plugins = 1, opusCount = 1, sonnetCount = 1 } = {}) {
   return `
     <span class="stats__number" data-target="${plugins}"></span>
     <span class="stats__label">Plugins</span>
@@ -26,9 +27,9 @@ function page({ agents = 2, skills = 1, plugins = 1, opusCount = 1, specialistCo
     <span class="stats__label">Skills</span>
     <h2 id="as-title">${agents} Agents. ${skills} Skills.</h2>
     <button aria-controls="agent-tier-opus">Opus <span class="agent-tabs__count">${opusCount}</span></button>
-    <div id="agent-tier-opus"><span class="agent-card__name">planning-agent</span></div>
-    <button aria-controls="agent-tier-specialists">Specialists <span class="agent-tabs__count">${specialistCount}</span></button>
-    <div id="agent-tier-specialists"><span class="agent-card__name">security-expert</span></div>
+    <div id="agent-tier-opus"><span class="agent-card__name">skillers-recommender</span></div>
+    <button aria-controls="agent-tier-sonnet">Sonnet <span class="agent-tabs__count">${sonnetCount}</span></button>
+    <div id="agent-tier-sonnet"><span class="agent-card__name">deslop-agent</span></div>
     <h3 class="agents-skills__skills-title">${skills} Skills across ${plugins} Plugins</h3>
     <span class="skill-card">deslop</span>
   `;

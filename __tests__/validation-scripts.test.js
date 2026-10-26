@@ -22,8 +22,6 @@ describe('validate-counts', () => {
       }
       const counts = getActualCounts();
       expect(counts).toHaveProperty('plugins');
-      expect(counts).toHaveProperty('fileBasedAgents');
-      expect(counts).toHaveProperty('roleBasedAgents');
       expect(counts).toHaveProperty('totalAgents');
       expect(counts).toHaveProperty('skills');
       expect(typeof counts.plugins).toBe('number');
@@ -32,15 +30,14 @@ describe('validate-counts', () => {
     test('all counts are non-negative numbers', () => {
       const counts = getActualCounts();
       expect(counts.plugins).toBeGreaterThanOrEqual(0);
-      expect(counts.fileBasedAgents).toBeGreaterThanOrEqual(0);
-      expect(counts.roleBasedAgents).toBeGreaterThanOrEqual(0);
       expect(counts.totalAgents).toBeGreaterThanOrEqual(0);
       expect(counts.skills).toBeGreaterThanOrEqual(0);
     });
 
-    test('totalAgents equals sum of file-based and role-based', () => {
+    test('counts no role-based agents, which left with audit-project', () => {
       const counts = getActualCounts();
-      expect(counts.totalAgents).toBe(counts.fileBasedAgents + counts.roleBasedAgents);
+      expect(counts).not.toHaveProperty('roleBasedAgents');
+      expect(counts).not.toHaveProperty('fileBasedAgents');
     });
   });
 
@@ -205,7 +202,7 @@ describe('validate-cross-platform-docs', () => {
         '',
         '├── deslop/SKILL.md             # from commands/deslop.md',
         'codex',
-        '> /perf',
+        '> /learn',
         'then',
         '> /deslop apply'
       ].join('\n');
@@ -222,7 +219,7 @@ describe('validate-cross-platform-docs', () => {
           const fresh = require('../scripts/validate-cross-platform-docs');
           const codex = fresh.validateCommandPrefixes().filter(i => i.file === 'adapters/codex/README.md');
           expect(codex).toHaveLength(1);
-          expect(codex[0].occurrences.map(o => [o.line, o.match])).toEqual([[5, '/perf'], [7, '/deslop']]);
+          expect(codex[0].occurrences.map(o => [o.line, o.match])).toEqual([[5, '/learn'], [7, '/deslop']]);
         } finally {
           exists.mockRestore();
           read.mockRestore();

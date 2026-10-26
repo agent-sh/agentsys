@@ -17,26 +17,8 @@ import { join } from "path"
 
 // Agent complexity tiers for thinking budget selection
 const AGENT_THINKING_CONFIG: Record<string, { budget: number; description: string }> = {
-  // Discovery tier - light thinking (8k)
-  "docs-updater": { budget: 8000, description: "Documentation sync" },
-
   // Analysis tier - moderate thinking (12k)
   "deslop-agent": { budget: 12000, description: "Slop detection" },
-  "test-coverage-checker": { budget: 12000, description: "Coverage analysis" },
-
-  // Reasoning tier - extended thinking (16k)
-  "delivery-validator": { budget: 16000, description: "Delivery validation" },
-
-  // Synthesis tier - maximum thinking (20k+)
-  "plan-synthesizer": { budget: 20000, description: "Deep semantic analysis" },
-  "enhancement-orchestrator": { budget: 20000, description: "Enhancement coordination" },
-  "plugin-enhancer": { budget: 16000, description: "Plugin analysis" },
-  "agent-enhancer": { budget: 16000, description: "Agent optimization" },
-  "docs-enhancer": { budget: 16000, description: "Docs improvement" },
-  "claudemd-enhancer": { budget: 16000, description: "Project memory optimization" },
-  "prompt-enhancer": { budget: 16000, description: "Prompt quality analysis" },
-  "hooks-enhancer": { budget: 16000, description: "Hook best-practices review" },
-  "skills-enhancer": { budget: 16000, description: "Skill prompt review" },
 }
 
 // Project script patterns for failure detection

@@ -65,11 +65,8 @@ const STATE_DIRS = {
 // Features that must work on all platforms
 const REQUIRED_FEATURES = [
   '/deslop',
-  '/enhance',
-  '/audit-project',
-  '/drift-detect',
-  '/perf',
-  '/sync-docs'
+  '/learn',
+  '/foreman'
 ];
 
 // Cache for file contents to avoid repeated reads
@@ -108,7 +105,7 @@ function validateCommandPrefixes() {
       // A command name after a path segment (`commands/deslop.md`) is a path,
       // not an invocation, so the prefix must not follow a word, `.`, `/` or `-`.
       const escapedPrefix = wrongPrefix.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
-      const commandPattern = new RegExp(`(?<![\\w./-])${escapedPrefix}(deslop|enhance|audit-project|drift-detect|perf|sync-docs)(?![\\w-])`, 'g');
+      const commandPattern = new RegExp(`(?<![\\w./-])${escapedPrefix}(deslop|learn|foreman)(?![\\w-])`, 'g');
 
       const matches = [...content.matchAll(commandPattern)];
       if (matches.length > 0) {
@@ -128,9 +125,9 @@ function validateCommandPrefixes() {
           if (line.includes('example') || line.includes('Example')) {
             return; // This is an example
           }
-          // Skip checklist references, skill names, and general command lists
-          if (line.includes('checklists/') || line.includes('`enhance') || line.includes('commands, agents, skills')) {
-            return; // Checklist path, skill name, or general list
+          // Skip checklist references and general command lists
+          if (line.includes('checklists/') || line.includes('commands, agents, skills')) {
+            return; // Checklist path or general list
           }
           // Skip if it's documenting the command itself (markdown headers, code blocks)
           if (line.trim().startsWith('#') || line.trim().startsWith('```') || line.trim().startsWith('-')) {
@@ -194,7 +191,7 @@ function validateStateDirReferences() {
               if (line.includes('|') || line.includes('Platform') || line.includes('State Dir')) {
                 return;
               }
-              if (line.includes('checklists/') || line.includes('update-opencode') || line.includes('skill name') || line.includes('`enhance-') || line.includes('CLAUDE.md patterns')) {
+              if (line.includes('checklists/') || line.includes('update-opencode') || line.includes('skill name') || line.includes('CLAUDE.md patterns')) {
                 return; // Checklist, skill name, or documentation reference
               }
               if (line.includes('<!-- GEN:')) {

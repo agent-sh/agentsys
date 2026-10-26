@@ -1,6 +1,6 @@
 # Usage Guide
 
-You shouldn't have to repeat the same requests every session. These commands handle entire workflows—from picking a task to merging a PR—with just a few interactions. You approve the plan, then the system runs autonomously.
+You shouldn't have to repeat the same requests every session. These commands handle entire workflows - from picking an issue to landing its PR - with just a few interactions. You approve the plan, then the system runs autonomously.
 
 **For deep dives:** See [workflow documentation](./workflows/) for phase-by-phase breakdowns.
 
@@ -24,22 +24,12 @@ You shouldn't have to repeat the same requests every session. These commands han
 | Command | Purpose | Scope |
 |---------|---------|-------|
 | `/deslop` | Clean up debugging code, TODOs | Fast codebase scan |
-| `/audit-project` | Multi-agent code review | Thorough analysis |
-| `/drift-detect` | Compare docs to actual code | Plan drift detection |
-| `/enhance` | Analyze prompts, plugins, agents, docs, hooks, skills | Quality improvement |
-| `/sync-docs` | Sync docs with code changes | Documentation sync |
-| `/perf` | Performance investigation workflow | Baselines, profiling, evidence |
 | `/banthis` | Durable negative behavior memory | Persist banned agent behaviors |
 | `/learn` | Research topics online, create learning guides | Topic research with RAG |
-| `/consult` | Cross-tool AI consultation | Second opinion from other AI tools |
-| `/debate` | Structured multi-round debate between AI tools | AI dialectic with verdict |
 | `/skillers` | Workflow pattern learning and automation suggestions | Pattern extraction |
 | `/skill-curator` | Create and improve reliable SKILL.md files | Skill authoring and review |
 | `/system-prompt-curator` | Create and improve autonomous agent system prompts | Agent prompt curation |
-| `/onboard` | Codebase onboarding - project orientation | Newcomer guidance |
-| `/can-i-help` | Contributor guidance - match skills to project needs | Contributor matching |
 | `/agnix` | Linter for AI agent configs | Rule validation (457 rules) |
-| `/prepare-delivery` | Pre-ship validation checks; never pushes or opens a PR | Tests, build, lint verification |
 | `/foreman` | GitHub issues as a task queue for native agents | Pick, claim, worktree worker, Revuto findings, land |
 
 ---
@@ -52,16 +42,16 @@ You shouldn't have to repeat the same requests every session. These commands han
 # Cleans up debugging code
 ```
 
-**Before Creating PR:**
+**After Editing Agent Configs:**
 ```bash
-/audit-project
-# Catches issues early
+/agnix
+# Lints SKILL.md, CLAUDE.md/AGENTS.md, hooks and MCP configs
 ```
 
-**Before Pushing:**
+**When the Repo Has a Ready Issue Queue:**
 ```bash
-/prepare-delivery
-# Runs the pre-ship gates locally; push and open the PR with your own flow
+/foreman
+# Picks, claims, briefs a worktree worker, reads the review and lands
 ```
 
 ---
@@ -105,82 +95,28 @@ Remove debugging code, old TODOs, and AI slop from your codebase with a 3-phase 
 
 ---
 
-### `/audit-project`
+### `/foreman`
 
-Comprehensive multi-agent code review that adapts to your project.
+Work a repo's GitHub issues as a task queue: pick the next ready issue, claim it, hand it to a worktree subagent, read Revuto's findings and land the PR at the exact head it checked.
 
 ```bash
-/audit-project                   # Full review with all agents
-/audit-project --quick           # Single-pass review
-/audit-project --domain security # Security review only
-/audit-project --recent          # Only recent changes
+/foreman                    # Run the queue until nothing is ready
+/foreman status             # Counts by label, claims and capacity
+/foreman 123                # Work issue #123 only, from claim to land
 ```
 
-**8 Specialized Roles (2 always active, 6 conditional):**
-
-| Agent | When Active | Focus Area |
-|-------|-------------|------------|
-| security-expert | Always | Vulnerabilities, auth, secrets |
-| performance-engineer | Always | N+1 queries, memory, blocking ops |
-| test-quality-guardian | If tests exist | Coverage, edge cases, mocking |
-| architecture-reviewer | If 50+ files | Modularity, patterns, SOLID |
-| database-specialist | If DB detected | Queries, indexes, transactions |
-| api-designer | If API detected | REST, errors, pagination |
-| frontend-specialist | If frontend detected | Components, state, UX |
-| devops-reviewer | If CI/CD detected | Pipelines, configs, secrets |
-
-Only relevant agents run based on your codebase - no wasted analysis.
+GitHub labels, assignees and comments are the only state, read live on every command. See [workflows/FOREMAN.md](./workflows/FOREMAN.md).
 
 ---
 
-### `/sync-docs`
+### `/agnix`
 
-Sync documentation with actual code state. Find outdated references, update CHANGELOG, flag stale examples.
-
-```bash
-/sync-docs                    # Report mode (safe, no changes)
-/sync-docs apply              # Apply auto-fixable issues
-/sync-docs report src/        # Check docs related to src/
-/sync-docs --all              # Full codebase scan
-```
-
-**Phases:**
-1. Get changed files (since last commit to main, or all with `--all`)
-2. Find related documentation (references to changed files)
-3. Analyze issues (outdated imports, removed exports, version mismatches)
-4. Check CHANGELOG (undocumented commits)
-5. Report findings or apply fixes
-
-**Auto-fixable (apply mode):**
-- Outdated version numbers
-- CHANGELOG entries for undocumented commits
-
-**Flagged for manual review:**
-- Removed exports referenced in docs
-- Code examples that may need context updates
-
----
-
-### `/perf`
-
-Structured performance investigation with baselines, profiling, and evidence‑backed decisions.
+Lint agent configurations against 457 rules.
 
 ```bash
-/perf                 # Start new investigation
-/perf --resume        # Resume previous investigation
-```
-
-**Phase flags (advanced):**
-
-```bash
-/perf --phase baseline --command "npm run bench" --version v1.2.0
-/perf --phase breaking-point --command "npm run bench" --param-min 1 --param-max 500
-/perf --phase constraints --command "npm run bench" --cpu 1 --memory 1GB
-/perf --phase hypotheses --hypotheses-file perf-hypotheses.json
-/perf --phase code-paths
-/perf --phase optimization --change "reduce allocations"
-/perf --phase decision --verdict stop --rationale "no measurable improvement"
-/perf --phase consolidation --version v1.2.0
+/agnix                       # Validate current project
+/agnix --fix                 # Auto-fix fixable issues
+/agnix --strict              # Treat warnings as errors
 ```
 
 ---
@@ -221,81 +157,27 @@ Ready to commit!
 
 ---
 
-### Example 2: Get Code Review Before PR
+### Example 2: Lint Agent Configs
 
-**Scenario**: Finished login feature, want thorough review.
-
-```text
-You: /audit-project
-
-Claude:
-Detected: React + TypeScript project
-Launching specialized review agents...
-
-Review Complete! Found 4 issues:
-
-CRITICAL (1):
-1. Security: src/api/auth.ts:45
-   Issue: Password sent in URL parameters
-   Fix: Use POST body instead
-
-HIGH (2):
-2. React: src/components/LoginForm.tsx:23
-   Issue: Missing useCallback (causes re-renders)
-
-3. Testing: tests/login.test.tsx:15
-   Issue: Missing test for failed login
-
-MEDIUM (1):
-4. Performance: src/hooks/useAuth.ts:10
-   Issue: Expensive calculation every render
-
-Would you like me to fix these?
-
-You: Yes, fix all review issues
-
-Claude:
-Round 1: [OK]Fixed security issue
-Round 2: [OK]Fixed React performance + added tests
-Round 3: [OK]Re-verified - no open issues remain
-
-Code is ready to ship!
-```
-
----
-
-### Example 3: Quick Security Audit
-
-**Scenario**: Quick security check before release.
+**Scenario**: You added a skill and changed CLAUDE.md.
 
 ```text
-You: /audit-project --domain security --quick
+You: /agnix
 
 Claude:
-Running focused security review...
+Validating: .
 
-Found 2 security issues:
+skills/review/SKILL.md:3 error: description is missing a trigger phrase
+CLAUDE.md:41 warning: conflicting rules about commit messages
 
-CRITICAL:
-1. src/api/users.js:34 - SQL Injection
-   Code: db.query(`SELECT * FROM users WHERE id = ${req.params.id}`)
-   Fix: Use parameterized queries
+Found 1 error, 1 warning
 
-HIGH:
-2. src/middleware/auth.js:12 - Weak JWT secret
-   Code: jwt.sign(payload, 'secret123')
-   Fix: Use env variable
-
-Would you like me to fix these?
-
-You: Yes, fix both
+You: Fix them
 
 Claude:
-[OK]Fixed SQL injection
-[OK]Fixed JWT secret
-[OK]Added JWT_SECRET to .env.example
-
-Security issues resolved!
+[OK] Added a trigger phrase to the skill description
+[OK] Merged the two commit-message rules
+Re-run: no issues found
 ```
 
 ---
@@ -307,18 +189,16 @@ Security issues resolved!
 ```text
 1. *develop feature*
 2. /deslop apply      # Clean up
-3. /audit-project           # Get feedback
-4. /prepare-delivery         # Pre-ship gates, then push and open the PR
+3. /agnix             # Lint any agent configs you touched
+4. Push and open the PR with your own flow
 ```
 
-### Code Review Flow
+### Working an Issue Queue
 
 ```text
-1. /audit-project --quick   # Quick check
-2. Fix issues
-3. /audit-project           # Full review
-4. Iterate until clean
-5. /prepare-delivery         # Pre-ship gates, then push and open the PR
+1. Label the ready issues
+2. /foreman status    # Check counts and capacity
+3. /foreman           # Pick, claim, brief, review, land
 ```
 
 ### Maintenance Day
@@ -326,7 +206,7 @@ Security issues resolved!
 ```text
 1. /deslop report     # See all slop
 2. /deslop apply      # Clean it up
-3. /audit-project           # Full audit
+3. /agnix             # Lint the agent configs
 ```
 
 ---
@@ -340,27 +220,13 @@ Don't start with `/deslop apply` on the whole codebase!
 **Try this order:**
 1. `/deslop report` - Just look, no changes
 2. `/deslop apply` - Make safe changes
-3. `/audit-project --quick` - Quick feedback
-4. `/prepare-delivery` - Run the pre-ship gates
+3. `/agnix` - Lint your agent configs
 
-### Tip 2: Combine Commands
-
-```text
-You: Run /deslop, then /audit-project, then /prepare-delivery
-
-Claude:
-1. Cleaning up slop... [OK]Removed 5 issues
-2. Running review... [OK]Fixed 2 issues
-3. Running the pre-ship gates... [OK]Ready to push
-
-Your code is cleaned, reviewed, and ready to push!
-```
-
-### Tip 3: Use Filters
+### Tip 2: Use Filters
 
 ```bash
-/audit-project --domain security   # Security review only
 /deslop apply src/ 10        # Limit scope
+/agnix --target claude-code  # Only Claude Code rules
 ```
 
 ---
@@ -394,14 +260,6 @@ Every finding includes:
 - Actual code quote
 - Specific fix suggestion
 - Why it matters
-
-### Comprehensive Validation
-
-- Runs tests
-- Checks types
-- Validates deployments
-- Monitors errors
-- **Automatic rollback** if production fails
 
 ---
 

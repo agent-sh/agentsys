@@ -25,45 +25,16 @@ const discovery = require(path.join(__dirname, '..', 'lib', 'discovery'));
 
 const ROOT_DIR = path.join(__dirname, '..');
 
-// Role-based agents defined inline in audit-project (not file-based)
-const ROLE_BASED_AGENT_COUNT = 10;
-
-// audit-project role-based agent names (defined inline via Task tool).
-// Canonical source: plugins/audit-project/commands/audit-project.md "Agent Selection" section.
-// Must be kept in sync manually - validate-repo-consistency.js also parses these.
-const AUDIT_ROLE_AGENTS = [
-  'code-quality-reviewer',
-  'security-expert',
-  'performance-engineer',
-  'test-quality-guardian',
-  'architecture-reviewer',
-  'database-specialist',
-  'api-designer',
-  'frontend-specialist',
-  'backend-specialist',
-  'devops-reviewer'
-];
-
 // Category mapping for skills table grouping
 const CATEGORY_MAP = {
-  'perf': 'Performance',
-  'enhance': 'Enhancement',
-  'prepare-delivery': 'Workflow',
   'foreman': 'Workflow',
   'deslop': 'Cleanup',
-  'sync-docs': 'Cleanup',
-  'drift-detect': 'Analysis',
   'banthis': 'Memory',
   'learn': 'AI Collaboration',
   'agnix': 'Linting',
-  'consult': 'AI Collaboration',
-  'debate': 'AI Collaboration',
   'skillers': 'AI Collaboration',
   'skill-curator': 'Enhancement',
   'system-prompt-curator': 'Enhancement',
-  'onboard': 'Onboarding',
-  'can-i-help': 'Onboarding',
-  'audit-project': 'Code Review',
   'glidemq': 'Message Queues',
   'mojo': 'Languages',
   'ada-spark': 'Languages'
@@ -71,42 +42,14 @@ const CATEGORY_MAP = {
 
 // Static skill definitions for cross-repo plugins (not discoverable locally)
 const STATIC_SKILLS = [
-  { plugin: 'prepare-delivery', name: 'prepare-delivery' },
-  { plugin: 'prepare-delivery', name: 'check-test-coverage' },
-  { plugin: 'prepare-delivery', name: 'orchestrate-review' },
-  { plugin: 'prepare-delivery', name: 'validate-delivery' },
   { plugin: 'foreman', name: 'foreman' },
-  { plugin: 'enhance', name: 'enhance-orchestrator' },
-  { plugin: 'enhance', name: 'enhance-plugins' },
-  { plugin: 'enhance', name: 'enhance-agent-prompts' },
-  { plugin: 'enhance', name: 'enhance-claude-memory' },
-  { plugin: 'enhance', name: 'enhance-docs' },
-  { plugin: 'enhance', name: 'enhance-prompts' },
-  { plugin: 'enhance', name: 'enhance-hooks' },
-  { plugin: 'enhance', name: 'enhance-skills' },
-  { plugin: 'enhance', name: 'enhance-cross-file' },
-  { plugin: 'perf', name: 'baseline' },
-  { plugin: 'perf', name: 'benchmark' },
-  { plugin: 'perf', name: 'profile' },
-  { plugin: 'perf', name: 'theory-tester' },
-  { plugin: 'perf', name: 'theory-gatherer' },
-  { plugin: 'perf', name: 'code-paths' },
-  { plugin: 'perf', name: 'investigation-logger' },
-  { plugin: 'perf', name: 'perf-analyzer' },
   { plugin: 'deslop', name: 'deslop' },
-  { plugin: 'sync-docs', name: 'sync-docs' },
-  { plugin: 'drift-detect', name: 'drift-analysis' },
   { plugin: 'banthis', name: 'banthis' },
-  { plugin: 'consult', name: 'consult' },
-  { plugin: 'debate', name: 'debate' },
   { plugin: 'learn', name: 'learn' },
   { plugin: 'skill-curator', name: 'skill-curator' },
   { plugin: 'system-prompt-curator', name: 'system-prompt-curator' },
   { plugin: 'skillers', name: 'skillers-compact' },
   { plugin: 'skillers', name: 'recommend' },
-  { plugin: 'onboard', name: 'onboard' },
-  { plugin: 'can-i-help', name: 'can-i-help' },
-  { plugin: 'audit-project', name: 'audit-project' },
   { plugin: 'mojo', name: 'mojo' },
   { plugin: 'ada-spark', name: 'ada-spark' },
   { plugin: 'glidemq', name: 'glide-mq' },
@@ -117,23 +60,13 @@ const STATIC_SKILLS = [
 
 // Purpose mapping for architecture table
 const PURPOSE_MAP = {
-  'prepare-delivery': 'Pre-ship quality gates',
-  'enhance': 'Code quality analyzers',
-  'perf': 'Performance investigation',
-  'audit-project': 'Multi-agent code review',
   'deslop': 'AI slop cleanup',
-  'drift-detect': 'Plan drift detection',
-  'sync-docs': 'Documentation sync',
   'banthis': 'Durable negative behavior memory',
   'learn': 'Topic research and learning guides',
   'agnix': 'Agent config linting',
-  'consult': 'Cross-tool AI consultation',
-  'debate': 'Multi-perspective debate analysis',
   'skillers': 'Workflow pattern learning',
   'skill-curator': 'Skill authoring and review',
   'system-prompt-curator': 'System prompt curation',
-  'onboard': 'Codebase onboarding',
-  'can-i-help': 'Contributor guidance',
   'foreman': 'GitHub issue queue for native agents'
 };
 
@@ -181,34 +114,21 @@ function generateCommandsTable(commands) {
 
   // Curated display order (featured commands first, then alphabetical)
   const COMMAND_ORDER = [
-    'prepare-delivery',
-    'banthis', 'agnix', 'deslop', 'perf',
-    'drift-detect', 'audit-project', 'enhance',
-    'sync-docs', 'learn', 'consult',
-    'debate', 'skillers',
-    'skill-curator', 'system-prompt-curator',
-    'onboard', 'can-i-help', 'foreman'
+    'foreman',
+    'banthis', 'agnix', 'deslop',
+    'learn', 'skillers',
+    'skill-curator', 'system-prompt-curator'
   ];
 
   // Command descriptions for the table (short, human-written summaries)
   const COMMAND_SUMMARIES = {
-    'prepare-delivery': 'Pre-ship quality gates: deslop, review, validation, docs sync',
     'banthis': 'Durable negative memory: persist banned agent behaviors',
     'agnix': 'Lint agent configurations (457 rules)',
     'deslop': 'Clean AI slop patterns',
-    'perf': 'Performance investigation with baselines and profiling',
-    'drift-detect': 'Compare plan vs implementation',
-    'audit-project': 'Multi-agent iterative code review',
-    'enhance': 'Plugin, agent, and prompt analyzers',
-    'sync-docs': 'Sync documentation with code changes',
     'learn': 'Research topics, create learning guides',
-    'consult': 'Cross-tool AI consultation',
-    'debate': 'Structured debate between AI tools',
     'skillers': 'Workflow pattern learning and automation',
     'skill-curator': 'Create and improve reliable SKILL.md files',
     'system-prompt-curator': 'Create and improve autonomous agent system prompts',
-    'onboard': 'Codebase orientation for newcomers',
-    'can-i-help': 'Match contributor skills to project needs',
     'foreman': 'Work the GitHub issue queue with native subagents, from pick to land'
   };
 
@@ -291,13 +211,10 @@ function generateSkillsTable(skills) {
 function generateArchitectureTable(plugins, agents, skills) {
   const effectivePlugins = plugins.length > 0 ? plugins : Object.keys(STATIC_PLUGIN_AGENT_COUNTS);
   const effectiveSkills = skills.length > 0 ? skills : STATIC_SKILLS;
-  const fileBasedAgents = agents.length > 0 ? agents.length : STATIC_FILE_BASED_AGENT_COUNT;
-  const totalAgents = agents.length > 0
-    ? fileBasedAgents + ROLE_BASED_AGENT_COUNT
-    : STATIC_AGENT_COUNT;
+  const totalAgents = agents.length > 0 ? agents.length : STATIC_AGENT_COUNT;
   const totalSkills = effectiveSkills.length;
 
-  // Count agents per plugin (file-based only)
+  // Count agents per plugin
   const agentsByPlugin = {};
   if (agents.length > 0) {
     for (const agent of agents) {
@@ -306,9 +223,6 @@ function generateArchitectureTable(plugins, agents, skills) {
   } else {
     Object.assign(agentsByPlugin, STATIC_PLUGIN_AGENT_COUNTS);
   }
-  // audit-project has role-based agents
-  agentsByPlugin['audit-project'] = (agentsByPlugin['audit-project'] || 0) + ROLE_BASED_AGENT_COUNT;
-
   // Count skills per plugin
   const skillsByPlugin = {};
   for (const skill of effectiveSkills) {
@@ -318,7 +232,7 @@ function generateArchitectureTable(plugins, agents, skills) {
   const lines = [
     '```',
     'lib/          \u2192 Shared library (vendored to plugins)',
-    `plugins/      \u2192 ${effectivePlugins.length} plugins, ${totalAgents} agents (${fileBasedAgents} file-based + ${ROLE_BASED_AGENT_COUNT} role-based), ${totalSkills} skills`,
+    `plugins/      \u2192 ${effectivePlugins.length} plugins, ${totalAgents} agents, ${totalSkills} skills`,
     'adapters/     \u2192 Platform adapters (opencode-plugin/, opencode/, codex/)',
     'checklists/   \u2192 Action checklists (9 files)',
     'bin/cli.js    \u2192 npm CLI installer',
@@ -355,17 +269,8 @@ function generateAgentNavTable(agents, plugins) {
   }
 
   for (const plugin of plugins) {
-    let agentNames;
-    let count;
-
-    if (plugin === 'audit-project') {
-      // Role-based agents
-      agentNames = AUDIT_ROLE_AGENTS;
-      count = ROLE_BASED_AGENT_COUNT;
-    } else {
-      agentNames = agentsByPlugin[plugin] || [];
-      count = agentNames.length;
-    }
+    const agentNames = agentsByPlugin[plugin] || [];
+    const count = agentNames.length;
 
     if (count === 0) continue;
 
@@ -388,22 +293,12 @@ function generateAgentNavTable(agents, plugins) {
  * plugins are added.
  */
 function generateAgentCounts(agents, plugins) {
-  const totalAgents = agents.length > 0
-    ? agents.length + ROLE_BASED_AGENT_COUNT
-    : STATIC_AGENT_COUNT;
+  const totalAgents = agents.length > 0 ? agents.length : STATIC_AGENT_COUNT;
   const totalPlugins = plugins.length > 0 ? plugins.length : STATIC_PLUGIN_COUNT;
 
-  let pluginsWithAgentsCount;
-  if (agents.length > 0) {
-    const pluginsWithAgents = new Set(agents.map(a => a.plugin));
-    pluginsWithAgents.add('audit-project'); // role-based
-    pluginsWithAgentsCount = pluginsWithAgents.size;
-  } else {
-    // Static fallback: file-based plugins (count > 0 in static map) plus
-    // audit-project (role-based, count is 0 in the map but still has agents).
-    const fileBasedPluginsWithAgents = Object.values(STATIC_PLUGIN_AGENT_COUNTS).filter(c => c > 0).length;
-    pluginsWithAgentsCount = fileBasedPluginsWithAgents + 1;
-  }
+  const pluginsWithAgentsCount = agents.length > 0
+    ? new Set(agents.map(a => a.plugin)).size
+    : Object.values(STATIC_PLUGIN_AGENT_COUNTS).filter(c => c > 0).length;
 
   return `**TL;DR:** ${totalAgents} agents across ${totalPlugins} plugins (${pluginsWithAgentsCount} have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5.5, Haiku 4.5) or inherits the caller's model, and does one thing. <!-- AGENT_COUNT_TOTAL: ${totalAgents} -->`;
 }
@@ -416,35 +311,23 @@ function generateAgentCounts(agents, plugins) {
  * Update counts in site/content.json programmatically.
  */
 // Static counts for cross-repo plugins not discoverable locally.
-// Per-plugin file-based agent counts. Update this map when agents are added/removed
+// Per-plugin agent counts. Update this map when agents are added/removed
 // in a plugin repo - it's the canonical source for the STATIC_AGENT_COUNT fallback.
 const STATIC_PLUGIN_AGENT_COUNTS = {
-  'prepare-delivery': 3,
+  'foreman': 0,
   'deslop': 1,
-  'audit-project': 0,
-  'drift-detect': 1,
-  'enhance': 8,
-  'sync-docs': 1,
   'banthis': 0,
-  'perf': 6,
   'learn': 1,
   'agnix': 1,
-  'consult': 1,
-  'debate': 1,
   'skill-curator': 0,
   'system-prompt-curator': 0,
   'skillers': 2,
-  'onboard': 1,
-  'can-i-help': 1,
-  'foreman': 0,
   'zig-lsp': 0,
   'mojo': 0,
   'ada-spark': 0
 };
 const STATIC_PLUGIN_COUNT = Object.keys(STATIC_PLUGIN_AGENT_COUNTS).length;
-const STATIC_FILE_BASED_AGENT_COUNT = Object.values(STATIC_PLUGIN_AGENT_COUNTS).reduce((sum, count) => sum + count, 0);
-// Total = file-based + role-based (audit-project specialists, spawned dynamically)
-const STATIC_AGENT_COUNT = STATIC_FILE_BASED_AGENT_COUNT + ROLE_BASED_AGENT_COUNT;
+const STATIC_AGENT_COUNT = Object.values(STATIC_PLUGIN_AGENT_COUNTS).reduce((sum, count) => sum + count, 0);
 
 function updateSiteContent(plugins, agents, skills) {
   const contentPath = path.join(ROOT_DIR, 'site', 'content.json');
@@ -463,7 +346,7 @@ function updateSiteContent(plugins, agents, skills) {
 
   // Use static counts as fallback (cross-repo plugins not discoverable locally)
   const effectivePlugins = plugins.length > 0 ? plugins.length : STATIC_PLUGIN_COUNT;
-  const effectiveAgents = agents.length > 0 ? agents.length + ROLE_BASED_AGENT_COUNT : STATIC_AGENT_COUNT;
+  const effectiveAgents = agents.length > 0 ? agents.length : STATIC_AGENT_COUNT;
   const effectiveSkills = skills.length > 0 ? skills.length : STATIC_SKILLS.length;
 
   // Update stats array
@@ -478,8 +361,6 @@ function updateSiteContent(plugins, agents, skills) {
   // Update agents section
   if (content.agents) {
     content.agents.total = effectiveAgents;
-    content.agents.file_based = effectiveAgents - ROLE_BASED_AGENT_COUNT;
-    content.agents.role_based = ROLE_BASED_AGENT_COUNT;
   }
 
   return content;
@@ -561,7 +442,7 @@ function main(args) {
   const dryRun = args.includes('--dry-run');
 
   const { sections, siteContent, staleFiles, siteStale, plugins, agents, skills } = computeSections();
-  const totalAgents = agents.length + ROLE_BASED_AGENT_COUNT;
+  const totalAgents = agents.length;
 
   if (!checkMode && !dryRun) {
     console.log(`[OK] Discovered: ${plugins.length} plugins, ${totalAgents} agents, ${skills.length} skills`);
@@ -696,10 +577,8 @@ module.exports = {
   updateSiteContent,
   CATEGORY_MAP,
   PURPOSE_MAP,
-  ROLE_BASED_AGENT_COUNT,
   STATIC_SKILLS,
   STATIC_PLUGIN_AGENT_COUNTS,
   STATIC_PLUGIN_COUNT,
-  STATIC_FILE_BASED_AGENT_COUNT,
   STATIC_AGENT_COUNT
 };

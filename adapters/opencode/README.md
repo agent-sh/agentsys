@@ -37,26 +37,6 @@ opencode
 
 ---
 
-### `/audit-project` - Multi-Agent Code Review
-
-Comprehensive review with specialized AI agents.
-
-```bash
-opencode
-> /audit-project
-> /audit-project --recent
-> /audit-project --domain security
-> /audit-project --resume
-```
-
-**What it does:**
-- Deploys 10 specialized agents
-- Adapts to your tech stack
-- Finds bugs, security issues, performance problems
-- Iterates until no open issues remain
-
----
-
 ### `/foreman` - GitHub Issue Queue
 
 Work a repo's open issues as a task queue.
@@ -87,10 +67,10 @@ Include file contents in your prompt:
 
 ```bash
 opencode
-> /audit-project @src/main.py @tests/test_main.py
+> /deslop @src/main.py @tests/test_main.py
 ```
 
-This adds the file contents to the context before running the review.
+This adds the file contents to the context before the scan.
 
 ### Bash Output with `!`
 
@@ -107,10 +87,10 @@ This runs `git diff --name-only` and includes the output in the prompt.
 
 ```bash
 opencode
-> /drift-detect @PLAN.md !git log --oneline -20
+> /learn @NOTES.md !git log --oneline -20 websocket reconnect strategies
 ```
 
-Compares PLAN.md with the recent commits.
+Researches the topic with your notes and the recent commits in context.
 
 ---
 
@@ -127,13 +107,12 @@ The installer:
 ```
 ~/.config/opencode/commands/
 ├── deslop.md
-├── audit-project.md
+├── foreman.md
 ├── lib/
 │   ├── platform/
 │   │   ├── detect-platform.js
 │   │   └── verify-tools.js
 │   ├── patterns/
-│   │   ├── review-patterns.js
 │   │   └── slop-patterns.js
 │   └── utils/
 │       └── context-optimizer.js
@@ -155,23 +134,12 @@ opencode
 # [OK] Tests passed
 ```
 
-### Review specific files
+### Check the issue queue
 ```bash
 opencode
-> /audit-project @src/auth.py @src/api.py
+> /foreman status
 
-# Iteration 1: Found 4 issues (2 critical, 2 high)
-# [OK] Fixed SQL injection in auth.py:45
-# [OK] Fixed race condition in api.py:123
-```
-
-### Gate a branch after a diff review
-```bash
-opencode
-> !git diff
-> /prepare-delivery
-
-# (reviews the diff you just displayed, then runs the pre-ship gates; never pushes)
+# Counts by label, live claims and host capacity, read from GitHub
 ```
 
 ---

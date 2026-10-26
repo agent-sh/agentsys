@@ -25,20 +25,6 @@ const OPENCODE_AGENTS = {
     mode: 'subagent',
     temperature: 0.1,
     permissions: { read: 'allow', edit: 'allow', bash: 'allow' }
-  },
-  'delivery-validator': {
-    description: 'Validate task completion and quality',
-    model: 'anthropic/claude-sonnet-4-20250514',
-    mode: 'subagent',
-    temperature: 0.1,
-    permissions: { read: 'allow', edit: 'deny', bash: 'allow' }
-  },
-  'sync-docs-agent': {
-    description: 'Sync documentation with code changes',
-    model: 'anthropic/claude-sonnet-4-20250514',
-    mode: 'subagent',
-    temperature: 0.2,
-    permissions: { read: 'allow', edit: 'allow', bash: 'allow' }
   }
 };
 

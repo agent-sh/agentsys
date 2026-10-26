@@ -12,25 +12,15 @@
 | [agent-knowledge](https://github.com/agent-sh/agent-knowledge) | Research guides and RAG indexes | Active (10 guides) |
 | [.github](https://github.com/agent-sh/.github) | Org profile, shared templates, reusable workflows | Active |
 | [deslop](https://github.com/agent-sh/deslop) | AI slop cleanup plugin | Active |
-| [audit-project](https://github.com/agent-sh/audit-project) | Multi-agent code review plugin | Active |
-| [enhance](https://github.com/agent-sh/enhance) | Code quality analyzers plugin | Active |
-| [perf](https://github.com/agent-sh/perf) | Performance investigation plugin | Active |
-| [drift-detect](https://github.com/agent-sh/drift-detect) | Plan drift detection plugin | Active |
-| [sync-docs](https://github.com/agent-sh/sync-docs) | Documentation sync plugin | Active |
 | [banthis](https://github.com/agent-sh/banthis) | Durable negative behavior memory plugin | Active |
 | [learn](https://github.com/agent-sh/learn) | Topic research and learning guides plugin | Active |
-| [consult](https://github.com/agent-sh/consult) | Cross-tool AI consultation plugin | Active |
-| [debate](https://github.com/agent-sh/debate) | Multi-perspective debate analysis plugin | Active |
 | [skillers](https://github.com/agent-sh/skillers) | Workflow pattern learning and automation suggestions | Active |
 | [skill-curator](https://github.com/agent-sh/skill-curator) | Skill authoring and review plugin | Active |
 | [system-prompt-curator](https://github.com/agent-sh/system-prompt-curator) | Autonomous agent system prompt curation plugin | Active |
-| [onboard](https://github.com/agent-sh/onboard) | Codebase onboarding - project orientation for newcomers | Active |
-| [can-i-help](https://github.com/agent-sh/can-i-help) | Contributor guidance - match skills to project needs | Active |
 | [agent-analyzer](https://github.com/agent-sh/agent-analyzer) | Shared Rust binary for static analysis (git history, AI detection) | Active |
 | [agent-sh.dev](https://github.com/agent-sh/agent-sh.dev) | Organization website and documentation | Active |
 | [design-system](https://github.com/agent-sh/design-system) | Shared CSS design tokens and base styles | Active |
 | [glidemq](https://github.com/agent-sh/glidemq) | Glide-MQ message queue skills | Active |
-| [prepare-delivery](https://github.com/agent-sh/prepare-delivery) | Pre-ship quality gates plugin | Active |
 | [foreman](https://github.com/agent-sh/foreman) | GitHub issues as a task queue for native agents | Active |
 | [mojo](https://github.com/agent-sh/mojo) | Mojo language skill plugin | Active |
 | [ada-spark](https://github.com/agent-sh/ada-spark) | Ada and SPARK language skill plugin | Active |

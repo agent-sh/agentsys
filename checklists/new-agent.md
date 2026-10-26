@@ -71,8 +71,6 @@ Add a row to the plugin's agent table:
 | new-agent | sonnet | Tool1, Tool2 | Brief purpose |
 ```
 
-If the agent runs in the pre-ship gates, also add it to `agent-docs/workflow.md`.
-
 ## 4. Update Orchestrator
 
 File: `plugins/<plugin>/commands/<command>.md` (the command that spawns the agent)
@@ -103,10 +101,7 @@ If agent should trigger automatically after another agent:
 
 ## 6. Define Tool Restrictions
 
-In workflow.md, add to Agent Tool Restrictions table:
-```markdown
-| new-agent | Allowed: X, Y | Disallowed: Z |
-```
+List only the tools the agent needs in its `tools` frontmatter, and name the allowed Bash commands (`Bash(git:*)`), so `docs/reference/AGENTS.md` can show them.
 
 ## 7. Cross-Platform Compatibility
 
@@ -135,8 +130,8 @@ The installer (`bin/cli.js`) automatically handles:
 ## 8. Run Quality Validation
 
 ```bash
-# Run /enhance on the new agent
-/enhance plugins/<plugin>/agents/new-agent.md
+# Lint the new agent with agnix
+npx agnix plugins/<plugin>/agents/new-agent.md
 
 # Run tests
 npm test

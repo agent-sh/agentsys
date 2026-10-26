@@ -53,27 +53,6 @@ function compareLists(label, expected, actual) {
   }
 }
 
-function parseRoleBasedAgents() {
-  const auditPath = path.join(ROOT_DIR, 'plugins', 'audit-project', 'commands', 'audit-project.md');
-  if (!fs.existsSync(auditPath)) {
-    // plugins/ extracted to standalone repos — absence is expected
-    return [];
-  }
-
-  const content = fs.readFileSync(auditPath, 'utf8');
-  const sectionStart = content.indexOf('### Agent Selection');
-  if (sectionStart === -1) {
-    errors.push('Agent Selection section missing in audit-project.md');
-    return [];
-  }
-  const section = content.slice(sectionStart);
-  const phaseIndex = section.indexOf('## Phase 2');
-  const selectionSection = phaseIndex === -1 ? section : section.slice(0, phaseIndex);
-
-  const matches = [...selectionSection.matchAll(/- `([^`]+)`/g)].map(match => match[1]);
-  return normalizeList(matches);
-}
-
 function listPluginsWithAgents() {
   const plugins = listPluginDirs();
   const pluginsWithAgents = [];
@@ -215,31 +194,16 @@ function validateAgentCounts() {
     })
     .reduce((sum, count) => sum + count, 0);
 
-  const roleBasedAgents = parseRoleBasedAgents();
-  const roleBasedCount = roleBasedAgents.length;
-  const totalCount = fileBasedCount + roleBasedCount;
-
   const agentsDocPath = path.join(ROOT_DIR, 'docs', 'reference', 'AGENTS.md');
   const docsIndexPath = path.join(ROOT_DIR, 'docs', 'README.md');
-  const readmePath = path.join(ROOT_DIR, 'README.md');
 
   if (fs.existsSync(agentsDocPath)) {
     const content = fs.readFileSync(agentsDocPath, 'utf8');
     const totalMatch = content.match(/<!--\s*AGENT_COUNT_TOTAL:\s*(\d+)\s*-->/)
       || content.match(/\*\*TL;DR:\*\*\s*(\d+) agents/);
-    const fileMatch = content.match(/<!--\s*AGENT_COUNT_FILE_BASED:\s*(\d+)\s*-->/)
-      || content.match(/File-based agents(?:\*\*)?\s*\((\d+)\)/);
-    const roleMatch = content.match(/<!--\s*AGENT_COUNT_ROLE_BASED:\s*(\d+)\s*-->/)
-      || content.match(/Role-based agents(?:\*\*)?\s*\((\d+)\)/);
 
-    if (!totalMatch || Number(totalMatch[1]) !== totalCount) {
-      errors.push(`docs/reference/AGENTS.md total count mismatch (${totalMatch ? totalMatch[1] : 'missing'} vs ${totalCount})`);
-    }
-    if (!fileMatch || Number(fileMatch[1]) !== fileBasedCount) {
-      errors.push(`docs/reference/AGENTS.md file-based count mismatch (${fileMatch ? fileMatch[1] : 'missing'} vs ${fileBasedCount})`);
-    }
-    if (!roleMatch || Number(roleMatch[1]) !== roleBasedCount) {
-      errors.push(`docs/reference/AGENTS.md role-based count mismatch (${roleMatch ? roleMatch[1] : 'missing'} vs ${roleBasedCount})`);
+    if (!totalMatch || Number(totalMatch[1]) !== fileBasedCount) {
+      errors.push(`docs/reference/AGENTS.md total count mismatch (${totalMatch ? totalMatch[1] : 'missing'} vs ${fileBasedCount})`);
     }
   }
 
@@ -247,17 +211,8 @@ function validateAgentCounts() {
     const content = fs.readFileSync(docsIndexPath, 'utf8');
     const match = content.match(/<!--\s*AGENT_COUNT_TOTAL:\s*(\d+)\s*-->/)
       || content.match(/All\s+(\d+)\s+agents/);
-    if (!match || Number(match[1]) !== totalCount) {
-      errors.push(`docs/README.md agent count mismatch (${match ? match[1] : 'missing'} vs ${totalCount})`);
-    }
-  }
-
-  if (fs.existsSync(readmePath)) {
-    const content = fs.readFileSync(readmePath, 'utf8');
-    const match = content.match(/<!--\s*AGENT_COUNT_ROLE_BASED:\s*(\d+)\s*-->/)
-      || content.match(/Up to\s+(\d+)\s+specialized role-based agents/);
-    if (!match || Number(match[1]) !== roleBasedCount) {
-      errors.push(`README.md role-based agent count mismatch (${match ? match[1] : 'missing'} vs ${roleBasedCount})`);
+    if (!match || Number(match[1]) !== fileBasedCount) {
+      errors.push(`docs/README.md agent count mismatch (${match ? match[1] : 'missing'} vs ${fileBasedCount})`);
     }
   }
 }
@@ -293,95 +248,6 @@ function validateNoHardcodedTestCount() {
     const hits = findHardcodedTestCounts(fs.readFileSync(filePath, 'utf8'));
     for (const hit of hits) {
       errors.push(`${file}:${hit.line} hard-codes a test count (it goes stale every release): ${hit.text}`);
-    }
-  }
-}
-
-function validatePerfDocs() {
-  const requiredDocs = [
-    path.join(ROOT_DIR, 'docs', 'perf-requirements.md'),
-    path.join(ROOT_DIR, 'docs', 'perf-research-methodology.md')
-  ];
-
-  for (const docPath of requiredDocs) {
-    if (!fs.existsSync(docPath)) {
-      errors.push(`Missing perf doc: ${path.relative(ROOT_DIR, docPath)}`);
-    }
-  }
-}
-
-function validatePerfAgentSkillUsage() {
-  const perfDir = path.join(PLUGINS_DIR, 'perf');
-  const agentsDir = path.join(perfDir, 'agents');
-  const skillsDir = path.join(perfDir, 'skills');
-
-  if (!fs.existsSync(agentsDir) || !fs.existsSync(skillsDir)) return;
-
-  const skillNames = new Set();
-  const skillDirs = fs.readdirSync(skillsDir)
-    .filter(name => fs.statSync(path.join(skillsDir, name)).isDirectory());
-
-  for (const dir of skillDirs) {
-    const skillPath = path.join(skillsDir, dir, 'SKILL.md');
-    if (!fs.existsSync(skillPath)) continue;
-    const skillContent = fs.readFileSync(skillPath, 'utf8');
-    const skillMatch = skillContent.match(/^name:\s*([^\s]+)\s*$/m);
-    if (skillMatch) {
-      skillNames.add(skillMatch[1].trim());
-    }
-  }
-
-  const agentFiles = fs.readdirSync(agentsDir).filter(file => file.endsWith('.md'));
-  for (const file of agentFiles) {
-    const filePath = path.join(agentsDir, file);
-    const content = fs.readFileSync(filePath, 'utf8');
-    const nameMatch = content.match(/^name:\s*([^\s]+)\s*$/m);
-    if (!nameMatch) continue;
-
-    const agentName = nameMatch[1].trim();
-    if (!skillNames.has(agentName)) continue;
-
-    const requiredLine = `MUST execute the ${agentName} skill`;
-    if (!content.includes(requiredLine)) {
-      errors.push(`perf agent ${file} must require skill usage: "${requiredLine}"`);
-    }
-  }
-}
-
-function validateEnhanceAgentSkillUsage() {
-  const enhanceDir = path.join(PLUGINS_DIR, 'enhance');
-  const agentsDir = path.join(enhanceDir, 'agents');
-  const skillsDir = path.join(enhanceDir, 'skills');
-
-  if (!fs.existsSync(agentsDir) || !fs.existsSync(skillsDir)) return;
-
-  const skillNames = new Set();
-  const skillDirs = fs.readdirSync(skillsDir)
-    .filter(name => fs.statSync(path.join(skillsDir, name)).isDirectory());
-
-  for (const dir of skillDirs) {
-    const skillPath = path.join(skillsDir, dir, 'SKILL.md');
-    if (!fs.existsSync(skillPath)) continue;
-    const skillContent = fs.readFileSync(skillPath, 'utf8');
-    const skillMatch = skillContent.match(/^name:\s*([^\s]+)\s*$/m);
-    if (skillMatch) {
-      skillNames.add(skillMatch[1].trim());
-    }
-  }
-
-  const agentFiles = fs.readdirSync(agentsDir).filter(file => file.endsWith('.md'));
-  for (const file of agentFiles) {
-    const filePath = path.join(agentsDir, file);
-    const content = fs.readFileSync(filePath, 'utf8');
-    const usageMatch = content.match(/MUST execute the `?([^\s`]+)`? skill/);
-    if (!usageMatch) {
-      errors.push(`enhance agent ${file} must require skill usage with "MUST execute the <skill> skill"`);
-      continue;
-    }
-
-    const skillName = usageMatch[1].trim();
-    if (!skillNames.has(skillName)) {
-      errors.push(`enhance agent ${file} references missing skill: ${skillName}`);
     }
   }
 }
@@ -436,7 +302,6 @@ function siteCatalogMismatches(html, content, { skillNames = [], pluginCount = n
   const byModel = agents && Array.isArray(agents.by_model)
     ? agents.by_model.flatMap(group => group.agents || [])
     : [];
-  const specialistNames = namesInPanel(html, 'agent-tier-specialists') || [];
   const tabPanels = [...html.matchAll(/aria-controls="(agent-tier-[^"]+)"[^>]*>[\s\S]*?agent-tabs__count">(\d+)/g)];
   const cardNames = [];
 
@@ -453,8 +318,7 @@ function siteCatalogMismatches(html, content, { skillNames = [], pluginCount = n
     }
   }
 
-  const fileCards = cardNames.filter(name => !specialistNames.includes(name));
-  push(listDiff('site agent cards vs content.json agents.by_model', fileCards, byModel));
+  push(listDiff('site agent cards vs content.json agents.by_model', cardNames, byModel));
 
   const cardDupes = duplicateNames(cardNames);
   const modelDupes = duplicateNames(byModel);
@@ -462,11 +326,8 @@ function siteCatalogMismatches(html, content, { skillNames = [], pluginCount = n
   if (modelDupes.length) push(`site/content.json repeats agents: ${modelDupes.join(', ')}`);
 
   if (agents) {
-    if (byModel.length !== agents.file_based) {
-      push(`content.json by_model lists ${byModel.length} agents, file_based is ${agents.file_based}`);
-    }
-    if (specialistNames.length !== agents.role_based) {
-      push(`site specialist cards are ${specialistNames.length}, role_based is ${agents.role_based}`);
+    if (byModel.length !== agents.total) {
+      push(`content.json by_model lists ${byModel.length} agents, agents.total is ${agents.total}`);
     }
     if (cardNames.length !== agents.total) {
       push(`site agent cards are ${cardNames.length}, agents.total is ${agents.total}`);
@@ -560,9 +421,6 @@ function main() {
   validateMappings();
   validateAgentCounts();
   validateNoHardcodedTestCount();
-  validatePerfDocs();
-  validatePerfAgentSkillUsage();
-  validateEnhanceAgentSkillUsage();
   validateSiteCatalog();
 
   if (errors.length > 0) {
