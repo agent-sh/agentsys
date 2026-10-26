@@ -334,13 +334,6 @@ const COMMANDS = {
       }
     }
   },
-  'test-transform': {
-    description: 'Test OpenCode transform on the ship command',
-    handler: () => {
-      const { main } = require(path.join(ROOT_DIR, 'scripts', 'test-transform.js'));
-      return main();
-    }
-  },
   'gen-docs': {
     description: 'Auto-generate documentation sections from plugin source',
     usage: 'gen-docs [--check] [--dry-run]',
@@ -476,7 +469,6 @@ setup-hooks             Install git hooks
   status                  Show project health overview
   test                    Run test suite
   migrate-opencode        Migrate commands for OpenCode
-  test-transform          Test OpenCode transform
   gen-docs                Auto-generate doc sections from source
     --check               Validate freshness (exit 1 if stale)
     --dry-run             Show changes without writing

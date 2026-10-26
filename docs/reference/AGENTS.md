@@ -3,7 +3,7 @@
 Every agent in the AgentSys plugins at the commits pinned in `.claude-plugin/marketplace.json`. Each plugin repo's `agents/*.md` is the source of truth; this page summarizes it.
 
 <!-- GEN:START:agents-counts -->
-**TL;DR:** 42 agents across 24 plugins (16 have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5.5, Haiku 4.5) or inherits the caller's model, and does one thing. <!-- AGENT_COUNT_TOTAL: 42 -->
+**TL;DR:** 38 agents across 21 plugins (14 have agents). Each agent names a model family (opus, sonnet, haiku; currently Opus 5.5, Sonnet 5.5, Haiku 4.5) or inherits the caller's model, and does one thing. <!-- AGENT_COUNT_TOTAL: 38 -->
 <!-- GEN:END:agents-counts -->
 
 ## Quick Navigation
@@ -12,8 +12,6 @@ Every agent in the AgentSys plugins at the commits pinned in `.claude-plugin/mar
 | Plugin | Agents | Jump to |
 |--------|--------|---------|
 <!-- GEN:END:agents-nav -->
-
-Related: [/ship Workflow](../workflows/SHIP.md) covers CI and merge.
 
 ## Overview
 
@@ -26,10 +24,10 @@ Related: [/ship Workflow](../workflows/SHIP.md) covers CI and merge.
 
 Family aliases resolve to the current model in that family, so agent files do not pin versions.
 
-- **File-based agents** (32): `agents/*.md` with frontmatter in each plugin repo. <!-- AGENT_COUNT_FILE_BASED: 32 -->
+- **File-based agents** (28): `agents/*.md` with frontmatter in each plugin repo. <!-- AGENT_COUNT_FILE_BASED: 28 -->
 - **Role-based agents** (10): audit-project review passes, spawned through Task with a pass-specific prompt. <!-- AGENT_COUNT_ROLE_BASED: 10 -->
 
-Plugins with no agents: gate-and-ship (commands only); foreman (command and skill; its workers are native worktree subagents); banthis, skill-curator and system-prompt-curator (skill and command only); mojo and ada-spark (skills only); zig-lsp (LSP config only).
+Plugins with no agents: foreman (command and skill; its workers are native worktree subagents); banthis, skill-curator and system-prompt-curator (skill and command only); mojo and ada-spark (skills only); zig-lsp (LSP config only).
 
 Tool lists are abbreviated: `Bash(git, gh)` means `Bash(git:*), Bash(gh:*)`.
 
@@ -40,12 +38,6 @@ Tool lists are abbreviated: `Bash(git, gh)` means `Bash(git:*), Bash(gh:*)`.
 | prepare-delivery-agent | inherit | Bash(git, npm, node, agnix), Skill, Task, Read, Edit, Write, Glob, Grep, AskUserQuestion | Runs the pre-ship gates (deslop, config lint, review loop, delivery validation, docs sync) and returns a `PREPARE_DELIVERY_RESULT` block. Local only; never pushes. |
 | test-coverage-checker | sonnet | Bash(git, node), Skill, Read, Grep, Glob | Checks that changed code has tests that exercise it, not just a test file with a matching name. Advisory and read-only. |
 | delivery-validator | sonnet | Skill, Bash(git, npm, node, cargo, go, pytest, make), Read, Grep, Glob | Decides whether a reviewed branch is ready to ship: tests, build, requirements and review status. Returns approval or fix instructions. |
-
-## ship Plugin Agents
-
-| Agent | Model | Tools | What it does |
-|-------|-------|-------|--------------|
-| release-agent | sonnet | Read, Glob, Grep, Edit, Write, Bash(git, gh, npm, npx, node, cargo, go, python, pip, twine, mvn, gradle, make, sed, just, goreleaser) | Discovers how the repository releases, then plans or performs the release. |
 
 ## deslop Plugin Agents
 
@@ -73,14 +65,6 @@ All eight load their matching `enhance-*` skill, which holds the analyzer comman
 | Agent | Model | Tools | What it does |
 |-------|-------|-------|--------------|
 | plan-synthesizer | sonnet | Read, Write, Glob, Grep | Compares the data from `scripts/collect.js` (issues, docs, code, analyzer facts) with the code and writes a Reality Check Report of drift, gaps and a prioritized plan. |
-
-## repo-intel Plugin Agents
-
-| Agent | Model | Tools | What it does |
-|-------|-------|-------|--------------|
-| map-validator | haiku | Read | Sanity-checks a repo-intel init or status summary and returns valid, warning or invalid in one line. |
-| repo-intel-summarizer | haiku | Read, Glob, Grep | Writes the three-depth repository summary (sentence, paragraph, page) for `/repo-intel enrich`. |
-| repo-intel-weighter | haiku | Read, Glob, Grep | Writes a one-sentence descriptor per source file so `repo-intel find` can match concept queries, one batch per call. |
 
 ## perf Plugin Agents
 

@@ -48,9 +48,9 @@ describe('generate-plugin-list', () => {
   test('lists every marketplace plugin once, sorted, one per line', () => {
     const { renderPluginList } = require(scriptPath);
     const marketplace = {
-      plugins: [{ name: 'ship' }, { name: 'ada-spark' }, { name: 'deslop' }],
+      plugins: [{ name: 'perf' }, { name: 'ada-spark' }, { name: 'deslop' }],
     };
-    expect(renderPluginList(marketplace)).toBe('ada-spark\ndeslop\nship\n');
+    expect(renderPluginList(marketplace)).toBe('ada-spark\ndeslop\nperf\n');
   });
 
   test('--check passes on a fresh file and changes nothing', () => {
@@ -62,7 +62,7 @@ describe('generate-plugin-list', () => {
   });
 
   test('--check fails on a stale file and leaves it as it was', () => {
-    const stale = checkedIn.replace('ship\n', '');
+    const stale = checkedIn.replace('deslop\n', '');
     const root = scratchRepo(stale);
     scratch.push(root);
     const result = run(root, ['--check']);

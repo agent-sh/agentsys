@@ -71,7 +71,7 @@ Add a row to the plugin's agent table:
 | new-agent | sonnet | Tool1, Tool2 | Brief purpose |
 ```
 
-If the agent runs in the /ship workflow or the pre-ship gates, also add it to `agent-docs/workflow.md`.
+If the agent runs in the pre-ship gates, also add it to `agent-docs/workflow.md`.
 
 ## 4. Update Orchestrator
 

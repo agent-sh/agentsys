@@ -67,7 +67,7 @@ The installer:
 
 ```
 ~/.codex/skills/
-├── ship/SKILL.md               # from commands/ship.md
+├── perf/SKILL.md               # from commands/perf.md
 ├── ...
 ├── drift-analysis/             # a plugin skill directory
 │   ├── SKILL.md
@@ -93,20 +93,13 @@ codex
 # Summary: 5 files changed, 23 lines deleted
 ```
 
-### Ship a feature
+### Check a branch before you push
 ```bash
-# Make your changes
-git add .
-
 codex
-> $ship
+> $prepare-delivery
 
-# [OK] Commits with AI message
-# [OK] Creates PR with context
-# [OK] Waits for CI
-# [OK] Reviews code
-# [OK] Merges to main
-# [OK] Deploys and validates
+# Runs deslop, review, delivery validation and docs sync locally.
+# It never pushes or opens a PR; push and open the PR with your own flow.
 ```
 
 ---

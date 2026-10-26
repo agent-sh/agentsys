@@ -1,6 +1,6 @@
 # AgentSys
 
-Marketplace, installer and shared library for the agent-sh plugins. Works on Claude Code, OpenCode, Codex CLI, Cursor and Kiro. Plugins live in their own repos in the agent-sh GitHub org and are pinned by commit in `.claude-plugin/marketplace.json`; this repo holds the installer (`bin/cli.js`), the dev CLI (`bin/dev-cli.js`), `lib/` (synced from agent-core), adapters, docs, checklists and the site.
+Marketplace, installer and shared library for the agent-sh plugins. Works on Claude Code, OpenCode, Codex CLI, Cursor and Kiro. Plugins live in their own repos in the agent-sh GitHub org and are pinned by commit in `.claude-plugin/marketplace.json`; this repo holds the installer (`bin/cli.js`), the dev CLI (`bin/dev-cli.js`), `lib/` (maintained here; plugin repos vendor their own copies), adapters, docs, checklists and the site.
 
 ## Critical Rules
 
@@ -14,7 +14,7 @@ Marketplace, installer and shared library for the agent-sh plugins. Works on Cla
    - Release: `checklists/release.md`
    - New command, agent, skill or lib module: `checklists/new-command.md`, `checklists/new-agent.md`, `checklists/new-skill.md`, `checklists/new-lib-module.md`
    - OpenCode plugin update: `checklists/update-opencode-plugin.md`
-   - Repo intel changes: `checklists/repo-intel.md`
+   - `lib/repo-intel`, `lib/repo-map` or `lib/collectors` changes: `checklists/repo-intel.md`
 7. Work is done when every item of that checklist is done. That includes running `/enhance` on new or changed commands, agents, skills, hooks or prompts, checking OpenCode and Codex compatibility, and updating the `bin/cli.js` mappings for a new command or agent. The pre-push hook asks for the `/enhance` confirmation (`ENHANCE_CONFIRMED=1` in non-interactive runs).
 8. Status output uses the plain-text markers `[OK]`, `[ERROR]`, `[WARN]`, `[CRITICAL]` and markdown, with no emojis or ASCII-art boxes: they cost tokens and parse worse.
 9. gh and git on Windows: escape `$` as `\$` in GraphQL queries, avoid `!=` in jq (use `== "A" or == "B"`), and prefer double quotes with escaped inner quotes over single quotes. `gh pr checks` reports `state` (`SUCCESS`, `FAILURE`, `PENDING`), not `conclusion`. The Windows shell treats `$` and `!` differently and these fail silently.
@@ -29,7 +29,7 @@ In prose, write ` - ` (a single dash with spaces), not an em dash or a doubled d
 <!-- GEN:START:claude-architecture -->
 ```
 lib/          → Shared library (vendored to plugins)
-plugins/      → 24 plugins, 42 agents (32 file-based + 10 role-based), 44 skills
+plugins/      → 21 plugins, 38 agents (28 file-based + 10 role-based), 42 skills
 adapters/     → Platform adapters (opencode-plugin/, opencode/, codex/)
 checklists/   → Action checklists (9 files)
 bin/cli.js    → npm CLI installer
@@ -38,14 +38,11 @@ bin/cli.js    → npm CLI installer
 | Plugin | Agents | Skills | Purpose |
 |--------|--------|--------|---------|
 | prepare-delivery | 3 | 4 | Pre-ship quality gates |
-| gate-and-ship | 0 | 0 | Quality gates then ship |
-| ship | 1 | 1 | PR creation and deployment |
 | deslop | 1 | 1 | AI slop cleanup |
 | audit-project | 10 | 1 | Multi-agent code review |
 | drift-detect | 1 | 1 | Plan drift detection |
 | enhance | 8 | 9 | Code quality analyzers |
 | sync-docs | 1 | 1 | Documentation sync |
-| repo-intel | 3 | 1 | Unified static analysis |
 | banthis | 0 | 1 | Durable negative behavior memory |
 | perf | 6 | 8 | Performance investigation |
 | learn | 1 | 1 | Topic research and learning guides |

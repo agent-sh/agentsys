@@ -6,7 +6,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 
 // next-task left the marketplace and its repo was deleted (#434). Its policy
-// questions, its task release and its ship hand-off docs go with it.
+// questions, its task release and its state-file hand-off docs go with it.
 const repoRoot = path.join(__dirname, '..');
 
 test('lib has no policy-question library or export', () => {
@@ -41,7 +41,7 @@ test('migrate-opencode does not read a policy-questions file', () => {
 
 test('docs describe no ship state-file hand-off', () => {
   const hits = [];
-  for (const rel of ['docs/workflows/SHIP.md', 'docs/USAGE.md', 'agent-docs/workflow.md', 'checklists/cross-platform-compatibility.md']) {
+  for (const rel of ['docs/USAGE.md', 'agent-docs/workflow.md', 'checklists/cross-platform-compatibility.md']) {
     fs.readFileSync(path.join(repoRoot, rel), 'utf8').split('\n').forEach((line, i) => {
       if (/--state-file|releaseTask|nextPhase|policy-questions/.test(line)) hits.push(`${rel}:${i + 1}`);
     });

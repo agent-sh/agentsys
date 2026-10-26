@@ -19,7 +19,7 @@ Platform details (config formats, frontmatter, env vars, label limits) are in `c
 |---------|----------|
 | Marketplace, one entry per plugin pinned by tag and commit | `.claude-plugin/marketplace.json`; re-pin with `node scripts/pin-marketplace.js [--dry-run]` (needs `gh`) |
 | Installer | `bin/cli.js`: `installForClaude`, `installForOpenCode`, `installForCodex`, `installForCursor`, `installForKiro`. Claude Code installs from the marketplace; the others fetch plugin sources into `~/.agentsys/plugins/<name>` and transform them. |
-| Transforms (frontmatter, tools to permissions, plugin-root paths, namespaces) | `lib/adapter-transforms.js`. `lib/` is synced from agent-sh/agent-core, so make the change there; an edit here is overwritten by the next sync. |
+| Transforms (frontmatter, tools to permissions, plugin-root paths, namespaces) | `lib/adapter-transforms.js`. `lib/` is maintained in this repo, so edit it here. |
 | Platform adapters | `adapters/opencode-plugin/` (native OpenCode plugin), `adapters/opencode/`, `adapters/codex/`; `scripts/gen-adapters.js` keeps generated files fresh |
 | Dev installs | `node bin/dev-cli.js dev-install [tool]` (`scripts/dev-install.js`) |
 | Versions | `package.json` is the source; `npx agentsys-dev bump X.Y.Z` stamps `package-lock.json`, `.claude-plugin/plugin.json`, `marketplace.json` and `site/content.json`. Plugin repos version independently. |

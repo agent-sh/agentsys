@@ -60,9 +60,9 @@ For changes touching multiple files, **read the relevant checklist first**:
 # Edit in lib/
 vim lib/patterns/pipeline.js
 
-# Plugins are now standalone repos under agent-sh org.
-# lib/ syncs to all plugin repos via agent-core CI pipeline.
-# After merging lib/ changes here, agent-core propagates to plugins automatically.
+# Plugins are standalone repos under the agent-sh org.
+# lib/ is maintained here. Nothing syncs it to the plugin repos:
+# each plugin repo keeps its own vendored lib/ copy and updates it itself.
 ```
 
 ### Adapter Generation

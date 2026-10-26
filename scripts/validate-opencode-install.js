@@ -64,11 +64,11 @@ const FORBIDDEN_PATTERNS = {
   commands: [
     { pattern: /require\s*\([^)]+\)/g, message: 'Contains require() - OpenCode commands cannot execute JS' },
     { pattern: /await\s+Task\s*\(/g, message: 'Contains Task tool - use @agent-name syntax' },
-    { pattern: /deslop:|enhance:|ship:/g, message: 'Contains plugin prefix - should be stripped' },
+    { pattern: /deslop:|enhance:/g, message: 'Contains plugin prefix - should be stripped' },
     { pattern: /\$\{CLAUDE_PLUGIN_ROOT\}/g, message: 'Contains CLAUDE_PLUGIN_ROOT - should use PLUGIN_ROOT' },
   ],
   agents: [
-    { pattern: /deslop:|enhance:|ship:|sync-docs:|audit-project:/g, message: 'Contains plugin prefix' },
+    { pattern: /deslop:|enhance:|sync-docs:|audit-project:/g, message: 'Contains plugin prefix' },
     { pattern: /await\s+Task\s*\(/g, message: 'Contains Task tool syntax' },
     { pattern: /\.claude\//g, message: 'Contains .claude/ path - should be .opencode/' },
   ],

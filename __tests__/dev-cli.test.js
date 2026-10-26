@@ -111,7 +111,7 @@ describe('COMMANDS registry', () => {
   test('has expected top-level commands', () => {
     const expected = [
       'validate', 'bump', 'setup-hooks', 'dev-install',
-      'detect', 'verify', 'status', 'test', 'migrate-opencode', 'test-transform',
+      'detect', 'verify', 'status', 'test', 'migrate-opencode',
       'preflight', 'gen-docs', 'expand-templates', 'gen-adapters', 'gen-plugin-list', 'new'
     ];
     for (const name of expected) {

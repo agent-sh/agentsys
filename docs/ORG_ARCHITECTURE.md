@@ -9,17 +9,14 @@
 |------|---------|--------|
 | [agentsys](https://github.com/agent-sh/agentsys) | Marketplace + installer (plugins now in standalone repos) | Active |
 | [agnix](https://github.com/agent-sh/agnix) | Agent config linter (CLI + LSP + IDE extensions) | Active |
-| [agent-core](https://github.com/agent-sh/agent-core) | Shared libs — synced to all repos on merge | Created |
 | [agent-knowledge](https://github.com/agent-sh/agent-knowledge) | Research guides and RAG indexes | Active (10 guides) |
 | [.github](https://github.com/agent-sh/.github) | Org profile, shared templates, reusable workflows | Active |
-| [ship](https://github.com/agent-sh/ship) | PR creation and deployment plugin | Active |
 | [deslop](https://github.com/agent-sh/deslop) | AI slop cleanup plugin | Active |
 | [audit-project](https://github.com/agent-sh/audit-project) | Multi-agent code review plugin | Active |
 | [enhance](https://github.com/agent-sh/enhance) | Code quality analyzers plugin | Active |
 | [perf](https://github.com/agent-sh/perf) | Performance investigation plugin | Active |
 | [drift-detect](https://github.com/agent-sh/drift-detect) | Plan drift detection plugin | Active |
 | [sync-docs](https://github.com/agent-sh/sync-docs) | Documentation sync plugin | Active |
-| [repo-intel](https://github.com/agent-sh/repo-intel) | Unified static analysis plugin | Active |
 | [banthis](https://github.com/agent-sh/banthis) | Durable negative behavior memory plugin | Active |
 | [learn](https://github.com/agent-sh/learn) | Topic research and learning guides plugin | Active |
 | [consult](https://github.com/agent-sh/consult) | Cross-tool AI consultation plugin | Active |
@@ -34,7 +31,6 @@
 | [design-system](https://github.com/agent-sh/design-system) | Shared CSS design tokens and base styles | Active |
 | [glidemq](https://github.com/agent-sh/glidemq) | Glide-MQ message queue skills | Active |
 | [prepare-delivery](https://github.com/agent-sh/prepare-delivery) | Pre-ship quality gates plugin | Active |
-| [gate-and-ship](https://github.com/agent-sh/gate-and-ship) | Quality gates then ship plugin | Active |
 | [foreman](https://github.com/agent-sh/foreman) | GitHub issues as a task queue for native agents | Active |
 | [mojo](https://github.com/agent-sh/mojo) | Mojo language skill plugin | Active |
 | [ada-spark](https://github.com/agent-sh/ada-spark) | Ada and SPARK language skill plugin | Active |
@@ -95,12 +91,11 @@
 - [x] `scripts/graduate-plugin.js` — extraction script for future plugins
 - [x] `bin/cli.js` updated to fetch plugins from GitHub at install time
 - [x] marketplace `requires` field added for peer dependency tracking
-- [x] agent-core sync pipeline extended to all 19 plugin repos
+- [x] agent-core sync pipeline extended to all 19 plugin repos (retired 2026-10-26 with agent-core; see track 7)
 
 **Post-extraction additions:**
 - [x] `zig-lsp` registered as 20th plugin (born standalone, not extracted; LSP plugin distributed via Claude Code marketplace mechanism)
 - [x] `banthis`, `skill-curator`, and `system-prompt-curator` registered as standalone plugins (born standalone; CLI/skill/command plugins distributed through the marketplace)
-- [ ] agent-core sync pipeline extended to `zig-lsp` (config-only plugin; sync surface is smaller — likely just AGENTS.md instruction maintenance)
 
 ---
 
@@ -185,10 +180,10 @@ Org landing page, per-repo docs, plugin catalog.
 
 ### 7. Cross-Repo Sync & Compatibility
 **Issue**: [#256](https://github.com/agent-sh/agentsys/issues/256)
-**Status**: Complete (pipeline working)
+**Status**: Retired (2026-10-26)
 **Depends on**: None
 
-CI-driven vendor sync from agent-core → all consumer repos.
+agent-core was deleted on 2026-10-26. agentsys's `lib/` is now maintained in agentsys, and nothing syncs it to the plugin repos: each plugin repo keeps its own vendored `lib/` copy and updates it itself. The history below is the pipeline as it ran before.
 
 **Implemented:**
 - [x] Decision: vendored lib/ (not npm) — Claude Code needs plain files
@@ -196,7 +191,6 @@ CI-driven vendor sync from agent-core → all consumer repos.
 - [x] Inline sync workflow (agent-core pushes PR to agentsys on lib/ change)
 - [x] Tested end-to-end: push to agent-core → PR opens in agentsys
 - [x] Org secrets: SYNC_TOKEN + PROJECT_TOKEN (ALL visibility)
-- [ ] Add more consumer repos to sync matrix as plugins graduate
 
 ---
 

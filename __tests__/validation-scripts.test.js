@@ -203,9 +203,9 @@ describe('validate-cross-platform-docs', () => {
       const codexReadme = [
         '# Codex',
         '',
-        '├── ship/SKILL.md               # from commands/ship.md',
+        '├── deslop/SKILL.md             # from commands/deslop.md',
         'codex',
-        '> /ship',
+        '> /perf',
         'then',
         '> /deslop apply'
       ].join('\n');
@@ -222,7 +222,7 @@ describe('validate-cross-platform-docs', () => {
           const fresh = require('../scripts/validate-cross-platform-docs');
           const codex = fresh.validateCommandPrefixes().filter(i => i.file === 'adapters/codex/README.md');
           expect(codex).toHaveLength(1);
-          expect(codex[0].occurrences.map(o => [o.line, o.match])).toEqual([[5, '/ship'], [7, '/deslop']]);
+          expect(codex[0].occurrences.map(o => [o.line, o.match])).toEqual([[5, '/perf'], [7, '/deslop']]);
         } finally {
           exists.mockRestore();
           read.mockRestore();
@@ -258,11 +258,11 @@ describe('validate-cross-platform-docs', () => {
     test('canonical instructions are shared rather than platform-specific', () => {
       const reader = jest.spyOn(fs, 'readFileSync').mockImplementation(file =>
         path.basename(file) === 'AGENTS.md'
-          ? 'Use x.claude/state, x.opencode/state and x.codex/state. Run /ship.'
+          ? 'Use x.claude/state, x.opencode/state and x.codex/state. Run /deslop.'
           : '');
       try {
         expect(validateStateDirReferences()).toEqual([]);
-        expect(validateFeatureParity().featuresByPlatform.general.has('/ship')).toBe(true);
+        expect(validateFeatureParity().featuresByPlatform.general.has('/deslop')).toBe(true);
       } finally {
         reader.mockRestore();
       }

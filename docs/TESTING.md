@@ -9,7 +9,7 @@ Use this checklist to validate AgentSys commands in a real repo.
 - Claude Code CLI installed
 - Git installed and configured
 - Node.js 18+
-- GitHub CLI (`gh`) installed and authenticated (required for /ship and GitHub-backed workflows)
+- GitHub CLI (`gh`) installed and authenticated (required for /foreman and GitHub-backed workflows)
 - A test project (or create one)
 
 ---
@@ -146,34 +146,6 @@ git commit -m "Add test file"
 - Runs review agents
 - Reports issues with file:line references and severity
 
-### Test `/ship`
-
-```bash
-git status  # should be clean
-
-git checkout -b feature/test-ship
-echo "console.log('test');" >> app.js
-git add app.js
-```
-
-```text
-/ship --dry-run
-```
-
-**Expected**:
-- Shows phases and detected CI/deployment platforms
-- Does not make changes
-
-```text
-/ship
-```
-
-**Expected**:
-- Commits changes
-- Creates PR
-- Waits for CI and reviews
-- Merges PR and cleans up
-
 ### Test `/sync-docs`
 
 ```text
@@ -203,17 +175,6 @@ git add app.js
 **Expected**:
 - Runs issue/doc/code scans
 - Produces a summary of drift and gaps
-
-### Test `/repo-intel`
-
-```text
-/repo-intel init
-```
-
-**Expected**:
-- Generates repo-intel.json in platform state dir
-- Reports file and symbol counts
-- Validates output with map-validator
 
 ---
 
@@ -250,11 +211,9 @@ npm run detect
 - [ ] Tool verification shows correct tools
 - [ ] `/deslop` finds and fixes slop
 - [ ] `/audit-project` finds real issues
-- [ ] `/ship` creates PR and merges successfully
 - [ ] `/sync-docs` reports documentation issues
 - [ ] `/prepare-delivery` runs validation checks
 - [ ] `/drift-detect` produces a drift report
-- [ ] `/repo-intel` generates a repo map
 
 ---
 
@@ -262,14 +221,12 @@ npm run detect
 
 Command runtime varies based on:
 - Repository size and complexity
-- CI/deployment platform latency
 - Network conditions
 - Number of files to analyze
 
 **Expected behavior:**
 - `/deslop`: Fast codebase scan
 - `/audit-project`: Thorough multi-agent analysis
-- `/ship`: Includes CI wait time and deployment validation
 
 ---
 

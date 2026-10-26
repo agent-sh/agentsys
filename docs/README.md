@@ -12,7 +12,6 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 |-------------|-------|
 | Install and start using | [INSTALLATION.md](./INSTALLATION.md) |
 | See examples and workflows | [USAGE.md](./USAGE.md) |
-| Understand how /ship works | [workflows/SHIP.md](./workflows/SHIP.md) |
 | Work an issue queue with /foreman | [workflows/FOREMAN.md](./workflows/FOREMAN.md) |
 | Run /perf investigations | [perf-requirements.md](./perf-requirements.md) |
 | Use with OpenCode or Codex | [CROSS_PLATFORM.md](./CROSS_PLATFORM.md) |
@@ -35,7 +34,6 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 
 | Document | Description |
 |----------|-------------|
-| [workflows/SHIP.md](./workflows/SHIP.md) | Complete /ship flow: CI monitoring, review handling, merge, deploy. |
 | [workflows/FOREMAN.md](./workflows/FOREMAN.md) | /foreman loop: capacity, pick, claim, worktree worker, Revuto findings, land. |
 | [perf-requirements.md](./perf-requirements.md) | /perf rules and required phases. |
 | [perf-research-methodology.md](./perf-research-methodology.md) | /perf process details, benchmarking method. |
@@ -44,7 +42,7 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 
 | Document | Description |
 |----------|-------------|
-| [reference/AGENTS.md](./reference/AGENTS.md) | All 42 agents: purpose, model, tools, restrictions. <!-- AGENT_COUNT_TOTAL: 42 --> |
+| [reference/AGENTS.md](./reference/AGENTS.md) | All 38 agents: purpose, model, tools, restrictions. <!-- AGENT_COUNT_TOTAL: 38 --> |
 | [reference/SLOP-PATTERNS.md](./reference/SLOP-PATTERNS.md) | All detection patterns by language, severity, auto-fix. |
 
 ### Platform & Architecture
@@ -62,11 +60,9 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 
 | Command | Purpose |
 |---------|---------|
-| `/ship` | Push → PR → CI → reviews → merge → deploy |
 | `/deslop` | 3-phase slop detection and cleanup |
 | `/audit-project` | Multi-agent code review |
 | `/drift-detect` | Compare docs to actual code |
-| `/repo-intel` | Unified static analysis - git history, AST symbols, project metadata |
 | `/perf` | Performance investigation workflow |
 | `/enhance` | Analyze prompts, plugins, agents, docs, hooks, skills |
 | `/sync-docs` | Sync docs with code changes |
@@ -79,10 +75,8 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 | `/system-prompt-curator` | Create and improve autonomous agent system prompts |
 | `/onboard` | Codebase onboarding - project orientation |
 | `/can-i-help` | Contributor guidance - match skills to project needs |
-| `/release` | Versioned release with automatic ecosystem detection |
 | `/agnix` | Linter for AI agent configs |
-| `/prepare-delivery` | Pre-ship validation checks |
-| `/gate-and-ship` | Gated shipping workflow |
+| `/prepare-delivery` | Pre-ship validation checks; never pushes or opens a PR |
 | `/foreman` | GitHub issues as a task queue for native agents |
 
 ### Internal Skills
@@ -94,7 +88,7 @@ AgentSys is a modular runtime and orchestration system for AI agents. These docs
 | File | Location | Purpose |
 |------|----------|---------|
 | `flow.json` | `{state-dir}/` (worktree) | Which phase you're in |
-| `repo-intel.json` | `{state-dir}/` | Cached symbol map |
+| `repo-intel.json` | `{state-dir}/` | Cached agent-analyzer map (git history, AST symbols) read by onboard, can-i-help, drift-detect and sync-docs |
 
 State directories by platform:
 - Claude Code: `.claude/`

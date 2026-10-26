@@ -11,7 +11,7 @@ module.exports = {
     '<rootDir>/.claude/worktrees/',
     '<rootDir>/worktrees/',
     // lib/binary/index.test.js is a node:test suite (co-located with the
-    // module in agent-core convention). Jest's discovery picks it up and
+    // module). Jest's discovery picks it up and
     // fails with "must contain at least one test" because it has no
     // describe/it. Run it separately via `node --test lib/binary/*.test.js`.
     '/lib/binary/.*\\.test\\.js$'

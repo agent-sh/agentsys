@@ -538,7 +538,7 @@ function ensurePluginManifest(pluginDir, name, version, description) {
  * (ensurePluginManifest).
  *
  * @param {string} name - Plugin name
- * @param {string} source - GitHub source URL (e.g. "github:agent-sh/ship")
+ * @param {string} source - GitHub source URL (e.g. "github:agent-sh/deslop")
  * @param {string} version - Expected version string
  * @param {{commit?: string, ref?: string}} [pin] - Marketplace pins from resolvePluginSource
  * @param {{path?: string, description?: string}} [listing] - From the marketplace
@@ -1178,7 +1178,7 @@ function checkCoreCompat(pluginEntry) {
 
 /**
  * Parse "plugin:component" install target format.
- * @param {string} arg - e.g. "prepare-delivery:delivery-validator" or "ship" or "ship@1.3.0"
+ * @param {string} arg - e.g. "prepare-delivery:delivery-validator" or "deslop" or "deslop@1.3.0"
  * @returns {{ plugin: string, component: string|null, version: string|null }}
  */
 function parseInstallTarget(arg) {
@@ -1640,7 +1640,7 @@ function installForClaude() {
     console.log('   Install it first: https://claude.ai/code\n');
     console.log('   Then run in Claude Code:');
     console.log('   /plugin marketplace add agent-sh/agentsys');
-    console.log('   /plugin install ship@agentsys\n');
+    console.log('   /plugin install deslop@agentsys\n');
     return false;
   }
 
@@ -1691,7 +1691,7 @@ function installForClaude() {
   } catch (err) {
     console.log('[ERROR] Auto-install failed. Manual installation:');
     console.log('   /plugin marketplace add agent-sh/agentsys');
-    console.log('   /plugin install ship@agentsys');
+    console.log('   /plugin install deslop@agentsys');
     return false;
   }
 }
@@ -2040,7 +2040,7 @@ function installForCodex(installDir, options = {}) {
   console.log('\n[OK] Codex CLI installation complete!');
   console.log(`   Config: ${configDir}`);
   console.log(`   Skills: ${skillsDir}`);
-  console.log('   Access via: $ship, $deslop, $perf, etc.\n');
+  console.log('   Access via: $deslop, $perf, $prepare-delivery, etc.\n');
   return true;
 }
 
@@ -2559,7 +2559,7 @@ Usage:
   agentsys install <plugin>@<version>    Install a specific version
 
 Examples:
-  agentsys install ship                  Install the ship plugin (all its components)
+  agentsys install deslop                Install the deslop plugin (all its components)
   agentsys install prepare-delivery:delivery-validator  Install just the delivery-validator agent
   agentsys install deslop:deslop         Install just the deslop skill
   agentsys install enhance:enhance-docs  Install just the enhance-docs skill
@@ -2618,8 +2618,8 @@ Examples:
 
 Output:
   NAME          VERSION  DESCRIPTION
-  ship          1.3.0    Complete PR workflow
-  deslop        1.0.0    Clean AI slop from code
+  deslop        1.3.0    Clean AI slop from code
+  perf          1.2.0    Performance investigation
 `,
     remove: `
 agentsys remove — Remove an installed plugin
@@ -2688,8 +2688,8 @@ Non-Interactive Examples:
   agentsys --tool opencode            # Install for OpenCode only
   agentsys --tools "claude,opencode"  # Install for both
   agentsys --tools claude,opencode,codex,cursor,kiro  # Install for all
-  agentsys --only ship                # Install ship + its dependencies
-  agentsys --only "ship,perf"         # Install specific plugins + deps
+  agentsys --only deslop              # Install deslop + its dependencies
+  agentsys --only "deslop,perf"       # Install specific plugins + deps
 
 Development Mode:
   agentsys --development      # Install plugins directly to ~/.claude/plugins
