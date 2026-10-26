@@ -882,6 +882,38 @@ function checkAdapterFreshness() {
   }
 }
 
+/**
+ * k) Check that scripts/plugins.txt matches .claude-plugin/marketplace.json.
+ *    Uses generate-plugin-list.js checkFreshness().
+ */
+function checkPluginListFreshness() {
+  try {
+    const { checkFreshness } = require(path.join(ROOT_DIR, 'scripts', 'generate-plugin-list.js'));
+    const result = checkFreshness();
+
+    if (result.status === 'fresh') {
+      return {
+        name: 'gap:plugin-list-freshness',
+        status: 'pass',
+        message: result.message
+      };
+    }
+
+    return {
+      name: 'gap:plugin-list-freshness',
+      status: 'fail',
+      message: result.message,
+      details: result.staleFiles.map(f => `${f}: plugin list out of date`)
+    };
+  } catch (err) {
+    return {
+      name: 'gap:plugin-list-freshness',
+      status: 'error',
+      message: `Failed to check plugin list freshness: ${err.message}`
+    };
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Gap check orchestrator
 // ---------------------------------------------------------------------------
@@ -962,6 +994,13 @@ function runGapChecks(relevantChecklists, changedFiles, options) {
       relevantChecklists.has('new-skill') || relevantChecklists.has('release') ||
       hasAdapterChanges) {
     results.push(checkAdapterFreshness());
+  }
+
+  // plugin list freshness: relevant to release, or when the marketplace or the list changes
+  const hasPluginListChanges = changedFiles.some(f =>
+    f === '.claude-plugin/marketplace.json' || f === 'scripts/plugins.txt');
+  if (runAll || relevantChecklists.has('release') || hasPluginListChanges) {
+    results.push(checkPluginListFreshness());
   }
 
   return results;
@@ -1228,6 +1267,7 @@ module.exports = {
   checkLibStagedTogether,
   checkDocsFreshness,
   checkAdapterFreshness,
+  checkPluginListFreshness,
   CHECKLIST_PATTERNS,
   VALIDATORS,
   MANUAL_CHECKS

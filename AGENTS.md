@@ -80,7 +80,7 @@ npx agentsys-dev new plugin|agent|skill|command <name> [--plugin=<plugin>]
 npx agentsys-dev --help                 # everything else
 ```
 
-Most have npm aliases (`npm test`, `npm run validate`, `npm run preflight`, `npm run gen-docs:check`, `npm run bump`). CI also runs `scripts/expand-templates.js --check` and `scripts/gen-adapters.js --check`. `agentsys` runs the installer.
+Most have npm aliases (`npm test`, `npm run validate`, `npm run preflight`, `npm run gen-docs:check`, `npm run bump`). CI also runs `scripts/expand-templates.js --check`, `scripts/gen-adapters.js --check` and `scripts/generate-plugin-list.js --check` (plugins.txt from the marketplace). `agentsys` runs the installer.
 
 ## Agents, skills and models
 

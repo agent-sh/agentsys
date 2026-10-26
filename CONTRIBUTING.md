@@ -79,6 +79,17 @@ npm run gen-adapters
 
 CI validates adapter freshness on every push.
 
+### Plugin List
+
+`scripts/plugins.txt` is generated from `.claude-plugin/marketplace.json`. After adding or removing a marketplace plugin, regenerate it:
+
+```bash
+npm run gen-plugin-list
+# Or: npx agentsys-dev gen-plugin-list
+```
+
+CI and preflight check it with `--check`.
+
 ---
 
 ## Pull Request Process

@@ -112,7 +112,7 @@ describe('COMMANDS registry', () => {
     const expected = [
       'validate', 'bump', 'setup-hooks', 'dev-install',
       'detect', 'verify', 'status', 'test', 'migrate-opencode', 'test-transform',
-      'preflight', 'gen-docs', 'expand-templates', 'gen-adapters', 'new'
+      'preflight', 'gen-docs', 'expand-templates', 'gen-adapters', 'gen-plugin-list', 'new'
     ];
     for (const name of expected) {
       expect(COMMANDS).toHaveProperty(name);
