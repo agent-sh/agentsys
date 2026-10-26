@@ -24,7 +24,7 @@ const REMOVED_AGENTS = [
 ];
 const read = rel => fs.readFileSync(path.join(repoRoot, rel), 'utf8');
 const exists = rel => fs.existsSync(path.join(repoRoot, rel));
-const alternation = names => names.map(n => n.replace(/[-]/g, '\\-')).join('|');
+const alternation = names => names.map(n => n.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&')).join('|');
 
 function walk(rel, exts, out = []) {
   const full = path.join(repoRoot, rel);
