@@ -39,7 +39,8 @@ function hits(pattern) {
   const found = [];
   for (const rel of OFFERED) {
     read(rel).split('\n').forEach((line, i) => {
-      if (pattern.test(line)) found.push(`${rel}:${i + 1}: ${line.trim().slice(0, 120)}`);
+      // Posix separators, so the history entries below match on Windows too.
+      if (pattern.test(line)) found.push(`${rel.split(path.sep).join('/')}:${i + 1}: ${line.trim().slice(0, 120)}`);
     });
   }
   return found;
