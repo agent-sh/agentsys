@@ -197,7 +197,7 @@ Complete PR workflow from commit to production.
 /ship                             # Full workflow
 /ship --dry-run                   # Preview without executing
 /ship --strategy rebase           # Use rebase instead of squash
-/ship --state-file PATH           # Use flow state from a calling workflow
+/ship --base develop              # Target a non-default branch
 ```
 
 **Stages:**

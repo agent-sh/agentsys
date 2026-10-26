@@ -55,52 +55,6 @@ describe('OpenCode Compatibility', () => {
     });
   });
 
-  describe('Label length compliance', () => {
-    const OPENCODE_MAX_LABEL_LENGTH = 30;
-
-    it('should have AskUserQuestion labels within 30 char limit', () => {
-      const policyQuestions = require('../lib/sources/policy-questions.js');
-      const { questions } = policyQuestions.getPolicyQuestions();
-
-      for (const question of questions) {
-        for (const option of question.options) {
-          expect(option.label.length).toBeLessThanOrEqual(OPENCODE_MAX_LABEL_LENGTH);
-        }
-      }
-    });
-
-    it('should truncate cached preference labels properly', () => {
-      // Mock a long cached preference
-      const sourceCache = require('../lib/sources/source-cache.js');
-      const originalGet = sourceCache.getPreference;
-
-      // Test with a mock cached preference
-      sourceCache.getPreference = () => ({
-        source: 'custom',
-        type: 'cli',
-        tool: 'very-long-custom-tool-name-that-exceeds-limit'
-      });
-
-      const policyQuestions = require('../lib/sources/policy-questions.js');
-
-      // Clear require cache to reload with mocked preference
-      delete require.cache[require.resolve('../lib/sources/policy-questions.js')];
-      const freshPolicyQuestions = require('../lib/sources/policy-questions.js');
-
-      const { questions } = freshPolicyQuestions.getPolicyQuestions();
-      const sourceQuestion = questions.find(q => q.header === 'Source');
-
-      if (sourceQuestion) {
-        for (const option of sourceQuestion.options) {
-          expect(option.label.length).toBeLessThanOrEqual(OPENCODE_MAX_LABEL_LENGTH);
-        }
-      }
-
-      // Restore
-      sourceCache.getPreference = originalGet;
-    });
-  });
-
   describe('Command files', () => {
     it('should document Task tool usage for commands that use it', () => {
       const commandFiles = findPluginFiles('commands', '.md');

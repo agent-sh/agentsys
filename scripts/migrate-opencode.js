@@ -5,7 +5,6 @@
  * Migrates agentsys commands for OpenCode compatibility:
  * 1. Creates native OpenCode agent definitions in .opencode/agents/
  * 2. Updates command files to use @ mention syntax instead of Task tool
- * 3. Validates label lengths for OpenCode's 30-char limit
  *
  * Usage:
  *   node scripts/migrate-opencode.js [--target <path>] [--dry-run]
@@ -17,9 +16,6 @@
 
 const fs = require('fs');
 const path = require('path');
-
-// OpenCode constraints
-const OPENCODE_MAX_LABEL_LENGTH = 30;
 
 // Agent definitions to create for OpenCode
 const OPENCODE_AGENTS = {
@@ -157,35 +153,6 @@ function migrateCommandFile(filePath, dryRun) {
   return null;
 }
 
-function validateLabels(libDir) {
-  const issues = [];
-
-  try {
-    const policyQuestionsPath = path.join(libDir, 'sources', 'policy-questions.js');
-    if (fs.existsSync(policyQuestionsPath)) {
-      const content = fs.readFileSync(policyQuestionsPath, 'utf-8');
-
-      // Check for label strings
-      const labelMatches = content.matchAll(/label:\s*['"`]([^'"`]+)['"`]/g);
-      for (const match of labelMatches) {
-        const label = match[1];
-        if (label.length > OPENCODE_MAX_LABEL_LENGTH) {
-          issues.push({
-            file: policyQuestionsPath,
-            label,
-            length: label.length,
-            max: OPENCODE_MAX_LABEL_LENGTH
-          });
-        }
-      }
-    }
-  } catch (err) {
-    issues.push({ error: err.message });
-  }
-
-  return issues;
-}
-
 function findCommandFiles(baseDir) {
   const files = [];
   const pluginsDir = path.join(baseDir, 'plugins');
@@ -241,30 +208,11 @@ function main() {
   console.log(`  Total: ${migratedCount} file(s) ${options.dryRun ? 'would be ' : ''}modified`);
   console.log('');
 
-  // Step 3: Validate labels
-  console.log('Step 3: Validating label lengths...');
-  const libDir = path.join(options.target, 'lib');
-  const labelIssues = validateLabels(libDir);
-  if (labelIssues.length === 0) {
-    console.log('  [OK] All labels within 30-char limit');
-  } else {
-    console.log(`  [WARN] ${labelIssues.length} label(s) exceed limit:`);
-    for (const issue of labelIssues) {
-      if (issue.error) {
-        console.log(`    Error: ${issue.error}`);
-      } else {
-        console.log(`    "${issue.label}" (${issue.length} chars)`);
-      }
-    }
-  }
-  console.log('');
-
   // Summary
   console.log('Summary');
   console.log('-------');
   console.log(`Agents created: ${agentResults.length}`);
   console.log(`Commands migrated: ${migratedCount}`);
-  console.log(`Label issues: ${labelIssues.length}`);
 
   if (options.dryRun) {
     console.log('');

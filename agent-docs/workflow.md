@@ -16,12 +16,12 @@ Detailed agent responsibilities and tool requirements for the /ship workflow and
 |-------|----------------|-------|
 | 1-3 | Pre-flight, commit, push and open the PR | Bash(git:*), Bash(gh:*), Bash(node:*) |
 | 4 | CI and review loop (`ship-ci-review-loop.md`) | Bash(gh:*) |
-| 5 | Standalone review, skipped when the `--state-file` flow state shows review approved | Task(general-purpose), up to 3 for large diffs |
+| 5 | Internal review | Task(general-purpose), up to 3 for large diffs |
 | 6 | Merge, with write access only | Bash(gh:*) |
 | 7-10 | Deploy and validate, multi-branch repos only (`ship-deployment.md`) | Platform CLIs (Railway, Vercel, Netlify) |
 | 11-12 | Cleanup after the merge, report | Bash(git:*), Bash(gh:*) |
 
-Phase 4 runs on every run, including runs under `--state-file`: CI and external auto-reviewers only see the code once the PR exists. It stops after 5 rounds without converging.
+Phase 4 runs on every run: CI and external auto-reviewers only see the code once the PR exists. It stops after 5 rounds without converging.
 
 ---
 

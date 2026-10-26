@@ -211,7 +211,6 @@ AskUserQuestion({
 ```
 
 **Files requiring label truncation:**
-- `lib/sources/policy-questions.js` - Cached source labels
 - Any plugin command or agent that builds `AskUserQuestion` options from dynamic titles
 
 ### Question Format Differences

@@ -14,7 +14,6 @@ Complete technical reference for the `/ship` workflow, from the ship plugin pinn
 | [Workflow Phases](#workflow-phases) | All phases from commit to merge |
 | [Review Feedback Handling](#review-feedback-handling) | How every comment gets fixed or answered |
 | [Error Handling](#error-handling) | Exit codes and recovery |
-| [Running with --state-file](#running-with---state-file) | What changes when a calling workflow passes its flow state |
 | [Platform Detection Details](#platform-detection-details) | CI and deploy detection |
 | [Example Flow](#example-flow) | Full walkthrough |
 
@@ -32,9 +31,9 @@ Complete technical reference for the `/ship` workflow, from the ship plugin pinn
 **Constraints the workflow keeps:**
 - It never force-pushes a branch other people build on. Production rollback uses `git revert`, not a reset.
 - It stages files by name and never stages `.env` files, keys or credentials.
-- It cleans up only what this run (or the workflow that called it with `--state-file`) created: its worktree, its local branch, its task entry. Other worktrees and branches may be another agent's live work.
+- It cleans up only the feature branch this run merged. Other worktrees and branches may be another agent's live work.
 - On a repo where you lack write access (a fork PR to an upstream project), it does not merge, does not resolve maintainers' threads, and replies only where a maintainer asked something. It stops at "ready for review".
-- It posts to an issue tracker only when the flow state from `--state-file` names a GitHub task source.
+- It never posts to an issue tracker. `Closes #N` in the PR body closes the linked issue on merge.
 
 Without a `Task` tool it does review and fix work inline, and without `AskUserQuestion` it asks in plain text. No other plugin is required.
 
@@ -47,8 +46,7 @@ Without a `Task` tool it does review and fix work inline, and without `AskUserQu
 | `--strategy squash\|merge\|rebase` | Merge strategy. Default `squash` |
 | `--skip-tests` | Skip the local test run before pushing. CI still has to pass |
 | `--dry-run` | Print the plan and stop. Changes nothing |
-| `--state-file PATH` | A flow state file written by a calling orchestrator. When it shows review already approved, Phase 5 is skipped |
-| `--base BRANCH` | PR target. Default: `git.baseBranch` from the flow state with `--state-file`, else the repo default branch |
+| `--base BRANCH` | PR target. Default: the repo default branch |
 
 ---
 
@@ -65,7 +63,7 @@ TOOLS=$(node "${CLAUDE_PLUGIN_ROOT}/lib/platform/verify-tools.js")         # .gh
 
 - Stops with install and `gh auth login` instructions if `gh` is missing.
 - Stops if the current branch is the target branch: shipping needs a feature branch.
-- Resolves the target: `--base`, then the flow state's `git.baseBranch`, then `mainBranch`. An interactive run confirms a target that differs from the repo default; under `--state-file` the flow state is trusted.
+- Resolves the target: `--base`, then `mainBranch`. A target that differs from the repo default is confirmed with the user.
 - `branchStrategy: multi-branch` (a dev and a production branch, `stable` by default) turns on Phases 7 to 10.
 - Checks write access once with `gh repo view <base-repo> --json viewerPermission`. `ADMIN`, `MAINTAIN` or `WRITE` means it can merge. On a fork, `<base-repo>` is the upstream parent.
 
@@ -100,7 +98,7 @@ The PR uses the repo's PR template if it has one. The body says what changed, wh
 
 ### Phase 4: CI and Review Loop
 
-Runs on every `/ship`, including runs under `--state-file`: CI and external reviewers only see the code once the PR exists. Each round waits for CI, fixes failures, collects feedback, handles it, and pushes.
+Runs on every `/ship`: CI and external reviewers only see the code once the PR exists. Each round waits for CI, fixes failures, collects feedback, handles it, and pushes.
 
 **Waiting for CI** blocks on the checks instead of polling on a timer:
 
@@ -147,11 +145,9 @@ How each item is handled is in [Review Feedback Handling](#review-feedback-handl
 
 ---
 
-### Phase 5: Standalone Review
+### Phase 5: Internal Review
 
-**Skipped under `--state-file`** when the flow state shows the calling workflow's review loop approved.
-
-Otherwise it reviews the diff (`git diff <target>...HEAD`) once for correctness, security, performance and test coverage: a single pass, inline or in one `general-purpose` subagent. For a large diff (roughly 500+ changed lines or 15+ files) it may split the concerns across up to 3 parallel subagents when `Task` is available. Critical and high findings get fixed; medium ones when the fix is small and clearly correct; low ones are optional. It re-reviews only the changed hunks, at most 2 more rounds. Pushed fixes send it back to Phase 4.
+It reviews the diff (`git diff <target>...HEAD`) once for correctness, security, performance and test coverage: a single pass, inline or in one `general-purpose` subagent. For a large diff (roughly 500+ changed lines or 15+ files) it may split the concerns across up to 3 parallel subagents when `Task` is available. Critical and high findings get fixed; medium ones when the fix is small and clearly correct; low ones are optional. It re-reviews only the changed hunks, at most 2 more rounds. Pushed fixes send it back to Phase 4.
 
 ---
 
@@ -210,18 +206,16 @@ git revert -m 1 --no-edit "$PROD_MERGE_SHA"
 git push origin "$PROD_BRANCH"
 ```
 
-A revert is a normal push, so nobody else's commits on the production branch are rewritten. Under `--state-file` the revert SHA is recorded in the flow state, because the next promotion has to revert it first. If the push is rejected because someone else pushed meanwhile, it stops and hands over to the user.
+A revert is a normal push, so nobody else's commits on the production branch are rewritten. The next promotion has to revert it first, and Phase 9 finds it in the production branch history. If the push is rejected because someone else pushed meanwhile, it stops and hands over to the user.
 
 ---
 
 ### Phase 11: Cleanup
 
-Only after a merge (`gh pr view <n> --json state` is `MERGED`). If the PR is still open (no write access, or the run stopped early), the worktree, branch and task entry stay, and the issue stays open.
+Only after a merge (`gh pr view <n> --json state` is `MERGED`). If the PR is still open (no write access, or the run stopped early), the branch stays.
 
-- Under `--state-file`: if the flow state's `git.worktreePath` is the worktree the calling workflow created for this task, it removes it from the main checkout with `git worktree remove` (no `--force`; a worktree with uncommitted changes is left and reported), deletes its local branch, and releases the task entry with `releaseTask()`.
-- Standalone, outside a worktree: switches to the target branch and deletes the merged local branch.
-- Standalone, inside a worktree this run did not create: leaves it.
-- GitHub task source in the flow state: comments on the issue with the PR number and merge commit, then closes it with `gh issue close <id> --reason completed`.
+- Outside a worktree: switches to the target branch and deletes the merged local branch.
+- Inside a worktree: leaves the worktree and its branch. `/ship` did not create them, so whoever did removes them.
 
 Merged branches are deleted with `git branch -D`: after a squash or rebase merge git does not see the branch as merged, and the PR state already confirms the merge. Only branches this run shipped are deleted.
 
@@ -235,12 +229,6 @@ PR: #<n> <url> | Merged to <target> at <sha> (or: ready for maintainer review)
 CI: <passed checks> | Review: <threads fixed>/<threads answered>
 Deploy: <dev url> [OK] | <prod url> [OK]   (or: single-branch, merge is the deploy)
 Cleanup: <what was removed, what was left and why>
-```
-
-Then it prints the completion line a calling workflow reads:
-
-```json
-{"ok": true, "nextPhase": "completed", "status": "shipped"}
 ```
 
 ---
@@ -293,25 +281,8 @@ When a phase fails, `/ship` stops that phase, reports what failed with the evide
 | Review loop did not converge in 5 rounds | Fix, answer, or ask the reviewer to close the open threads |
 | Deploy failed | Fix and re-run. Production was not touched if the failure was in development |
 | Production validation failed | Rollback already ran. Fix forward and ship again: the next promotion reverts the revert commit first |
-| Worktree could not be removed | Left in place on purpose (usually uncommitted changes). Inspect it, then `git worktree remove <path>` |
 
 To abandon a shipped but unmerged PR: `gh pr close <n>`, then `git push origin --delete <branch>`.
-
----
-
-## Running with --state-file
-
-A calling orchestrator passes its flow state as `/ship --state-file <worktree>/<state-dir>/flow.json --base <base>`.
-
-**Skipped:**
-- Phase 5 (standalone review), when the flow state shows review already approved. `/ship` does not run deslop or the docs sync itself
-
-**Still runs:**
-- Phase 4 (CI and review loop): external reviewers comment after the PR exists
-
-**Also changes:**
-- The target defaults to `git.baseBranch` from the flow state
-- After the merge it removes the task's worktree, releases the task entry, and comments on and closes the issue for a GitHub task source
 
 ---
 

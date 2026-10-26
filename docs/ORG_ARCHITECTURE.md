@@ -63,7 +63,7 @@
 - [x] HTTPS enforcement on agentsys Pages (agnix cert provisioning)
 
 ### Feature: GitHub Projects as Task Source (#247)
-- [x] `needsProjectFollowUp()` + `getProjectQuestions()` for project number/owner
+- [x] Project number/owner follow-up questions (removed in 2026-10 with next-task's policy questions, #434)
 - [x] Input validation (integer check, owner regex, scientific notation rejection)
 - [x] Merged via PR [#248](https://github.com/agent-sh/agentsys/pull/248), issue auto-closed
 
