@@ -372,6 +372,14 @@ const COMMANDS = {
       return 0;
     }
   },
+  'gen-plugin-list': {
+    description: 'Generate scripts/plugins.txt from the marketplace',
+    usage: 'gen-plugin-list [--check]',
+    handler: (args) => {
+      const { main } = require(path.join(ROOT_DIR, 'scripts', 'generate-plugin-list.js'));
+      return main(args);
+    }
+  },
   'new': {
     description: 'Scaffold new plugin, agent, skill, or command',
     usage: 'new <type> <name> [options]',
@@ -478,6 +486,8 @@ setup-hooks             Install git hooks
   gen-adapters            Generate platform adapter files from source
     --check               Validate freshness (exit 1 if stale)
     --dry-run             Show changes without writing
+  gen-plugin-list         Generate scripts/plugins.txt from the marketplace
+    --check               Validate freshness (exit 1 if stale)
 
 Scaffolding:
   new plugin <name>       Scaffold a new plugin

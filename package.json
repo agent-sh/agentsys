@@ -30,6 +30,8 @@
     "expand-templates:check": "node bin/dev-cli.js expand-templates --check",
     "gen-adapters": "node bin/dev-cli.js gen-adapters",
     "gen-adapters:check": "node bin/dev-cli.js gen-adapters --check",
+    "gen-plugin-list": "node bin/dev-cli.js gen-plugin-list",
+    "gen-plugin-list:check": "node bin/dev-cli.js gen-plugin-list --check",
     "new:plugin": "node bin/dev-cli.js new plugin",
     "new:agent": "node bin/dev-cli.js new agent",
     "new:skill": "node bin/dev-cli.js new skill",
