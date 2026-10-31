@@ -29,7 +29,7 @@ You shouldn't have to repeat the same requests every session. These commands han
 | `/skillers` | Workflow pattern learning and automation suggestions | Pattern extraction |
 | `/skill-curator` | Create and improve reliable SKILL.md files | Skill authoring and review |
 | `/system-prompt-curator` | Create and improve autonomous agent system prompts | Agent prompt curation |
-| `/agnix` | Linter for AI agent configs | Rule validation (457 rules) |
+| `/agnix` | Linter for AI agent configs | Rule validation (757 rules) |
 | `/foreman` | GitHub issues as a task queue for native agents | Pick, claim, worktree worker, Revuto findings, land |
 
 ---
@@ -65,7 +65,7 @@ Remove debugging code, old TODOs, and AI slop from your codebase with a 3-phase 
 ```bash
 /deslop                    # Report mode (safe, no changes)
 /deslop apply              # Apply fixes automatically
-/deslop apply src/ 10      # Fix 10 issues in src/ only
+/deslop apply src/         # Fix issues in src/ only
 ```
 
 **Architecture:**
@@ -111,7 +111,7 @@ GitHub labels, assignees and comments are the only state, read live on every com
 
 ### `/agnix`
 
-Lint agent configurations against 457 rules.
+Lint agent configurations against 757 rules.
 
 ```bash
 /agnix                       # Validate current project
@@ -225,7 +225,7 @@ Don't start with `/deslop apply` on the whole codebase!
 ### Tip 2: Use Filters
 
 ```bash
-/deslop apply src/ 10        # Limit scope
+/deslop apply src/           # Limit scope
 /agnix --target claude-code  # Only Claude Code rules
 ```
 

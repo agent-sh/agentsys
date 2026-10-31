@@ -583,11 +583,11 @@
         ]
       },
       2: {
-        subtitle: '457 rules. 10+ AI tools. One command.',
+        subtitle: '757 rules. 10+ AI tools. One command.',
         steps: [
           { title: 'Discover configs', desc: 'Finds all agent configuration files: Skills, Hooks, MCP, Memory, and Plugins across your project.' },
-          { title: 'Run 457 rules', desc: 'Validates against 457 rules across 10+ AI tools including Claude Code, Cursor, Copilot, Codex, and more.' },
-          { title: 'Fix and report', desc: '102 rules are auto-fixable with --fix flag. Outputs SARIF for GitHub Code Scanning integration.' }
+          { title: 'Run 757 rules', desc: 'Validates against 757 rules across 10+ AI tools including Claude Code, Cursor, Copilot, Codex, and more.' },
+          { title: 'Fix and report', desc: '125 rules are auto-fixable with --fix flag. Outputs SARIF for GitHub Code Scanning integration.' }
         ]
       },
       3: {

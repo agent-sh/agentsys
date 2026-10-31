@@ -127,13 +127,13 @@ git commit -m "Add test file"
 - Does not modify files in report mode
 
 ```text
-/deslop apply . 3
+/deslop apply .
 ```
 
 **Expected**:
 - Removes console.log statements
 - Removes old TODOs
-- Fixes up to 3 issues
+- Runs the project tests and reverts the edited files if they fail
 
 ### Test `/agnix`
 

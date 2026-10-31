@@ -123,7 +123,7 @@ function generateCommandsTable(commands) {
   // Command descriptions for the table (short, human-written summaries)
   const COMMAND_SUMMARIES = {
     'banthis': 'Durable negative memory: persist banned agent behaviors',
-    'agnix': 'Lint agent configurations (457 rules)',
+    'agnix': 'Lint agent configurations (757 rules)',
     'deslop': 'Clean AI slop patterns',
     'learn': 'Research topics, create learning guides',
     'skillers': 'Workflow pattern learning and automation',

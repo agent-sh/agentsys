@@ -122,7 +122,7 @@ The package provides these capabilities through commands, agents, and skills:
 | Issue queue | `/foreman` | GitHub issues as a task queue: pick, claim, worktree worker, Revuto findings, land |
 | Code quality | `/deslop` | AI slop detection and cleanup |
 | Negative memory | `/banthis` | Persist banned agent behaviors |
-| Config linting | `/agnix` | Lint agent configurations (457 rules) |
+| Config linting | `/agnix` | Lint agent configurations (757 rules) |
 | Research | `/learn` | Research topics, create learning guides |
 | Workflow learning | `/skillers` | Workflow pattern learning and automation |
 | Skill curation | `/skill-curator` | Create and improve SKILL.md files |
