@@ -106,7 +106,7 @@ codex
 
 ## Codex-Specific Notes
 
-### Custom Prompt Integration
+### Skill Integration
 
 The commands install as Codex skills in `~/.codex/skills/`, so `$name` invokes them.
 

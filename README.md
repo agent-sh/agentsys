@@ -148,7 +148,7 @@ Skills are the reusable implementation units. Agents invoke skills; commands orc
 
 ## Skill-Only Plugins
 
-Plugins that provide skills without a `/` command. Installed alongside agentsys; skills become available to all agents.
+Plugins without a `/` command. The marketplace ones install with agentsys; glide-mq installs from its own repo.
 
 | Plugin | What it does |
 |--------|--------------|
