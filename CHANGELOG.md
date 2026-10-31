@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- The add-to-project workflow, which added new issues and PRs to the unused agent-sh project board and failed on every PR with an expired `PROJECT_TOKEN`. `scripts/graduate-plugin.js` no longer copies it into graduated plugin repos.
 - `next-task` and `tower-crane` leave the marketplace and the installer. Their repos, agent-sh/next-task and agent-sh/tower-crane, are being deleted, and an install or update that points at a deleted repo fails. `.claude-plugin/marketplace.json`, `scripts/plugins.txt`, `.codex-plugin/plugin.json`, the `bin/cli.js` help and examples, the OpenCode plugin's thinking tiers, `scripts/generate-docs.js`, `README.md`, `docs/`, `agent-docs/`, `checklists/`, the adapter READMEs and `site/` no longer offer them, and `docs/workflows/NEXT-TASK.md` is gone. ship's marketplace description and `docs/workflows/SHIP.md` no longer name next-task; `--state-file` is described as a flow state from any calling orchestrator. Counts are now 23 plugins, 42 agents (32 file-based + 10 role-based) and 43 skills.
 - If you installed either plugin, uninstall it:
   - Claude Code: `/plugin uninstall next-task@agentsys` and `/plugin uninstall tower-crane@agentsys` (from a shell: `claude plugin uninstall next-task@agentsys`).

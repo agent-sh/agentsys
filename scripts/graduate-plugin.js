@@ -87,13 +87,6 @@ function readMarketplaceEntry(pluginName) {
   return mp.plugins.find(p => p.name === pluginName) || null;
 }
 
-/**
- * Read the add-to-project workflow template.
- */
-function readWorkflowTemplate() {
-  return fs.readFileSync(path.join(PROJECT_ROOT, '.github', 'workflows', 'add-to-project.yml'), 'utf8');
-}
-
 // ---------------------------------------------------------------------------
 // Scaffolding generators for the new standalone repo
 // ---------------------------------------------------------------------------
@@ -269,7 +262,6 @@ function graduatePlugin(pluginName, opts = {}) {
     'package.json': generatePackageJson(pluginName, pluginJson, marketplaceEntry),
     '.claude-plugin/plugin.json': generatePluginJson(pluginName, pluginJson),
     '.claude-plugin/marketplace.json': generateMarketplaceJson(pluginName, marketplaceEntry),
-    '.github/workflows/add-to-project.yml': readWorkflowTemplate(),
     'README.md': generateReadme(pluginName, pluginJson, marketplaceEntry),
     'CHANGELOG.md': generateChangelog(pluginName)
   };

@@ -116,7 +116,7 @@ Org-level project board spanning all repos. Custom fields, views, automations.
 - [x] Board: https://github.com/orgs/agent-sh/projects/1
 - [x] Custom fields: Priority (P0-P3), Effort (S/M/L/XL), Component, Target
 - [x] Org issue types: task, bug, feature, RFC
-- [x] Auto-add workflow in agentsys, agnix (PR #257, agnix #546)
+- Auto-add workflow removed on 2026-10-31: the board is unused and the workflow failed on every PR
 - [ ] Auto-archive (configure via board UI: Settings → Workflows)
 - [ ] Additional views (roadmap, per-repo filtered)
 
