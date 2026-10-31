@@ -25,6 +25,9 @@
 
 > Running open models for your company? [**Tiyuvta**](https://tiyuvta.ai/services/) helps with model choice, deployment and optimization, and fine-tuning on your hardware or cloud account.
 
+> Built and maintained with a lot of agent tokens and hours.
+> If it saves you time, [sponsoring](https://github.com/sponsors/avifenesh) helps keep it going.
+
 <p align="center">
   <a href="#commands">Commands</a> · <a href="#installation">Installation</a> · <a href="https://agent-sh.github.io/agentsys/">Website</a> · <a href="https://github.com/agent-sh/agentsys/discussions">Discussions</a>
 </p>
