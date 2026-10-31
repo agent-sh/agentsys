@@ -26,7 +26,7 @@ Remove debugging code, old TODOs, and other AI slop.
 opencode
 > /deslop
 > /deslop apply
-> /deslop apply src/ 10
+> /deslop apply src/
 ```
 
 **What it does:**
@@ -97,27 +97,27 @@ Researches the topic with your notes and the recent commits in context.
 ## Installation Details
 
 The installer:
-1. Creates `~/.config/opencode/commands/`
-2. Copies command files with path adjustments
-3. Installs shared libraries (platform detection, patterns)
-4. Creates environment setup scripts
+1. Writes each plugin command to `~/.config/opencode/commands/` with path adjustments (model specs stripped unless `--no-strip`)
+2. Writes plugin agents to `~/.config/opencode/agents/` and skills to `~/.config/opencode/skills/`
+3. Copies the shared library to `~/.config/opencode/commands/lib/`
+4. Installs the native plugin `~/.config/opencode/plugins/agentsys.ts` (auto-thinking selection, workflow enforcement, session compaction)
+
+`$XDG_CONFIG_HOME/opencode` replaces `~/.config/opencode` when `XDG_CONFIG_HOME` is set.
 
 ### File Structure
 
 ```
-~/.config/opencode/commands/
-├── deslop.md
-├── foreman.md
-├── lib/
-│   ├── platform/
-│   │   ├── detect-platform.js
-│   │   └── verify-tools.js
-│   ├── patterns/
-│   │   └── slop-patterns.js
-│   └── utils/
-│       └── context-optimizer.js
-├── env.sh
-└── README.md
+~/.config/opencode/
+├── commands/
+│   ├── deslop.md
+│   ├── foreman.md
+│   └── lib/
+│       ├── platform/
+│       ├── patterns/
+│       └── utils/
+├── agents/
+├── skills/
+└── plugins/agentsys.ts
 ```
 
 ---

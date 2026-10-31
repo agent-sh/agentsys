@@ -25,8 +25,10 @@
 
 > Running open models for your company? [**Tiyuvta**](https://tiyuvta.ai/services/) helps with model choice, deployment and optimization, and fine-tuning on your hardware or cloud account.
 
-> Built and maintained with a lot of agent tokens and hours.
-> If it saves you time, [sponsoring](https://github.com/sponsors/avifenesh) helps keep it going.
+<p align="center">
+  <a href="https://github.com/sponsors/avifenesh"><img src="https://img.shields.io/badge/Sponsor-%E2%9D%A4-db61a2?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="Sponsor"></a>
+</p>
+<p align="center"><b>Built and maintained with a lot of agent tokens and hours. If it saves you time, <a href="https://github.com/sponsors/avifenesh">sponsoring</a> helps keep it going.</b></p>
 
 <p align="center">
   <a href="#commands">Commands</a> · <a href="#installation">Installation</a> · <a href="https://agent-sh.github.io/agentsys/">Website</a> · <a href="https://github.com/agent-sh/agentsys/discussions">Discussions</a>
@@ -46,7 +48,7 @@
 AI models can write code. That's not the hard part anymore. The hard part is everything around it - branch management, code review, artifact cleanup, CI, PR comments. **AgentSys is the runtime that orchestrates agents to handle all of it** - structured pipelines, gated phases, specialized agents, and persistent state that survives session boundaries.
 
 ---
-> Building custom skills, agents, hooks, or MCP tools? [agnix](https://github.com/agent-sh/agnix) is the CLI + LSP linter that catches config errors before they fail silently - real-time IDE validation, auto suggestions, auto-fix, and 457 rules for Claude Code, Codex, OpenCode, Cursor, Kiro, Copilot, Gemini CLI, Cline, Windsurf, Roo Code, Amp, and more.
+> Building custom skills, agents, hooks, or MCP tools? [agnix](https://github.com/agent-sh/agnix) is the CLI + LSP linter that catches config errors before they fail silently - real-time IDE validation, auto suggestions, auto-fix, and 757 rules for Claude Code, Codex, OpenCode, Cursor, Kiro, Copilot, Gemini CLI, Cline, Windsurf, Roo Code, Amp, and more.
 
 ## What's New in 6.1.1
 
@@ -91,7 +93,7 @@ This came from testing on 1,000+ repositories.
 |---------|--------------|
 | [`/foreman`](#foreman) | Work the GitHub issue queue with native subagents, from pick to land |
 | [`/banthis`](#banthis) | Durable negative memory: persist banned agent behaviors |
-| [`/agnix`](#agnix) | Lint agent configurations (457 rules) |
+| [`/agnix`](#agnix) | Lint agent configurations (757 rules) |
 | [`/deslop`](#deslop) | Clean AI slop patterns |
 | [`/learn`](#learn) | Research topics, create learning guides |
 | [`/skillers`](#skillers) | Workflow pattern learning and automation |
@@ -122,8 +124,6 @@ Each command works standalone. Together, they compose into end-to-end pipelines.
 | Category | Skills | Plugin |
 |----------|--------|--------|
 | **Message Queues** | `glide-mq`, `glide-mq-migrate-bullmq`, `glide-mq-migrate-bee` | [agent-sh/glidemq](https://github.com/agent-sh/glidemq) |
-| **Languages** | `mojo` | [agent-sh/mojo](https://github.com/agent-sh/mojo) |
-| **Languages** | `ada-spark` | [agent-sh/ada-spark](https://github.com/agent-sh/ada-spark) |
 
 Skills are the reusable implementation units. Agents invoke skills; commands orchestrate agents. When you install a plugin, its skills become available to all agents in that session.
 
@@ -150,9 +150,15 @@ Skills are the reusable implementation units. Agents invoke skills; commands orc
 
 Plugins that provide skills without a `/` command. Installed alongside agentsys; skills become available to all agents.
 
+| Plugin | What it does |
+|--------|--------------|
+| [mojo](https://github.com/agent-sh/mojo) | `mojo` skill: current Mojo syntax, ownership, SIMD and GPU kernels, Python interop |
+| [ada-spark](https://github.com/agent-sh/ada-spark) | `ada-spark` skill: Ada 2022 and SPARK contracts, proof, Alire and GNAT tooling |
+| [zig-lsp](https://github.com/agent-sh/zig-lsp) | Zig language server for Claude Code via ZLS (no skill). Needs `zls` on `PATH` |
+
 ### glide-mq
 
-Build message queues, background jobs, and workflow orchestration with [glide-mq](https://github.com/avifenesh/glide-mq) - high-performance Node.js queue on Valkey/Redis.
+Build message queues, background jobs, and workflow orchestration with [glide-mq](https://github.com/avifenesh/glide-mq) - high-performance Node.js queue on Valkey/Redis. Not in the agentsys marketplace: install its skills from [agent-sh/glidemq](https://github.com/agent-sh/glidemq).
 
 | Skill | What it does |
 |-------|--------------|
@@ -246,7 +252,7 @@ agnix catches these issues before they cause problems.
 | **Best Practices** | Tool restrictions, model selection, trigger phrase quality |
 | **Cross-Platform** | Compatibility across Claude Code, Codex, OpenCode, Cursor, Kiro, Copilot, Gemini CLI, Cline, Windsurf, Roo Code, Amp, and more |
 
-**457 validation rules** derived from:
+**757 validation rules** derived from:
 - Official tool specifications (Claude Code, Codex CLI, OpenCode, Cursor, Kiro, GitHub Copilot, Gemini CLI, Cline, Windsurf, Roo Code, Amp, and more)
 - Research papers on agent reliability and prompt injection
 - Real-world testing across 500+ repositories
@@ -300,7 +306,7 @@ npm install -g agnix         # Install via npm
 # or
 cargo install agnix-cli      # Install via Cargo
 # or
-brew install agnix           # Install via Homebrew (macOS)
+brew tap agent-sh/agnix && brew install agnix  # Install via Homebrew
 ```
 
 **Why use agnix:**
@@ -347,7 +353,7 @@ Three phases run in sequence:
 ```bash
 /deslop              # Report only (safe)
 /deslop apply        # Fix HIGH certainty issues
-/deslop apply src/ 10  # Fix 10 issues in src/
+/deslop apply src/    # Fix issues in src/ only
 ```
 
 **Thoroughness levels:**
@@ -370,7 +376,7 @@ Three phases run in sequence:
 2. **Quality Scoring** - Scores sources by authority, recency, depth, examples, uniqueness
 3. **Just-In-Time Extraction** - Fetches only high-scoring sources to save tokens
 4. **Synthesis** - Creates structured learning guide with examples and best practices
-5. **RAG Index** - Updates CLAUDE.md/AGENTS.md master index for future lookups
+5. **RAG Index** - Updates the `agent-knowledge/AGENTS.md` master index for future lookups
 
 **Depth levels:**
 
@@ -384,8 +390,7 @@ Three phases run in sequence:
 
 ```
 agent-knowledge/
-  CLAUDE.md                    # Master index (updated each run)
-  AGENTS.md                    # Index for OpenCode/Codex
+  AGENTS.md                    # Master index (updated each run)
   recursion.md                 # Topic-specific guide
   resources/
     recursion-sources.json     # Source metadata with quality scores
@@ -398,6 +403,8 @@ agent-knowledge/
 /learn react hooks --depth=deep     # Comprehensive (40 sources)
 /learn kubernetes --depth=brief     # Quick overview (10 sources)
 ```
+
+A `CLAUDE.md` mirror of the index is written only with `--legacy-claude-index`.
 
 **Agent:** learn-agent (sonnet model)
 
@@ -414,9 +421,9 @@ agent-knowledge/
 /skillers recommend         # Get automation suggestions from accumulated knowledge
 ```
 
-Reads your Claude Code conversation transcripts, identifies recurring patterns (pain points, repeated workflows, wishes), clusters them into weighted themes, and suggests skills, hooks, or agents to automate them.
+Reads your Claude Code, Codex and OpenCode transcripts, identifies recurring patterns (pain points, repeated workflows, wishes), clusters them into weighted themes, and suggests skills, hooks, or agents to automate them.
 
-No per-turn overhead - it reads transcripts that Claude Code already saves.
+No per-turn overhead - it reads transcripts your tools already save.
 
 **Agents:** skillers-compactor (sonnet), skillers-recommender (opus)
 
@@ -587,10 +594,11 @@ Interactive installer for Claude Code, OpenCode, Codex CLI, Cursor, and Kiro.
 ```bash
 # Non-interactive install
 agentsys --tool claude              # Single tool
-agentsys --tool cursor              # Cursor (project-scoped skills + commands)
-agentsys --tool kiro                # Kiro (project-scoped steering + skills + agents)
+agentsys --tool cursor              # Cursor (~/.cursor: skills, commands, rules)
+agentsys --tool kiro                # Kiro (~/.kiro: prompts, skills, agents)
 agentsys --tools "claude,opencode"  # Multiple tools
 agentsys --development              # Dev mode (bypasses marketplace)
+agentsys install deslop             # One plugin, or plugin:component for one agent, skill or command
 ```
 
 [Full installation guide →](./docs/INSTALLATION.md)
@@ -616,7 +624,7 @@ agentsys --development              # Dev mode (bypasses marketplace)
 - Node.js 22+, `gh` authenticated, and `waitfor` on `PATH`
 
 **For /agnix:**
-- [agnix CLI](https://github.com/agent-sh/agnix) installed (`npm install -g agnix`, `cargo install agnix-cli`, or `brew install agnix`)
+- [agnix CLI](https://github.com/agent-sh/agnix) installed (`npm install -g agnix`, `cargo install agnix-cli`, or `brew tap agent-sh/agnix && brew install agnix`)
 
 **Local diagnostics (optional):**
 ```bash
@@ -640,7 +648,6 @@ The system is built on research, not guesswork.
 
 **Testing:**
 - Jest suite runs on Linux and Windows in CI
-- E2E workflow testing across all commands
 - Cross-platform validation (Claude Code, OpenCode, Codex CLI, Cursor, Kiro)
 
 **Methodology:**

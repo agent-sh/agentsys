@@ -29,8 +29,8 @@ agentsys --tool codex
 **Usage:**
 ```bash
 codex
-> /deslop
-> /learn
+> $deslop
+> $learn
 ```
 
 **Documentation**: [adapters/codex/README.md](./codex/README.md)
@@ -57,6 +57,15 @@ opencode
 
 ---
 
+### Cursor and Kiro
+
+```bash
+agentsys --tool cursor   # ~/.cursor: skills, commands, rules
+agentsys --tool kiro     # ~/.kiro: prompts, skills, agents
+```
+
+---
+
 ## Architecture
 
 All three tools use **markdown-based slash commands**, making adaptation straightforward:
@@ -80,7 +89,7 @@ node ${CLAUDE_PLUGIN_ROOT}/lib/platform/detect-platform.js
 
 **Codex CLI:**
 ```bash
-node ~/.codex/agentsys/lib/platform/detect-platform.js
+node ~/.agentsys/plugins/<plugin>/lib/platform/detect-platform.js
 ```
 
 **OpenCode:**
