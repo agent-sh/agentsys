@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- npm override pins minimatch to ^11.0.1 everywhere (GHSA-g3hv-75wg-m249, DoS via globparts amplification; Dependabot alert #21). Both lockfile copies (10.2.6 via glob@10, 9.0.9 via the nested glob@9 under test-exclude) were inside the advisory range < 11.0.1, which has no 9.x or 10.x patch, and both are jest-coverage tooling, so the override is dev-scope only. Alert #19 (deepmerge 4.3.1, GHSA-gcqx-w48m-w2h4, prototype poisoning in mergeObject()) has no patched release and stays open.
+
 ### Removed
 
 - The add-to-project workflow, which added new issues and PRs to the unused agent-sh project board and failed on every PR with an expired `PROJECT_TOKEN`. `scripts/graduate-plugin.js` no longer copies it into graduated plugin repos.
