@@ -87,6 +87,9 @@
     "lib"
   ],
   "overrides": {
-    "minimatch": "^11.0.1"
+    "minimatch": "^11.0.1",
+    "jest-config": {
+      "deepmerge": "4.1.2"
+    }
   }
 }
